@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {Typography,Box,Grid,TextField,RadioGroup,FormControlLabel,Radio,Button,Avatar,} from "@mui/material";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
@@ -52,7 +52,14 @@ const Register = () => {
   const loginRedirect = () => {
     navigate("/login");
   };
+  useEffect(() => {
+    const originalMargin = document.body.style.margin;
+    document.body.style.margin = "0";
 
+    return () => {
+      document.body.style.margin = originalMargin; // Restore original margin when unmounting
+    };
+  }, []);
   return (
     <Box
       sx={{

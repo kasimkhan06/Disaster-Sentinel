@@ -75,13 +75,10 @@ const DrawerComp = () => {
 
           {/* Other List Items */}
 
-          <ListItemButton onClick={() => setOpenDrawer(false)}>
+          <ListItemButton onClick={() => {setOpenDrawer(false), navigate("/login")}}>
             <ListItemText primary="Login" />
           </ListItemButton>
 
-          <ListItemButton onClick={() => setOpenDrawer(false)}>
-            <ListItemText primary="Register" />
-          </ListItemButton>
         </List>
       </Drawer>
 
