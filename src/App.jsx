@@ -4,6 +4,9 @@ import Home from './pages/dashboard/user/Home'
 import DisasterInfo from './pages/disasters/user/DisasterInfo'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from './components/Header';
+import Login from './pages/authentication/login';
+import Register from './pages/authentication/register';
+import Verification from './pages/authentication/verification';
 
 const App = () => {
     // let component
@@ -25,6 +28,9 @@ const App = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/verification" element={<Verification />} />
       <Route path="/current-location" element={<CurrentLocation />} />
         <Route path="/disaster-details/:id" element={<DisasterInfo />} />
     </Routes>
