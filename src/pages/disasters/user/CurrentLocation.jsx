@@ -278,12 +278,12 @@ function CurrentLocation() {
               )
             ) : (
               <Typography align="center" sx={{ fontSize: "1.2rem", mt: 4 }}>
-                No disaster information available for this location.
+                No disaster information available for this location
               </Typography>
             )
           ) : (
             <Typography align="center" sx={{ mt: 4 }}>
-              Please enter a location to view disaster information.
+              Please enter a location to view disaster information
             </Typography>
           )}
         </div>
