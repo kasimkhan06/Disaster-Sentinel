@@ -1,0 +1,12 @@
+SERP API : 
+
+1 : ( 2a647f362842e169485ded92539033c0810cf5ab93498c8e8b709927e79c1f3a ) (kasimkkhan06) --> currently using 
+2 : ( fcb8dfe2d1131a75cd5cdd010495f9a5bcd8c2d701362af4170caec0bd8091aa ) (kasimkhan0610)
+3 : ( 48bd75200e370810a7b64ab422234d977999d3835571cfa4c8cff9dadda79bbe ) (stud21.kk1)
+
+
+GEMINI API :
+
+1 : ( AIzaSyDb4VtCENKJz1iDriG-uTyQ2Z6TxUDWqFk ) (kasimkkhan06)
+2 : ( AIzaSyALOxCwp31Fq7vcpImejBd3w0ynZfAMEMs ) (kasimkhan0610)
+3 : ( AIzaSyDhTxISQgZD39bXdFS8OM7kxV7dVbB0WvQ ) (Niyaz) --> Currently Using
