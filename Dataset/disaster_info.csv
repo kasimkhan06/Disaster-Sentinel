@@ -1,0 +1,789 @@
+Latitude,Longitude,Title,Disaster Year,Month,Location,State,Disaster Type,Total Deaths,Total Injured,Total Affected,Economic Loss (INR)
+22.5,88.3,Bengal Drought,1900,7,Bengal,West Bengal,Drought,1250000,500000,10000000,10000000000.0
+32.1,76.27,Kangra Earthquake,1905,4,Kangra,Himachal Pradesh,Earthquake,20000,30000,100000,5000000000.0
+19.0,73.0,Indian Plague,1907,6,Mumbai,Maharashtra,Epidemic,0,300000,2000000,5000000000.0
+11.75,79.75,Cuddalore Storm,1916,11,Cuddalore,Tamil Nadu,Storm,300,300,1000,100000000.0
+20.0,77.0,Spanish Flu Pandemic,1920,1,Bombay,Maharashtra,Epidemic,18000000,500000,20000000,500000000000.0
+20.0,77.0,Spanish Flu Pandemic,1920,10,Bombay,Maharashtra,Epidemic,18000000,5000000,20000000,20000000000.0
+20.0,77.0,1924 Indian Epidemic,1924,5,Lahore,Punjab,Epidemic,54073,100000,500000,2000000000.0
+31.5,75.7,Punjab Storm,1924,9,Punjab,Punjab,Storm,1242,2500,1000000,4400000000.0
+16.515,80.632,Bezwada Storm,1925,5,Bezwada,Andhra Pradesh,Storm,80,200,500,50000000.0
+20.0,77.0,Encephalitis Lethargica,1926,6,Delhi,Delhi,Epidemic,423000,100000,2000000,1000000000.0
+23.0,88.0,Bengal Floods,1926,7,Bengal,West Bengal,Flood,200,500,10000,500000000.0
+22.307,73.181,Gujarat Floods,1927,7,Baroda,Gujarat,Storm,629,180,40010,200000000.0
+14.41,80.0,Nellore Storm,1927,11,Nellore,Andhra Pradesh,Storm,629,1500,10000,20000000.0
+17.7,83.3,Godavari Flood,1928,10,Visakhapatnam,Andhra Pradesh,Flood,36,200,2000,300000000.0
+13.067,80.237,Madras Storm,1935,11,Madras,Tamil Nadu,Storm,100,200,1000,50000000.0
+29.5,66.8,Quetta Earthquake,1935,5,Quetta,Balochistan,Earthquake,60000,30000,71000,150000000.0
+16.29,80.45,Guntur Storm,1936,10,Guntur,Andhra Pradesh,Storm,233,300,1000,100000000.0
+19.5,87.0,1942 Bengal Cyclone,1942,10,Midnapore,West Bengal,Cyclone,61000,120000,500000,2500000000.0
+22.57,88.36,Bengal Famine,1942,1,Kolkata,West Bengal,Drought,1500000,500000,2000000,1000000000.0
+26.0,93.0,Rajputana Storm,1943,7,Ajmer,Rajasthan,Storm,5000,5000,5000,500000000.0
+13.08,80.27,Madras Floods,1943,10,Madras,Tamil Nadu,Storm,1000,2000,30000,1000000000.0
+26.244156,92.537842,Assam Storm,1944,6,Sivasagar,Assam,Storm,304,500,1000,200000000.0
+23.0,72.0,1945 Gujarat Storm,1945,9,Gujarat,Gujarat,Storm,18,200,2000,100000000.0
+26.1,91.7,Guwahati Landslide,1948,9,Guwahati,Assam,Mass movement,500,250,1000,10000000.0
+16.0,81.0,Masulipatnam Cyclone,1949,10,Masulipatnam,Andhra Pradesh,Cyclone,800,2000,100000,2000000000.0
+21.0,71.0,Saurashtra Flood,1950,7,Saurashtra,Gujarat,Flood,100,500,25000,2000000000.0
+28.5,96.5,Assam-Tibet Earthquake,1950,8,Mishmi,Arunachal Pradesh,Earthquake,1526,3000,100000,500000000.0
+28.36,96.45,Assam Earthquake,1950,9,Assam,Assam,Earthquake,4800,1440,825000,1000000000.0
+27.0,92.0,Assam Great Flood,1950,6,Dibrugarh,Assam,Flood,550,2000,100000,5000000000.0
+10.79,79.13,Tanjore Tiruchi Storm,1952,11,Tanjore,Tamil Nadu,Storm,400,1000,1000000,1000000000.0
+11.0,79.8,Nagapattinam Storm,1952,9,Nagapattinam,Tamil Nadu,Storm,350,500,10000,50000000.0
+24.0,78.0,Deadly Heat Wave,1953,6,Nagpur,Maharashtra,Extreme temperature,0,200,1000,10000000.0
+19.0,73.0,Monsoon Floods,1953,6,Assam,Assam,Flood,80,200,100000,1000000000.0
+24.2,95.1,Manipur-Burma Border Landslide,1954,3,Prayagraj,Uttar Pradesh,Mass movement,800,2000,10000,200000000.0
+31.5,75.5,Punjab Floods,1955,9,Amritsar,Punjab,Storm,1500,750,375000,2000000000.0
+10.78,79.13,Tanjore Storm,1955,11,Tanjore,Tamil Nadu,Storm,500,500,2000,100000000.0
+26.0,83.0,1955 India Storm,1955,12,Calcutta,West Bengal,Storm,120,300,1000,100000000.0
+22.5,88.0,Parganas Storm,1956,5,Parganas,West Bengal,Storm,500,1000,1000000,100000000.0
+22.0,70.0,Gujarat Flood,1956,8,Kutch,Gujarat,Flood,100,50,2000,200000000.0
+25.8,85.1,Bihar-Uttar Pradesh Floods,1956,9,Bihar,Bihar,Flood,1500,2500,75000,2500000000.0
+23.3,70.0,Anjar Earthquake,1956,7,Anjar,Gujarat,Earthquake,115,254,254,10000000.0
+28.0,77.0,Delhi Floods,1956,10,Delhi,Delhi,Flood,0,1000,10000,500000000.0
+30.0,78.0,Monsoon Landslide,1956,10,Darjeeling,West Bengal,Mass movement,27,20,100,1000000.0
+26.0,79.0,Monsoon Floods,1957,9,Uttar Pradesh,Uttar Pradesh,Flood,42,200,10000,600000000.0
+22.0,77.0,1957 India Floods,1957,9,Jammu,Jammu and Kashmir,Flood,92,100,5000,10000000.0
+26.0,78.0,1957 India Floods,1957,11,Kanpur,Uttar Pradesh,Flood,53,120,200000,100000000.0
+17.7,83.3,Vishakhapatnam Storm,1958,10,Vishakhapatnam,Andhra Pradesh,Storm,500,1000,20000,200000000.0
+13.0,80.0,Madras City Flood,1958,11,Madras,Tamil Nadu,Flood,50,200,5000,50000000.0
+25.0,78.0,1958 Indian Heatwave,1958,5,Buxar,Bihar,Extreme temperature,651,200,5000,50000000.0
+28.0,77.0,1958 Landslide,1958,6,Mandi,Himachal Pradesh,Mass movement,52,20,100,2000000.0
+23.5,69.7,Kutch Flood,1959,7,Kutch,Gujarat,Flood,17,50,13000,20000000.0
+29.0,77.0,1959 India Floods,1959,7,Srinagar,Jammu and Kashmir,Flood,104,300,10000,5000000000.0
+28.5,77.2,Monsoon Floods,1959,9,Srinagar,Jammu and Kashmir,Flood,500,200,50000,1000000000.0
+13.0,80.2,Madras Flood,1960,11,Chennai,Tamil Nadu,Flood,1600,200,160000,180000000.0
+28.64,77.21,North India Floods,1960,7,Lucknow,Uttar Pradesh,Flood,1500,3000,3000000,7000000000.0
+26.0,78.0,North India Floods,1960,8,Lucknow,Uttar Pradesh,Flood,47,1000,100000,15000000000.0
+26.0,78.0,North India Floods,1960,9,Lucknow,Uttar Pradesh,Flood,0,0,0,1000000000.0
+18.37972,73.61111,Panshet Dam Burst,1961,7,Pune,Maharashtra,Flood,1000,5000,100000,4200000000.0
+18.37972,73.61111,Panshet Dam Burst,1961,7,Pune,Maharashtra,Flood,1000,65000,2000,4200000000.0
+26.0,80.0,Uttar Pradesh Floods,1961,10,Uttar Pradesh,Uttar Pradesh,Flood,334,1500,400000,2500000000.0
+18.37972,73.61111,Panshet Dam Burst,1961,7,Pune,Maharashtra,Flood,1000,65000,65000,200000000.0
+26.0,78.0,Severe Heatwave,1961,12,Uttar Pradesh,Uttar Pradesh,Extreme temperature,400,500,2000,1000000000.0
+28.0,77.0,1962 India Storm,1962,9,Delhi,Delhi,Storm,250,500,40000,1500000000.0
+40.0,80.0,Monsoon Floods,1962,8,Assam,Assam,Flood,150,500,20000,100000000.0
+26.0,78.0,1962 Indian Floods,1962,9,Assam,Assam,Flood,173,500,10000,2000000000.0
+25.0,80.0,North India Storm,1963,9,Orissa,Odisha,Storm,250,1000,5000000,2000000000.0
+21.0,78.0,Severe Cyclone,1963,4,Cooch Behar,West Bengal,Storm,112,250,1000,500000000.0
+19.0,77.0,Monsoon Floods,1963,7,Rohtak,Haryana,Flood,500,1000,10000,100000000.0
+28.6,77.2,1964 India Floods,1964,7,Alipur,Delhi,Flood,145,1500,752210,500000000.0
+15.0,80.0,Andhra Pradesh Floods,1964,10,Vijayawada,Andhra Pradesh,Flood,500,1000,18400,1000000000.0
+10.0,79.0,Rameswaram Cyclone,1964,12,Rameswaram,Tamil Nadu,Cyclone,1800,500,5000,1000000000.0
+26.0,78.0,North India Floods,1964,9,Delhi,Delhi,Flood,65,150,30000,195000000.0
+9.152011,79.445851,1964 India Floods,1964,9,Dhanushkodi,Tamil Nadu,Flood,1800,176,30000000,52500000000.0
+27.39,73.43,Rajasthan Drought,1964,7,Rajasthan,Rajasthan,Drought,2500,10000,500000,5000000000.0
+12.29581,76.639381,Mysore Drought,1964,8,Mysore,Karnataka,Drought,2500,5000,166000000,5000000000.0
+23.0,77.0,1965 Heat Wave,1965,6,Bhubaneswar,Odisha,Extreme temperature,100,200,500,200000000.0
+22.0,79.0,Widespread Indian Drought,1965,6,Nationwide,Rajasthan,Drought,0,0,300000000000,0.0
+24.7,93.9,Manipur Flood,1966,6,Imphal,Manipur,Flood,47,50,900000,1200000000.0
+13.0,80.2,Madras Cyclone,1966,11,Chennai,Tamil Nadu,Cyclone,50,1000,800000,150000000.0
+29.554,80.854,Nepal-India Border Earthquake,1966,6,Moradabad,Uttar Pradesh,Earthquake,80,100,5200,1000000.0
+23.0,72.0,1967 Cholera Outbreak,1967,1,Baroda,Gujarat,Epidemic,3029,3000,13576,25000000.0
+26.0,78.0,North India Floods,1967,9,Etawah,Uttar Pradesh,Flood,500,1000,100000,5000000000.0
+19.0,85.0,Orissa Cyclone,1967,10,Puri,Odisha,Cyclone,1000,1000,5000,200000000.0
+17.4,73.8,Koyna Earthquake,1967,12,Koynanagar,Maharashtra,Earthquake,180,2272,52272,30000000.0
+26.0,92.0,Assam Floods,1968,6,Assam,Assam,Flood,1671,5000,1000000,25000000000.0
+25.0,73.0,Monsoon Floods,1968,7,Surat,Gujarat,Flood,4892,3500,7500000,1200000000.0
+25.78,85.71,Bihar Landslide,1968,10,Bihar,Bihar,Mass movement,1000,500,5000,2000000000.0
+10.8,79.15,Severe Storm,1968,12,Thanjavur,Tamil Nadu,Storm,7,100,15000,5000000.0
+26.0,88.0,North Bengal Floods,1968,8,Jalpaiguri,West Bengal,Flood,1000,500,100000,5000000000.0
+26.0,88.0,Monsoon Floods,1968,10,Jalpaiguri,West Bengal,Flood,1000,500,425000,260000000.0
+16.0,80.0,Andhra Pradesh Cyclone,1969,5,Guntur,Andhra Pradesh,Storm,600,300,260000,1000000000.0
+9.516,76.71,Kannaman Storm,1969,7,Kottayam,Kerala,Storm,15,20,92,500000.0
+13.0,80.2,Madras Storm,1969,10,Madras City,Tamil Nadu,Storm,300,500,20000,1500000000.0
+17.5,80.5,Andhra Pradesh Cyclone,1969,11,Krishna,Andhra Pradesh,Cyclone,900,500,100000,2000000000.0
+28.0,77.0,1970 India Floods,1970,7,Assam,Assam,Flood,700,1000,10351000,5000000000.0
+13.0,80.2,Madras Storm,1970,10,Madras,Tamil Nadu,Storm,15000,10000,2000,2000000000.0
+22.0,71.0,Gujarat Orissa Floods,1970,9,Bharuch,Gujarat,Flood,400,800,10000,1000000000.0
+21.705723,72.998199,Broach Earthquake,1970,3,Bharuch,Gujarat,Earthquake,26,200,200,200000000.0
+26.85,80.95,Lucknow Floods,1971,6,Lucknow,Uttar Pradesh,Flood,268,10000,50000,100000000.0
+27.0,80.0,Lucknow Flood,1971,9,Lucknow,Uttar Pradesh,Flood,0,0,0,10000000000.0
+19.5,86.0,Orissa Coast Cyclone,1971,10,Paradip,Odisha,Cyclone,11000,15000,7000000,1500000000.0
+22.0,88.0,Severe Cyclonic Storm,1971,9,Bihar,Bihar,Storm,60,150,2000,100000000.0
+26.5,94.2,Brahmaputra Flood,1971,6,Dhemaji,Assam,Flood,50,100,130000,500000000.0
+17.5,83.0,Andhra Orissa Cyclone,1972,9,Srikakulam,Andhra Pradesh,Cyclone,100,200,4500000,3000000000.0
+34.08,74.82,Srinagar Storm,1972,10,Srinagar,Jammu and Kashmir,Storm,50,100,75,500000.0
+13.067,80.237,Madras Storm,1972,12,Madras,Tamil Nadu,Storm,80,200,30000,500000000.0
+19.0,78.0,Central India Drought,1972,7,Central,Maharashtra,Drought,100000,50000,200000000,10000000000.0
+25.0,83.0,North India Heatwave,1973,1,Varanasi,Uttar Pradesh,Extreme temperature,117,1170,5000,2500000000.0
+25.0,85.0,1973 Heatwave,1973,12,Aurangabad,Bihar,Extreme temperature,146,200,10000,100000000.0
+20.0,80.0,Monsoon Storm,1974,8,Kolkata,West Bengal,Storm,0,0,0,44000000000.0
+22.42,87.33,Midnapore Storm,1974,5,Midnapore,West Bengal,Storm,100,100,25000,50000000.0
+27.0,94.0,Assam Floods,1974,7,Dhubri,Assam,Flood,260,2600,26000,1500000000.0
+32.45,78.43,Kinnaur Earthquake,1975,1,Kinnaur,Himachal Pradesh,Earthquake,47,141,2500,300000000.0
+25.61,85.15,Bihar Floods,1975,7,Patna,Bihar,Flood,350,500,18000000,15000000000.0
+21.0,85.0,Eastern India Storm,1975,8,Odisha,Odisha,Storm,450,1000,200000,2000000000.0
+28.41,77.85,Bulandshar Storm,1975,9,Bulandshar,Uttar Pradesh,Storm,30,50,1000,1000000.0
+21.5,70.0,Porbandar Cyclone,1975,10,Porbandar,Gujarat,Cyclone,85,200,10000,750000000.0
+13.0,80.0,Madras Storm,1975,11,Madras,Tamil Nadu,Cyclone,250,500,2000,100000000.0
+22.5,87.5,West Bengal Storm,1976,9,Midnapore,West Bengal,Storm,40,100,500,30000000.0
+14.44,79.98,Andhra Pradesh Storm,1976,11,Nellore,Andhra Pradesh,Cyclone,95,100,300000,39000000.0
+22.0,70.0,Gujarat Cyclone,1976,5,Gujarat,Gujarat,Cyclone,87,300,250000,30000000.0
+16.0,81.0,Andhra Cyclone,1976,11,Krishna,Andhra Pradesh,Cyclone,25,1000,100000,500000000.0
+15.0,80.0,Andhra Pradesh Cyclone,1976,11,Nellore,Andhra Pradesh,Cyclone,30,1000,50000,39000000.0
+20.0,77.0,Smallpox Outbreak,1977,1,Bihar,Bihar,Epidemic,20000,50000,9091,1000000000.0
+25.0,83.0,Ganges Flood,1977,8,Patna,Bihar,Flood,11316,20000,2000000,2000000000.0
+10.5,79.5,Tamil Nadu Cyclone,1977,10,Tiruchirappalli,Tamil Nadu,Cyclone,560,2000,1000000,1550000000.0
+20.0,80.0,Andhra Pradesh Cyclone,1977,11,Krishna,Andhra Pradesh,Cyclone,10000,50000,14469800,1720000000.0
+15.5,80.0,Andhra Pradesh Cyclone,1977,11,Prakasam,Andhra Pradesh,Cyclone,10000,20000,50000,1000000000.0
+11.0,78.0,Tamil Nadu Epidemic,1978,1,Tirunelveli,Tamil Nadu,Epidemic,721,2000,5000,1000000000.0
+28.6139,77.209,Delhi Tornado,1978,3,New Delhi,Delhi,Storm,28,700,700,10000000.0
+20.8,85.6,Orissa Tornado,1978,4,Keonjhar,Odisha,Tornado,0,0,0,2000000000.0
+19.0,88.0,West Bengal Floods,1978,9,West Bengal,West Bengal,Flood,0,0,0,150000000000.0
+25.0,77.0,1978 Heat Wave,1978,5,Gwalior,Madhya Pradesh,Extreme temperature,0,0,0,1000000000.0
+27.0,80.0,Uttar Pradesh Epidemic,1978,6,Gorakhpur,Uttar Pradesh,Epidemic,1100,3500,100000000,0.0
+28.61,77.23,Delhi Floods,1978,9,Delhi,Delhi,Flood,20,2500,250000,1761000000.0
+23.0,88.0,West Bengal Floods,1978,9,West Bengal,West Bengal,Flood,810,10000,10000000,150000000000.0
+22.0,88.0,1978 West Bengal Epidemic,1978,10,Asansol,West Bengal,Epidemic,113,1130,5650,10000000.0
+26.0,82.0,Uttar Pradesh Epidemic,1978,10,Gorakhpur,Uttar Pradesh,Epidemic,1100,3000,10000,5000000.0
+28.0,77.0,1978 Landslide,1978,11,Nilgiri,Tamil Nadu,Mass movement,78,200,1000,50000000.0
+16.0,80.0,Tamil Nadu Cyclone,1978,11,Rameswaram,Tamil Nadu,Cyclone,15,200,25000,10000000.0
+11.0,79.0,Tamil Nadu Storm,1978,11,Ramanathapuram,Tamil Nadu,Storm,170,300,1500,2000000000.0
+32.5,76.5,Lahaul-Pangi Avalanche,1979,3,Lahaul,Himachal Pradesh,Mass movement,232,500,450000000,0.0
+0.0,0.0,Bihar Heatwave,1979,5,Bihar,Bihar,Extreme temperature,300,300,1000,1000000.0
+15.6,80.0,Andhra Pradesh Cyclone,1979,5,Ongole,Andhra Pradesh,Cyclone,700,5000,4000000,2420000000.0
+22.5,71.0,Morbi Dam Failure,1979,8,Morbi,Gujarat,Flood,0,0,0,2600000000.0
+26.5,74.5,Rajasthan Heatwave,1979,7,Rajasthan,Rajasthan,Extreme temperature,1500,5000,20000,1000000000.0
+26.0,80.0,Uttar Pradesh Landslide,1979,8,Uttar Pradesh,Uttar Pradesh,Mass movement,42,12,112,20000000.0
+26.0,93.0,Assam Floods,1979,10,Assam,Assam,Flood,42,100,2000000,2000000000.0
+10.5,79.0,Tamil Nadu Floods,1979,11,Tamil Nadu,Tamil Nadu,Flood,140,300,10000,1500000000.0
+21.0,79.0,Monsoon Floods,1979,8,Morbi,Gujarat,Flood,2000,1000,26000000,26000000000.0
+25.8,85.1,Bihar Epidemic,1979,8,Bihar,Bihar,Epidemic,215,300,1000,100000000.0
+28.5,77.2,1979 Indian Drought,1979,7,Delhi,Delhi,Drought,2000,5000,10000000,50000000000.0
+25.0,85.0,Bihar Heatwave,1980,1,Bihar,Bihar,Extreme temperature,79,200,1000,1000000000.0
+26.0,80.0,Uttar Pradesh Storm,1980,5,Agra,Uttar Pradesh,Storm,250,300,10000,1000000000.0
+28.0,81.0,Uttar Pradesh Landslide,1980,6,Uttar Pradesh,Uttar Pradesh,Mass movement,150,75,500,15000000.0
+26.2006,92.9376,Assam Floods,1980,7,Assam,Assam,Flood,67,200,50000,1753000000.0
+21.0,77.0,1980 Madhya Pradesh Epidemic,1980,7,Indore,Madhya Pradesh,Epidemic,390,500,2000,5000000.0
+22.0,72.0,Gujarat Monsoon Floods,1980,7,Gujarat,Gujarat,Flood,0,0,0,150000000.0
+28.0,77.0,1980 India Floods,1980,8,Lucknow,Uttar Pradesh,Flood,1525,25,30000000,2000000000.0
+33.0,75.0,Jammu Earthquake,1980,8,Jammu,Jammu and Kashmir,Earthquake,13,40,40,200000000.0
+21.0,86.0,Orissa Floods,1980,9,Ganjam,Odisha,Flood,200,700,2000000,1500000000.0
+28.207609,79.82666,Northern India Epidemic,1980,9,Uttar Pradesh,Uttar Pradesh,Epidemic,400,800,1500,100000000.0
+18.3,83.9,Andhra Pradesh Cyclone,1980,10,Srikakulam,Andhra Pradesh,Storm,28,150,2500,250000000.0
+28.207609,79.82666,Uttar Pradesh Epidemic,1980,8,Uttar Pradesh,Uttar Pradesh,Epidemic,678,1500,3000,100000000.0
+28.0,77.0,Severe Flooding,1980,7,Uttar Pradesh,Uttar Pradesh,Flood,1525,3000,30000000,2000000000.0
+25.0,83.0,North India Heatwave,1980,4,Kanpur,Uttar Pradesh,Extreme temperature,0,0,0,10000000000.0
+25.0,78.0,Northern India Heatwave,1981,1,Uttar Pradesh,Uttar Pradesh,Extreme temperature,0,0,0,1000000000.0
+20.95,85.09,Orissa Storm,1981,4,Orissa,Odisha,Storm,120,250,10000,150000000.0
+26.91,75.78,Jaipur Deluge,1981,7,Jaipur,Rajasthan,Flood,25,10000,16000000,3200000000.0
+22.0,70.0,Gujarat Cyclone,1981,11,Junagadh,Gujarat,Cyclone,340,500,25000,520000000.0
+21.0,86.0,Orissa West Bengal Storm,1981,12,Puri,Odisha,Cyclone,75,200,100000,200000000.0
+19.817743,85.828629,Orissa Storm,1981,8,Puri,Odisha,Storm,15,200,101700,4400000000.0
+25.0,92.0,Northeast India Floods,1982,8,Orissa,Odisha,Flood,1000,2000,10000000,7719400000.0
+23.0,88.0,West Bengal Epidemic,1982,10,Bandipur,West Bengal,Epidemic,118,250,500,100000000.0
+21.0,71.0,Gujarat Cyclone,1982,11,Junagadh,Gujarat,Cyclone,514,5000,5000000,1270000000.0
+28.0,77.0,Northern India Heatwave,1982,12,Northern,Uttar Pradesh,Extreme temperature,400,800,20000,100000000.0
+20.0,85.0,Orissa Cyclone,1982,6,Sambalpur,Odisha,Tornado,0,0,0,1000000000.0
+27.0,93.0,Northeast India Floods,1982,6,Lakhimpur,Assam,Flood,1200,2000,300000,3000000000.0
+28.5,76.5,1982 Indian Drought,1982,6,Bhiwani,Haryana,Drought,650000,100000,100000000,4500000000.0
+23.0,88.0,Gaighata Tornado,1983,4,Gaighata,West Bengal,Tornado,0,0,0,500000000.0
+18.0,88.0,West Bengal Storm,1983,4,24 Pargana,West Bengal,Tornado,28,500,35300,150000000.0
+31.0,77.0,Severe Himachal Storm,1983,5,Himachal Pradesh,Himachal Pradesh,Storm,31,45,300,10000000.0
+22.3,70.7833,Saurashtra Storm,1983,6,Junagadh,Gujarat,Storm,551,1500,800000,560000000.0
+26.0,91.0,Monsoon Floods,1983,7,Sikkim,Sikkim,Flood,197,300,250000,2000000000.0
+21.5,70.5,Gujarat Monsoon Floods,1983,8,Junagadh,Gujarat,Flood,408,500,1700000,5000000000.0
+27.6,88.5,Sikkim Landslide,1983,9,Sikkim,Sikkim,Mass movement,105,50,200,5000000.0
+17.0,83.0,Andhra Pradesh Storm,1983,10,Vishakhapatnam,Andhra Pradesh,Storm,0,500,0,100000000.0
+30.0,79.0,Tamil Nadu Flood,1983,12,Tamil Nadu,Tamil Nadu,Flood,58,250,10000,15000000000.0
+20.0,73.0,Gujarat Floods,1983,9,Junagadh,Gujarat,Flood,551,1000,800000,560000000.0
+26.0,93.0,North-East India Floods,1984,5,Guwahati,Assam,Flood,245,500,16000000,12000000000.0
+34.6,76.7,Jammu Wildfire,1984,5,Jammu,Jammu and Kashmir,Wildfire,20,40,500,5000000.0
+28.207609,79.82666,Uttar Pradesh Epidemic,1984,6,Gorakhpur,Uttar Pradesh,Epidemic,60,100,200,10000000.0
+13.7,80.0,Sriharikota Cyclone,1984,11,Nellore,Andhra Pradesh,Cyclone,604,10000,1300000,3000000000.0
+24.0,77.0,Bhopal Gas Leak,1984,12,Bhopal,Madhya Pradesh,Chemical Accident,3800,558000,600000,1000000000.0
+24.83,92.78,Cachar Earthquake,1984,12,Cachar,Assam,Earthquake,20,100,10900,100000000.0
+13.5,80.1,South India Cyclone,1984,11,Ravalaseema,Andhra Pradesh,Cyclone,600,1500,35000,250000000.0
+22.5,88.3,West Bengal Dysentery,1984,5,Hooghly,West Bengal,Epidemic,3500,4000,350000,100000000.0
+23.0,72.0,1984 India Epidemic,1984,5,Ahmedabad,Gujarat,Epidemic,1160,2500,10000,500000000.0
+20.0,80.0,Monsoon Floods,1984,6,Assam,Assam,Flood,400,10000,4000000,2000000000.0
+34.15,77.58,Ladakh Floods,1984,8,Leh,Ladakh,Flood,14,50,1000,100000000.0
+22.0,88.0,Monsoon Floods,1984,8,Hooghly,West Bengal,Flood,245,300,1000000,437800000.0
+24.641,92.891,North-East India Floods,1984,9,Cachar,Assam,Flood,20,100,10000,200000000.0
+28.6,77.2,Meningitis Outbreak,1985,1,Delhi,Delhi,Epidemic,393,1500,6133,100000000.0
+28.6,77.2,Meningitis Outbreak,1985,3,Delhi,Delhi,Epidemic,799,1500,6133,10000000.0
+30.9,75.85,Punjab Floods,1985,6,Ludhiana,Punjab,Flood,133,200,25000,500000000.0
+26.0,79.0,North India Floods,1985,6,Kanpur,Uttar Pradesh,Flood,741,1000,10225000,1000000000.0
+25.4,85.1,Bihar Heatwave,1985,6,Bihar,Bihar,Extreme temperature,140,280,17000,1000000000.0
+26.0,83.0,Eastern UP Epidemic,1985,10,Gorakhpur,Uttar Pradesh,Epidemic,1000,2000,10000,10000000.0
+16.0,80.0,Andhra Pradesh Cyclone,1985,10,Andhra Pradesh,Andhra Pradesh,Storm,78,200,5000,1500000000.0
+13.0,80.0,Madras Floods,1985,11,Madras,Tamil Nadu,Flood,130,3000,900000,2600000000.0
+28.5,77.2,1985 Heatwave,1985,5,Agra,Uttar Pradesh,Extreme temperature,142,500,10000,250000000.0
+26.0,81.0,North India Floods,1985,9,Uttar Pradesh,Uttar Pradesh,Flood,557,1600,152000,2300000000.0
+7.0,77.0,Monsoon Floods,1985,6,Idukki,Kerala,Flood,95,75,25000,1000000000.0
+16.0,84.0,Odisha Cyclone,1985,10,Balasore,Odisha,Cyclone,57,200,100000,1000000000.0
+28.6139,77.209,Delhi Epidemic,1986,1,New Delhi,Delhi,Epidemic,62,200,1100,15000000.0
+26.0,74.0,Rajasthan Storm,1986,5,Alwar,Rajasthan,Storm,0,0,0,2000000000.0
+25.0,85.0,Bihar Viral Hepatitis,1986,6,South Bihar,Bihar,Epidemic,210,200,11000,110000000.0
+26.85,80.95,Uttar Pradesh Storm,1986,7,Uttar Pradesh,Uttar Pradesh,Storm,86,100,1000,500000000.0
+16.0,80.0,Andhra Pradesh Floods,1986,8,East Godavari,Andhra Pradesh,Flood,161,400,550000,713600000000.0
+22.57,88.36,Calcutta Monsoon Flooding,1986,9,Calcutta,West Bengal,Storm,13,100,3300000,300000000.0
+33.77,76.57,Kashmir Landslide,1986,11,Ramban,Jammu and Kashmir,Landslide,65,100,200,15000000.0
+17.0,82.0,Monsoon Floods,1986,10,Kolkata,West Bengal,Flood,0,50000,500000,26360000000.0
+34.03,74.66,Kashmir Storm,1986,11,Anantnag,Jammu and Kashmir,Storm,65,150,1000,10000000.0
+31.0,77.0,North India Landslide,1986,7,Mandi,Himachal Pradesh,Mass movement,88,200,2500000,500000000.0
+32.219,76.323,Dharmsala Earthquake,1986,4,Dharmsala,Himachal Pradesh,Earthquake,6,30,30,650000000.0
+22.5,88.3,Monsoon Floods,1986,9,Kolkata,West Bengal,Flood,0,0,0,6540000000.0
+16.0,80.0,Indian Ocean Storm,1986,8,East Godavari,Andhra Pradesh,Storm,230,1000,250000,2500000000.0
+27.39,73.43,Rajasthan Heatwave,1987,6,Rajasthan,Rajasthan,Extreme temperature,160,500,330000000,141000000000.0
+26.0,93.0,1987 Bihar Floods,1987,8,Bihar,Bihar,Flood,1400,10000,29000000,68000000000.0
+13.0,80.0,Andhra-Tamil Nadu Storm,1987,11,Nellore,Andhra Pradesh,Storm,78,200,50000,1260000000.0
+15.8,80.4,Andhra Pradesh Storm,1987,11,Guntur,Andhra Pradesh,Storm,119,1000,300000,1260000000.0
+26.0,83.0,Bihar Storm,1987,5,Gopalganj,Bihar,Storm,63,1200,50000,3000000000.0
+25.5,85.0,Bihar Storm,1987,10,Bihar,Bihar,Storm,40,517,17000,4400000000.0
+34.0,74.0,Kashmir Flood,1987,5,Srinagar,Jammu and Kashmir,Flood,4,200,5000,1000000000.0
+16.29,59.55,Andhra Pradesh Floods,1987,7,Andhra Pradesh,Andhra Pradesh,Flood,0,2500,100000,1264800000.0
+28.2076,79.8267,Uttar Pradesh Floods,1987,9,Varanasi,Uttar Pradesh,Flood,59,12,300000,1500000000.0
+34.0,74.8,Kashmir Epidemic,1987,1,Srinagar,Jammu and Kashmir,Epidemic,90,270,1800,5000000.0
+23.0,72.0,Severe Indian Drought,1987,5,Gujarat,Gujarat,Drought,0,0,0,27500000000.0
+34.0,77.0,Kashmir Landslide,1988,3,Ladakh,Jammu and Kashmir,Landslide,250,75,500,150000000.0
+26.0,77.0,1988 Heatwave,1988,5,Rajasthan,Rajasthan,Extreme temperature,500,200,200,3000000000.0
+26.6,73.8,Rajasthan Heatwave,1988,5,Rajasthan,Rajasthan,Extreme temperature,500,1000,100000,1000000000.0
+28.6139,77.209,Delhi Epidemic,1988,6,Delhi,Delhi,Epidemic,466,1398,13980,18000000.0
+25.7,85.1,Monsoon Floods,1988,6,Munger,Bihar,Flood,850,5000,16500000,30000000000.0
+31.0,77.0,Northwest India Landslide,1988,7,Amritsar,Punjab,Landslide,255,500,100000,1000000000.0
+22.0,73.0,Gujarat Epidemic,1988,7,Surat,Gujarat,Epidemic,445,1335,4450,20000000.0
+26.15,85.9,Bihar Earthquake,1988,8,Darbhanga,Bihar,Earthquake,382,3766,20003766,10000000000.0
+31.0,76.0,Northwest India Floods,1988,9,Punjab,Punjab,Flood,1400,5000,221000,2000000000.0
+28.0,81.0,Uttar Pradesh Epidemic,1988,11,Gorakhpur,Uttar Pradesh,Epidemic,1100,3500,10000,100000000.0
+21.9,88.0,West Bengal Cyclone,1988,11,24 Parganas,West Bengal,Cyclone,538,2000,1900000,300000000.0
+19.0,78.0,1988 North India Floods,1988,8,Gorakhpur,Uttar Pradesh,Flood,1400,2000,5600000,1000000000.0
+19.0,73.0,Monsoon Floods,1989,7,Raigad,Maharashtra,Flood,1591,1500,700000,2500000000.0
+21.0,87.0,1989 Orissa Cyclone,1989,5,Balasore,Odisha,Cyclone,61,500,500000,1500000000.0
+13.0,79.0,Southern Storm,1989,11,Chennai,Tamil Nadu,Storm,50,150,5000,15000000.0
+25.61,85.15,Bihar Cold Wave,1989,12,Bihar,Bihar,Extreme temperature,109,218,545,350000000.0
+26.244156,92.537842,Assam Floods,1989,8,Guwahati,Assam,Flood,0,100,0,1500000000.0
+15.0,75.0,Monsoon Landslide,1989,6,Pithoragarh,Uttarakhand,Mass movement,41,100,200,20000000.0
+31.0,77.0,North India Landslide,1989,8,Kinnaur,Himachal Pradesh,Mass movement,45,100,300,150000000.0
+20.0,78.0,1989 Heat Wave,1989,5,Vidarbha,Maharashtra,Extreme temperature,43,100,500,1000000000.0
+25.0,77.0,1989 Epidemic,1989,7,Tehri Garhwal,Uttarakhand,Epidemic,0,0,0,100000000.0
+16.0,80.0,Andhra Pradesh Cyclone,1990,5,Guntur,Andhra Pradesh,Cyclone,957,1500,2600000,21372700000.0
+34.0,74.0,Kashmir Flood,1990,3,Kargil,Jammu and Kashmir,Flood,69,200,1000,50000000.0
+15.0,85.0,Bay of Bengal Storm,1990,8,Machilipatnam,Andhra Pradesh,Cyclone,957,2000,6500000,4350000000.0
+22.309425,72.13623,Gujarat Storm,1990,8,Gujarat,Gujarat,Storm,120,200,10000,44700000000.0
+27.6,88.5,Sikkim Landslide,1990,9,Sikkim,Sikkim,Landslide,30,19,150,15000000.0
+11.0,79.0,Tamil Nadu Flood,1990,10,Chennai,Tamil Nadu,Flood,60,200,10000,2000000000.0
+27.0,78.0,1990 Cold Wave,1990,12,North,Uttar Pradesh,Extreme temperature,86,100,250,2000000000.0
+19.387388,85.051544,Ganjam Storm,1990,11,Ganjam,Odisha,Storm,250,500,1500000,600000000.0
+17.0,78.0,Monsoon Floods,1990,8,Lucknow,Uttar Pradesh,Flood,1400,2000,30000000000,0.0
+25.61,85.15,Bihar Epidemic,1990,8,Patna,Bihar,Epidemic,90,180,150000000,0.0
+22.0,73.0,Gujarat Epidemic,1990,9,Surat,Gujarat,Epidemic,58,250,2000,100000000.0
+25.5,91.8,1990 Northeast Storm,1990,4,Tinsukia,Assam,Storm,16,40,200,1000000.0
+29.0,76.0,North India Heatwave,1990,4,Ambala,Haryana,Extreme temperature,178,500,1000,1500000000.0
+19.07,72.87,Bombay Flood,1990,6,Mumbai,Maharashtra,Flood,21,40,300,200000000.0
+26.0,92.0,Assam-Meghalaya Floods,1991,7,Guwahati,Assam,Flood,59,100,2300000,4500000000.0
+19.0,73.0,Monsoon Floods,1991,6,Bombay,Maharashtra,Flood,500,1000,300000,1000000000.0
+26.0,92.0,Northeast India Floods,1991,5,Karimganj,Assam,Flood,891,3000,2000000,3000000000.0
+30.75,78.82,Uttarkashi Earthquake,1991,10,Uttarkashi,Uttarakhand,Earthquake,1500,1383,54383,2000000000.0
+14.0,80.0,1991 Tamil Nadu Cyclone,1991,11,Karaikal,Tamil Nadu,Cyclone,418,5000,250000,5000000000.0
+13.5,77.41,Thondebhavi Flood,1991,10,Chikkaballapur,Karnataka,Flood,60,150,5000,200000000.0
+10.0,76.0,Kerala Floods,1991,6,Alappuzha,Kerala,Flood,99,100,10000,1000000000.0
+17.0,78.0,Severe Flooding,1991,7,Hyderabad,Andhra Pradesh,Flood,524,5000,100000,2500000000.0
+27.0,79.0,1991 North India Floods,1991,8,Uttar Pradesh,Uttar Pradesh,Flood,891,1700,17300000,60000000000.0
+26.3503828,92.6795912,Assam Cholera Outbreak,1991,10,Nagaon,Assam,Epidemic,185,200,1000,10000000.0
+23.0,88.0,West Bengal Floods,1991,9,Murshidabad,West Bengal,Flood,891,300,4000000,25000000000.0
+32.0,76.0,North India Floods,1992,9,Jammu,Jammu and Kashmir,Flood,500,2000,70000,3000000000.0
+26.0,90.0,Assam Storm,1992,4,Naogoan,Assam,Storm,0,0,0,1000000.0
+8.5,77.0,Kerala Flood,1992,10,Thiruvananthapuram,Kerala,Flood,51,102,500,1000000000.0
+11.0,76.0,Southern India Storm,1992,6,Trivandrum,Kerala,Storm,60,150,5000,3000000000.0
+23.72,92.72,Aizawl Landslide,1992,8,Aizawl,Mizoram,Landslide,60,10,200,20000000.0
+20.5,84.0,Orissa Floods,1992,7,Cuttack,Odisha,Flood,43,1397,4170000,1844800000.0
+9.0,79.0,South India Floods,1992,11,Madurai,Tamil Nadu,Flood,263,250,3000,37500000000.0
+25.556,84.66,Bihar Cold Wave,1992,1,Arrah,Bihar,Extreme temperature,250,500,2000,10000000.0
+31.0,76.0,North India Floods,1993,7,Patiala,Punjab,Flood,827,8270,128000000,7000000000.0
+18.07,76.62,Latur Earthquake,1993,9,Latur,Maharashtra,Earthquake,9748,30000,1000000,10000000000.0
+10.92544,79.838005,Severe Cyclone,1993,12,Karaikal,Tamil Nadu,Cyclone,61,150,72000,2000000000.0
+24.0,88.0,Kandi Tornado,1993,4,Murshidabad,West Bengal,Tornado,50,400,500,4400000000.0
+19.076,72.8777,Bombay Mass Movement,1993,9,Bombay,Maharashtra,Mass movement,20,25,25,10000000.0
+13.0,76.0,Karnataka Floods,1993,10,Madikeri,Karnataka,Flood,35,50,10000,150000000.0
+26.0,80.0,Uttar Pradesh Floods,1993,9,Uttar Pradesh,Uttar Pradesh,Flood,925,2000,70000,12000000000.0
+26.0,92.3,Monsoon Floods,1993,7,Karimganj,Assam,Flood,600,1200,50000,2000000000.0
+24.0,72.0,Locust Swarm,1993,9,Banaskantha,Gujarat,Infestation,50,200,50000,718000.0
+32.0,77.0,Himachal Pradesh Floods,1993,7,Himachal Pradesh,Himachal Pradesh,Flood,47,100,100000,35000000000.0
+18.07,76.62,Latur Earthquake,1993,9,Latur,Maharashtra,Earthquake,9782,16000,175000,10000000000.0
+20.0,77.0,Indian Drought,1993,3,Maharashtra,Maharashtra,Drought,500,1000,1175000,25000000000.0
+26.0,78.0,Monsoon Floods,1994,5,Guwahati,Assam,Flood,2001,50,12060050,1550000000.0
+20.0,73.0,Indian Plague Outbreak,1994,9,Surat,Gujarat,Epidemic,56,2000,5150,1000000000.0
+7.0,79.0,South India Cyclone,1994,10,Chennai,Tamil Nadu,Cyclone,304,5000,428500,3100000000.0
+26.0,78.0,Severe Heatwave,1994,5,Rajasthan,Rajasthan,Extreme temperature,773,1000,10000,2000000000.0
+15.39,73.81,Goa Storm,1994,6,Mormugao,Goa,Storm,11,100,100,1000000.0
+28.6,77.2,New Delhi Flood,1994,8,New Delhi,Delhi,Flood,0,0,0,1000000000.0
+34.0,74.0,Kashmir Landslide,1995,1,Srinagar,Jammu and Kashmir,Landslide,0,0,0,20000000.0
+23.0,77.0,Extreme Heatwave,1995,5,New Delhi,Delhi,Extreme temperature,1677,1500,10000,1000000000.0
+23.0,92.8,Mizoram Landslide,1995,6,Saiha,Mizoram,Landslide,40,25,14285,4500000.0
+32.0,77.0,Kulla Landslide,1995,9,Kulla,Himachal Pradesh,Landslide,80,200,1100000,200000000.0
+28.6,77.2,North India Floods,1995,9,Delhi,Delhi,Flood,1360,20000,32704000,17670000000.0
+17.78,84.8,Southeastern India Cyclone,1995,11,Orissa,Odisha,Storm,173,46300,100000,11000000000.0
+16.0,80.0,Andhra Pradesh Cyclone,1995,11,Ichchapuram,Andhra Pradesh,Cyclone,128,500,12000,900000000.0
+27.5,88.5,Sikkim Monsoon Flood,1995,9,Sikkim,Sikkim,Flood,35,150,10000,3000000000.0
+16.0,80.0,Andhra Pradesh Floods,1995,10,Andhra Pradesh,Andhra Pradesh,Flood,50,100,3000,1000000000.0
+15.9,82.0,Andhra Pradesh Cyclone,1996,10,Kakinada,Andhra Pradesh,Cyclone,1077,3000,1842100,12000000000.0
+16.0,66.0,Oman Cyclone,1996,6,Prakasam,Andhra Pradesh,Storm,0,0,0,1285000000.0
+33.45,76.24,Amarnath Yatra Tragedy,1996,8,Jammu,Jammu & Kashmir,Flood,263,500,70000,2500000000.0
+26.0,82.0,Uttar Pradesh Floods,1996,7,Uttar Pradesh,Uttar Pradesh,Flood,70818,1232,313,748000000.0
+77.0,15.0,Karnataka Landslide,1996,9,Bijapur,Karnataka,Landslide,48,100,1000,100000000.0
+28.64,77.21,Delhi Dengue Outbreak,1996,10,New Delhi,Delhi,Epidemic,354,1000,8423,120000000.0
+16.0,80.0,Southern India Floods,1996,10,Chennai,Tamil Nadu,Flood,388,1000,12850000000,0.0
+15.9,82.3,Andhra Pradesh Cyclone,1996,11,Kakinada,Andhra Pradesh,Cyclone,1077,20000,7000000,61292500000.0
+16.5,80.6,Andhra Pradesh Cyclone,1996,11,East Godavari,Andhra Pradesh,Cyclone,1077,5000,7000000,21500000000.0
+26.0,92.0,Monsoon Floods,1996,7,Assam,Assam,Flood,82,226,70000,3000000000.0
+-15.0,75.0,Monsoon Floods,1996,8,Andhra Pradesh,Andhra Pradesh,Flood,1700,2000,7500000,47450000000.0
+26.73,86.3,Bihar Floods,1996,7,Sitamarhi,Bihar,Flood,207,300,4000000,3200000000.0
+26.0,74.0,Rajasthan Drought,1996,3,Rajasthan,Rajasthan,Drought,2000,1500,14000000,5000000000.0
+23.08,80.06,Jabalpur Earthquake,1997,5,Jabalpur,Madhya Pradesh,Earthquake,56,1000,156500,2000000000.0
+27.338936,88.606506,Gangtok Landslide,1997,6,Gangtok,Sikkim,Landslide,28,30,30,20000000.0
+27.036,88.263,Darjeeling Landslide,1997,8,Darjeeling,West Bengal,Mass movement,23,50,2000,150000000.0
+31.2373,77.8739,Himachal Pradesh Floods,1997,8,Chirgaon,Himachal Pradesh,Flood,135,20,20,672900000.0
+22.5,88.0,West Bengal Floods,1997,8,Midnapore,West Bengal,Flood,400,1000,100000,5000000000.0
+16.5,80.6,Andhra Pradesh Storm,1997,8,Vijayawada,Andhra Pradesh,Storm,25,50,20000,500000000.0
+4.5,78.5,Severe Floods,1997,9,Prakasam,Andhra Pradesh,Flood,1442,1500,29259000,2000000000.0
+23.0,72.6,Gujarat Floods,1997,6,Mehsana,Gujarat,Flood,273,20000,1000000,5000000000.0
+22.0,78.0,Monsoon Floods,1997,8,Midnapore,West Bengal,Flood,1300,30000,100000,2950000000.0
+16.0,80.0,Andhra Pradesh Floods,1997,9,Guntur,Andhra Pradesh,Flood,25,150,200000,18050000000.0
+20.0,73.0,Leptospirosis Outbreak,1997,7,Valsad,Gujarat,Epidemic,48,200,413,5000000.0
+26.85,80.95,Lucknow Epidemic,1997,12,Lucknow,Uttar Pradesh,Epidemic,100,500,210,500000.0
+15.3,78.7,Kahool Epidemic,1997,9,Kahool,Andhra Pradesh,Epidemic,32,150,267,1500000.0
+32.0,77.0,Himachal Pradesh Landslide,1998,3,Kullu,Himachal Pradesh,Mass movement,26,50,200,100000000.0
+21.5,87.0,Eastern India Tornado,1998,3,Balasore,Odisha,Storm,250,3000,40500,200000000.0
+26.5,92.5,Assam Landslide,1998,6,Assam,Assam,Mass movement,146,150,4485000,5000000000.0
+22.0,69.0,Gujarat Cyclone,1998,6,Porbandar,Gujarat,Cyclone,3000,893,4600893,25000000000.0
+20.0,80.0,Deadly Heatwave,1998,5,Orissa,Odisha,Extreme temperature,2541,1000,20000,3000000000.0
+26.0,80.0,1998 Epidemic,1998,7,Karimnagar,Telangana,Epidemic,679,1300,14632,150000000.0
+29.85,80.55,Malpa Landslide,1998,8,Pithoragarh,Uttarakhand,Mass movement,239,100,200000,300000000.0
+29.5,80.8,Mansuna Landslide,1998,8,Mansuna,Uttar Pradesh,Landslide,37,100,200,5000000.0
+19.076,72.877,Bombay Storm,1998,10,Mumbai,Maharashtra,Storm,250,400,10000,500000000.0
+28.207609,79.82666,Uttar Pradesh Epidemic,1998,8,Uttar Pradesh,Uttar Pradesh,Epidemic,128,500,606,200000000.0
+22.0,87.5,Midnapur Storm,1998,11,Midnapur,West Bengal,Storm,125,400,50000,1000000000.0
+27.0,87.0,India Floods,1998,8,Assam,Assam,Flood,1811,100000,29227200,20000000000.0
+27.5,88.5,Sikkim Landslide,1998,3,Sikkim,Sikkim,Landslide,24,6,6,3000000.0
+21.19,72.83,Gujarat Floods,1998,9,Surat,Gujarat,Flood,3000,10000,500000,700000000.0
+17.0,78.0,Andhra Pradesh Floods,1998,9,Hyderabad,Andhra Pradesh,Flood,230,500,375000,2700000000.0
+26.0,80.0,Deadly Heat Wave,1998,5,Kanpur,Uttar Pradesh,Extreme temperature,2500,500,5000,1000000000.0
+30.512,79.403,Chamoli Earthquake,1999,3,Chamoli,Uttarakhand,Earthquake,103,453,50000,1000000000.0
+29.4,79.7,Garhwal Kumaon Wildfire,1999,4,Nainital,Uttarakhand,Wildfire,6,10,100,5000000.0
+20.0,79.0,Severe Heatwave,1999,4,Orissa,Odisha,Extreme temperature,140,1000,20000,100000000.0
+21.0,69.8,Gujarat Coast Cyclone,1999,5,Porbandar,Gujarat,Cyclone,4000,1774,40696,120000000000.0
+20.0,77.0,Monsoon Floods,1999,7,Bihar,Bihar,Flood,700,2500,5500000,25000000000.0
+26.0,83.0,1999 Indian Floods,1999,9,Uttar Pradesh,Uttar Pradesh,Flood,325,3000,22120000,2500000000.0
+19.7,85.8,Orissa Super Cyclone,1999,10,Jagatsinghpur,Odisha,Cyclone,10000,100000,15000000,62439600000.0
+18.8,87.9,Odisha Super Cyclone,1999,10,Jagatsinghpur,Odisha,Cyclone,10000,3312,15000000,250000000000.0
+25.0,76.0,Hepatitis Outbreak,1999,3,Jhalawar,Rajasthan,Epidemic,100,50,285,1000000.0
+16.3694056,77.0171639,Masarkal Epidemic,1999,10,Masarkal,Karnataka,Epidemic,1,50,499,1000000.0
+30.3,78.5,Tehri Garhwal Epidemic,1999,9,Tehri Garhwal,Uttarakhand,Epidemic,69,200,77880,77880000.0
+20.94092,84.803467,Orissa Epidemic,1999,11,Orissa,Odisha,Epidemic,69,2500,80000,1000000000.0
+16.0,80.0,Andhra Pradesh Epidemic,1999,9,Anantapur,Andhra Pradesh,Epidemic,0,0,0,0.0
+25.0,83.5,Deadly Heat Wave,2000,1,Patna,Bihar,Extreme temperature,300,2000,10000,1000000000.0
+26.0,80.0,Uttar Pradesh Epidemic,2000,5,Gonda,Uttar Pradesh,Epidemic,84,100,1055,20000000.0
+28.6448,77.2167,Delhi Epidemic,2000,5,Delhi,Delhi,Epidemic,500,2000,192,20000000.0
+16.0,80.0,Andhra Pradesh Storm,2000,10,Visakhapatnam,Andhra Pradesh,Storm,150,400,200000,7760000000.0
+27.0,94.0,Northeast India Floods,2000,6,Golaghat,Assam,Flood,20,50,3000000,4000000000.0
+29.0,78.5,Himalayan Landslide,2000,6,Moradabad,Uttar Pradesh,Landslide,43,100,500,200000000.0
+19.09083,72.89611,Ghatkopar Landslide,2000,7,Mumbai,Maharashtra,Landslide,78,7,7038,4500000.0
+27.0,94.0,Arunachal Pradesh Floods,2000,7,East Siang,Arunachal Pradesh,Flood,130,200,50000,1500000000.0
+25.5,78.0,2000 Indian Floods,2000,8,Katihar,Bihar,Flood,867,2500,22000000,15000000000.0
+19.076,72.8777,Mumbai Epidemic,2000,7,Mumbai,Maharashtra,Epidemic,150,300,500,200000000.0
+30.0,80.0,Uttarakhand Landslide,2000,8,Pithoragarh,Uttarakhand,Landslide,86,260,2500,300000000.0
+17.0,78.0,Andhra Pradesh Floods,2000,8,Hyderabad,Andhra Pradesh,Flood,179,16,252016,12000000000.0
+26.0,80.0,Polio Outbreak,2000,8,Uttar Pradesh,Uttar Pradesh,Epidemic,347,1000,100000,100000000.0
+24.44,87.53,Monsoon Floods,2000,9,Birbhum,West Bengal,Flood,884,1000,24600000,3000000000.0
+22.5,88.3,Kolkata Cholera Outbreak,2000,10,Kolkata,West Bengal,Epidemic,276,710,1500,3000000000.0
+17.3,78.4,Andhra Pradesh Epidemic,2000,10,Sulurpet,Andhra Pradesh,Epidemic,178,500,1000,5000000.0
+23.0,88.6,West Bengal Floods,2000,10,North 24 Parganas,West Bengal,Flood,1262,300,534035,790860000000.0
+12.0,80.0,2000 South India Cyclone,2000,11,Cuddalore,Tamil Nadu,Cyclone,12,100,30000,700000000.0
+25.9,86.6,Bihar Epidemic,2000,10,Supaul,Bihar,Epidemic,200,100,500,10000000.0
+24.8,85.5,Bihar Epidemic,2000,8,Nawada,Bihar,Epidemic,19,30,58,2000000.0
+20.0,77.0,Severe Drought,2000,4,New Delhi,Delhi,Drought,0,17000,0,20000000000.0
+26.5,82.0,2001 Heatwave,2001,1,Lucknow,Uttar Pradesh,Extreme temperature,793,1500,5000,2000000000.0
+0.0,0.0,Bhuj Earthquake,2001,1,Kachchh,Gujarat,Earthquake,20003,166000,6321812,13000000000.0
+26.732311,88.410286,Siliguri Epidemic,2001,2,Siliguri,West Bengal,Epidemic,49,200,100,30000000.0
+24.8,92.8,Assam Floods,2001,6,Silchar,Assam,Flood,6,100,700000,1000000000.0
+19.21833,72.978088,Mumbai Epidemic,2001,6,Mumbai,Maharashtra,Epidemic,25,200,250,150000000.0
+20.5,85.0,Orissa Floods,2001,7,Kendrapara,Odisha,Flood,100,1000,9670000,2000000000.0
+28.0,79.0,Uttar Pradesh Storm,2001,5,Meerut,Uttar Pradesh,Storm,21,50,500,4000000000.0
+10.0,75.0,Monsoon Floods,2001,6,Kasaragod,Kerala,Flood,28,4,4,1500000000.0
+9.8,76.6,Kerala Floods,2001,7,Idukki,Kerala,Flood,89,2500,40000,2000000000.0
+20.5,85.0,Orissa Epidemic,2001,7,Kendrapara,Odisha,Epidemic,98,200,12000,650000000.0
+30.284414,78.98114,Rudraprayag Landslide,2001,7,Rudraprayag,Uttarakhand,Mass movement,27,30,100,5000000.0
+20.0,85.0,Orissa Epidemic,2001,8,Kendrapara,Odisha,Epidemic,45,1000,25000,100000000.0
+25.0,85.0,Bihar Floods,2001,8,Aurangabad,Bihar,Flood,500,1000,400000,4500000000.0
+32.5,76.1,Chamba Landslide,2001,8,Chamba,Himachal Pradesh,Mass movement,16,30,31885,20000000.0
+28.6139,77.209,Delhi Floods,2001,8,Delhi,Delhi,Flood,100,200,500,1000000000.0
+26.5,85.5,Bihar Floods,2001,8,Gopalganj,Bihar,Flood,158,200,7000000,460000000.0
+25.4,85.1,Bihar Floods,2001,9,Gopalganj,Bihar,Flood,57,1000,2800000,3500000000.0
+15.5,79.5,Andhra Pradesh Cyclone,2001,10,Cuddapah,Andhra Pradesh,Cyclone,153,290,200000,2500000000.0
+37.0,77.0,Amboori Landslide,2001,11,Thiruvananthapuram,Kerala,Landslide,40,4,100,10000000.0
+27.39,73.43,2001 Heatwave,2001,12,Jaipur,Rajasthan,Extreme Temperature,48,150,200,5000000.0
+19.0,72.0,Arabian Sea Cyclone,2001,5,Gujarat,Gujarat,Cyclone,400,1500,10000,4000000000.0
+26.12,84.44,Bihar Floods,2001,9,Gopalganj,Bihar,Flood,146,94,887000,4900000000.0
+31.71,77.12,Mandi Epidemic,2002,3,Mandi,Himachal Pradesh,Epidemic,10,20,200,5000000.0
+21.0,88.0,West Bengal Cyclone,2002,11,Sagar,West Bengal,Cyclone,173,200,2200000,3200000000.0
+21.0,85.0,Orissa Storm,2002,4,Puri,Odisha,Storm,300,200,10200,500000000.0
+78.0,20.0,Severe Heat Wave,2002,5,Andhra Pradesh,Andhra Pradesh,Extreme temperature,1030,20000,330000000,10000000000.0
+26.244156,92.537842,Assam Epidemic,2002,5,Assam,Assam,Epidemic,0,0,0,10000000.0
+19.0,88.0,West Bengal Cyclone,2002,11,Kolkata,West Bengal,Cyclone,173,1000,100000,4400000000.0
+23.0,79.0,Monsoon Floods,2002,6,Assam,Assam,Flood,549,1500,42000000,47450000000.0
+30.39,78.49,Tehri Garhwal Floods,2002,8,Tehri,Uttarakhand,Flood,33,50,500,50000000.0
+0.0,0.0,Assam Epidemic,2002,8,Assam,Assam,Epidemic,200,600,260000,1000000000.0
+22.0,80.1,Balaghat Flood,2002,8,Balaghat,Madhya Pradesh,Flood,10,60,3000,200000000.0
+20.0,73.0,Monsoon Floods,2002,9,Bharuch,Gujarat,Flood,170,2500,50000,2000000000.0
+13.013,93.147,Andaman Islands Earthquake,2002,9,Andaman Islands,Andaman and Nicobar Islands,Earthquake,2,50,200,10000000.0
+10.0,76.0,Kerala Floods,2002,10,Kozhikode,Kerala,Flood,11,20,1000,1000000000.0
+21.5,87.5,West Bengal Cyclone,2002,11,Baleshwar,Odisha,Cyclone,173,300,100000,1000000000.0
+13.0,80.2,Tamil Nadu Floods,2002,10,Chennai,Tamil Nadu,Flood,20,100,2000,3100000000.0
+29.959694,77.549057,Saharanpur Epidemic,2002,9,Saharanpur,Uttar Pradesh,Epidemic,64,200,1000,10000000.0
+20.0,78.0,Andhra Pradesh Heatwave,2002,5,Vijayawada,Andhra Pradesh,Extreme temperature,1030,2500,330000000,1500000000.0
+17.0,78.0,Severe Drought,2002,7,Hyderabad,Andhra Pradesh,Drought,1000,2000,300000000,450000000000.0
+21.79,77.91,Betul Storm,2003,2,Betul,Madhya Pradesh,Storm,9,21,200,120000000.0
+34.0,74.0,Severe Winter Storm,2003,2,Jammu,Jammu and Kashmir,Storm,19,7,100,10000000.0
+23.08,72.62,Gujarat Monsoon Storm,2003,8,Ahmedabad,Gujarat,Storm,20,50,14000,100000000.0
+23.0,88.0,West Bengal Hailstorm,2003,3,Hugli,West Bengal,Storm,30,500,485910,761900000.0
+34.0,74.0,Kashmir Landslide,2003,3,Jammu,Jammu and Kashmir,Landslide,25,150,500,300000.0
+26.0,90.0,Assam Severe Storm,2003,4,Dhuburi,Assam,Storm,45,4000,6000,500000000.0
+26.3,89.2,West Bengal Storm,2003,4,Kochbihar,West Bengal,Storm,20,60,460,15000000.0
+16.5,80.6,Indian Heat Wave,2003,5,Hyderabad,Andhra Pradesh,Extreme temperature,1210,1000,50000,1000000000.0
+26.0,88.0,2003 Monsoon Floods,2003,6,Dhemaji,Assam,Flood,142,1500,4550000,2500000000.0
+23.7,69.8,Gujarat Floods,2003,7,Kachchh,Gujarat,Flood,13,1300,14500,150000000.0
+28.6139,77.209,Delhi Epidemic,2003,9,Delhi,Delhi,Epidemic,250,500,2185,10000000.0
+16.0,81.0,Andhra Pradesh Storm,2003,12,Krishna,Andhra Pradesh,Storm,83,150,40000,1500000000.0
+28.0,77.0,Northern India Heatwave,2003,12,Kanpur,Uttar Pradesh,Extreme temperature,1000,2000,5000,500000000.0
+20.4625,85.883,Orissa Floods,2003,8,Cuttack,Odisha,Flood,67,500,3000000,36120000000.0
+31.957851,77.109459,Kullu Flash Flood,2003,7,Kullu,Himachal Pradesh,Flood,150,50,250,200000000.0
+31.957851,77.109459,Solang Flash Flood,2003,8,Kullu,Himachal Pradesh,Flood,30,19,15000,18050000000.0
+26.0,80.0,Uttar Pradesh Floods,2003,9,Ballia,Uttar Pradesh,Flood,37,150,2500000,4320000000.0
+24.5,93.9,Manipur Floods,2004,4,Bishnupur,Manipur,Flood,150,500,5000,20000000.0
+26.0,79.0,Monsoon Floods,2004,6,Darbhanga,Bihar,Flood,900,2000,33000000,7710000000.0
+11.8,76.0,Kerala Floods,2004,6,Wayanad,Kerala,Flood,45,150,1000,1000000000.0
+29.0,79.5,Monsoon Floods,2004,9,Sitapur,Uttar Pradesh,Flood,44,120,50000,150000000.0
+26.0,90.0,Northeast India Floods,2004,10,Goalpara,Assam,Flood,192,500,100000,100000000.0
+10.0,92.0,Indian Ocean Tsunami,2004,12,Chennai,Tamil Nadu,Earthquake,16389,6913,654512,100000000000.0
+28.0,77.0,Monsoon Floods,2004,8,Surat,Gujarat,Flood,210,500,100000,2500000000.0
+34.451,73.649,Kashmir Landslide,2005,10,Baramula,Jammu and Kashmir,Mass movement,1360,6266,50000,1000000000.0
+24.0,88.0,West Bengal Storm,2005,3,Barddhaman,West Bengal,Storm,50,300,60000,3500000000.0
+28.7041,77.1025,Meningitis Outbreak,2005,5,Delhi,Delhi,Epidemic,48,400,408,1500000.0
+16.0,80.0,Andhra Pradesh Storm,2005,5,Guntur,Andhra Pradesh,Storm,20,20,20,500000000.0
+22.5,88.5,Kolkata Storm,2005,5,Kolkata,West Bengal,Storm,13,20,1500000,200000000.0
+25.56,94.53,Mokokchung Landslide,2005,5,Mokokchung,Nagaland,Landslide,14,12,12,1000000.0
+20.0,83.0,Severe Heatwave,2005,6,Bhubaneswar,Odisha,Extreme temperature,588,1764,2940,1000000000.0
+20.5,72.5,Gujarat Floods,2005,6,Surat,Gujarat,Flood,239,5000,405000,232000000000.0
+20.6,78.1,Yavatmal Floods,2005,7,Yavatmal,Maharashtra,Flood,30,200,1000,500000000.0
+31.35312,78.43551,Himachal Pradesh Floods,2005,6,Kinnaur,Himachal Pradesh,Flood,33,20,5000,6100000000.0
+28.0,77.0,Indian Monsoon Floods,2005,7,Yingkiong,Arunachal Pradesh,Flood,70,1700,1908000,18050000000.0
+20.0,77.0,Madhya Pradesh Floods,2005,7,Ashoknagar,Madhya Pradesh,Flood,62,150,49000,1500000000.0
+20.0,79.0,Andhra Pradesh Floods,2005,7,Adilabad,Andhra Pradesh,Flood,75,56,140000,503000000.0
+20.0,73.0,Monsoon Floods,2005,7,Mumbai,Maharashtra,Flood,1094,55,20000055,3500000000.0
+26.115,91.703,Guwahati Landslide,2005,8,Guwahati,Assam,Mass movement,17,20,20,1000000.0
+26.0,83.0,Azamgarh Flood,2005,8,Azamgarh,Uttar Pradesh,Flood,36,500,800000,2000000000.0
+28.0,81.0,Encephalitis Outbreak,2005,7,Gorakhpur,Uttar Pradesh,Epidemic,1500,2000,6000,1100000000.0
+19.601194,75.552979,Maharashtra Epidemic,2005,8,Sangli,Maharashtra,Epidemic,125,4301,3000,1500000000.0
+15.0,77.0,Southern India Floods,2005,7,Khammam,Telangana,Flood,1000,3000,5000000000,0.0
+15.5,81.0,Andhra Pradesh Cyclone,2005,9,Khammam,Andhra Pradesh,Cyclone,100,500,200000,4500000000.0
+31.1,77.2,North India Floods,2005,6,Kinnaur,Himachal Pradesh,Flood,25,6,3000,2500000000.0
+20.0,80.0,Central India Floods,2005,9,Bhandara,Maharashtra,Flood,89,1000,550000,40000000000.0
+34.451,73.649,Kashmir Earthquake,2005,10,Uri,Jammu and Kashmir,Earthquake,1360,6266,156622,38000000000.0
+22.5,87.5,West Bengal Floods,2005,10,Midnapore,West Bengal,Flood,1828,100,2250000,10000000000.0
+21.17024,72.831062,Gujarat Floods,2005,9,Surat,Gujarat,Flood,173,2500,25000000,5500000000.0
+13.03,80.19,Chennai Floods,2005,10,Chennai,Tamil Nadu,Flood,162,37,2000000,5500000000.0
+26.0,83.0,Encephalitis Outbreak,2005,7,Gorakhpur,Uttar Pradesh,Epidemic,1500,3000,1145,100000000.0
+13.03444,80.19694,Chennai Floods,2005,12,Chennai,Tamil Nadu,Flood,162,37,2000000,15234000000.0
+28.0,77.0,Severe Heat Wave,2005,6,Delhi,Delhi,Extreme temperature,1075,500,10000,100000000.0
+31.5,75.5,North India Floods,2005,7,Ropar,Punjab,Flood,17,200,450000,6000000000.0
+17.5,78.0,Chikungunya Outbreak,2005,12,Hyderabad,Andhra Pradesh,Epidemic,2000,500,153324,1000000000.0
+19.67,78.53,Andhra Pradesh Floods,2006,4,Adilabad,Telangana,Flood,20,100,10000,100000000.0
+26.0,85.0,2006 Heatwave,2006,5,Agra,Uttar Pradesh,Extreme temperature,754,1000,5000,100000000.0
+26.0,92.0,Assam Tripura Floods,2006,5,Karimganj,Assam,Flood,21,300,504000,400000000.0
+7.0,76.0,Kerala Floods,2006,5,Idukki,Kerala,Flood,1758,1000,10800,15000000000.0
+20.0,73.0,Maharashtra Gujarat Floods,2006,5,Surat,Gujarat,Flood,150,500,300000,160000000000.0
+25.758503,84.148911,Uttar Pradesh Floods,2006,6,Ballia,Uttar Pradesh,Flood,130,500,300000,1000000000.0
+20.95,72.92,Gujarat Floods,2006,7,Navsari,Gujarat,Flood,24,100,8400,100000000.0
+18.9,83.6,Orissa Floods,2006,7,Rayagada,Odisha,Flood,33,75,9300,1805000000.0
+34.0,75.0,Kashmir Floods,2006,7,Srinagar,Jammu and Kashmir,Flood,13,100,2000,500000000.0
+17.0,78.0,Monsoon Floods,2006,7,Surat,Gujarat,Flood,413,65,4000065,5500000000.0
+21.1,72.8,Surat City Flood,2006,8,Surat,Gujarat,Flood,150,500,50000,220000000000.0
+26.0,73.0,Rajasthan Floods,2006,8,Barmer,Rajasthan,Flood,135,200,20000,300000000.0
+15.5,80.2,2006 India Storms,2006,9,Various Districts,Andhra Pradesh,Storm,114,300,150300,150000000.0
+34.0,74.0,Kashmir Floods,2006,8,Srinagar,Jammu and Kashmir,Flood,13,424,15000,55000000000.0
+27.5,81.5,Uttar Pradesh Floods,2006,8,Balrampur,Uttar Pradesh,Flood,42,150,150000000,0.0
+16.0,79.0,Andhra Pradesh Floods,2006,10,Guntur,Andhra Pradesh,Flood,47,150,225000,3500000000.0
+17.5,82.5,Monsoon Floods,2006,8,Cuttack,Odisha,Flood,275,700,3500000,12000000000.0
+19.0,75.0,2006 India Floods,2006,8,Surat,Gujarat,Flood,1758,56,4500000,1510000000.0
+23.0,77.0,Madhya Pradesh Floods,2006,10,Bhopal,Madhya Pradesh,Flood,123,1500,100000,10000000000.0
+21.0,77.0,Gujarat Floods,2006,8,Surat,Gujarat,Storm,135,250,500000,15000000000.0
+28.5,77.2,2007 Heatwave,2007,4,Delhi,Delhi,Extreme temperature,932,2000,10000,100000000.0
+26.14,91.77,Assam Floods,2007,6,Lakhimpur,Assam,Flood,15,50,200000,100000000.0
+21.5,72.0,Gujarat Floods,2007,7,Junagadh,Gujarat,Flood,1287,2000,63000,3000000000.0
+19.0,73.0,Maharashtra Floods,2007,7,Mumbai,Maharashtra,Flood,62,500,10000,2000000000.0
+20.0,82.0,Chhattisgarh Floods,2007,6,Raipur,Chhattisgarh,Flood,29,100,50000,2000000000.0
+15.83,78.03,Andhra Pradesh Floods,2007,6,Kurnool,Andhra Pradesh,Flood,127,1000,1000000000,0.0
+23.53,91.48,Tripura Floods,2007,7,Udaipur,Tripura,Flood,1700,3000,3000000,12000000000.0
+26.0,85.0,South Asian Floods,2007,7,Darbhanga,Bihar,Flood,1287,10000,20000000,15000000000.0
+4.0,77.0,Himachal Pradesh Floods,2007,8,Rampur,Himachal Pradesh,Flood,76,150,12000000000,0.0
+20.5,72.5,Gujarat Floods,2007,8,Bharuch,Gujarat,Flood,101,2000,1300000,10000000000.0
+19.2,86.2,Odisha Floods,2007,9,Puri,Odisha,Flood,80,240,7200000,34000000000.0
+15.7,79.5,Andhra Pradesh Floods,2007,9,Kurnool,Andhra Pradesh,Flood,94,1000,20000,10000000000.0
+16.0,80.0,Andhra Pradesh Floods,2007,10,Kurnool,Andhra Pradesh,Flood,37,150,330000,7000000000.0
+21.0,87.0,Bay of Bengal Storm,2007,11,Kolkata,West Bengal,Storm,100,300,3000000,2000000000.0
+20.0,85.0,Orissa Floods,2007,8,Cuttack,Odisha,Flood,1550,10000,500000,10850637000.0
+26.5,92.8,Assam Floods,2007,7,Morigaon,Assam,Flood,96,180,11100000,2000000000.0
+10.0,76.0,Kerala Floods,2007,7,Kottayam,Kerala,Flood,150,500,300000,500000000.0
+26.0,78.0,North India Heatwave,2007,12,Kanpur,Uttar Pradesh,Extreme temperature,74,150,20000,2000000000.0
+26.0,75.0,2007 Monsoon Floods,2007,2,Jodhpur,Rajasthan,Flood,3100,10000,48000000,3605000000000.0
+34.209515,77.615112,Unusual Temperature,2007,3,Srinagar,Jammu and Kashmir,Extreme temperature,66,25,25,20000000.0
+34.0,77.0,Kashmir Landslide,2008,2,Jammu,Jammu and Kashmir,Mass movement,37,150,300,100000000.0
+-12.0,77.0,South India Floods,2008,3,Cuddalore,Tamil Nadu,Flood,0,15000,0,2000000000.0
+26.0,86.0,Monsoon Floods,2008,6,Bihar,Bihar,Flood,2404,20000,3300000,2000000000.0
+25.7,86.5,Bihar Floods,2008,8,Supaul,Bihar,Flood,450,1200,3000000,90000000000.0
+17.0,79.0,Andhra Pradesh Floods,2008,9,Guntur,Andhra Pradesh,Flood,130,1000,250000,10000000000.0
+26.0,86.0,Bihar Floods,2008,9,Supaul,Bihar,Flood,2404,10000,3300000,45000000000.0
+26.0,86.0,Bihar Floods,2008,8,Supaul,Bihar,Flood,527,1000,2600000,5935000000.0
+7.0,80.0,Tamil Nadu Floods,2008,11,Chennai,Tamil Nadu,Flood,190,500,803740,5000000000.0
+26.0,94.0,2008 India Floods,2008,7,Lakhimpur,Assam,Flood,2403,10000,3000000,95000000000.0
+28.0,77.0,2008 Heat Wave,2008,12,Kanpur,Uttar Pradesh,Extreme temperature,616,500,10000,1000000000.0
+28.2076,79.8267,Uttar Pradesh Storm,2008,5,Lucknow,Uttar Pradesh,Storm,111,50,50,500000000.0
+20.5,86.7,Orissa Tornado,2009,3,Kendrapara,Odisha,Tornado,15,150,4500,20000000.0
+21.0,83.0,Indian Heat Wave,2009,5,Sambalpur,Odisha,Extreme temperature,0,0,0,2000000000.0
+21.5,88.0,Cyclone Aila,2009,5,South 24 Parganas,West Bengal,Storm,138,10000,6800000,4400000000.0
+23.5,85.0,Bihar-Jharkhand Storm,2009,6,Ranchi,Jharkhand,Storm,35,12,12,10000000.0
+28.6,77.2,Delhi Floods,2009,7,Delhi,Delhi,Flood,10,200,1000,200000000.0
+30.02,80.15,Pithoragarh Landslide,2009,8,Pithoragarh,Uttarakhand,Mass movement,43,100,1500,300000000.0
+19.076,72.8777,Mumbai Landslide,2009,9,Mumbai,Maharashtra,Mass movement,10,12,300,30000000.0
+26.85,80.95,Uttar Pradesh Epidemic,2009,1,Uttar Pradesh,Uttar Pradesh,Epidemic,311,600,1521,5000000.0
+15.5,78.5,2009 India Floods,2009,7,Nayagarh,Orissa,Flood,1206,5000,1886000,22000000000.0
+15.0,77.0,South India Floods,2009,9,Belgaum,Karnataka,Flood,355,360000,220000000000,0.0
+25.4,92.1,Jaintia Hills Flood,2009,10,Jaintia Hills,Meghalaya,Flood,20,100,500,100000000.0
+11.4,76.7,Nilgiris Flood,2009,11,Nilgiris,Tamil Nadu,Flood,71,8,700,3200000000.0
+34.08,74.8,Srinagar Heatwave,2010,1,Srinagar,Jammu and Kashmir,Extreme temperature,6,20,1000,100000000.0
+20.0,72.0,Cyclone Phyan,2009,11,Mumbai,Maharashtra,Cyclone,15,50,500,5000000000.0
+25.7,85.5,Bihar Floods,2009,8,Sitamarhi,Bihar,Flood,52,1500,1500000,3000000000.0
+26.85,80.95,Uttar Pradesh Storm,2009,5,Lucknow,Uttar Pradesh,Storm,25,20,20,10000000.0
+26.0,80.0,Uttar Pradesh Storm,2009,6,Gonda,Uttar Pradesh,Storm,20,40,150,5000000.0
+26.0,79.0,2009 Indian Drought,2009,7,Bongaigaon,Assam,Drought,150,500,50000,5000000000.0
+33.5,76.0,Kashmir Landslide,2010,2,Kishtwar,Jammu and Kashmir,Landslide,17,7,100,10000000.0
+26.5,87.2,Eastern India Storm,2010,4,Kishanganj,Bihar,Storm,134,200,500000,2500000000.0
+13.0,82.0,Eastern India Storm,2010,5,Purnea,Bihar,Storm,140,500,500000,100000000.0
+15.0,80.0,Andhra Tamil Nadu Storm,2010,5,Krishna,Andhra Pradesh,Storm,32,50,10000,16030000000.0
+23.0,77.0,2010 Heat Wave,2010,5,Ahmedabad,Gujarat,Extreme temperature,1344,1000,5000,2000000000.0
+30.3,76.8,Haryana-Punjab Floods,2010,7,Ambala,Haryana,Flood,53,150,400000,13000000000.0
+15.9129,79.7399,Andhra Pradesh Floods,2010,5,Khammam,Andhra Pradesh,Flood,57,200,270000,71360000000.0
+28.61,77.23,Delhi Floods,2010,7,Delhi,Delhi,Flood,255,220,9000,1330000000.0
+34.152588,77.577049,Leh Cloudburst,2010,8,Leh,Ladakh,Flood,224,225,9000,1330000000.0
+26.7,94.0,Assam Floods,2010,9,Lakhimpur,Assam,Flood,1600,1000,30000,18050000000.0
+25.7,85.1,Bihar-Jharkhand Storm,2010,4,Katihar,Bihar,Storm,134,200,500000,12000000.0
+29.5,79.7,North India Floods,2010,9,Almora,Uttarakhand,Flood,220,800,3267183,25000000000.0
+30.0,76.0,North India Floods,2010,9,Ambala,Haryana,Flood,300,1000,12500,13000000000.0
+10.5,79.5,Tamil Nadu Floods,2010,11,Chennai,Tamil Nadu,Flood,203,1000,320000,37000000000.0
+78.0,26.9,Uttar Pradesh Storm,2010,5,Gonda,Uttar Pradesh,Storm,15,40,2500,2000000000.0
+15.8,80.0,Cyclone Laila,2010,5,Machilipatnam,Andhra Pradesh,Cyclone,27,500,10000,16030000000.0
+26.67,91.35,Assam Storm,2010,4,Baksa,Assam,Storm,28,100,5000,300000000.0
+28.6,77.2,2011 Indian Heatwave,2011,1,Delhi,Delhi,Extreme temperature,793,400,20000,1000000000.0
+26.0,80.0,Uttar Pradesh Storm,2011,5,Siddharthnagar,Uttar Pradesh,Storm,63,160,160,8300000000.0
+24.0,88.0,West Bengal Floods,2011,8,Paschim Medinipur,West Bengal,Flood,75,1000,3000000,79000000000.0
+27.723,88.064,Sikkim Earthquake,2011,9,Gangtok,Sikkim,Earthquake,112,1000,20000,1660000000000.0
+20.5,84.5,Odisha Floods,2011,9,Cuttack,Odisha,Flood,239,500,3443989,3000000000.0
+26.0,93.0,Assam Meghalaya Floods,2011,8,Dhemaji,Assam,Flood,7,100,11000,18050000000.0
+26.0,83.0,Monsoon Floods,2011,8,Barpeta,Assam,Flood,610,800,5549080,36000000000.0
+27.28,82.01,Uttar Pradesh Floods,2011,7,Gonda,Uttar Pradesh,Flood,130,750,2500000,14000000000.0
+20.5,85.0,Orissa Floods,2011,9,Jajpur,Odisha,Flood,45,36000,2100000,258050000000.0
+11.75,79.75,Cyclone Thane,2011,12,Cuddalore,Tamil Nadu,Cyclone,53,600,380000,2000000000.0
+13.0,76.0,Karnataka Storm,2011,4,Raichur,Karnataka,Storm,17,6,100,100000000.0
+78.0,20.0,Deadly Heat Wave,2011,12,Kanpur,Uttar Pradesh,Extreme temperature,12,1000,10000,5000000000.0
+28.0,80.0,Uttar Pradesh Floods,2011,6,Kushinagar,Uttar Pradesh,Flood,82,200,500000,36120000000.0
+17.0,80.0,Andhra Pradesh Heatwave,2012,6,Guntur,Andhra Pradesh,Extreme temperature,729,1500,20000,2000000000.0
+33.2,75.2,Jammu Landslide,2012,2,Ramban,Jammu and Kashmir,Mass movement,16,30,100,20000000.0
+27.0,95.0,Northeast India Floods,2012,6,Anjaw,Arunachal Pradesh,Flood,1650,2000,6900000,18050000000.0
+26.91,75.78,Rajasthan Floods,2012,8,Jaipur,Rajasthan,Flood,37,375,37500,18050000000.0
+32.0,77.0,Himalayan Floods,2012,8,Kullu,Himachal Pradesh,Flood,31,150,2000,3000000000.0
+30.284,78.981,Uttarakhand Flash Floods,2012,9,Rudraprayag,Uttarakhand,Flood,34,17,20000,15171000000.0
+26.0,83.0,Severe Monsoon Floods,2012,9,Barpeta,Assam,Flood,21,500,2000000,2500000000.0
+0.0,0.0,Cyclone Nilam,2012,11,Nellore,Andhra Pradesh,Storm,61,150,70000,378000000.0
+28.0,77.0,2012 Cold Wave,2012,12,Delhi,Delhi,Extreme temperature,92,500,2000,1000000000.0
+32.0,77.0,Himachal Pradesh Floods,2012,8,Manali,Himachal Pradesh,Flood,31,100,9460,3500000000.0
+28.0,79.0,Uttar Pradesh Storm,2013,3,Kannauj,Uttar Pradesh,Storm,60,160,1400000000,0.0
+15.0,80.0,Andhra Pradesh Storm,2013,5,Machilipatnam,Andhra Pradesh,Storm,23,4,9000000,30000000000.0
+33.1,75.8,Jammu Earthquake,2013,5,Kishtwar,Jammu and Kashmir,Earthquake,3,90,68800,4000000000.0
+30.77,79.03,Uttarakhand Floods,2013,6,Kedarnath,Uttarakhand,Flood,6054,4473,504473,81000000000.0
+16.515,80.632,Andhra Pradesh Heatwave,2013,4,Vijayawada,Andhra Pradesh,Extreme temperature,1433,2000,50000,1000000000.0
+28.207609,79.82666,Uttar Pradesh Floods,2013,7,Sultanpur,Uttar Pradesh,Flood,174,200,500000,4320000000.0
+27.483,94.583,Assam Floods,2013,6,Dhemaji,Assam,Flood,80,5000,2000000,2000000000.0
+23.0,77.0,Madhya Pradesh Floods,2013,8,Hoshangabad,Madhya Pradesh,Flood,106,1500,40000,2500000000.0
+20.0,85.0,Eastern India Floods,2013,10,Ganjam,Odisha,Flood,72,150,375000,2000000000.0
+19.5,84.5,Cyclone Phailin,2013,10,Gopalpur,Odisha,Cyclone,47,500,13230000,25000000000.0
+25.0,85.0,Bihar-Jharkhand Storm,2013,10,Dhanbad,Jharkhand,Storm,32,50,1000,2000000000.0
+16.5,81.0,Andhra Pradesh Cyclone,2013,11,Krishna,Andhra Pradesh,Storm,23,50,9000000,30000000000.0
+28.5,77.2,2014 Indian Heatwave,2014,1,Gonda,Uttar Pradesh,Extreme temperature,548,1000,100000,20000000000.0
+34.0,75.0,Kashmir Storm,2014,3,Kishtwar,Jammu and Kashmir,Storm,17,35,9610,40000000.0
+28.6,77.4,Delhi NCR Storm,2014,5,Ghaziabad,Uttar Pradesh,Storm,12,13,26,20000000.0
+27.5,93.5,Assam Floods,2014,6,Guwahati,Assam,Flood,38,1000,18500,200000000.0
+30.0,79.0,Uttarakhand Flash Floods,2014,7,Uttarakhand,Uttarakhand,Flood,52,100,50000,80000000000.0
+19.16,73.68,Malin Landslide,2014,7,Pune,Maharashtra,Landslide,151,100,200,20000000.0
+20.0,85.0,Odisha Floods,2014,8,Balasore,Odisha,Flood,45,1000,3290000,186120000000.0
+34.08,74.8,Kashmir Floods,2014,9,Srinagar,Jammu and Kashmir,Flood,300,25,275000,1000000000000.0
+25.5,90.2,Garo Hills Flood,2014,9,Tura,Meghalaya,Flood,95,1000,650000,2000000000.0
+17.69,83.23,Cyclone Hudhud,2014,10,Visakhapatnam,Andhra Pradesh,Cyclone,53,1000,920000,700000000000.0
+28.0,81.0,Uttar Pradesh Floods,2014,8,Shravasti,Uttar Pradesh,Flood,94,200,500000,2000000000.0
+20.5,85.0,Odisha Floods,2014,8,Cuttack,Odisha,Flood,45,10000,3290000,2000000000.0
+28.0,77.7,Muzaffarnagar Heatwave,2014,12,Muzaffarnagar,Uttar Pradesh,Extreme temperature,16,50,200,100000000.0
+31.0,77.0,Northern India Heatwave,2014,12,Shimla,Himachal Pradesh,Extreme temperature,140,1000,2000,2000000000.0
+26.0,80.0,Uttar Pradesh Storm,2014,4,Uttar Pradesh,Uttar Pradesh,Storm,27,30,2000,100000000.0
+17.38,78.48,Hyderabad Hailstorm,2014,3,Hyderabad,Telangana,Storm,7,58,1928,1500000000.0
+34.04,74.67,Chadoora Landslide,2015,3,Chadoora,Jammu and Kashmir,Landslide,16,0,2000,20000000.0
+23.745127,91.746826,Tripura Storm,2015,4,Tripura,Tripura,Storm,1,500,10000,200000000.0
+23.5,68.2,Gujarat Storm,2015,3,Amreli,Gujarat,Storm,80,250,500000,16500000000.0
+26.0,85.0,Nepal Earthquake,2015,4,Patna,Bihar,Earthquake,78,560,560,7400000000.0
+25.77,87.48,Bihar Storm,2015,4,Purnia,Bihar,Storm,48,100,125100,4400000000.0
+28.0,86.0,Bihar Earthquake,2015,4,Sitamarhi,Bihar,Earthquake,58,200,1000,1000000000.0
+21.0,78.0,2015 India Heatwave,2015,5,Delhi,Delhi,Extreme temperature,2500,2000,1000000,10000000000.0
+9.587209,77.951431,Bhadrairuppu Flood,2015,5,Virudhunagar,Tamil Nadu,Flood,350,200,100000000,0.0
+26.0,92.0,Assam Landslide,2015,6,Barpeta,Assam,Landslide,3,9,9000,300000000.0
+21.55,71.21,Gujarat Monsoon Floods,2015,6,Amreli,Gujarat,Flood,81,1000,9000,1500000000.0
+26.8,88.2,Darjeeling Landslides,2015,6,Darjeeling,West Bengal,Flood,40,200,1000,10000000000.0
+13.2,81.1,South India Floods,2015,7,Kachchh,Gujarat,Flood,293,1000,13709887,20000000000.0
+13.0,80.0,Chennai Floods,2015,12,Chennai,Tamil Nadu,Flood,386,1764000,3000000,200000000000.0
+26.0,93.0,Assam Floods,2015,8,Dhubri,Assam,Flood,42,1000,1650000,2000000000.0
+26.0,92.0,Assam Floods,2015,8,Kokrajhar,Assam,Flood,42,1000,1700000,20000000000.0
+26.5,93.5,Assam Floods,2015,7,Sonitpur,Assam,Flood,66,100,85250,2000000000.0
+17.0,82.0,Orissa Storm,2015,9,Deogarh,Odisha,Storm,32,96,300,1500000000.0
+36.524,70.368,Hindu Kush Earthquake,2015,10,Srinagar,Jammu and Kashmir,Earthquake,3,200,500,5000000000.0
+13.00012,80.2565,Chennai Floods,2015,11,Chennai,Tamil Nadu,Flood,421,1000,1800000,225000000000.0
+15.9,80.4,Andhra Pradesh Storm,2015,5,Nellore,Andhra Pradesh,Storm,92,200,1800000,49600000000.0
+19.07,72.87,Maharashtra Storm,2015,10,Mumbai,Maharashtra,Storm,29,15,10000,5000000000.0
+18.0,78.0,Severe Drought,2015,1,Chennai,Tamil Nadu,Drought,3500,10000,330000000,250000000000.0
+24.834,93.656,Manipur Earthquake,2016,1,Imphal,Manipur,Earthquake,8,308,16733,274736200.0
+35.4,77.1,Siachen Glacier Avalanche,2016,2,Siachen,Jammu and Kashmir,Mass movement,10,5,20,5000000.0
+25.0,78.0,Indian Heatwave,2016,4,Phalodi,Rajasthan,Extreme temperature,1100,2000,330000000,30000000000.0
+27.0,93.0,Northeast India Floods,2016,4,Tawang,Arunachal Pradesh,Flood,18,1000,100000,2000000000.0
+29.618,79.719,Uttarakhand Wildfire,2016,2,Almora,Uttarakhand,Wildfire,9,17,2000,4629000.0
+30.0,79.0,Uttarakhand Landslide,2016,7,Pithoragarh,Uttarakhand,Landslide,0,0,0,3000000000.0
+25.7,85.1,Bihar Storm,2016,6,Muzaffarpur,Bihar,Storm,57,24,10000,5000000000.0
+30.0,79.0,Monsoon Storms,2016,6,Buxar,Bihar,Storm,93,28,1000,2500000000.0
+30.25,79.75,Uttarakhand Floods,2016,6,Chamoli,Uttarakhand,Flood,40,100,50000,11000000000.0
+26.0,92.0,Assam Floods,2016,7,Lakhimpur,Assam,Flood,50,100,2000000,2000000000.0
+25.5,83.0,Monsoon Floods,2016,7,Varanasi,Uttar Pradesh,Flood,300,200,2500000,12000000000.0
+23.259,77.412,Madhya Pradesh Floods,2016,7,Bhopal,Madhya Pradesh,Flood,184,200,100000,32000000000.0
+20.0,74.0,Maharashtra Floods,2016,8,Nashik,Maharashtra,Flood,37,100,3000,5000000000.0
+16.3,80.4,Andhra Pradesh Floods,2016,9,Guntur,Andhra Pradesh,Flood,28,500,10000,6000000000.0
+13.07,80.24,Vardah Cyclone,2016,12,Chennai,Tamil Nadu,Storm,7,200,20000,54000000000.0
+26.757874,94.209824,Assam Floods,2016,7,Jorhat,Assam,Flood,34,1500,50000,1280000000.0
+34.3,74.95,Gurez Landslide,2017,1,Ganderbal,Jammu and Kashmir,Landslide,28,50,1000,10000000.0
+15.913,80.959,Deadly Heatwave,2017,4,Visakhapatnam,Andhra Pradesh,Extreme temperature,264,400,1000,9000000000.0
+24.5,93.9,Manipur-Mizoram Storm,2017,5,Imphal,Manipur,Storm,25,50,1970,1500000000.0
+0.0,0.0,Assam Floods,2017,6,Lakhimpur,Assam,Flood,160,1000,1000000,41648100000.0
+22.3072,73.1812,Gujarat Floods,2017,6,Banaskantha,Gujarat,Flood,224,500,171119,56120300000.0
+25.7,85.1,Bihar Storm,2017,7,Vaishali,Bihar,Storm,23,12,12,2500000000.0
+30.0,93.0,Laptap Landslide,2017,7,Papumpare,Arunachal Pradesh,Landslide,14,20,100,20000000.0
+26.0,92.0,Assam Floods,2017,6,Lakhimpur,Assam,Flood,75,150,1735000,20000000000.0
+24.31,93.93,Manipur Floods,2017,7,Imphal,Manipur,Flood,1700,1500,12831,1310000000.0
+24.0,73.0,Monsoon Floods,2017,6,Banaskantha,Gujarat,Flood,284,1500,520000,5000000000.0
+26.0,86.0,Monsoon Floods,2017,8,Araria,Bihar,Flood,514,750,17200000,20000000000.0
+19.04,72.87,Mumbai Floods,2017,8,Mumbai,Maharashtra,Flood,33,17,1930000000,0.0
+32.0,77.0,Kotropi Landslide,2017,8,Mandi,Himachal Pradesh,Mass movement,46,50,100,250000000.0
+13.08,80.27,Chennai Flood,2017,11,Chennai,Tamil Nadu,Flood,14,2000,250000,30000000000.0
+7.0,79.0,Cyclone Ockhi,2017,12,Kanyakumari,Tamil Nadu,Storm,39,2500,60000,750000000.0
+27.0,82.0,Uttar Pradesh Floods,2017,8,Maharajganj,Uttar Pradesh,Flood,101,1500,2700000,12000000000.0
+25.15,86.23,Bihar Storm,2017,5,Jamui,Bihar,Storm,29,57,1250,2500000000.0
+25.0,88.0,Malda Storm,2017,3,Maldah,West Bengal,Storm,4,20,60020,10000000.0
+28.6139,77.209,Delhi Dust Storm,2018,5,New Delhi,Delhi,Extreme temperature,4,20,200,20000000000.0
+11.0,77.0,Theni Forest Fire,2018,3,Theni,Tamil Nadu,Wildfire,17,18,36,5000000.0
+26.5,77.0,North India Dust Storm,2018,5,Agra,Uttar Pradesh,Storm,117,200,200,50000000.0
+22.57,88.36,Kolkata Storm,2018,4,Kolkata,West Bengal,Storm,18,50,22050,4400000000.0
+20.0,80.0,North India Storms,2018,5,Agra,Uttar Pradesh,Storm,125,200,100000,1000000000.0
+26.8,77.1,North India Dust Storm,2018,5,Agra,Uttar Pradesh,Storm,125,200,200,1000000000.0
+23.0,78.0,May 2018 Storm,2018,5,Rajasthan,Rajasthan,Storm,143,200,20000,200000000.0
+17.2,85.5,North India Storms,2018,6,Agra,Uttar Pradesh,Storm,125,200,100000,1000000000.0
+20.0,73.0,Monsoon Floods,2018,6,Nagpur,Maharashtra,Flood,138,2000,100000,10000000000.0
+26.0,81.0,North India Storms,2018,5,Agra,Uttar Pradesh,Storm,125,250,21000,7500000000.0
+10.0,90.0,Tripura Floods,2018,5,West,Tripura,Tripura,0,15,24,11728.0
+25.0,85.0,Northern India Storms,2018,5,Unnao,Uttar Pradesh,Storm,54,25,100,2500000000.0
+12.85,74.93,Coastal Karnataka Floods,2018,5,Dakshina Kannada,Karnataka,Flood,3,50,4945,5000000000.0
+26.0,75.0,Monsoon Floods,2018,7,Jaipur,Rajasthan,Flood,0,0,0,957360000000.0
+20.0,84.0,Odisha Floods,2018,7,Bhadrak,Odisha,Flood,0,0,0,100000000000.0
+10.5,76.2,Kerala Floods,2018,8,Thrissur,Kerala,Flood,500,140,5500000,270000000000.0
+26.5,92.5,Assam Floods,2018,8,Golaghat,Assam,Flood,41,500,25000,2000000000.0
+26.0,79.0,Uttar Pradesh Floods,2018,9,Uttar Pradesh,Uttar Pradesh,Flood,70,68,245000,95000000000.0
+30.7,76.7,North India Floods,2018,9,Ambala,Haryana,Flood,25,100,10000,95000000000.0
+17.0,84.0,Cyclone Titli,2018,10,Ganjam,Odisha,Cyclone,122,200,6000000,30000000000.0
+10.79,79.87,Gaja Cyclone,2018,11,Nagapattinam,Tamil Nadu,Cyclone,63,259,560000,30000000000.0
+17.5,84.0,Cyclone Titli,2018,10,Srikakulam,Andhra Pradesh,Cyclone,0,0,0,66731000000.0
+16.0,76.0,Severe Drought,2018,9,Beed,Maharashtra,Drought,2000,5000,8200000,200000000000.0
+23.0,72.0,2019 India Storms,2019,4,Ahmedabad,Gujarat,Storm,50,150,100000,44000000000.0
+20.27,85.82,Cyclone Fani,2019,5,Puri,Odisha,Cyclone,64,160,28000000,119420000000.0
+25.612677,85.158875,Bihar Heatwave,2019,6,Patna,Bihar,Extreme temperature,184,4500,200000,10000000000.0
+25.9,85.1,Bihar Encephalitis Outbreak,2019,6,Muzaffarpur,Bihar,Epidemic,168,450,842,25000000.0
+26.0,78.0,Severe Heat Wave,2019,6,Churu,Rajasthan,Extreme temperature,215,450,450,30000000000.0
+18.52,73.72,Maharashtra Floods,2019,6,Pune,Maharashtra,Flood,164,60,424333,7000000000.0
+20.94092,84.803467,Odisha Cyclone Fani,2019,5,Puri,Odisha,Cyclone,89,200,15100000,120000000000.0
+24.0,80.0,Monsoon Storms,2019,6,Prayagraj,Uttar Pradesh,Storm,50,100,50000,30000000000.0
+25.5,85.0,Bihar Floods,2019,7,Sitamarhi,Bihar,Flood,1900,1500,3000000,25000000000.0
+19.0,73.0,Monsoon Floods,2019,8,Kolhapur,Maharashtra,Flood,1200,25000,11600000,5000000000.0
+25.513687,86.480019,Bihar Epidemic,2019,10,Khagaria,Bihar,Epidemic,1500,900,900,100000000.0
+15.0,75.0,Monsoon Floods,2019,10,Belagavi,Karnataka,Flood,1800,2500,11600000,920000000000.0
+26.0,92.0,Northeast India Storm,2019,11,Guwahati,Assam,Storm,12,500,130000,5000000000.0
+11.0,79.8,Tamil Nadu Floods,2019,11,Coimbatore,Tamil Nadu,Flood,27,8,25000,12000000000.0
+34.0,74.0,Kashmir Storm,2020,1,Shopian,Jammu & Kashmir,Storm,38,25,2000,178780000000.0
+27.0,81.0,Uttar Pradesh Floods,2020,5,Gonda,Uttar Pradesh,Flood,29,100,245000,4320000000.0
+26.5,92.5,Assam Sikkim Floods,2020,5,Lakhimpur,Assam,Flood,123,26,5000000,150000000000.0
+20.7,87.0,Cyclone Amphan,2020,5,Kolkata,West Bengal,Cyclone,90,1500,18000000,900000000000.0
+18.7,73.3,Raigad Pune Storm,2020,6,Raigad,Maharashtra,Storm,4,8,7500,10000000000.0
+25.0,92.0,Barak Valley Landslide,2020,5,Karimganj,Assam,Landslide,21,50,155850,100000000.0
+33.7782,76.5762,Jammu Region Flood,2020,6,Jammu,Jammu and Kashmir,Flood,38,100,5000,1000000000.0
+26.0,78.0,Monsoon Floods,2020,6,Assam,Assam,Flood,1031,144,14965446,525000000000.0
+10.171695,77.011305,Pettimudi Landslide,2020,8,Idukki,Kerala,Mass movement,70,12,500,5888000000.0
+17.37,78.48,Hyderabad Floods,2020,10,Hyderabad,Telangana,Flood,122,4000,150000,52500000000.0
+12.1,79.9,Cyclone Nivar,2020,11,Chennai,Tamil Nadu,Cyclone,14,3,270000,40000000000.0
+30.375,79.732,Chamoli Flash Flood,2021,2,Chamoli,Uttarakhand,Glacial lake outburst flood,204,100,500,2000000000.0
+26.781,92.457,Assam Earthquake,2021,4,Sonitpur,Assam,Earthquake,2,12,3000,10000000.0
+30.376403,79.716422,Chamoli Flash Flood,2021,2,Chamoli,Uttarakhand,Glacial lake outburst flood,76,134,204,14000000000.0
+20.0,73.0,Tauktae Cyclone,2021,5,Gujarat,Gujarat,Storm,198,153,700153,320000000000.0
+21.0,86.7,Cyclone Yaas,2021,5,Balasore,Odisha,Cyclone,172,200,1000000,440000000000.0
+22.0,77.0,Monsoon Floods,2021,7,Motihari,Bihar,Flood,0,0,0,320000000000.0
+26.5,92.5,Assam Floods,2021,7,Bongaigaon,Assam,Flood,15,150,7587,500000000.0
+19.076,72.877,Mumbai Landslide,2021,7,Bombay,Maharashtra,Mass movement,33,100,1000,4000000000.0
+17.0,75.0,Monsoon Floods,2021,6,Pune,Maharashtra,Flood,1300,1000,375000,24000000000.0
+32.2,77.1,Himalayan Floods,2021,7,Kangra,Himachal Pradesh,Flood,476,508,100000,11517200000.0
+31.5,78.2,Nigul Sari Landslide,2021,8,Kinnaur,Himachal Pradesh,Landslide,23,13,60,1500000000.0
+21.0,70.0,Gujarat Floods,2021,9,Rajkot,Gujarat,Flood,2,100,1660254,49000000000.0
+18.4,84.2,Cyclone Gulab,2021,9,Kalingapatnam,Andhra Pradesh,Storm,20,50,10000,500000000.0
+18.4,84.6,Cyclone Gulab,2021,10,Koraput,Odisha,Storm,20,200,179000,32000000000.0
+10.0,76.7,Kerala Floods,2021,10,Idukki,Kerala,Flood,35,100,4000,20000000000.0
+29.39,79.46,Nainital Heavy Rainfall,2021,10,Nainital,Uttarakhand,Flood,64,17,1400,24000000000.0
+13.0,80.2,Tamil Nadu Floods,2021,11,Chennai,Tamil Nadu,Flood,35,150,11112,320000000000.0
+14.2,79.6,Andhra Pradesh Floods,2021,11,Kadapa,Andhra Pradesh,Flood,48,200,260863,713600000000.0
+16.0,85.0,Cyclone Jawad,2021,12,Vishakhapatnam,Andhra Pradesh,Storm,15,450,2500,3500000000.0
+26.0,92.0,Assam Storm,2022,4,Barpeta,Assam,Storm,0,200,0,10000000000.0
+20.0,74.0,Extreme Heat Wave,2022,3,Mumbai,Maharashtra,Extreme temperature,25,75,500,2000000000.0
+28.0,78.0,Widespread Monsoon Floods,2022,5,Cachar,Assam,Flood,547,937,9000000,344400000000.0
+25.0,93.0,Manipur Landslide,2022,6,Noney,Manipur,Landslide,67,18,1000,400000000.0
+29.0,77.0,North India Floods,2022,8,Mandi,Himachal Pradesh,Flood,50,300,800000,35000000000.0
+26.5,80.2,Uttar Pradesh Floods,2022,9,Balrampur,Uttar Pradesh,Flood,150,500,800000,12000000000.0
+13.0,80.2,Tamil Nadu Storm,2022,12,Chennai,Tamil Nadu,Storm,5,100,10000,1000000000.0
+22.5,77.5,Madhya Pradesh Storm,2023,3,Khandwa,Madhya Pradesh,Storm,16,14,14,1000000.0
+19.0,73.0,Maharashtra Heatwave,2023,4,Navi Mumbai,Maharashtra,Extreme temperature,0,0,0,141000000000.0
+23.0,93.0,Cyclone Mocha,2023,5,Aizawl,Mizoram,Storm,150,700,1000,1500000000.0
+20.0,77.0,Severe Heatwave,2023,4,Ballia,Uttar Pradesh,Extreme temperature,179,460,460,141000000000.0
+26.2006,92.9376,Assam Sikkim Floods,2023,6,Lakhimpur,Assam,Flood,70,26,500000,120000000000.0
+24.0,73.0,Biparjoy Cyclone,2023,6,Barmer,Rajasthan,Storm,17,24,150000,100000000000.0
+31.72,76.92,North India Floods,2023,6,Mandi,Himachal Pradesh,Flood,330,100,101764,120000000000.0
+31.1,77.17,North India Floods,2023,6,Shimla,Himachal Pradesh,Flood,2000,1584,10250000,100000000000.0
+18.933,73.234,Irshalwadi Landslide,2023,7,Raigad,Maharashtra,Landslide,84,150,200,150000000.0
+18.2,79.9,Mulugu Floods,2023,7,Mulugu,Telangana,Flood,49,150,200000,15000000000.0
+31.0,77.0,Himalayan Landslides,2023,8,Mandi,Himachal Pradesh,Landslide,72,200,4833,1200000000.0
+23.74,92.71,Aizawl Landslide,2023,6,Aizawl,Mizoram,Landslide,29,2,6,10000000.0
+20.5,85.1,Odisha Storm,2023,9,Khurda,Odisha,Storm,12,14,1074,2000000000.0
+27.947,88.331,Sikkim Flash Flood,2023,10,Mangan,Sikkim,Glacial lake outburst flood,178,250,88400,100000000000.0
+17.0,78.0,Michaung Storm,2023,12,Chennai,Tamil Nadu,Storm,20,250,4390000,8000000000.0
+21.2,72.7,Gujarat Storm,2023,11,Morbi,Gujarat,Storm,24,25,25,12000000000.0
+8.7,78.1,Tamil Nadu Floods,2023,12,Thoothukudi,Tamil Nadu,Flood,35,1000,390000,40000000000.0
+23.7,91.7,Tripura Storm,2024,3,Sepahijala,Tripura,Storm,4,7,22932,100000000.0
+28.6448,77.2167,Deadly Heatwave,2024,5,New Delhi,Delhi,Extreme temperature,459,1000,5000,1000000000.0
+24.63036,93.759827,Manipur Storm,2024,5,Bishnupur,Manipur,Storm,4,200,100000,4400000000.0
+30.0,92.0,Cyclone Remal,2024,5,Aizawl,Mizoram,Storm,51,500,2109643,3500000000.0
+26.0,92.0,Assam Meghalaya Floods,2024,5,Guwahati,Assam,Flood,109,412,2100000,77100000000.0
+26.0,81.0,Monsoon Floods,2024,7,Pratapgarh,Uttar Pradesh,Flood,125,20,1000020,20000000000.0
+11.78,76.23,Wayanad Landslides,2024,7,Wayanad,Kerala,Landslide,420,397,10000,12000000000.0
+31.72,76.92,Himachal Pradesh Floods,2024,7,Mandi,Himachal Pradesh,Flood,46,150,20000,3500000000.0
+24.0,91.0,Tripura Floods,2024,8,Tripura,Tripura,Flood,32,3,1700000,12000000000.0
+27.2331,88.4961,Sikkim Landslide,2024,8,Gangtok,Sikkim,Mass movement,10,20,90,10000000.0
+21.0,72.0,Monsoon Floods,2024,8,Vijayawada,Andhra Pradesh,Flood,895,399,8007173,150000000000.0
+25.57,91.88,Meghalaya Floods,2024,10,Meghalaya,Meghalaya,Flood,17,500,134,150000000.0
+20.94092,84.803467,Cyclone Dana,2024,10,Kendrapara,Odisha,Storm,7,12,3810012,5500000000.0
+22.0,80.0,Cyclone Fengal,2024,12,Chennai,Tamil Nadu,Storm,37,20,2426629,55000000.0
