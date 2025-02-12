@@ -81,7 +81,7 @@ const Header = () => {
                 />
                 {/* Aria control is for opening the menu */}
               </Tabs>
-              <Button
+              {/* <Button
                 sx={{
                   marginLeft: "auto",
                   borderColor: "#bdbdbd",
@@ -90,10 +90,11 @@ const Header = () => {
                 }}
               >
                 Login
-              </Button>
+              </Button> */}
               <Button
+              onClick={() => handleNavigation("/login")}
                 sx={{
-                  marginLeft: "10px",
+                  marginLeft: "auto",
                   borderColor: "#bdbdbd",
                   color: "black",
                   backgroundColor: "#fafafa",
@@ -101,7 +102,7 @@ const Header = () => {
                 // disableRipple
                 // onClick={() => navigate("/signup")}
               >
-                Sign Up
+                Login
               </Button>
             </>
           )}
