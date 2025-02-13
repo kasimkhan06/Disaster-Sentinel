@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {Typography,Box,Grid,TextField,RadioGroup,FormControlLabel,Radio,Button,Avatar,} from "@mui/material";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import axios from "axios";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -37,11 +38,32 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (validateForm()) {
-      navigate("/verification");
+      try {
+        const response = await axios.post(
+          'https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/signup/', // API endpoint for registration
+          {
+            full_name: formData.fullName,
+            contact: formData.contact,
+            email: formData.email,
+            password: formData.password,
+            role: formData.role,
+            agency_pan: formData.role === 'agency' ? formData.agencyNumber : null,
+          },
+          //make sure cookie is set 
+          { withCredentials: true }
+
+        );
+        
+        console.log('Registration Success:', response.data);
+        navigate("/verification", { state: { email: formData.email } }); // Redirect to verification page
+      } catch (error) {
+        console.error('Registration Failed:', error.response?.data || error);
+      }
     }
   };
+
 
   const loginRedirect = () => {
     navigate("/login");
@@ -54,6 +76,8 @@ const Register = () => {
       document.body.style.margin = originalMargin;
     };
   }, []);
+
+  
 
   return (
     <Box
