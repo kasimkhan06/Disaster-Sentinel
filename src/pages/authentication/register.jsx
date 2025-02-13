@@ -50,7 +50,10 @@ const Register = () => {
             password: formData.password,
             role: formData.role,
             agency_pan: formData.role === 'agency' ? formData.agencyNumber : null,
-          }
+          },
+          //make sure cookie is set 
+          { withCredentials: true }
+
         );
         
         console.log('Registration Success:', response.data);

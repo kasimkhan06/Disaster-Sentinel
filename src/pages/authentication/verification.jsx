@@ -42,17 +42,15 @@ const Verification = () => {
         { email: cleanedEmail, otp: otp },
         { 
           withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-          },
           credentials: 'include'
+          //log the credentials
         }
       );
       console.log("OTP Verification Success:", response.data);
       navigate("/login");
     } catch (err) {
       console.error("OTP Verification Failed:", err.response?.data || err);
-      setError("Invalid OTP or session expired");
+      setError("frontent Invalid OTP or session expired");
     }
   };
 
