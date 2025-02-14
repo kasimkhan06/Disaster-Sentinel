@@ -1,23 +1,57 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Typography, Box, TextField, Button, Link } from "@mui/material";
+import axios from "axios";
+import { useLocation } from "react-router-dom"; // Import useLocation
+
+
 
 const Verification = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
 
+  // Get the email passed via navigate()
+  const location = useLocation();
+  const email = location.state?.email; // Access the email passed in the state
+
   const handleChange = (e) => {
     setOtp(e.target.value);
     setError(""); // Clear error when typing
   };
+  
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    console.log("Submitting OTP...");
+
     if (!otp.trim()) {
+      console.log("Error: OTP is empty");
       setError("OTP is required");
       return;
     }
-    navigate("/login"); // Redirect to login page
+
+    console.log("OTP entered:", otp);
+    const cleanedEmail = email.trim(); // Trim the email to remove extra spaces
+    console.log("Email being sent:", cleanedEmail); // Log the cleaned email
+
+    console.log("Request Payload:", { email: cleanedEmail, otp: otp });
+
+    try {
+      const response = await axios.post(
+        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/verify-otp/",
+        { email: cleanedEmail, otp: otp },
+        { 
+          withCredentials: true,
+          credentials: 'include'
+          //log the credentials
+        }
+      );
+      console.log("OTP Verification Success:", response.data);
+      navigate("/login");
+    } catch (err) {
+      console.error("OTP Verification Failed:", err.response?.data || err);
+      setError("frontent Invalid OTP or session expired");
+    }
   };
 
   const loginRedirect = () => {
@@ -63,8 +97,8 @@ const Verification = () => {
           VERIFICATION
         </Typography>
 
-        <Typography variant="body2" gutterBottom>
-          We have sent an email to <strong>*****@gmail.com</strong>.<br />
+        <Typography variant="body1" gutterBottom>
+          We have sent an email to <strong>{email}</strong>. <br />
           Please verify your email!
         </Typography>
 

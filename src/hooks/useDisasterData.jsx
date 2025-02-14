@@ -13,13 +13,13 @@ const useDisasterData = (selectedLocation, setWeather) => {
   useEffect(() => {
     setLoadingOptions(true);
     fetch(
-      "https://disaster-sentinel-64565e2d120b.herokuapp.com/api/past-disasters/"
+      "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/past-disasters/?ordering=-year"
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data.results);
-        setDisasters(data.results);
-        const uniqueLocations = [...new Set(data.results.map((d) => d.State))];
+        console.log(data);
+        setDisasters(data);
+        const uniqueLocations = [...new Set(data.map((d) => d.state))];
         setLocations(uniqueLocations);
         setLoadingOptions(false);
       })
@@ -31,7 +31,7 @@ const useDisasterData = (selectedLocation, setWeather) => {
     if (selectedLocation) {
       setLoading(true);
       const filtered = disasters.filter(
-        (d) => d.State.toLowerCase() === selectedLocation.toLowerCase()
+        (d) => d.state.toLowerCase() === selectedLocation.toLowerCase()
       );
       setFilteredDisasters(filtered);
       fetchWeatherData(selectedLocation, setWeather);
