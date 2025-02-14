@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
+import logo from "./logo.png";
 
 // const PAGES = ["Home", "About", "Contact Us"];
 const Header = () => {
@@ -54,9 +55,12 @@ const Header = () => {
       >
         <Toolbar>
           {/* Typography is used for the text in the app. It is used to style the text and make it more readable. */}
-          <Typography sx={{ fontSize: "1.2rem", paddingLeft: "20px" }}>
-            DISASTER SENTINAL
-          </Typography>
+          <Box display="flex" alignItems="center">
+            <img src={logo} alt="Logo" style={{ height: "70px"}} />
+            <Typography sx={{ fontSize: "1.2rem", paddingLeft: "10px", fontFamily: "DM Serif Text, serif" }} onClick={() => handleNavigation("/home")}>
+              DISASTER SENTINAL
+            </Typography>
+          </Box>
           {isMatch ? (
             <>
               <DrawerComp />

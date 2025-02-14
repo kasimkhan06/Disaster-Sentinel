@@ -18,6 +18,11 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { Link, useNavigate } from "react-router-dom";
 import useDisasterData from "../../../hooks/useDisasterData";
+// import { useDisasterData } from '../../../hooks/useDisasterData';
+import ThermostatIcon from "@mui/icons-material/Thermostat";
+import OpacityIcon from "@mui/icons-material/Opacity";
+import WaterDropIcon from "@mui/icons-material/WaterDrop";
+import AirIcon from "@mui/icons-material/Air";
 
 function CurrentLocation() {
   const theme = useTheme();
@@ -60,8 +65,9 @@ function CurrentLocation() {
         onClick={() => navigate(`/disaster-details/${disaster.id}`)}
         sx={{
           borderRadius: 2,
-          backgroundColor: "#fafafa", // Light pastel yellow
-          boxShadow: 2,
+          backgroundColor: "#E8F1F5", // Light pastel yellow
+          // backgroundColor: "#fafafa", // Light pastel yellow
+          boxShadow: "2px 2px 2px #93A6AD",
           "&:hover": {
             boxShadow: 4,
             transform: "scale(1.0)",
@@ -77,14 +83,14 @@ function CurrentLocation() {
         <CardActionArea>
           <CardContent>
             <Typography variant="h6" component="div">
-              {disaster.Title}
+              {disaster.title}
             </Typography>
             <Typography sx={{ color: "text.secondary", fontSize: 14 }}>
               {" "}
-              {disaster.Disaster_Year}
+              {disaster.year}
             </Typography>
             <Typography sx={{ color: "text.secondary", mb: 1.5, fontSize: 14 }}>
-              Location: {disaster.Location}, {disaster.State}
+              Location: {disaster.location}, {disaster.state}
             </Typography>
           </CardContent>
         </CardActionArea>
@@ -154,7 +160,7 @@ function CurrentLocation() {
             padding: "10px",
           }}
         >
-          <Typography align="center" sx={{ mt: 5, mb: 5, fontSize: "1.5rem" }}>
+          <Typography align="center" sx={{ mt: 5, mb: 5, fontSize: "1.7rem" }}>
             Current Weather Conditions
           </Typography>
           {!loadingWeather ? (
@@ -170,52 +176,71 @@ function CurrentLocation() {
                   margin: "auto", // Centers the grid in the container
                 }}
               >
-                <Grid
-                  size={{ xs: 11, sm: 6, md: 4, lg: 6 }}
-                  sx={{
-                    padding: 2,
-                    borderBottom: "2px solid #eee",
-                    textAlign: "center",
-                  }}
-                >
-                  <Typography>
-                    Temperature: {weather.temperature_2m}°C
-                  </Typography>
-                </Grid>
-                <Grid
-                  size={{ xs: 11, sm: 6, md: 4, lg: 6 }}
-                  sx={{
-                    padding: 2,
-                    borderBottom: "2px solid #eee",
-                    textAlign: "center",
-                  }}
-                >
-                  <Typography>
-                    Humidity: {weather.relative_humidity_2m}%
-                  </Typography>
-                </Grid>
-                <Grid
-                  size={{ xs: 11, sm: 6, md: 4, lg: 6 }}
-                  sx={{
-                    padding: 2,
-                    borderBottom: "2px solid #eee",
-                    textAlign: "center",
-                  }}
-                >
-                  <Typography>Rainfall: {weather.precipitation} mm</Typography>
-                </Grid>
-                <Grid
-                  size={{ xs: 11, sm: 6, md: 4, lg: 6 }}
-                  sx={{
-                    padding: 2,
-                    borderBottom: "2px solid #eee",
-                    textAlign: "center",
-                  }}
-                >
-                  <Typography>
-                    Wind Speed: {weather.wind_speed_10m} m/s
-                  </Typography>
-                </Grid>
+                {[
+                  {
+                    label: "Temperature",
+                    value: `${weather.temperature_2m}°C`,
+                    icon: <ThermostatIcon fontSize="medium" sx={{ color: "#ffea99" }} />,
+                  },
+                  {
+                    label: "Humidity",
+                    value: `${weather.relative_humidity_2m}%`,
+                    icon: <OpacityIcon fontSize="medium" sx={{ color: "#77b1d4" }} />,
+                  },
+                  {
+                    label: "Rainfall",
+                    value: `${weather.precipitation} mm`,
+                    icon: <WaterDropIcon fontSize="medium" sx={{ color: "#366899" }} />,
+                  },
+                  {
+                    label: "Wind Speed",
+                    value: `${weather.wind_speed_10m} m/s`,
+                    icon: <AirIcon fontSize="medium" sx={{ color: "#B4C3D2" }} />,
+                  },
+                ].map((item, index) => (
+                  <Grid key={index} size={{ xs: 6, sm: 6, md: 6, lg: 6 }}>
+                    <Box
+                      sx={{
+                        padding: 1,
+                        paddingLeft: 3,
+                        // border: "1px solid #ccc",
+                        // borderRadius: 2,
+                        textAlign: "left",
+                        // backgroundColor: "#E8F1F5",
+                        // backgroundColor: "#fbfcfc",
+                        // boxShadow: "2px 2px 2px #C4D8E2", // Updated boxShadow color
+                        boxShadow: "2px 2px 2px #E8F1F5", // Updated boxShadow color
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "left",
+                          gap: 1,
+                        }}
+                      >
+                        {item.icon}
+                        <Typography
+                          variant="caption"
+                          sx={{ fontSize: 14, opacity: 0.7 }}
+                        >
+                          {item.label}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontSize: { xs: 14, sm: 14, md: 16, lg: 22 },
+                          fontWeight: "500",
+                          mt: 1,
+                          // pl: 2,
+                        }}
+                      >
+                        {item.value}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                ))}
               </Grid>
             ) : (
               <Typography align="center">Loading...</Typography>
@@ -235,18 +260,26 @@ function CurrentLocation() {
           }}
         >
           {selectedLocation ? (
-            <Typography
-              align="center"
-              sx={{ mt: 5, mb: 5, fontSize: "1.5rem" }}
-            >
-              Past Disasters in {selectedLocation}
-            </Typography>
+            <>
+              <Typography
+                align="center"
+                sx={{ mt: 5, mb: 0, fontSize: "1.7rem" }}
+              >
+                Disasters
+              </Typography>
+              <Typography
+                align="center"
+                sx={{ mt: 2, mb: 5, fontSize: "1.2rem", fontStyle: "italic" }}
+              >
+                ---- {selectedLocation} ----
+              </Typography>
+            </>
           ) : (
             <Typography
               align="center"
-              sx={{ mt: 5, mb: 5, fontSize: "1.5rem" }}
+              sx={{ mt: 5, mb: 5, fontSize: "1.7rem" }}
             >
-              Past Disasters
+              Disasters
             </Typography>
           )}
 
@@ -263,11 +296,12 @@ function CurrentLocation() {
                     flexDirection: "column",
                     height: "400px",
                     overflowY: "auto",
+                    // alignItems: filteredDisasters.length < 4 ? "center" : "flex-start",
                   }}
                 >
                   {cards}
                 </div>
-              ) : (
+              ) : filteredDisasters.length >= 4 ? (
                 <Carousel
                   responsive={{
                     desktop: { breakpoint: { max: 3000, min: 1024 }, items: 4 },
@@ -275,6 +309,18 @@ function CurrentLocation() {
                 >
                   {cards}
                 </Carousel>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    justifyContent:
+                      filteredDisasters.length < 4 ? "center" : "flex-start", // Center cards if less than 4
+                    width: "100%",
+                  }}
+                >
+                  {cards}
+                </div>
               )
             ) : (
               <Typography align="center" sx={{ fontSize: "1.2rem", mt: 4 }}>
