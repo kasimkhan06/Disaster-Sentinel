@@ -7,6 +7,7 @@ import Header from './components/Header';
 import Login from './pages/authentication/login';
 import Register from './pages/authentication/register';
 import Verification from './pages/authentication/verification';
+import NGODashboard from './pages/agency/Agency';
 
 const App = () => {
     // let component
@@ -32,7 +33,8 @@ const App = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/verification" element={<Verification />} />
       <Route path="/current-location" element={<CurrentLocation />} />
-        <Route path="/disaster-details/:id" element={<DisasterInfo />} />
+      <Route path="/disaster-details/:id" element={<DisasterInfo />} />
+      <Route path="/agency" element={<NGODashboard />} />
     </Routes>
     </>
   )

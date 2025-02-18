@@ -138,7 +138,7 @@ const Header = () => {
           Report Missing person
         </MenuItem>
         <MenuItem
-          onClick={handleMenuClose}
+          onClick={() => handleNavigation("/agency")}
           sx={{ width: "100%", justifyContent: "center" }}
         >
           Agency Information
