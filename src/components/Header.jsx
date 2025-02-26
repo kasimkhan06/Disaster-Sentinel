@@ -18,7 +18,7 @@ import logo from "./logo.png";
 
 // const PAGES = ["Home", "About", "Contact Us"];
 const Header = () => {
-  const [value, setValue] = useState();
+  const [value, setValue] = useState(0);
   // Initial value is undefined
   const theme = useTheme();
   console.log(theme);

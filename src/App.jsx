@@ -8,6 +8,8 @@ import Login from './pages/authentication/login';
 import Register from './pages/authentication/register';
 import Verification from './pages/authentication/verification';
 import NGODashboard from './pages/agency/Agency';
+import RegistrationForm from './pages/dashboard/agency/RegistrationForm';
+import AgencyDashboard from './pages/dashboard/agency/agencyDashboard';
 
 const App = () => {
     // let component
@@ -35,6 +37,8 @@ const App = () => {
       <Route path="/current-location" element={<CurrentLocation />} />
       <Route path="/disaster-details/:id" element={<DisasterInfo />} />
       <Route path="/agency" element={<NGODashboard />} />
+      <Route path="/RegistrationForm" element={<RegistrationForm />} />
+      <Route path="/AgencyDashboard" element={<AgencyDashboard />} />
     </Routes>
     </>
   )

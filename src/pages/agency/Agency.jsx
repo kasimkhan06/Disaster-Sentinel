@@ -36,13 +36,13 @@ export default function NGODashboard() {
         </Grid>
         <Grid item xs={4} sx={{ display: "flex", justifyContent: "flex-center", ml: 12, alignItems: "center" }}>
           <FormControl sx={{ width: "50%" }} variant="outlined">
-        <InputLabel>Filter by Type</InputLabel>
-        <Select variant="outlined" defaultValue="all">
-          <MenuItem value="all">All</MenuItem>
-          <MenuItem value="flood">Flood Relief</MenuItem>
-          <MenuItem value="earthquake">Earthquake Relief</MenuItem>
-          <MenuItem value="fire">Fire Disaster Relief</MenuItem>
-        </Select>
+            <InputLabel>Filter by Type</InputLabel>
+            <Select variant="outlined" defaultValue="all">
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="flood">Flood Relief</MenuItem>
+              <MenuItem value="earthquake">Earthquake Relief</MenuItem>
+              <MenuItem value="fire">Fire Disaster Relief</MenuItem>
+            </Select>
           </FormControl>
         </Grid>
       </Grid>
