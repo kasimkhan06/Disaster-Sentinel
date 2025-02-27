@@ -8,8 +8,6 @@ import {
   Button,
   IconButton,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import Address from "../../../components/Address";
 import AgencyInfo from "../../../components/agencyInfo";
 
 const RegistrationForm = () => {
@@ -18,9 +16,9 @@ const RegistrationForm = () => {
     chiefName: "",
     contact1: "",
     contact2: "",
-    addresses: [""], 
-    cities: [""],
-    states: [""],
+    address: "", 
+    district: "",
+    state: "",
     website: "",
     email: "",
     agencyType: "",
@@ -31,7 +29,9 @@ const RegistrationForm = () => {
   const [errors, setErrors] = useState({});
   const [agencyTypeValue, setAgencyTypeValue] = useState("select");
   const [agencyLevelValue, setAgencyLevelValue] = useState("select");
-    
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");  
+
   const handleAgencyTypeChange = (e) => {
     setAgencyTypeValue(e.target.value);
     setFormData({
@@ -40,6 +40,24 @@ const RegistrationForm = () => {
     });
   };
 
+  const handleState = (e) => {
+    const state = e.target.value;
+    setSelectedState(e.target.value || ""); 
+    setSelectedDistrict("");
+    setFormData({ 
+      ...formData, 
+      state: e.target.value || "", 
+      district: "" });
+  };
+  
+  const handleDistrict = (e) => {
+    const district = e.target.value;
+    setSelectedDistrict(e.target.value || ""); 
+    setFormData({ 
+      ...formData, 
+      district: e.target.value || "" });
+  };
+  
   const handleAgencyLevelChange = (e) => {
     setAgencyLevelValue(e.target.value);
     setFormData({
@@ -64,32 +82,11 @@ const RegistrationForm = () => {
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
 
-  const addAddress = () => {
-    setFormData((prev) => ({
-      ...prev,
-      addresses: [...prev.addresses, ""],
-      cities: [...prev.cities, ""],
-      states: [...prev.states, ""],
-    }));
-  };
-
-  const handleRemoveAddress = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      addresses: prev.addresses.filter((_, i) => i !== index),
-      cities: prev.cities.filter((_, i) => i !== index),
-      states: prev.states.filter((_, i) => i !== index),
-    }));
-  };
-
   const validateForm = () => {
     let newErrors = {};
     if (!formData.agencyName.trim()) newErrors.agencyName = "Agency Name is required";
     if (!formData.chiefName.trim()) newErrors.chiefName = "Chief Functionary Name is required";
     if (!formData.contact1.trim()) newErrors.contact = "Contact Number is required";
-    if (!formData.address.trim()) newErrors.address = "Address is required";
-    if (!formData.city.trim()) newErrors.city = "City is required";
-    if (!formData.state.trim()) newErrors.state = "State is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (agencyLevelValue === "select") newErrors.agencyLevel = "Level Of The Agency is required";
     if (agencyValue === "Other" && !formData.agencyType.trim())
@@ -120,7 +117,20 @@ const RegistrationForm = () => {
           <Typography variant="h4" sx={{ textAlign: "start", mb: 1, color: "black" }}>
             1. Enter Information   
           </Typography>
-          <AgencyInfo formData={formData} errors={errors} handleChange={handleChange} agencyLevelValue={agencyLevelValue} handleAgencyLevelChange={handleAgencyLevelChange} agencyTypeValue={agencyTypeValue} handleAgencyTypeChange={handleAgencyTypeChange} />
+          <AgencyInfo 
+            formData={formData} 
+            errors={errors} 
+            agencyLevelValue={agencyLevelValue} 
+            agencyTypeValue={agencyTypeValue} 
+            selectedState={selectedState} 
+            selectedDistrict={selectedDistrict}
+            handleChange={handleChange} 
+            setFormData={setFormData}
+            handleAgencyLevelChange={handleAgencyLevelChange} 
+            handleAgencyTypeChange={handleAgencyTypeChange} 
+            setSelectedState={setSelectedState}
+            setSelectedDistrict={setSelectedDistrict}
+          />
 
           {/* Address Section */}
           <Typography variant="h4" sx={{ textAlign: "start", mb: 1, color: "black", mt: 3 }}>
@@ -134,31 +144,7 @@ const RegistrationForm = () => {
               boxShadow: "0 0 10px rgba(14, 12, 12, 0.1)",
             }}
           >
-            <Typography variant="h5" sx={{ textAlign: "start", mb: 3, color: "black" }}>
-              Headquarters Details
-            </Typography>
-
-            {formData.addresses.map((_, index) => (
-              <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <Address
-                  index={index}
-                  formData={formData}
-                  errors={errors}
-                  handleChange={handleChange}
-                />
-                {/* Delete Button */}
-                {formData.addresses.length > 1 && (
-                  <IconButton
-                    onClick={() => handleRemoveAddress(index)}
-                    sx={{ ml: 2, color: "red" }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                )}
-              </Box>
-            ))}
-
-            <Button
+            {/* <Button
               variant="contained"
               onClick={addAddress}
               sx={{
@@ -169,7 +155,7 @@ const RegistrationForm = () => {
               }}
             >
               Add Location
-            </Button>
+            </Button> */}
           </Card>
         </Container>
       </Box>

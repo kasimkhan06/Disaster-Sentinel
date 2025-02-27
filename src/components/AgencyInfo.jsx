@@ -1,11 +1,25 @@
 import React from 'react'
 import { Card, Grid, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material'
+import StateDistrictDropdown from './StateDistrict';
 
-function AgencyInfo({ formData, errors, handleChange, agencyLevelValue, handleAgencyLevelChange, agencyTypeValue, handleAgencyTypeChange }) {
+function AgencyInfo({ 
+    formData, 
+    errors, 
+    agencyLevelValue, 
+    agencyTypeValue, 
+    selectedState, 
+    selectedDistrict,
+    handleChange, 
+    setFormData,
+    handleAgencyLevelChange, 
+    handleAgencyTypeChange, 
+    setSelectedState,
+    setSelectedDistrict
+    }) {
   return (
     <Card
         sx={{
-            bgcolor: "rgba(255, 255, 255, 0.95)", // Semi-transparent white background
+            bgcolor: "rgba(255, 255, 255, 0.95)", 
             padding: "20px",
             borderRadius: "10px",
             boxShadow: "0 0 10px rgba(14, 12, 12, 0.1)",
@@ -44,23 +58,6 @@ function AgencyInfo({ formData, errors, handleChange, agencyLevelValue, handleAg
                 />
             </Grid>
             <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                <InputLabel sx={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Nature / Level Of The Agency</InputLabel>
-                <FormControl fullWidth variant="outlined">
-                    <Select
-                    variant="standard"
-                    name="agencyLevel"
-                    value={agencyLevelValue}
-                    onChange={handleAgencyLevelChange}
-                    >
-                    <MenuItem value="select">Select...</MenuItem>
-                    <MenuItem value="local">Local</MenuItem>
-                    <MenuItem value="district">District</MenuItem>
-                    <MenuItem value="national">National</MenuItem>
-                    <MenuItem value="international">International</MenuItem>
-                    </Select>
-                </FormControl>
-            </Grid>
-            <Grid item xs={12} sx={{ marginTop: "10px" }}>
                 <InputLabel sx={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Type Of The Agency</InputLabel>
                 <FormControl fullWidth variant="outlined">
                     <Select variant="standard" value={agencyTypeValue} onChange={handleAgencyTypeChange}>
@@ -93,20 +90,6 @@ function AgencyInfo({ formData, errors, handleChange, agencyLevelValue, handleAg
                 />
             </Grid>
             )}
-
-            <Grid item xs={12}>
-                <TextField
-                    fullWidth
-                    label="Name Of The Chief Functionary"
-                    variant="standard"
-                    name="chiefName"
-                    value={formData.chiefName}
-                    onChange={handleChange}
-                    error={!!errors.chiefName}
-                    helperText={errors.chiefName}
-                    InputLabelProps={{ style: { fontSize: '1.1rem', fontWeight: 'bold' } }}
-                />
-            </Grid>
             <Grid item xs={12}>
                 <TextField
                     fullWidth
@@ -157,6 +140,27 @@ function AgencyInfo({ formData, errors, handleChange, agencyLevelValue, handleAg
                     InputLabelProps={{ style: { fontSize: '1.1rem', fontWeight: 'bold' } }}
                 />
             </Grid>
+            <Grid item xs={12}>
+                <TextField
+                    fullWidth
+                    label='Address'
+                    variant="standard"
+                    name= 'address'
+                    value={formData.address}
+                    onChange={handleChange}
+                    error={!!errors.address}
+                    helperText={errors.address}
+                    InputLabelProps={{ style: { fontSize: "1.1rem", fontWeight: "bold" } }}
+                />
+                </Grid>
+                <StateDistrictDropdown 
+                    formData={formData}
+                    selectedState={selectedState} 
+                    selectedDistrict={selectedDistrict} 
+                    setFormData={setFormData}
+                    setSelectedState={setSelectedState}
+                    setSelectedDistrict={setSelectedDistrict}
+                />
         </Grid>
     </Card>
   )
