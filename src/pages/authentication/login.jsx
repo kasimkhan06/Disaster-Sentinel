@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Typography, Box, Grid, TextField, Button, Avatar } from "@mui/material";
+import { Typography, Box, Grid, TextField, Button, Avatar, } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -45,36 +47,39 @@ const Login = () => {
   return (
     <Box
       sx={{
-        background: "linear-gradient(to bottom, #4F646F, rgb(168, 178, 197))",
+        background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        margin: 0,
+        // margin: 0,
         padding: 0,
         overflow: "hidden",
       }}
     >
       <Box
         sx={{
-          width: { xs: "90%", sm: "70%", md: "50%" },
+          width: { xs: "90%", sm: "60%", md: "35%" },
           backgroundColor: "#fff",
-          padding: "40px",
+          paddingTop: "25px",
+          paddingBottom: "25px",
           borderRadius: "12px",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
         }}
       >
         <Box sx={{ textAlign: "center" }}>
-          <Avatar sx={{ bgcolor: "#4F646F", margin: "auto", width: 56, height: 56 }}>
+          <Avatar sx={{ bgcolor: "#4F646F", margin: "auto", width: 50, height: 50 }}>
             <PersonIcon />
           </Avatar>
-          <Typography variant="h5" fontWeight="bold" mt={2}>Login</Typography>
+          <Typography variant="h6" fontWeight="bold" mt={2}>LOGIN</Typography>
         </Box>
 
-        <Grid container spacing={3} mt={3}>
-          <Grid item xs={12}>
+        <Grid container spacing={2} mt={2} justifyContent={"center"}>
+          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+          <EmailIcon sx={{mt:2, ml:5 , mr:1,color: "gray" }} />
             <TextField 
-              fullWidth 
+              //fullWidth
               label="Email" 
               variant="standard" 
               name="email" 
@@ -82,11 +87,17 @@ const Login = () => {
               onChange={handleChange} 
               error={!!errors.email} 
               helperText={errors.email} 
+              size="small"
+              sx = {{width: "70%"}}
+              InputLabelProps={{ sx: { fontSize: "0.9rem" }, }}
             />
+            </Box>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+          <LockIcon sx={{ mt:2,ml:5 , mr:1,color: "gray" }} />
             <TextField
-              fullWidth
+              // fullWidth
               label="Password"
               type="password"
               variant="standard"
@@ -95,20 +106,24 @@ const Login = () => {
               onChange={handleChange}
               error={!!errors.password}
               helperText={errors.password}
+              size="small"
+              sx = {{width: "70%"}}
+              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
             />
+            </Box>
           </Grid>
         </Grid>
 
-        <Box textAlign="center" mt={4}>
+        <Box textAlign="center" mt={4} >
           <Button
             variant="contained"
             size="medium"
             sx={{
               textTransform: "uppercase",
-              width: "50%",
+              width: "15%",
               backgroundColor: "#4F646F",
-              padding: "8px 16px",
-              fontSize: "14px",
+              padding: "8px",
+              fontSize: "12px",
             }}
             onClick={handleLogin}
           >
@@ -117,7 +132,7 @@ const Login = () => {
         </Box>
 
         <Box textAlign="center" mt={3}>
-          <Typography variant="body2" color="black">
+          <Typography variant="body2" color="textSecondary">
             Don’t have an account?
             <Button variant="text" onClick={handleRegister}>Register</Button>
           </Typography>

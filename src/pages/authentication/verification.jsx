@@ -68,7 +68,7 @@ const Verification = () => {
   return (
     <Box
       sx={{
-        background: "linear-gradient(to bottom, #4F646F, rgb(168, 178, 197))",
+        background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
@@ -80,11 +80,11 @@ const Verification = () => {
     >
       <Box
         sx={{
-          width: { xs: "100%", sm: "70%", md: "40%" },
-          height: "auto",
-          minHeight: "60vh",
+          width: { xs: "90%", sm: "50%", md: "40%" },
+          // height: "auto",
+          minHeight: "60vh", 
           backgroundColor: "#fff",
-          padding: "50px",
+          paddingTop: "10px",
           borderRadius: "12px",
           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
           textAlign: "center",
@@ -93,8 +93,8 @@ const Verification = () => {
           justifyContent: "center",
         }}
       >
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Verification
+        <Typography variant="h6" fontWeight="bold"  gutterBottom>
+          VERIFICATION
         </Typography>
 
         <Typography variant="body1" gutterBottom>
@@ -102,7 +102,7 @@ const Verification = () => {
           Please verify your email!
         </Typography>
 
-        <Box mt={3}>
+        <Box mt={3} sx={{ display: "flex", flexDirection: "column", alignItems: "center" }} >
           <TextField
             label="OTP"
             variant="outlined"
@@ -110,14 +110,14 @@ const Verification = () => {
             onChange={handleChange}
             error={!!error}
             helperText={error}
-            sx={{ width: "70%", marginBottom: 2 }}
+            sx={{ width: "40%", marginBottom: 1 }}
           />
           <Button
             variant="contained"
-            size="large"
             sx={{
+              mt: 2,
               textTransform: "uppercase",
-              width: "35%",
+              width: "15%",
               backgroundColor: "#4F646F",
             }}
             onClick={handleSubmit}
@@ -133,7 +133,7 @@ const Verification = () => {
           </Typography>
         </Box>
 
-        <Box mt={3}>
+        <Box mt={2}>
           <Typography variant="body2">
             Already registered?{" "}
             <Button variant="text" onClick={loginRedirect}>
