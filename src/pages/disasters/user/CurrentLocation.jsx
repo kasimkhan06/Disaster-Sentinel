@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -6,6 +6,10 @@ import {
   Box,
   Typography,
   CardActionArea,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import Container from "@mui/material/Container";
@@ -23,6 +27,20 @@ import ThermostatIcon from "@mui/icons-material/Thermostat";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import AirIcon from "@mui/icons-material/Air";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import DisasterMap from "./DisasterMap";
+import CurrentLocationMap from "./CurrentLocationMap";
+import TimelineIcon from "@mui/icons-material/Timeline";
+import MapIcon from "@mui/icons-material/Map";
+import WarningIcon from "@mui/icons-material/Warning";
 
 function CurrentLocation() {
   const theme = useTheme();
@@ -49,6 +67,11 @@ function CurrentLocation() {
   const navigate = useNavigate();
   const [selectedLocation, setSelectedLocation] = useState("");
   const [weather, setWeather] = useState(null);
+  const [filters, setFilters] = useState({
+    year: "",
+    disasterType: "",
+  });
+  const [allDisasters, setAllDisasters] = useState([]); // Store all disasters initially
   // Using the custom hook
   const {
     disasters,
@@ -59,7 +82,79 @@ function CurrentLocation() {
     loadingWeather,
   } = useDisasterData(selectedLocation, setWeather);
 
-  const cards = filteredDisasters.map((disaster, index) => (
+  const [locallyFilteredDisasters, setLocallyFilteredDisasters] =
+    useState(filteredDisasters);
+  const applyFilters = () => {
+    let filtered = allDisasters;
+
+    if (filters.year) {
+      filtered = filtered.filter((disaster) => disaster.year === filters.year);
+    }
+
+    if (filters.disasterType) {
+      filtered = filtered.filter(
+        (disaster) => disaster.disaster_type === filters.disasterType
+      );
+    }
+
+    setLocallyFilteredDisasters(filtered); // Update the locally filtered disasters
+  };
+  const clearFilters = () => {
+    setFilters({ year: "", disasterType: "" });
+    setLocallyFilteredDisasters(allDisasters); // Reset to all disasters
+  };
+
+  useEffect(() => {
+    if (selectedLocation) {
+      setAllDisasters(filteredDisasters); // Store all disasters
+      setLocallyFilteredDisasters(filteredDisasters); // Update locally filtered disasters
+    }
+  }, [selectedLocation, filteredDisasters]);
+  // Process data for the bar chart
+  const disasterStats = {};
+  const allDisasterTypes = new Set(); // To store all unique disaster types
+
+  // Step 1: Populate disasterStats and collect all disaster types
+  filteredDisasters.forEach((disaster) => {
+    if (!disasterStats[disaster.year]) {
+      disasterStats[disaster.year] = {};
+    }
+    if (!disasterStats[disaster.year][disaster.disaster_type]) {
+      disasterStats[disaster.year][disaster.disaster_type] = 0;
+    }
+    disasterStats[disaster.year][disaster.disaster_type] += 1;
+
+    // Add the disaster type to the set
+    allDisasterTypes.add(disaster.disaster_type);
+  });
+
+  // Step 2: Ensure every year has all disaster types, even if the count is 0
+  const chartData = Object.keys(disasterStats).map((year) => {
+    const yearData = { year };
+
+    // Initialize all disaster types for this year
+    allDisasterTypes.forEach((type) => {
+      yearData[type] = disasterStats[year][type] || 0; // Use 0 if the disaster type doesn't exist for this year
+    });
+
+    return yearData;
+  });
+
+  const [selectedDisasterType, setSelectedDisasterType] = useState("all");
+
+  const filteredChartData =
+    selectedDisasterType === "all"
+      ? chartData
+      : chartData.map((entry) => ({
+          year: entry.year,
+          [selectedDisasterType]: entry[selectedDisasterType],
+        }));
+
+  console.log("chartData:", chartData);
+  console.log("disasterStats:", disasterStats);
+  console.log("All Disaster Types:", allDisasterTypes);
+
+  const cards = locallyFilteredDisasters.map((disaster, index) => (
     <div style={{ margin: "10px" }} key={index}>
       <Card
         onClick={() => navigate(`/disaster-details/${disaster.id}`)}
@@ -100,7 +195,7 @@ function CurrentLocation() {
 
   return (
     <>
-      <Container maxWidth="lg">
+      <Container maxWidth={false} sx={{ width: "100%" }}>
         <div
           style={{
             display: "flex",
@@ -152,118 +247,278 @@ function CurrentLocation() {
             )}
           />
         </div>
+        {selectedLocation ? (
+          <>
+            <Grid container spacing={1} sx={{ m: 0, width: "100%" }}>
+              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }}>
+                <div
+                  style={{
+                    margin: "10px",
+                    // backgroundColor: "#f7fcff",
+                    padding: "10px",
+                  }}
+                >
+                  <Typography
+                    align="center"
+                    sx={{ mt: 0, mb: 5, fontSize: "1.5rem" }}
+                  >
+                    Current Weather Conditions
+                  </Typography>
+                  {!loadingWeather ? (
+                    weather && Object.keys(weather).length > 0 ? (
+                      <Grid
+                        container
+                        spacing={2}
+                        sx={{
+                          mt: 2,
+                          justifyContent: "center", // Centers grid horizontally
+                          display: "flex",
+                          // maxWidth: { xs: "100%", sm: "80%", md: "80%" }, // Adjust width dynamically
+                          maxWidth: "100%",
+                          margin: "auto", // Centers the grid in the container
+                        }}
+                      >
+                        {[
+                          {
+                            label: "Temperature",
+                            value: `${weather.temperature_2m}°C`,
+                            icon: (
+                              <ThermostatIcon
+                                fontSize="medium"
+                                sx={{ color: "#ffea99" }}
+                              />
+                            ),
+                          },
+                          {
+                            label: "Humidity",
+                            value: `${weather.relative_humidity_2m}%`,
+                            icon: (
+                              <OpacityIcon
+                                fontSize="medium"
+                                sx={{ color: "#77b1d4" }}
+                              />
+                            ),
+                          },
+                          {
+                            label: "Rainfall",
+                            value: `${weather.precipitation} mm`,
+                            icon: (
+                              <WaterDropIcon
+                                fontSize="medium"
+                                sx={{ color: "#366899" }}
+                              />
+                            ),
+                          },
+                          {
+                            label: "Wind Speed",
+                            value: `${weather.wind_speed_10m} m/s`,
+                            icon: (
+                              <AirIcon
+                                fontSize="medium"
+                                sx={{ color: "#B4C3D2" }}
+                              />
+                            ),
+                          },
+                        ].map((item, index) => (
+                          <Grid
+                            key={index}
+                            size={{ xs: 6, sm: 6, md: 6, lg: 6 }}
+                          >
+                            <Box
+                              sx={{
+                                padding: 1,
+                                paddingLeft: 3,
+                                // border: "1px solid #ccc",
+                                // borderRadius: 2,
+                                textAlign: "left",
+                                // backgroundColor: "#E8F1F5",
+                                // backgroundColor: "#fbfcfc",
+                                // boxShadow: "2px 2px 2px #C4D8E2", // Updated boxShadow color
+                                boxShadow: "2px 2px 2px #E8F1F5", // Updated boxShadow color
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "left",
+                                  gap: 1,
+                                }}
+                              >
+                                {item.icon}
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontSize: 14, opacity: 0.7 }}
+                                >
+                                  {item.label}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontSize: { xs: 14, sm: 14, md: 16, lg: 22 },
+                                  fontWeight: "500",
+                                  mt: 1,
+                                  // pl: 2,
+                                }}
+                              >
+                                {item.value}
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    ) : (
+                      <Typography align="center">Loading...</Typography>
+                    )
+                  ) : (
+                    <Typography align="center">
+                      Enter a location to view weather conditions.
+                    </Typography>
+                  )}
+                </div>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4 }}>
+                <div
+                  style={{
+                    margin: "10px",
+                    padding: "10px",
+                  }}
+                >
+                  <Typography align="center" sx={{ fontSize: "1.5rem", mb: 5 }}>
+                    Disaster Trends Over the Years
+                  </Typography>
 
-        <div
-          style={{
-            margin: "10px",
-            // backgroundColor: "#f7fcff",
-            padding: "10px",
-          }}
-        >
-          <Typography align="center" sx={{ mt: 5, mb: 5, fontSize: "1.7rem" }}>
-            Current Weather Conditions
-          </Typography>
-          {!loadingWeather ? (
-            weather && Object.keys(weather).length > 0 ? (
-              <Grid
-                container
-                spacing={2}
-                sx={{
-                  mt: 2,
-                  justifyContent: "center", // Centers grid horizontally
-                  display: "flex",
-                  maxWidth: { xs: "100%", sm: "80%", md: "60%" }, // Adjust width dynamically
-                  margin: "auto", // Centers the grid in the container
-                }}
-              >
-                {[
-                  {
-                    label: "Temperature",
-                    value: `${weather.temperature_2m}°C`,
-                    icon: <ThermostatIcon fontSize="medium" sx={{ color: "#ffea99" }} />,
-                  },
-                  {
-                    label: "Humidity",
-                    value: `${weather.relative_humidity_2m}%`,
-                    icon: <OpacityIcon fontSize="medium" sx={{ color: "#77b1d4" }} />,
-                  },
-                  {
-                    label: "Rainfall",
-                    value: `${weather.precipitation} mm`,
-                    icon: <WaterDropIcon fontSize="medium" sx={{ color: "#366899" }} />,
-                  },
-                  {
-                    label: "Wind Speed",
-                    value: `${weather.wind_speed_10m} m/s`,
-                    icon: <AirIcon fontSize="medium" sx={{ color: "#B4C3D2" }} />,
-                  },
-                ].map((item, index) => (
-                  <Grid key={index} size={{ xs: 6, sm: 6, md: 6, lg: 6 }}>
-                    <Box
+                  {/* Dropdown for disaster types */}
+                  <Box
+                    sx={{
+                      padding: 1,
+                      paddingLeft: 3,
+                      mb: 3,
+                      textAlign: "left",
+                      boxShadow: "2px 2px 2px #E8F1F5",
+                      position: "relative", // To position the label correctly
+                    }}
+                  >
+                    <InputLabel
+                      id="disaster-type-select-label"
                       sx={{
-                        padding: 1,
-                        paddingLeft: 3,
-                        // border: "1px solid #ccc",
-                        // borderRadius: 2,
-                        textAlign: "left",
-                        // backgroundColor: "#E8F1F5",
-                        // backgroundColor: "#fbfcfc",
-                        // boxShadow: "2px 2px 2px #C4D8E2", // Updated boxShadow color
-                        boxShadow: "2px 2px 2px #E8F1F5", // Updated boxShadow color
+                        position: "absolute", // Position the label absolutely
+                        top: -5, // Adjust the vertical position
+                        left: 16, // Adjust the horizontal position
+                        backgroundColor: "background.paper", // Match the background color
+                        padding: "0 2px", // Add padding to avoid overlap
+                        fontSize: "0.75rem", // Match the label size
+                        color: "text.secondary", // Match the label color
+                        fontStyle: "italic", // Italicize the label
                       }}
                     >
-                      <Box
+                      Select Disaster Type
+                    </InputLabel>
+                    <FormControl fullWidth>
+                      <Select
+                        labelId="disaster-type-select-label"
+                        id="disaster-type-select"
+                        value={selectedDisasterType}
+                        onChange={(e) =>
+                          setSelectedDisasterType(e.target.value)
+                        }
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "left",
-                          gap: 1,
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove the outline
+                          },
+                          "& .MuiSelect-select": {
+                            padding: "9px 32px 4px 12px", // Reduce padding here
+                          },
                         }}
                       >
-                        {item.icon}
-                        <Typography
-                          variant="caption"
-                          sx={{ fontSize: 14, opacity: 0.7 }}
-                        >
-                          {item.label}
-                        </Typography>
-                      </Box>
-                      <Typography
-                        sx={{
-                          fontSize: { xs: 14, sm: 14, md: 16, lg: 22 },
-                          fontWeight: "500",
-                          mt: 1,
-                          // pl: 2,
-                        }}
-                      >
-                        {item.value}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                ))}
+                        <MenuItem value="all">All Disasters</MenuItem>
+                        {[...allDisasterTypes].map((type) => (
+                          <MenuItem key={type} value={type}>
+                            {type}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                  {/* Render the chart */}
+                  {filteredChartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={filteredChartData}>
+                        <XAxis dataKey="year" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        {selectedDisasterType === "all" ? (
+                          [...allDisasterTypes].map((disasterType, index) => {
+                            // Define a fixed set of colors for consistency
+                            const colors = [
+                              "#8884d8",
+                              "#82ca9d",
+                              "#ffc658",
+                              "#ff7300",
+                              "#a4de6c",
+                              "#d0ed57",
+                            ];
+                            const color = colors[index % colors.length]; // Cycle through colors if there are more disaster types than colors
+                            return (
+                              <Line
+                                key={disasterType}
+                                type="monotone"
+                                dataKey={disasterType}
+                                stroke={color}
+                                strokeWidth={2}
+                                dot={false}
+                              />
+                            );
+                          })
+                        ) : (
+                          <Line
+                            type="monotone"
+                            dataKey={selectedDisasterType}
+                            stroke="#8884d8"
+                            strokeWidth={2}
+                            dot={false}
+                          />
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <Typography align="center">
+                      No disaster data available.
+                    </Typography>
+                  )}
+                </div>
               </Grid>
-            ) : (
-              <Typography align="center">Loading...</Typography>
-            )
-          ) : (
-            <Typography align="center">
-              Enter a location to view weather conditions.
-            </Typography>
-          )}
-        </div>
+              <Grid
+                container
+                justifyContent="center"
+                size={{ xs: 11, sm: 10, md: 10, lg: 5 }}
+                sx={{ pr: { xs: 2, md: 7 }, pb: 3, pt: 3, pl: 0 }}
+              >
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "400px",
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    position: "relative", // Ensure the Box is a positioning context
+                  }}
+                >
+                  <CurrentLocationMap filteredDisasters={filteredDisasters} />
+                </Box>
+              </Grid>
+            </Grid>
 
-        <div
-          style={{
-            margin: "10px",
-            // backgroundColor: "#f7fcff",
-            padding: "10px",
-          }}
-        >
-          {selectedLocation ? (
-            <>
+            <div
+              style={{
+                margin: "10px",
+                // backgroundColor: "#f7fcff",
+                padding: "10px",
+              }}
+            >
               <Typography
                 align="center"
-                sx={{ mt: 5, mb: 0, fontSize: "1.7rem" }}
+                sx={{ mt: 1, mb: 0, fontSize: "1.7rem" }}
               >
                 Disasters
               </Typography>
@@ -273,66 +528,302 @@ function CurrentLocation() {
               >
                 ---- {selectedLocation} ----
               </Typography>
-            </>
-          ) : (
+
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  justifyContent: "center",
+                  mb: 4,
+                }}
+              >
+                <Box
+                  sx={{
+                    padding: 1,
+                    paddingLeft: 2,
+                    mb: 3,
+                    textAlign: "left",
+                    boxShadow: "2px 2px 2px #E8F1F5",
+                    position: "relative", // To position the label correctly
+                  }}
+                >
+                  {/* Filter by Year */}
+                  <Autocomplete
+                    options={[
+                      ...new Set(allDisasters.map((disaster) => disaster.year)),
+                    ]}
+                    value={filters.year}
+                    onChange={(event, newValue) =>
+                      setFilters({ ...filters, year: newValue })
+                    }
+                    getOptionLabel={(option) => option.toString()} // Ensure the option is a string
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Year"
+                        variant="outlined"
+                        sx={{
+                          "& .MuiInputBase-root": {
+                            padding: "4px 8px", // Reduced padding
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove the outline
+                          },
+                        }}
+                      />
+                    )}
+                    sx={{ width: 200 }}
+                  />
+                </Box>
+                {/* Filter by Disaster Type */}
+                <Box
+                  sx={{
+                    padding: 1,
+                    paddingLeft: 2,
+                    mb: 3,
+                    textAlign: "left",
+                    boxShadow: "2px 2px 2px #E8F1F5",
+                    position: "relative", // To position the label correctly
+                  }}
+                >
+                  <Autocomplete
+                    options={[
+                      ...new Set(
+                        allDisasters.map((disaster) => disaster.disaster_type)
+                      ),
+                    ]}
+                    value={filters.disasterType}
+                    onChange={(event, newValue) =>
+                      setFilters({ ...filters, disasterType: newValue })
+                    }
+                    getOptionLabel={(option) => option} // Ensure the option is a string
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Disaster Type"
+                        variant="outlined"
+                        sx={{
+                          "& .MuiInputBase-root": {
+                            padding: "4px 8px", // Reduced padding
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove the outline
+                          },
+                        }}
+                      />
+                    )}
+                    sx={{ width: 200 }}
+                  />
+                </Box>
+                <Button
+                  // variant="contained"
+                  onClick={applyFilters}
+                  disableRipple
+                  sx={{
+                    height: 56, // Match the height of the Autocomplete boxes
+                    // padding: "8px 16px", // Adjust padding
+                    padding: "16px 3px 16px 8px",
+                    // boxShadow: "2px 2px 2px #E8F1F5", // Add box shadow
+                    display: "flex",
+                    alignItems: "center",
+                    backgroundColor: "white", // Maintain the original background
+                    "&:hover": {
+                      backgroundColor: "white", // Prevent color change on hover
+                    },
+                  }}
+                >
+                  Apply Filters
+                </Button>
+                <Button
+                  onClick={clearFilters}
+                  disableRipple
+                  sx={{
+                    height: 56, // Match the height of the Autocomplete boxes
+                    padding: "16px 2px 16px 3px",// Adjust padding
+                    // boxShadow: "2px 2px 2px #E8F1F5", // Add box shadow
+                    display: "flex",
+                    alignItems: "center",
+                    backgroundColor: "white", // Maintain the original background
+                    "&:hover": {
+                      backgroundColor: "white", // Prevent color change on hover
+                    },
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </Box>
+
+              {/* Total Disasters Counter */}
+              <Typography align="center" sx={{ fontSize: "1.2rem", mb: 3 }}>
+                Total Disasters: {locallyFilteredDisasters.length}
+              </Typography>
+
+              {loading ? (
+                <Typography align="center" sx={{ fontSize: "1.5rem", mt: 4 }}>
+                  Loading...
+                </Typography>
+              ) : locallyFilteredDisasters.length > 0 ? (
+                isMobileOrTablet ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      height: "400px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {cards}
+                  </div>
+                ) : locallyFilteredDisasters.length >= 4 ? (
+                  <div
+                    style={{
+                      width: "80%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      margin: "0 auto",
+                    }}
+                  >
+                    <Carousel
+                      responsive={{
+                        desktop: {
+                          breakpoint: { max: 3000, min: 1024 },
+                          items: 4,
+                        },
+                      }}
+                    >
+                      {cards}
+                    </Carousel>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      justifyContent:
+                        locallyFilteredDisasters.length < 4
+                          ? "center"
+                          : "flex-start",
+                      width: "100%",
+                    }}
+                  >
+                    {cards}
+                  </div>
+                )
+              ) : (
+                <Typography align="center" sx={{ fontSize: "1.2rem", mt: 4 }}>
+                  No disaster information available for this location
+                </Typography>
+              )}
+            </div>
+          </>
+        ) : (
+          // <Typography align="center" sx={{ mt: 4 }}>
+          //   Please enter a location to view the content.
+          // </Typography>
+          <Box
+            sx={{
+              width: "50%",
+              margin: "0 auto",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              mt: 4,
+              p: 3,
+              backgroundColor: "#E8F1F5", // Light background color
+              borderRadius: 2,
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow
+              animation: "fadeIn 1s ease-in-out", // Fade-in animation
+              "@keyframes fadeIn": {
+                "0%": { opacity: 0, transform: "translateY(-10px)" },
+                "100%": { opacity: 1, transform: "translateY(0)" },
+              },
+            }}
+          >
             <Typography
               align="center"
-              sx={{ mt: 5, mb: 5, fontSize: "1.7rem" }}
+              sx={{
+                fontSize: "1.5rem",
+                fontWeight: "600",
+                color: "#2c3e50", // Darker text color
+                mb: 2,
+              }}
             >
-              Disasters
+              Explore Any Given Location!
             </Typography>
-          )}
-
-          {selectedLocation ? (
-            loading ? (
-              <Typography align="center" sx={{ fontSize: "1.5rem", mt: 4 }}>
-                Loading...
-              </Typography>
-            ) : filteredDisasters.length > 0 ? (
-              isMobileOrTablet ? (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "400px",
-                    overflowY: "auto",
-                    // alignItems: filteredDisasters.length < 4 ? "center" : "flex-start",
-                  }}
-                >
-                  {cards}
-                </div>
-              ) : filteredDisasters.length >= 4 ? (
-                <Carousel
-                  responsive={{
-                    desktop: { breakpoint: { max: 3000, min: 1024 }, items: 4 },
-                  }}
-                >
-                  {cards}
-                </Carousel>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    justifyContent:
-                      filteredDisasters.length < 4 ? "center" : "flex-start", // Center cards if less than 4
-                    width: "100%",
-                  }}
-                >
-                  {cards}
-                </div>
-              )
-            ) : (
-              <Typography align="center" sx={{ fontSize: "1.2rem", mt: 4 }}>
-                No disaster information available for this location
-              </Typography>
-            )
-          ) : (
-            <Typography align="center" sx={{ mt: 4 }}>
-              Please enter a location to view disaster information
+            <Typography
+              align="center"
+              sx={{
+                fontSize: "1.2rem",
+                color: "#34495e", // Slightly lighter text color
+                fontStyle: "italic",
+              }}
+            >
+              Enter a location to unlock detailed insights:
             </Typography>
-          )}
-        </div>
+            <Box
+              sx={{
+                mt: 2,
+                textAlign: "center",
+                "& ul": {
+                  listStyleType: "none",
+                  padding: 0,
+                  margin: 0,
+                },
+                "& li": {
+                  fontSize: "1rem",
+                  color: "#7f8c8d", // Lighter text color for list items
+                  mb: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1,
+                },
+              }}
+            >
+              <ul>
+                <li>
+                  <ThermostatIcon fontSize="small" sx={{ color: "#ffea99" }} />
+                  Current Weather Conditions
+                </li>
+                <li>
+                  <TimelineIcon fontSize="small" sx={{ color: "#82ca9d" }} />
+                  Disaster Trends Over the Years
+                </li>
+                <li>
+                  <WarningIcon fontSize="small" sx={{ color: "#ff7300" }} />
+                  Historical Disasters in the Area
+                </li>
+                {/* <li>
+                  <MapIcon fontSize="small" sx={{ color: "#366899" }} />
+                  Interactive Map for Easy Access
+                </li> */}
+              </ul>
+            </Box>
+            <Typography
+              align="center"
+              sx={{
+                fontSize: "1rem",
+                color: "#7f8c8d", // Lighter text color for subtext
+                mt: 2,
+              }}
+            >
+              Discover everything you need to know about your chosen location!
+            </Typography>
+            {/* Disclaimer */}
+            <Typography
+              align="center"
+              sx={{
+                fontSize: "0.8rem",
+                color: "#95a5a6", // Even lighter text color for disclaimer
+                mt: 2,
+                fontStyle: "italic",
+              }}
+            >
+              * This tool provides insights for any given state in India.
+            </Typography>
+          </Box>
+        )}
 
         {/* Let us assume that our screen is divided into 12 columns.
 
