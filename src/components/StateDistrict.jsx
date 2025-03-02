@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
-import { Grid, InputLabel, FormControl, Select, MenuItem } from "@mui/material";
+import { Grid, TextField, Autocomplete } from "@mui/material";
 
 const StateDistrictDropdown = ({
   formData,
-  selectedState, 
-  selectedDistrict, 
-  setFormData, 
+  selectedState,
+  selectedDistrict,
+  setFormData,
   setSelectedState,
-  setSelectedDistrict}) => {
+  setSelectedDistrict,
+}) => {
   const [stateDistricts, setStateDistricts] = useState({});
   const [districts, setDistricts] = useState([]);
 
-  // Automatically load and parse the Excel file
+  // Load and parse the Excel file
   useEffect(() => {
     const fetchExcelFile = async () => {
       try {
@@ -52,58 +53,47 @@ const StateDistrictDropdown = ({
     };
 
     fetchExcelFile();
-  }, []); 
+  }, []);
 
-  const handleStateChange = (event) => {
-    const state = event.target.value;
-    setSelectedState(state);
-    setDistricts(stateDistricts[state] || []);
-    setFormData({ 
-      ...formData, 
-      state: event.target.value || "", 
-      district: "" });
+  const handleStateChange = (event, newValue) => {
+    setSelectedState(newValue || "");
+    setDistricts(newValue ? stateDistricts[newValue] || [] : []);
+    setSelectedDistrict(""); // Reset district when state changes
+    setFormData({ ...formData, state: newValue || "", district: "" });
   };
-  
-  const handleDistrictChange = (event) => {
-    const district = event.target.value;
-    setSelectedDistrict(district);
-    setFormData({ 
-      ...formData, 
-      district: event.target.value || "" });
+
+  const handleDistrictChange = (event, newValue) => {
+    setSelectedDistrict(newValue || "");
+    setFormData({ ...formData, district: newValue || "" });
   };
-  
 
   return (
-    <Grid container spacing={2} sx={{ padding: "15px" }}>
-      {/* State Dropdown */}
+    <Grid container spacing={2}>
+      {/* State Autocomplete */}
       <Grid item xs={12} sx={{ marginTop: "10px" }}>
-        <InputLabel sx={{ fontSize: '1.1rem', fontWeight: 'bold' }}>State</InputLabel>
-        <FormControl fullWidth variant="outlined">
-          <Select value={selectedState} onChange={handleStateChange} variant="standard">
-            <MenuItem value="">Select State...</MenuItem>
-            {Object.keys(stateDistricts).map((state) => (
-              <MenuItem key={state} value={state}>
-                {state}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          options={Object.keys(stateDistricts)} // List of states
+          value={selectedState}
+          onChange={handleStateChange}
+          renderInput={(params) => (
+            <TextField {...params} label="State" variant="standard" />
+          )}
+          sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}}
+        />
       </Grid>
 
-      {/* District Dropdown */}
+      {/* District Autocomplete (Only Show if State is Selected) */}
       {selectedState && (
         <Grid item xs={12} sx={{ marginTop: "10px" }}>
-          <InputLabel sx={{ fontSize: '1.1rem', fontWeight: 'bold' }}>District</InputLabel>
-          <FormControl fullWidth variant="outlined">
-            <Select value={selectedDistrict} onChange={handleDistrictChange} variant="standard">
-              <MenuItem value="">Select District...</MenuItem>
-              {districts.map((district) => (
-                <MenuItem key={district} value={district}>
-                  {district}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Autocomplete
+            options={districts} 
+            value={selectedDistrict}
+            onChange={handleDistrictChange}
+            renderInput={(params) => (
+              <TextField {...params} label="District" variant="standard" />
+            )}
+            sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}}
+          />
         </Grid>
       )}
     </Grid>

@@ -29,7 +29,7 @@ export default function NGODashboard() {
       {/* Search and Filter Bar */}
       <Grid container spacing={2} sx={{ mt: 4, alignItems: "center" }}>
         <Grid item xs={6}>
-          <TextField fullWidth variant="outlined" placeholder="Search NGOs by location..." />
+          <TextField fullWidth variant="outlined" placeholder="Search Agency by location..." />
         </Grid>
         <Grid item xs={1}>
           <Button variant="contained" color="primary" sx={{ width: "100%", height: "100%" }}><SearchIcon /></Button>
