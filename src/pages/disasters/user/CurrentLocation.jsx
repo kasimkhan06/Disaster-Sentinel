@@ -41,10 +41,12 @@ import CurrentLocationMap from "./CurrentLocationMap";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import MapIcon from "@mui/icons-material/Map";
 import WarningIcon from "@mui/icons-material/Warning";
+import { PiX } from "react-icons/pi";
 
 function CurrentLocation() {
   const theme = useTheme();
   const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const isBelow = useMediaQuery("(max-width:1375px)");
   const responsive = {
     superLargeDesktop: {
       // the naming can be any, depends on you.
@@ -168,7 +170,7 @@ function CurrentLocation() {
             transform: "scale(1.0)",
           },
           width: "100%", // Ensures responsiveness
-          height: 200, // Fixed height
+          height: { xs: 150, md: 200 }, // Fixed height
           display: "flex",
           flexDirection: "column",
           // justifyContent: 'center', // Centers content
@@ -177,14 +179,32 @@ function CurrentLocation() {
       >
         <CardActionArea>
           <CardContent>
-            <Typography variant="h6" component="div">
+            <Typography
+              sx={{
+                fontSize: {
+                  xs: "1.1rem",
+                  sm: "1.1rem",
+                  md: isBelow ? "1.1rem" : "1.3rem",
+                  lg: isBelow ? "1.1rem" : "1.3rem",
+                },
+                fontWeight: "500",
+              }}
+            >
               {disaster.title}
             </Typography>
-            <Typography sx={{ color: "text.secondary", fontSize: 14 }}>
+            <Typography
+              sx={{ color: "text.secondary", fontSize: { xs: 13, md: 14 } }}
+            >
               {" "}
               {disaster.year}
             </Typography>
-            <Typography sx={{ color: "text.secondary", mb: 1.5, fontSize: 14 }}>
+            <Typography
+              sx={{
+                color: "text.secondary",
+                mb: 1.5,
+                fontSize: { xs: 13, md: 14 },
+              }}
+            >
               Location: {disaster.location}, {disaster.state}
             </Typography>
           </CardContent>
@@ -218,7 +238,7 @@ function CurrentLocation() {
                     ...params.InputProps,
                     type: "search",
                     style: {
-                      width: "400px", // Set width to half
+                      // width: "400px", // Set width to half
                     },
                   },
                 }}
@@ -242,9 +262,28 @@ function CurrentLocation() {
                   "& .MuiInputLabel-root": {
                     color: "inherit",
                   },
+                  "& .MuiInputBase-input": {
+                    fontSize: {
+                      xs: "0.9rem",
+                      sm: "1rem",
+                      md: isBelow ? "1.1rem" : "1.2rem",
+                      lg: isBelow ? "1.1rem" : "1.2rem",
+                    },
+                  },
+                  "&::placeholder": {
+                    fontSize: {
+                      xs: "0.9rem",
+                      sm: "1rem",
+                      md: isBelow ? "1.1rem" : "1.2rem",
+                      lg: isBelow ? "1.1rem" : "1.2rem",
+                    },
+                  },
+                  width: { xs: "300px", md: "400px" },
                 }}
               />
+              
             )}
+            
           />
         </div>
         {selectedLocation ? (
@@ -255,12 +294,22 @@ function CurrentLocation() {
                   style={{
                     margin: "10px",
                     // backgroundColor: "#f7fcff",
-                    padding: "10px",
+                    padding: "0px",
                   }}
                 >
                   <Typography
                     align="center"
-                    sx={{ mt: 0, mb: 5, fontSize: "1.5rem" }}
+                    sx={{
+                      mt: 2,
+                      mb: 4,
+                      fontSize: {
+                        xs: "1rem",
+                        sm: "1.2rem",
+                        md: isBelow ? "1.2rem" : "1.4rem",
+                        lg: isBelow ? "1.2rem" : "1.4rem",
+                      },
+                      fontWeight: "500",
+                    }}
                   >
                     Current Weather Conditions
                   </Typography>
@@ -273,8 +322,8 @@ function CurrentLocation() {
                           mt: 2,
                           justifyContent: "center", // Centers grid horizontally
                           display: "flex",
-                          // maxWidth: { xs: "100%", sm: "80%", md: "80%" }, // Adjust width dynamically
-                          maxWidth: "100%",
+                          maxWidth: { xs: "100%", sm: "80%", md: "100%" }, // Adjust width dynamically
+                          // maxWidth: "100%",
                           margin: "auto", // Centers the grid in the container
                         }}
                       >
@@ -322,7 +371,12 @@ function CurrentLocation() {
                         ].map((item, index) => (
                           <Grid
                             key={index}
-                            size={{ xs: 6, sm: 6, md: 6, lg: 6 }}
+                            size={{
+                              xs: 6,
+                              sm: 6,
+                              md: isBelow ? 12 : 6,
+                              lg: isBelow ? 12 : 6,
+                            }}
                           >
                             <Box
                               sx={{
@@ -348,7 +402,15 @@ function CurrentLocation() {
                                 {item.icon}
                                 <Typography
                                   variant="caption"
-                                  sx={{ fontSize: 14, opacity: 0.7 }}
+                                  sx={{
+                                    fontSize: {
+                                      xs: "0.7rem",
+                                      sm: "0.9rem",
+                                      md: isBelow ? "1rem" : "1.2rem",
+                                      lg: isBelow ? "1.1rem" : "1.2rem",
+                                    },
+                                    opacity: 0.7,
+                                  }}
                                 >
                                   {item.label}
                                 </Typography>
@@ -368,10 +430,32 @@ function CurrentLocation() {
                         ))}
                       </Grid>
                     ) : (
-                      <Typography align="center">Loading...</Typography>
+                      <Typography
+                        align="center"
+                        sx={{
+                          fontSize: {
+                            xs: "1rem",
+                            sm: "1.2rem",
+                            md: isBelow ? "1.2rem" : "1.4rem",
+                            lg: isBelow ? "1.2rem" : "1.4rem",
+                          },
+                        }}
+                      >
+                        Loading...
+                      </Typography>
                     )
                   ) : (
-                    <Typography align="center">
+                    <Typography
+                      align="center"
+                      sx={{
+                        fontSize: {
+                          xs: "1rem",
+                          sm: "1.2rem",
+                          md: isBelow ? "1.2rem" : "1.4rem",
+                          lg: isBelow ? "1.2rem" : "1.4rem",
+                        },
+                      }}
+                    >
                       Enter a location to view weather conditions.
                     </Typography>
                   )}
@@ -381,22 +465,40 @@ function CurrentLocation() {
                 <div
                   style={{
                     margin: "10px",
-                    padding: "10px",
+                    // paddingLeft: {xs: "0px", md: "0px", lg: "10px"},
+                    // paddingRight: {xs: "10px", md: "10px", lg: "0px"},
                   }}
                 >
-                  <Typography align="center" sx={{ fontSize: "1.5rem", mb: 5 }}>
+                  <Typography
+                    align="center"
+                    sx={{
+                      fontSize: {
+                        xs: "1rem",
+                        sm: "1.2rem",
+                        md: isBelow ? "1.2rem" : "1.4rem",
+                        lg: isBelow ? "1.2rem" : "1.4rem",
+                      },
+                      fontWeight: "500",
+                      mt: 2,
+                      mb: 4,
+                      paddingLeft: { xs: "0px", md: "0px", lg: "10px" },
+                      paddingRight: { xs: "0px", md: "0px", lg: "10px" },
+                    }}
+                  >
                     Disaster Trends Over the Years
                   </Typography>
 
                   {/* Dropdown for disaster types */}
                   <Box
                     sx={{
-                      padding: 1,
                       paddingLeft: 3,
+                      // paddingRight: { xs: 3, md: 3, lg: 0 },
                       mb: 3,
                       textAlign: "left",
                       boxShadow: "2px 2px 2px #E8F1F5",
                       position: "relative", // To position the label correctly
+                      width: { xs: "300px", md: "350px" },
+                      marginX: "auto",
                     }}
                   >
                     <InputLabel
@@ -407,7 +509,13 @@ function CurrentLocation() {
                         left: 16, // Adjust the horizontal position
                         backgroundColor: "background.paper", // Match the background color
                         padding: "0 2px", // Add padding to avoid overlap
-                        fontSize: "0.75rem", // Match the label size
+                        // fontSize: "0.75rem", // Match the label size
+                        fontSize: {
+                          xs: "0.55rem",
+                          sm: "0.6rem",
+                          md: isBelow ? "0.6rem" : "0.75rem",
+                          lg: isBelow ? "0.6rem" : "0.75rem",
+                        },
                         color: "text.secondary", // Match the label color
                         fontStyle: "italic", // Italicize the label
                       }}
@@ -428,6 +536,12 @@ function CurrentLocation() {
                           },
                           "& .MuiSelect-select": {
                             padding: "9px 32px 4px 12px", // Reduce padding here
+                          },
+                          fontSize: {
+                            xs: "0.9rem",
+                            sm: "1rem",
+                            md: isBelow ? "1.1rem" : "1.2rem",
+                            lg: isBelow ? "1.1rem" : "1.2rem",
                           },
                         }}
                       >
@@ -483,7 +597,17 @@ function CurrentLocation() {
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
-                    <Typography align="center">
+                    <Typography
+                      align="center"
+                      sx={{
+                        fontSize: {
+                          xs: "1rem",
+                          sm: "1.2rem",
+                          md: isBelow ? "1.2rem" : "1.4rem",
+                          lg: isBelow ? "1.2rem" : "1.4rem",
+                        },
+                      }}
+                    >
                       No disaster data available.
                     </Typography>
                   )}
@@ -493,7 +617,13 @@ function CurrentLocation() {
                 container
                 justifyContent="center"
                 size={{ xs: 11, sm: 10, md: 10, lg: 5 }}
-                sx={{ pr: { xs: 2, md: 7 }, pb: 3, pt: 3, pl: 0 }}
+                sx={{
+                  pr: { xs: 0, md: 3 },
+                  pb: 3,
+                  pt: 3,
+                  pl: { xs: 0, md: 1 },
+                }}
+                marginX="auto"
               >
                 <Box
                   sx={{
@@ -513,148 +643,266 @@ function CurrentLocation() {
               style={{
                 margin: "10px",
                 // backgroundColor: "#f7fcff",
-                padding: "10px",
+                padding: "0px",
               }}
             >
               <Typography
                 align="center"
-                sx={{ mt: 1, mb: 0, fontSize: "1.7rem" }}
+                sx={{
+                  mt: 1,
+                  mb: 0,
+                  fontSize: {
+                    xs: "1rem",
+                    sm: "1.2rem",
+                    md: isBelow ? "1.2rem" : "1.4rem",
+                    lg: isBelow ? "1.2rem" : "1.4rem",
+                  },
+                  fontWeight: "500",
+                }}
               >
                 Disasters
               </Typography>
               <Typography
                 align="center"
-                sx={{ mt: 2, mb: 5, fontSize: "1.2rem", fontStyle: "italic" }}
+                sx={{
+                  mt: 2,
+                  mb: { xs: 3, md: 5 },
+                  fontSize: {
+                    xs: "0.9rem",
+                    sm: "1rem",
+                    md: isBelow ? "1.1rem" : "1.2rem",
+                    lg: isBelow ? "1.1rem" : "1.2rem",
+                  },
+                  fontStyle: "italic",
+                }}
               >
                 ---- {selectedLocation} ----
               </Typography>
 
-              <Box
+              <Grid
+                container
+                spacing={1}
+                sx={{
+                  mb: { xs: 1, md: 2 },
+                  width: {
+                    xs: "100%",
+                    sm: "90%",
+                    md: "83%",
+                    lg: isBelow ? "70%" : "60%",
+                  },
+                  marginX: "auto",
+                }}
+              >
+                {/* <Box
                 sx={{
                   display: "flex",
                   gap: 1,
                   justifyContent: "center",
                   mb: 4,
                 }}
-              >
-                <Box
+              > */}
+                <Grid
+                  size={{ xs: 6, sm: 6, md: 4, lg: 4 }}
                   sx={{
-                    padding: 1,
-                    paddingLeft: 2,
-                    mb: 3,
-                    textAlign: "left",
-                    boxShadow: "2px 2px 2px #E8F1F5",
-                    position: "relative", // To position the label correctly
+                    display: "flex",
+                    justifyContent: "right", // Centers the Box horizontally
+                    alignItems: "stretch", // Centers vertically (optional)
                   }}
                 >
-                  {/* Filter by Year */}
-                  <Autocomplete
-                    options={[
-                      ...new Set(allDisasters.map((disaster) => disaster.year)),
-                    ]}
-                    value={filters.year}
-                    onChange={(event, newValue) =>
-                      setFilters({ ...filters, year: newValue })
-                    }
-                    getOptionLabel={(option) => option.toString()} // Ensure the option is a string
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Year"
-                        variant="outlined"
-                        sx={{
-                          "& .MuiInputBase-root": {
-                            padding: "4px 8px", // Reduced padding
-                          },
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Remove the outline
-                          },
-                        }}
-                      />
-                    )}
-                    sx={{ width: 200 }}
-                  />
-                </Box>
+                  <Box
+                    sx={{
+                      width: { xs: "100%", sm: "75%", md: "90%" },
+                      padding: 0,
+                      paddingLeft: { xs: 1, md: 2 },
+                      mb: 2,
+                      textAlign: "left",
+                      boxShadow: "2px 2px 2px #E8F1F5",
+                      position: "relative", // To position the label correctly
+                    }}
+                  >
+                    {/* Filter by Year */}
+                    <Autocomplete
+                      options={[
+                        ...new Set(
+                          allDisasters.map((disaster) => disaster.year)
+                        ),
+                      ]}
+                      value={filters.year}
+                      onChange={(event, newValue) =>
+                        setFilters({ ...filters, year: newValue })
+                      }
+                      getOptionLabel={(option) => option.toString()} // Ensure the option is a string
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Year"
+                          variant="outlined"
+                          sx={{
+                            "& .MuiInputBase-root": {
+                              padding: "4px 8px", // Reduced padding
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove the outline
+                            },
+                            "& .MuiInputLabel-root": {
+                              fontSize: {
+                                xs: "0.9rem",
+                                sm: "1rem",
+                                md: isBelow ? "1.1rem" : "1.2rem",
+                                lg: isBelow ? "1.1rem" : "1.2rem",
+                              }, // Reduced font size
+                            },
+                            width: "100%",
+                          }}
+                        />
+                      )}
+                      sx={{
+                        "& .MuiAutocomplete-endAdornment": {
+                          right: "10px", // Ensures the arrow is 10px from the right of the box
+                        },
+                      }}
+                    />
+                  </Box>
+                </Grid>
                 {/* Filter by Disaster Type */}
-                <Box
+                <Grid
+                  size={{ xs: 6, sm: 6, md: 4, lg: 4 }}
                   sx={{
-                    padding: 1,
-                    paddingLeft: 2,
-                    mb: 3,
-                    textAlign: "left",
-                    boxShadow: "2px 2px 2px #E8F1F5",
-                    position: "relative", // To position the label correctly
-                  }}
-                >
-                  <Autocomplete
-                    options={[
-                      ...new Set(
-                        allDisasters.map((disaster) => disaster.disaster_type)
-                      ),
-                    ]}
-                    value={filters.disasterType}
-                    onChange={(event, newValue) =>
-                      setFilters({ ...filters, disasterType: newValue })
-                    }
-                    getOptionLabel={(option) => option} // Ensure the option is a string
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Disaster Type"
-                        variant="outlined"
-                        sx={{
-                          "& .MuiInputBase-root": {
-                            padding: "4px 8px", // Reduced padding
-                          },
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Remove the outline
-                          },
-                        }}
-                      />
-                    )}
-                    sx={{ width: 200 }}
-                  />
-                </Box>
-                <Button
-                  // variant="contained"
-                  onClick={applyFilters}
-                  disableRipple
-                  sx={{
-                    height: 56, // Match the height of the Autocomplete boxes
-                    // padding: "8px 16px", // Adjust padding
-                    padding: "16px 3px 16px 8px",
-                    // boxShadow: "2px 2px 2px #E8F1F5", // Add box shadow
                     display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "white", // Maintain the original background
-                    "&:hover": {
-                      backgroundColor: "white", // Prevent color change on hover
-                    },
+                    justifyContent: "left", // Centers the Box horizontally
+                    alignItems: "stretch", // Centers vertically (optional)
                   }}
                 >
-                  Apply Filters
-                </Button>
-                <Button
-                  onClick={clearFilters}
-                  disableRipple
+                  <Box
+                    sx={{
+                      width: { xs: "100%", sm: "75%", md: "90%" },
+                      padding: 0,
+                      paddingLeft: { xs: 1, md: 2 },
+                      mb: 2,
+                      textAlign: "left",
+                      boxShadow: "2px 2px 2px #E8F1F5",
+                      position: "relative", // To position the label correctly
+                    }}
+                  >
+                    <Autocomplete
+                      options={[
+                        ...new Set(
+                          allDisasters.map((disaster) => disaster.disaster_type)
+                        ),
+                      ]}
+                      value={filters.disasterType}
+                      onChange={(event, newValue) =>
+                        setFilters({ ...filters, disasterType: newValue })
+                      }
+                      getOptionLabel={(option) => option} // Ensure the option is a string
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Disaster Type"
+                          variant="outlined"
+                          sx={{
+                            "& .MuiInputBase-root": {
+                              padding: "4px 8px", // Reduced padding
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              border: "none", // Remove the outline
+                            },
+                            "& .MuiInputLabel-root": {
+                              fontSize: {
+                                xs: "0.9rem",
+                                sm: "1rem",
+                                md: isBelow ? "1.1rem" : "1.2rem",
+                                lg: isBelow ? "1.1rem" : "1.2rem",
+                              }, // Reduced font size
+                            },
+                            width: "100%",
+                          }}
+                        />
+                      )}
+                      sx={{
+                        "& .MuiAutocomplete-endAdornment": {
+                          right: "10px", // Ensures the arrow is 10px from the right of the box
+                        },
+                      }}
+                    />
+                  </Box>
+                </Grid>
+                <Grid
+                  size={{ xs: 6, sm: 6, md: 2, lg: 2 }}
                   sx={{
-                    height: 56, // Match the height of the Autocomplete boxes
-                    padding: "16px 2px 16px 3px",// Adjust padding
-                    // boxShadow: "2px 2px 2px #E8F1F5", // Add box shadow
                     display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "white", // Maintain the original background
-                    "&:hover": {
-                      backgroundColor: "white", // Prevent color change on hover
-                    },
+                    justifyContent: "right", // Centers the Box horizontally
+                    alignItems: "stretch", // Centers vertically (optional)
                   }}
                 >
-                  Clear Filters
-                </Button>
-              </Box>
+                  <Button
+                    // variant="contained"
+                    onClick={applyFilters}
+                    disableRipple
+                    sx={{
+                      height: { md: 62 }, // Match the height of the Autocomplete boxes
+                      // padding: "8px 16px", // Adjust padding
+                      paddingY: "9px",
+                      // pr: { xs: 1, md: 0 },
+                      // pl: 1,
+                      // marginX: "auto",
+                      mb: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      backgroundColor: "white", // Maintain the original background
+                      "&:hover": {
+                        backgroundColor: "white", // Prevent color change on hover
+                      },
+                    }}
+                  >
+                    Apply Filters
+                  </Button>
+                </Grid>
+                <Grid
+                  size={{ xs: 6, sm: 6, md: 2, lg: 2 }}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "left", // Centers the Box horizontally
+                    alignItems: "stretch", // Centers vertically (optional)
+                  }}
+                >
+                  <Button
+                    onClick={clearFilters}
+                    disableRipple
+                    sx={{
+                      height: { md: 62 }, // Match the height of the Autocomplete boxes
+                      paddingY: "9px",
+                      // pl: { xs: 1, md: 0 },
+                      // pr: 1,
+                      display: "flex",
+                      // marginX: "auto",
+                      mb: 2,
+                      alignItems: "center",
+                      backgroundColor: "white", // Maintain the original background
+                      "&:hover": {
+                        backgroundColor: "white", // Prevent color change on hover
+                      },
+                    }}
+                  >
+                    Clear Filters
+                  </Button>
+                </Grid>
+              </Grid>
+              {/* </Box> */}
 
               {/* Total Disasters Counter */}
-              <Typography align="center" sx={{ fontSize: "1.2rem", mb: 3 }}>
+              <Typography
+                align="center"
+                sx={{
+                  fontSize: {
+                    xs: "1rem",
+                    sm: "1rem",
+                    md: isBelow ? "1rem" : "1.2rem",
+                    lg: isBelow ? "1rem" : "1.2rem",
+                  },
+                  mb: 3,
+                }}
+              >
                 Total Disasters: {locallyFilteredDisasters.length}
               </Typography>
 
@@ -711,7 +959,7 @@ function CurrentLocation() {
                 )
               ) : (
                 <Typography align="center" sx={{ fontSize: "1.2rem", mt: 4 }}>
-                  No disaster information available for this location
+                  No disaster information available.
                 </Typography>
               )}
             </div>
