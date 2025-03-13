@@ -7,6 +7,7 @@ import Header from './components/Header';
 import Login from './pages/authentication/login';
 import Register from './pages/authentication/register';
 import Verification from './pages/authentication/verification';
+import FloodPrediction from './pages/disasters/user/FloodPrediction';
 
 const App = () => {
     // let component
@@ -33,6 +34,7 @@ const App = () => {
       <Route path="/verification" element={<Verification />} />
       <Route path="/current-location" element={<CurrentLocation />} />
         <Route path="/disaster-details/:id" element={<DisasterInfo />} />
+        <Route path="/flood-prediction" element={<FloodPrediction />} />
     </Routes>
     </>
   )

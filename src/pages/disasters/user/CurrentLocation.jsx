@@ -46,7 +46,7 @@ import { PiX } from "react-icons/pi";
 function CurrentLocation() {
   const theme = useTheme();
   const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("md"));
-  const isBelow = useMediaQuery("(max-width:1375px)");
+  const isBelow = useMediaQuery("(max-width:1470px)");
   const responsive = {
     superLargeDesktop: {
       // the naming can be any, depends on you.
@@ -405,9 +405,9 @@ function CurrentLocation() {
                                   sx={{
                                     fontSize: {
                                       xs: "0.7rem",
-                                      sm: "0.9rem",
-                                      md: isBelow ? "1rem" : "1.2rem",
-                                      lg: isBelow ? "1.1rem" : "1.2rem",
+                                      sm: "0.8rem",
+                                      md: isBelow ? "0.9rem" : "1rem",
+                                      lg: isBelow ? "0.9rem" : "1rem",
                                     },
                                     opacity: 0.7,
                                   }}
@@ -434,10 +434,10 @@ function CurrentLocation() {
                         align="center"
                         sx={{
                           fontSize: {
-                            xs: "1rem",
-                            sm: "1.2rem",
-                            md: isBelow ? "1.2rem" : "1.4rem",
-                            lg: isBelow ? "1.2rem" : "1.4rem",
+                            xs: "0.7rem",
+                            sm: "0.8rem",
+                            md: isBelow ? "0.9rem" : "1rem",
+                            lg: isBelow ? "0.9rem" : "1rem",
                           },
                         }}
                       >
@@ -449,10 +449,10 @@ function CurrentLocation() {
                       align="center"
                       sx={{
                         fontSize: {
-                          xs: "1rem",
-                          sm: "1.2rem",
-                          md: isBelow ? "1.2rem" : "1.4rem",
-                          lg: isBelow ? "1.2rem" : "1.4rem",
+                          xs: "0.7rem",
+                            sm: "0.8rem",
+                            md: isBelow ? "0.9rem" : "1rem",
+                            lg: isBelow ? "0.9rem" : "1rem",
                         },
                       }}
                     >
@@ -538,10 +538,10 @@ function CurrentLocation() {
                             padding: "9px 32px 4px 12px", // Reduce padding here
                           },
                           fontSize: {
-                            xs: "0.9rem",
-                            sm: "1rem",
-                            md: isBelow ? "1.1rem" : "1.2rem",
-                            lg: isBelow ? "1.1rem" : "1.2rem",
+                            xs: "0.7rem",
+                            sm: "0.8rem",
+                            md: isBelow ? "0.9rem" : "1rem",
+                            lg: isBelow ? "0.9rem" : "1rem",
                           },
                         }}
                       >
@@ -601,10 +601,10 @@ function CurrentLocation() {
                       align="center"
                       sx={{
                         fontSize: {
-                          xs: "1rem",
-                          sm: "1.2rem",
-                          md: isBelow ? "1.2rem" : "1.4rem",
-                          lg: isBelow ? "1.2rem" : "1.4rem",
+                          xs: "0.7rem",
+                            sm: "0.8rem",
+                            md: isBelow ? "0.9rem" : "1rem",
+                            lg: isBelow ? "0.9rem" : "1rem",
                         },
                       }}
                     >
@@ -746,10 +746,10 @@ function CurrentLocation() {
                             },
                             "& .MuiInputLabel-root": {
                               fontSize: {
-                                xs: "0.9rem",
-                                sm: "1rem",
-                                md: isBelow ? "1.1rem" : "1.2rem",
-                                lg: isBelow ? "1.1rem" : "1.2rem",
+                                xs: "0.8rem",
+                                sm: "0.9rem",
+                                md: isBelow ? "1rem" : "1.1rem",
+                                lg: isBelow ? "1rem" : "1.1rem",
                               }, // Reduced font size
                             },
                             width: "100%",
@@ -809,10 +809,10 @@ function CurrentLocation() {
                             },
                             "& .MuiInputLabel-root": {
                               fontSize: {
-                                xs: "0.9rem",
-                                sm: "1rem",
-                                md: isBelow ? "1.1rem" : "1.2rem",
-                                lg: isBelow ? "1.1rem" : "1.2rem",
+                                xs: "0.8rem",
+                                sm: "0.9rem",
+                                md: isBelow ? "1rem" : "1.1rem",
+                                lg: isBelow ? "1rem" : "1.1rem",
                               }, // Reduced font size
                             },
                             width: "100%",

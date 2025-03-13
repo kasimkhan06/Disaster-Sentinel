@@ -149,6 +149,12 @@ const Header = () => {
         >
           Current Location
         </MenuItem>
+        <MenuItem
+          onClick={() => handleNavigation("/flood-prediction")}
+          sx={{ width: "100%", justifyContent: "center" }}
+        >
+          Flood Prediction
+        </MenuItem>
       </Menu>
     </>
   );
