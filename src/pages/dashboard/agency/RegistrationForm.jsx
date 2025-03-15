@@ -20,7 +20,7 @@ const SuccessMessage = () => {
   useEffect(() => {
     setTimeout(() => {
       navigate("/dashboard/agency/AgencyDashboard");
-    }, 10000); // Redirect after 3 seconds
+    }, 5000);
   }, [navigate]);
 
   return (
@@ -156,7 +156,6 @@ const RegistrationForm = () => {
       // }
     }
   };
-  
 
   return success ? (
     <SuccessMessage />
