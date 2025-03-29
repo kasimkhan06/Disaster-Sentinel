@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AppBar,
   Button,
@@ -22,6 +22,7 @@ const Header = () => {
   // Initial value is undefined
   const theme = useTheme();
   console.log(theme);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
   console.log(isMatch);
 
@@ -29,6 +30,12 @@ const Header = () => {
   //for dropdown
   const navigate = useNavigate();
 
+  // Check if user is logged in on component mount and when localStorage changes
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setIsLoggedIn(!!user);
+  }, []);
+  
   //function for dropdown
   const handleOpenMenu = (e) => {
     setAnchorEl(e.currentTarget);
@@ -44,6 +51,33 @@ const Header = () => {
     navigate(path); // Programmatically navigate to the desired route
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/logout/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // if you're using token-based auth
+        },
+      });
+
+      const data = await response.json();
+      console.log("Logout response:", data);
+
+      if (response.ok) {
+        // Clear user data from localStorage
+        localStorage.removeItem("user");
+        localStorage.removeItem("token"); // if you're using tokens
+        setIsLoggedIn(false);
+        navigate("/home"); // Redirect to home page after logout
+      } else {
+        console.error("Logout failed:", data.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <>
       <AppBar
@@ -57,8 +91,15 @@ const Header = () => {
         <Toolbar>
           {/* Typography is used for the text in the app. It is used to style the text and make it more readable. */}
           <Box display="flex" alignItems="center">
-            <img src={logo} alt="Logo" style={{ height: "70px"}} />
-            <Typography sx={{ fontSize: "1.2rem", paddingLeft: "10px", fontFamily: "DM Serif Text, serif" }} onClick={() => handleNavigation("/home")}>
+            <img src={logo} alt="Logo" style={{ height: "70px" }} />
+            <Typography
+              sx={{
+                fontSize: "1.2rem",
+                paddingLeft: "10px",
+                fontFamily: "DM Serif Text, serif",
+              }}
+              onClick={() => handleNavigation("/home")}
+            >
               DISASTER SENTINAL
             </Typography>
           </Box>
@@ -85,29 +126,37 @@ const Header = () => {
                 />
                 {/* Aria control is for opening the menu */}
               </Tabs>
-              {/* <Button
-                sx={{
-                  marginLeft: "auto",
-                  borderColor: "#bdbdbd",
-                  backgroundColor: "#fafafa",
-                  color: "black",
-                }}
-              >
-                Login
-              </Button> */}
-              <Button
-              onClick={() => handleNavigation("/login")}
-                sx={{
-                  marginLeft: "auto",
-                  borderColor: "#bdbdbd",
-                  color: "black",
-                  backgroundColor: "#fafafa",
-                }}
-                // disableRipple
-                // onClick={() => navigate("/signup")}
-              >
-                Login
-              </Button>
+              {isLoggedIn ? (
+                <Button
+                  onClick={handleLogout}
+                  sx={{
+                    marginLeft: "auto",
+                    borderColor: "#bdbdbd",
+                    color: "black",
+                    backgroundColor: "#fafafa",
+                    '&:hover': {
+                      backgroundColor: "#e0e0e0",
+                    }
+                  }}
+                >
+                  Logout
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleNavigation("/login")}
+                  sx={{
+                    marginLeft: "auto",
+                    borderColor: "#bdbdbd",
+                    color: "black",
+                    backgroundColor: "#fafafa",
+                    '&:hover': {
+                      backgroundColor: "#e0e0e0",
+                    }
+                  }}
+                >
+                  Login
+                </Button>
+              )}
             </>
           )}
         </Toolbar>

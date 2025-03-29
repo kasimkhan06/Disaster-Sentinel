@@ -7,12 +7,10 @@ import LockIcon from "@mui/icons-material/Lock";
 
 const Login = () => {
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -20,15 +18,56 @@ const Login = () => {
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     let newErrors = {};
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.password.trim()) newErrors.password = "Password is required";
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      console.log("Login Successful");
-      // navigate("/dashboard");
+      try {
+        const response = await fetch('https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/login/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          })
+        });
+
+        const data = await response.json();
+        
+        // Log the entire response
+        console.log('API Response:', {
+          status: response.status,
+          data: data
+        });
+
+        if (response.ok) {
+          console.log('Login successful. User details:', {
+            id: data.user_id,
+            email: data.email,
+            role: data.role,
+            full_name: data.full_name
+          });
+          // Store user data if needed
+          localStorage.setItem('user', JSON.stringify(data));
+          // navigate("/dashboard");
+        } else {
+          console.error('Login failed:', data.error || 'Unknown error');
+          // Handle specific errors if needed
+          if (data.error === 'User is not verified') {
+            setErrors({...errors, form: 'Please verify your email before logging in'});
+          } else if (data.error === 'Invalid credentials') {
+            setErrors({...errors, form: 'Invalid email or password'});
+          }
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        setErrors({...errors, form: 'Network error. Please try again.'});
+      }
     }
   };
 
@@ -52,7 +91,6 @@ const Login = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        // margin: 0,
         padding: 0,
         overflow: "hidden",
       }}
@@ -74,12 +112,17 @@ const Login = () => {
           <Typography variant="h6" fontWeight="bold" mt={2}>LOGIN</Typography>
         </Box>
 
+        {errors.form && (
+          <Typography color="error" align="center" mt={2}>
+            {errors.form}
+          </Typography>
+        )}
+
         <Grid container spacing={2} mt={2} justifyContent={"center"}>
           <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
           <EmailIcon sx={{mt:2, ml:5 , mr:1,color: "gray" }} />
             <TextField 
-              //fullWidth
               label="Email" 
               variant="standard" 
               name="email" 
@@ -97,7 +140,6 @@ const Login = () => {
           <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
           <LockIcon sx={{ mt:2,ml:5 , mr:1,color: "gray" }} />
             <TextField
-              // fullWidth
               label="Password"
               type="password"
               variant="standard"
@@ -133,7 +175,7 @@ const Login = () => {
 
         <Box textAlign="center" mt={3}>
           <Typography variant="body2" color="textSecondary">
-            Don’t have an account?
+            Dont have an account?
             <Button variant="text" onClick={handleRegister}>Register</Button>
           </Typography>
         </Box>

@@ -42,8 +42,12 @@ const Verification = () => {
         { email: cleanedEmail, otp: otp },
         { 
           withCredentials: true,
-          credentials: 'include'
+
           //log the credentials
+          headers: {
+            "Content-Type": "application/json",
+          },
+          
         }
       );
       console.log("OTP Verification Success:", response.data);

@@ -46,6 +46,7 @@ const useDisasterData = (selectedLocation, setWeather) => {
     disasters,
     locations,
     filteredDisasters,
+    setFilteredDisasters,
     loading,
     loadingOptions,
     loadingWeather,

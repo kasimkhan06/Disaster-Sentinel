@@ -124,7 +124,7 @@ const DisasterInfo = () => {
         align="left"
       >
         {/* Information Fields */}
-        <Grid size={{ xs: 11, sm: 12, md: 10, lg: 4 }}>
+        <Grid size={{ xs: 11, sm: 12, md: 10, lg: 5 }}>
           <Card
             sx={{
               p: { xs: "8px", sm: "8px", md: "16px" },
@@ -231,7 +231,7 @@ const DisasterInfo = () => {
         <Grid
           container
           justifyContent="center"
-          size={{ xs: 11, sm: 10, md: 10, lg: 8 }}
+          size={{ xs: 11, sm: 10, md: 10, lg: 7 }}
           sx={{ pr: { xs: 2, md: 7 } }}
         >
           <Box
