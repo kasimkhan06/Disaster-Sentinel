@@ -162,7 +162,7 @@ const MissingPerson = () => {
             </Typography>
             <Grid container spacing={4} sx={{ mt: 2 }}>
                 <Grid item xs={12} md={6}>
-                    <Card sx={{ height: 550, display: "flex", flexDirection: "column" }}>
+                    <Card sx={{ height: 500, display: "flex", flexDirection: "column" }}>
                         <CardContent sx={{ flexGrow: 1, overflow: "auto" }}>
                         <DataGrid
                             rows={rows}
@@ -232,7 +232,7 @@ const MapLeaflet = ({ name, missingDate, locations }) => {
             center={center}
             zoom={ZOOM_LEVEL}
             scrollWheelZoom={false}
-            style={{ height: "550px", width: "100%" }}
+            style={{ height: "500px", width: "100%" }}
             ref={mapRef}
         >
             <TileLayer attribution={osm.maptiler.attribution} url={osm.maptiler.url} />
