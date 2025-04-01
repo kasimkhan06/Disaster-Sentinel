@@ -30,7 +30,7 @@ const Home = () => {
       id: 3,
       disaster: "Wildfire",
       location: "City C",
-      monthYear: "Mar 2023",
+      monthYear: "Sep 2023",
       lat: 51.5074,
       lon: -0.1278,
     },
