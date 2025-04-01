@@ -7,11 +7,11 @@ import {
   Button,
   Card,
 } from "@mui/material";
-import AgencyInfo from "../../../components/agencyInfo";
-import MaxHeightTextarea from "../../../components/TextArea";
-import MapLeaflet from "../../../components/Map";
+import AgencyInfo from "../../../../components/AgencyInfo";
+import MaxHeightTextarea from "../../../../components/TextArea";
+import MapLeaflet from "../../../../components/Map";
 import { useNavigate } from "react-router-dom";
-import ImageUpload from "../../../components/ImageUpload";
+import ImageUpload from "../../../../components/ImageUpload";
 import axios from "axios";
 
 const SuccessMessage = () => {
@@ -110,9 +110,9 @@ const RegistrationForm = () => {
     if (!formData.dateOfEstablishment.trim()) newErrors.dateOfEstablishment = "Date Of Establishment is required";
     if (!formData.volunteers.trim()) newErrors.volunteers = "Number of Volunteers is required";
     if (!formData.address.trim()) newErrors.address = "Address is required";
-    // if (!formData.district.trim()) newErrors.district = "District is required";
-    // if (!formData.state.trim()) newErrors.state = "State is required";
     if (markers.length === 0) newErrors.location = "Location is required";
+    if (images.length === 0) newErrors.images = "At least one image is required";
+    if (!formData.description.trim()) newErrors.description = "Description is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -213,7 +213,8 @@ const RegistrationForm = () => {
             boxShadow: "0 0 10px rgba(14, 12, 12, 0.1)",
           }}
           >
-            <MaxHeightTextarea/>
+            <MaxHeightTextarea placeholder="Give a detailed description about the agency" />
+            {errors.description && <Typography color="error">{errors.description}</Typography>}
             <Typography 
               variant="body2" 
               gutterBottom 

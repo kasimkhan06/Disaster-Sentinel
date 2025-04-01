@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import EventListing from "./EventListing";
+import { EventFormProvider  } from "../../../../hooks/useEventForm";
+import EventForm from "./CreateEvent";
 import "../../../../../public/css/Announcement.css";
 
 export default function AnnouncementPage() {
@@ -25,7 +27,13 @@ export default function AnnouncementPage() {
       {/* Content Area */}
       <div className="content">
         {selectedTab === 0 && <div><EventListing /></div>}
-        {selectedTab === 1 && <div>📝 Create Event Form</div>}
+        {selectedTab === 1 && 
+        <div>
+          <EventFormProvider>
+            <EventForm />
+          </EventFormProvider>
+          </div>
+        }
       </div>
     </div>
   );

@@ -52,9 +52,14 @@ const Login = () => {
             role: data.role,
             full_name: data.full_name
           });
-          // Store user data if needed
-          localStorage.setItem('user', JSON.stringify(data));
-          // navigate("/dashboard");
+
+          localStorage.setItem("user", JSON.stringify(data));
+
+          if(data.role === "user"){
+            navigate("/home");
+          }
+          else navigate("/agency-dashboard");
+
         } else {
           console.error('Login failed:', data.error || 'Unknown error');
           // Handle specific errors if needed

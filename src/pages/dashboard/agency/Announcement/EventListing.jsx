@@ -13,9 +13,11 @@ import EventCard from "../../../../components/EventCard";
 import "../../../../../public/css/EventListing.css";
 
 const dummyEvents = [
-  { id: 1, img: "/assets/event.jpg", name: "Event A", date: "2025-04-10", status: "upcoming", locationType: "online", platform: "Zoom", registeredAttendees: 50 },   
-  { id: 2, img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80", name: "Event B", date: "2025-03-15", status: "published", locationType: "offline", venueName: "Convention Center", venueCity: "NYC", registeredAttendees: 100 },
-  { id: 3, img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?ixlib=rb-4.0.3&auto=format&fit=crop&w=1112&q=80", name: "Event C", date: "2025-05-05", status: "draft", locationType: "online", platform: "Google Meet", registeredAttendees: 20 },
+  { id: 1, img: "/assets/event.jpg", name: "Event A", date: "2025-04-10", status: "upcoming", locationType: "online", platform: "Zoom", registeredAttendees: 50, tags: ["Earthquake Preparedness", "Climate Resilience", "Emergency Response"] },   
+  { id: 2, img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80", name: "Event B", date: "2025-03-15", status: "published", locationType: "offline", venueName: "Convention Center", venueCity: "NYC", registeredAttendees: 100, tags: ["Earthquake Preparedness", "Climate Resilience", "Emergency Response"] },
+  { id: 3, img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?ixlib=rb-4.0.3&auto=format&fit=crop&w=1112&q=80", name: "Event C", date: "2025-05-05", status: "draft", locationType: "online", platform: "Google Meet", registeredAttendees: 20, tags: ["Earthquake Preparedness", "Climate Resilience", "Emergency Response"] },
+  { id: 4, img: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80", name: "Event D", date: "2025-02-20", status: "upcoming", locationType: "offline", venueName: "City Hall", venueCity: "Los Angeles", registeredAttendees: 75, tags: ["Earthquake Preparedness", "Climate Resilience", "Emergency Response"] },
+  { id: 5, img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80", name: "Event E", date: "2025-01-30", status: "published", locationType: "online", platform: "Zoom", registeredAttendees: 150, tags: ["Earthquake Preparedness", "Climate Resilience", "Emergency Response"] },
 ];
 
 export default function EventListing() {

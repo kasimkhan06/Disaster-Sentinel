@@ -2,7 +2,7 @@ import * as React from 'react';
 import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
 import { styled } from '@mui/system';
 
-export default function MaxHeightTextarea() {
+export default function MaxHeightTextarea({placeholder}) {
   const grey = {
     50: '#F3F6F9',
     100: '#E5EAF2',
@@ -52,7 +52,8 @@ export default function MaxHeightTextarea() {
     <Textarea
       maxRows={50}
       aria-label="maximum height"
-      placeholder="Give Detail Description of the Agency"
+      placeholder={placeholder}
+      style={{ width: '100%' }}
       defaultValue=""
     />
   );
