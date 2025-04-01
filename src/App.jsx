@@ -1,43 +1,45 @@
 // import { Component } from 'react'
-import CurrentLocation from './pages/disasters/user/CurrentLocation'
-import Home from './pages/dashboard/user/Home'
-import DisasterInfo from './pages/disasters/user/DisasterInfo'
+import CurrentLocation from "./pages/disasters/user/CurrentLocation";
+import Home from "./pages/dashboard/user/Home";
+import DisasterInfo from "./pages/disasters/user/DisasterInfo";
 import { Routes, Route } from "react-router-dom";
-import Header from './components/Header';
-import Login from './pages/authentication/login';
-import Register from './pages/authentication/register';
-import Verification from './pages/authentication/verification';
-import FloodPrediction from './pages/disasters/user/FloodPrediction';
+import Header from "./components/Header";
+import Login from "./pages/authentication/login";
+import Register from "./pages/authentication/register";
+import Verification from "./pages/authentication/verification";
+import FloodPrediction from "./pages/disasters/user/FloodPrediction";
+import Agencies from "./pages/disasters/user/Agencies";
 
 const App = () => {
-    // let component
-    // switch (window.location.pathname) {
-        
-    //     case '/home':
-    //         component = <Home />
-    //         break
-    //     case '/current-location':
-    //         component = <CurrentLocation />
-    //         break
-    //     case '/disaster-details':
-    //         component = <DisasterInfo />
-    //         break
-    // }
+  // let component
+  // switch (window.location.pathname) {
+
+  //     case '/home':
+  //         component = <Home />
+  //         break
+  //     case '/current-location':
+  //         component = <CurrentLocation />
+  //         break
+  //     case '/disaster-details':
+  //         component = <DisasterInfo />
+  //         break
+  // }
   return (
     <>
-    <Header /> {/* Header is now wrapped within Router */}
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/verification" element={<Verification />} />
-      <Route path="/current-location" element={<CurrentLocation />} />
+      <Header /> {/* Header is now wrapped within Router */}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verification" element={<Verification />} />
+        <Route path="/current-location" element={<CurrentLocation />} />
         <Route path="/disaster-details/:id" element={<DisasterInfo />} />
         <Route path="/flood-prediction" element={<FloodPrediction />} />
-    </Routes>
+        <Route path="/agencies" element={<Agencies />} />
+      </Routes>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
