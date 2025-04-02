@@ -13,6 +13,9 @@ import AgencyDashboard from './pages/dashboard/agency/agencyDashboard';
 import MissingPerson from './pages/dashboard/agency/Missing Person/MissingPerson';
 import PersonInfo from './pages/dashboard/agency/Missing Person/PersonInfo';
 import AnnouncementPage from "./pages/dashboard/agency/Announcement/Announcement";
+import EventListing from "./pages/dashboard/agency/Announcement/EventListing";
+import EventForm from "./pages/dashboard/agency/Announcement/CreateEvent";
+import { EventFormProvider } from "./hooks/useEventForm";
 
 const App = () => {
     // let component
@@ -45,6 +48,13 @@ const App = () => {
       <Route path="/missing-person" element={<MissingPerson />} />
       <Route path="/person-details/:id" element={<PersonInfo />} />
       <Route path="/announcement" element={<AnnouncementPage />} />
+      <Route path="/event-listing" element={<EventListing />} />
+      <Route path="/create-event" 
+      element={
+      <EventFormProvider>
+        <EventForm />
+      </EventFormProvider>
+      } />
     </Routes>
     </>
   )

@@ -13,15 +13,19 @@ import {
   Box,
   Avatar,
 } from "@mui/material";
+import { EventFormProvider } from "../hooks/useEventForm";
 import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
+import EventListing from "../pages/dashboard/agency/Announcement/EventListing";
+import EventForm from "../pages/dashboard/agency/Announcement/CreateEvent";
 
 const Header = () => {
   const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElAnnouncement, setAnchorElAnnouncement] = useState(null);
   const [anchorElProfile, setAnchorElProfile] = useState(null);
-  
+
   const theme = useTheme();
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
@@ -38,15 +42,22 @@ const Header = () => {
     }
   }, []);
 
+  // Services Menu Handlers
   const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
 
+  // Announcement Submenu Handlers
+  const handleOpenAnnouncementMenu = (e) => setAnchorElAnnouncement(e.currentTarget);
+  const handleCloseAnnouncementMenu = () => setAnchorElAnnouncement(null);
+
+  // Profile Menu Handlers
   const handleOpenProfileMenu = (e) => setAnchorElProfile(e.currentTarget);
   const handleCloseProfileMenu = () => setAnchorElProfile(null);
 
   const handleNavigation = (path) => {
     navigate(path);
     handleCloseMenu();
+    handleCloseAnnouncementMenu();
     handleCloseProfileMenu();
   };
 
@@ -85,6 +96,7 @@ const Header = () => {
               value={value}
               onChange={(e, value) => setValue(value)}
               TabIndicatorProps={{ sx: { backgroundColor: "#bdbdbd" } }}
+              sx={{ marginLeft: "auto" }}
             >
               {user?.role === "agency" ? (
                 <>
@@ -154,7 +166,31 @@ const Header = () => {
             <MenuItem onClick={() => handleNavigation("/missing-person")}>Missing Person List</MenuItem>
             <MenuItem onClick={() => handleNavigation("/agency")}>{user.full_name} Details</MenuItem>
             <MenuItem onClick={() => handleNavigation("/current-location")}>Current Location</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/announcement")}>Announcement</MenuItem>
+
+            {/* Nested Announcement Dropdown */}
+            <MenuItem
+              onMouseEnter={handleOpenAnnouncementMenu}
+              onMouseLeave={handleCloseAnnouncementMenu}
+            >
+              Announcement
+            </MenuItem>
+            <Menu
+              anchorEl={anchorElAnnouncement}
+              open={Boolean(anchorElAnnouncement)}
+              onClose={handleCloseAnnouncementMenu}
+              anchorOrigin={{ vertical: "center", horizontal: "center" }}
+              transformOrigin={{ vertical: "bottom", horizontal: "left" }}
+              sx={{
+                marginLeft: "10px",
+                marginTop: "-10px",
+                pointerEvents: "auto", // Prevents flickering
+              }}
+              onMouseEnter={handleOpenAnnouncementMenu}
+              onMouseLeave={handleCloseAnnouncementMenu} 
+            >
+              <MenuItem onClick={() => handleNavigation("/event-listing")}>Event</MenuItem>
+              <MenuItem onClick={() => handleNavigation("/create-event")}>Create Event</MenuItem>
+            </Menu>
           </>
         ) : (
           <>
