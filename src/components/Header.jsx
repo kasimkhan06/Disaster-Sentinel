@@ -187,7 +187,7 @@ const Header = () => {
           Report Missing person
         </MenuItem>
         <MenuItem
-          onClick={handleMenuClose}
+          onClick={() => handleNavigation("/agencies")}
           sx={{ width: "100%", justifyContent: "center" }}
         >
           Agency Information
@@ -197,6 +197,12 @@ const Header = () => {
           sx={{ width: "100%", justifyContent: "center" }}
         >
           Current Location
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleNavigation("/flood-prediction")}
+          sx={{ width: "100%", justifyContent: "center" }}
+        >
+          Flood Prediction
         </MenuItem>
       </Menu>
     </>
