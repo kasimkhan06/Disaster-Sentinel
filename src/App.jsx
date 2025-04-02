@@ -13,6 +13,8 @@ import AgencyDashboard from './pages/dashboard/agency/agencyDashboard';
 import MissingPerson from './pages/dashboard/agency/Missing Person/MissingPerson';
 import PersonInfo from './pages/dashboard/agency/Missing Person/PersonInfo';
 import AnnouncementPage from "./pages/dashboard/agency/Announcement/Announcement";
+import FloodPrediction from "./pages/disasters/user/FloodPrediction";
+import Agencies from "./pages/disasters/user/Agencies";
 
 const App = () => {
   // let component
@@ -39,6 +41,8 @@ const App = () => {
       <Route path="/verification" element={<Verification />} />
       <Route path="/current-location" element={<CurrentLocation />} />
       <Route path="/disaster-details/:id" element={<DisasterInfo />} />
+      <Route path="/flood-prediction" element={<FloodPrediction />} />
+      <Route path="/agencies" element={<Agencies />} />
       <Route path="/agency" element={<NGODashboard />} />
       <Route path="/registration-form" element={<RegistrationForm />} />
       <Route path="/agency-dashboard" element={<AgencyDashboard />} />
