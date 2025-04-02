@@ -9,6 +9,8 @@ import Register from './pages/authentication/register';
 import Verification from './pages/authentication/verification';
 import DosDontsPage from './pages/training/dosdonts';
 import MissingPersonPortal from './pages/missingperson/portal';
+import StatusTracking from './pages/missingperson/status';
+
 
 const App = () => {
     // let component
@@ -37,9 +39,10 @@ const App = () => {
       <Route path="/disaster-details/:id" element={<DisasterInfo />} />
       <Route path="/dosdontspage" element={<DosDontsPage />} />
       <Route path="/MissingPersonPortal" element={<MissingPersonPortal />} />
+      <Route path="/status-tracking" element={<StatusTracking />} />
     </Routes>
     </>
   )
 }
 
-export default App
+export default App;
