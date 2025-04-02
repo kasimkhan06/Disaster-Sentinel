@@ -18,19 +18,19 @@ import EventForm from "./pages/dashboard/agency/Announcement/CreateEvent";
 import { EventFormProvider } from "./hooks/useEventForm";
 
 const App = () => {
-    // let component
-    // switch (window.location.pathname) {
-        
-    //     case '/home':
-    //         component = <Home />
-    //         break
-    //     case '/current-location':
-    //         component = <CurrentLocation />
-    //         break
-    //     case '/disaster-details':
-    //         component = <DisasterInfo />
-    //         break
-    // }
+  // let component
+  // switch (window.location.pathname) {
+
+  //     case '/home':
+  //         component = <Home />
+  //         break
+  //     case '/current-location':
+  //         component = <CurrentLocation />
+  //         break
+  //     case '/disaster-details':
+  //         component = <DisasterInfo />
+  //         break
+  // }
   return (
     <>
     <Header /> {/* Header is now wrapped within Router */}
@@ -57,7 +57,7 @@ const App = () => {
       } />
     </Routes>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
