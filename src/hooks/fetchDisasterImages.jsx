@@ -30,6 +30,8 @@ const fetchDisasterImages = (disaster) => {
               total_deaths: String(disaster.total_deaths),
               total_injured: String(disaster.total_injured),
               total_affected: String(disaster.total_affected),
+              disaster_state: disaster.state,
+              disaster_title: disaster.title,
             }),
           }
         );

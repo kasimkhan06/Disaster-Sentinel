@@ -1,28 +1,54 @@
-import React from "react";
-
-const fetchWeatherData = async (locations, setWeather) => {
+const fetchWeatherData = async (location, setWeather) => {
   try {
-    console.log("Fetching weather data for:", locations);
-    const geocodeResponse = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${locations}`
+    // First try to get coordinates from Nominatim
+    const nominatimResponse = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`,
+      {
+        headers: {
+          'User-Agent': 'YourAppName/1.0 (your@email.com)' // Required by Nominatim usage policy
+        }
+      }
     );
-    const geocodeData = await geocodeResponse.json();
-    if (!geocodeData.length) return;
-    const { lat, lon } = geocodeData[0];
+    
+    if (!nominatimResponse.ok) {
+      throw new Error(`Nominatim API error: ${nominatimResponse.status}`);
+    }
 
+    const nominatimData = await nominatimResponse.json();
+    
+    if (!nominatimData || nominatimData.length === 0) {
+      throw new Error('Location not found');
+    }
+
+    const { lat, lon } = nominatimData[0];
+    
+    // Then fetch weather data
     const weatherResponse = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&timezone=auto`
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m`
     );
+    
+    if (!weatherResponse.ok) {
+      throw new Error(`Weather API error: ${weatherResponse.status}`);
+    }
+
     const weatherData = await weatherResponse.json();
-    console.log("Weather data:", weatherData);
+    
     if (weatherData.current) {
-      setWeather(weatherData.current);
+      setWeather({
+        temperature_2m: weatherData.current.temperature_2m,
+        relative_humidity_2m: weatherData.current.relative_humidity_2m,
+        precipitation: weatherData.current.precipitation,
+        wind_speed_10m: weatherData.current.wind_speed_10m
+      });
     } else {
-      setWeather(null);
+      throw new Error('No current weather data available');
     }
   } catch (error) {
-    console.error("Error fetching weather data:", error);
+    console.error('Error fetching weather data:', error);
+    // Set some default or error state
     setWeather(null);
+    // You might want to show this error to the user
+    return { error: error.message };
   }
 };
 
