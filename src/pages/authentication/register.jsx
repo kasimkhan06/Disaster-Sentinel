@@ -53,7 +53,12 @@ const Register = () => {
             agency_pan: formData.role === 'agency' ? formData.agencyNumber : null,
           },
           //make sure cookie is set 
-          { withCredentials: true }
+          { withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+            
+          }
 
         );
         

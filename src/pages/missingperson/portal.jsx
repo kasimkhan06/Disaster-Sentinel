@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import {
-  Container, Grid, TextField, Button, Card, Typography,
-  Input, MenuItem, Select, FormControl, InputLabel, Snackbar, Alert
-} from "@mui/material";
+import {Container, Grid, TextField, Button, Card, Typography,Input, MenuItem, Select, FormControl, InputLabel, Snackbar, Alert} from "@mui/material";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -175,7 +172,7 @@ const MissingPersonPortal = () => {
         </Grid>
       </Grid>
 
-      {/* Success Snackbar */}
+      {/* Success message */}
       <Snackbar open={success} autoHideDuration={3000} onClose={() => setSuccess(false)}>
         <Alert severity="success">Report submitted successfully!</Alert>
       </Snackbar>

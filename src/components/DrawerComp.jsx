@@ -77,6 +77,9 @@ const DrawerComp = () => {
 
           {/* Other List Items */}
 
+          <ListItemButton onClick={() => {setOpenDrawer(false), navigate("/flood-prediction")}}>
+            <ListItemText primary="Flood Prediction" />
+          </ListItemButton>
           <ListItemButton onClick={() => {setOpenDrawer(false), navigate("/login")}}>
             <ListItemText primary="Login" />
           </ListItemButton>
