@@ -17,6 +17,7 @@ import { EventFormProvider } from "../hooks/useEventForm";
 import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import EventListing from "../pages/dashboard/agency/Announcement/EventListing";
 import EventForm from "../pages/dashboard/agency/Announcement/CreateEvent";
 
@@ -96,7 +97,6 @@ const Header = () => {
               value={value}
               onChange={(e, value) => setValue(value)}
               TabIndicatorProps={{ sx: { backgroundColor: "#bdbdbd" } }}
-              sx={{ marginLeft: "auto" }}
             >
               {user?.role === "agency" ? (
                 <>
@@ -172,14 +172,17 @@ const Header = () => {
               onMouseEnter={handleOpenAnnouncementMenu}
               onMouseLeave={handleCloseAnnouncementMenu}
             >
-              Announcement
+              Announcement 
+              <span style={{ marginLeft: "8px", display: "flex", alignItems: "center" }}>
+                <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
+              </span>
             </MenuItem>
             <Menu
               anchorEl={anchorElAnnouncement}
               open={Boolean(anchorElAnnouncement)}
               onClose={handleCloseAnnouncementMenu}
-              anchorOrigin={{ vertical: "center", horizontal: "center" }}
-              transformOrigin={{ vertical: "bottom", horizontal: "left" }}
+              anchorOrigin={{ vertical: 200, horizontal: 560 }}
+              transformOrigin={{ vertical: "top", horizontal: "center" }}
               sx={{
                 marginLeft: "10px",
                 marginTop: "-10px",
@@ -195,8 +198,24 @@ const Header = () => {
         ) : (
           <>
             <MenuItem onClick={() => handleNavigation("/report-missing")}>Report Missing Person</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/agency")}>Agency Information</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/current-location")}>Current Location</MenuItem>
+            <MenuItem
+              onClick={() => handleNavigation("/agencies")}
+              sx={{ width: "100%", justifyContent: "center" }}
+            >
+              Agency Information
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleNavigation("/current-location")}
+              sx={{ width: "100%", justifyContent: "center" }}
+            >
+              Current Location
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleNavigation("/flood-prediction")}
+              sx={{ width: "100%", justifyContent: "center" }}
+            >
+              Flood Prediction
+            </MenuItem>
           </>
         )}
       </Menu>

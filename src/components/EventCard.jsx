@@ -1,5 +1,5 @@
 import { Card, CardContent, Typography, Button, Chip } from "@mui/material";
-import { CalendarToday, LocationOn, Videocam, People, Edit, ContentCopy, BarChart, Send, Create } from "@mui/icons-material";
+import { CalendarToday, LocationOn, Videocam, People, Edit, Delete, BarChart, Send, Create } from "@mui/icons-material";
 import "../../public/css/EventListing.css";
 import CreateEvent from "../pages/dashboard/agency/Announcement/CreateEvent"; 
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,6 @@ export default function EventCard({ event }) {
   const getStatusBadge = () => {
     const statusVariants = {
       published: { label: "Published", color: "secondary" },
-      upcoming: { label: "Upcoming", color: "warning" },
       draft: { label: "Draft", color: "default", variant: "outlined" },
     };
 
@@ -70,8 +69,8 @@ export default function EventCard({ event }) {
               Publish
             </Button>
           ) : (
-            <Button variant="outlined" size="small" startIcon={<ContentCopy />}>
-              Duplicate
+            <Button variant="outlined" size="small" startIcon={<Delete />}>
+              Delete
             </Button>
           )}
         </div>

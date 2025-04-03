@@ -170,7 +170,7 @@ export default function EventFormWithStepper() {
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "80%", padding: "20px", marginTop: "80px", alignItems: "center", marginX: "auto" }}>
       {/* Stepper Component */}
       <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
         {steps.map((label, index) => (
