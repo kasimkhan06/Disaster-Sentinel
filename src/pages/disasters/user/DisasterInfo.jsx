@@ -47,7 +47,7 @@ const DisasterInfo = () => {
         setDisaster(data);
         const filtered = data.filter((d) => d.id === Number(id));
         setDisaster(filtered[0] || null);
-        console.log(filtered[0]);
+        console.log("Filtered disaster: "+ JSON.stringify(filtered[0], null, 2));
         setLoading(false);
       })
       .catch((error) =>

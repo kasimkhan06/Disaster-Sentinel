@@ -19,6 +19,11 @@ import {
   Stack,
   useTheme,
   useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
@@ -32,15 +37,17 @@ const Agencies = () => {
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState(null);
   const [page, setPage] = useState(1);
+  const [selectedAgency, setSelectedAgency] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isBelow = useMediaQuery("(max-width:1470px)");
 
   const itemsPerPage = isMobile ? 10 : 20;
-  const rowHeight = isMobile ? 48 : 53; // Approximate height of a table row
-  const headerHeight = 57; // Approximate height of table header
-  const paginationHeight = 72; // Approximate height of pagination controls
+  const rowHeight = isMobile ? 48 : 53;
+  const headerHeight = 57;
+  const paginationHeight = 72;
 
   useEffect(() => {
     setFilteredAgencies(agencies);
@@ -64,7 +71,6 @@ const Agencies = () => {
     page * itemsPerPage
   );
 
-  // Calculate dynamic height based on number of rows
   const calculateTableHeight = () => {
     const rowCount = Math.min(paginatedAgencies.length, itemsPerPage);
     return headerHeight + (rowCount * rowHeight) + (filteredAgencies.length > itemsPerPage ? paginationHeight : 0);
@@ -91,6 +97,15 @@ const Agencies = () => {
 
   const handlePageChange = (event, value) => {
     setPage(value);
+  };
+
+  const handleRowClick = (agency) => {
+    setSelectedAgency(agency);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
   };
 
   if (loading) {
@@ -291,7 +306,7 @@ const Agencies = () => {
           },
           marginX: "auto",
           height: `${calculateTableHeight()}px`,
-          minHeight: `${headerHeight + rowHeight + paginationHeight}px`, // Minimum height for header + 1 row + pagination
+          minHeight: `${headerHeight + rowHeight + paginationHeight}px`,
           display: "flex",
           flexDirection: "column",
         }}
@@ -313,7 +328,17 @@ const Agencies = () => {
             <TableBody>
               {paginatedAgencies.length > 0 ? (
                 paginatedAgencies.map((agency) => (
-                  <TableRow key={agency.id}>
+                  <TableRow 
+                    key={agency.id}
+                    hover
+                    onClick={() => handleRowClick(agency)}
+                    sx={{ 
+                      cursor: "pointer",
+                      '&:hover': {
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                    }}
+                  >
                     <TableCell>{agency.name}</TableCell>
                     <TableCell>
                       {agency.district}, {agency.state}
@@ -351,6 +376,68 @@ const Agencies = () => {
           </Box>
         )}
       </Box>
+
+      {/* Agency Details Dialog */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="agency-details-dialog"
+        maxWidth="sm"
+        fullWidth
+      >
+        {selectedAgency && (
+          <>
+            <DialogTitle id="agency-details-dialog">
+              {selectedAgency.name}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Location:</strong> {selectedAgency.district}, {selectedAgency.state}
+                </Typography>
+                {/* Add more agency details here */}
+                {selectedAgency.address && (
+                  <Typography variant="body1" gutterBottom>
+                    <strong>Address:</strong> {selectedAgency.address}
+                  </Typography>
+                )}
+                {selectedAgency.phone && (
+                  <Typography variant="body1" gutterBottom>
+                    <strong>Phone:</strong> {selectedAgency.phone}
+                  </Typography>
+                )}
+                {selectedAgency.email && (
+                  <Typography variant="body1" gutterBottom>
+                    <strong>Email:</strong> {selectedAgency.email}
+                  </Typography>
+                )}
+                {selectedAgency.website && (
+                  <Typography variant="body1" gutterBottom>
+                    <strong>Website:</strong>{" "}
+                    <a 
+                      href={selectedAgency.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      {selectedAgency.website}
+                    </a>
+                  </Typography>
+                )}
+                {selectedAgency.description && (
+                  <Typography variant="body1">
+                    <strong>Description:</strong> {selectedAgency.description}
+                  </Typography>
+                )}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 };
