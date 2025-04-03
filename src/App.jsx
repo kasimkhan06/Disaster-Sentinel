@@ -16,6 +16,8 @@ import AnnouncementPage from "./pages/dashboard/agency/Announcement/Announcement
 import EventListing from "./pages/dashboard/agency/Announcement/EventListing";
 import EventForm from "./pages/dashboard/agency/Announcement/CreateEvent";
 import { EventFormProvider } from "./hooks/useEventForm";
+import FloodPrediction from "./pages/disasters/user/FloodPrediction";
+import Agencies from "./pages/disasters/user/Agencies";
 
 const App = () => {
   // let component
@@ -42,6 +44,8 @@ const App = () => {
       <Route path="/verification" element={<Verification />} />
       <Route path="/current-location" element={<CurrentLocation />} />
       <Route path="/disaster-details/:id" element={<DisasterInfo />} />
+      <Route path="/flood-prediction" element={<FloodPrediction />} />
+      <Route path="/agencies" element={<Agencies />} />
       <Route path="/agency" element={<NGODashboard />} />
       <Route path="/registration-form" element={<RegistrationForm />} />
       <Route path="/agency-dashboard" element={<AgencyDashboard />} />
