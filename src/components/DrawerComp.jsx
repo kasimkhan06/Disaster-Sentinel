@@ -50,7 +50,9 @@ const DrawerComp = () => {
             <List component="div" disablePadding>
               <ListItemButton
                 sx={{ pl: 4 }}
-                onClick={() => setOpenDrawer(false)}
+                onClick={() => {
+                  setOpenDrawer(false), navigate("/MissingPersonPortal");
+                }}
               >
                 <ListItemText primary="Report Missing Person" />
               </ListItemButton>
