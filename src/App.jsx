@@ -1,9 +1,10 @@
-// import { Component } from 'react'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
 import CurrentLocation from './pages/disasters/user/CurrentLocation'
 import Home from './pages/dashboard/user/Home'
 import DisasterInfo from './pages/disasters/user/DisasterInfo'
-import { Routes, Route } from "react-router-dom";
 import Header from './components/Header';
+import HeaderAgency from './components/HeaderAgency';
 import Login from './pages/authentication/login';
 import Register from './pages/authentication/register';
 import Verification from './pages/authentication/verification';
@@ -13,22 +14,20 @@ import StatusTracking from './pages/missingperson/status';
 
 
 const App = () => {
-    // let component
-    // switch (window.location.pathname) {
-        
-    //     case '/home':
-    //         component = <Home />
-    //         break
-    //     case '/current-location':
-    //         component = <CurrentLocation />
-    //         break
-    //     case '/disaster-details':
-    //         component = <DisasterInfo />
-    //         break
-    // }
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    // Check if user is logged in by retrieving from localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      setUserRole(parsedData.role);
+    }
+  }, []);
+
   return (
     <>
-    <Header /> Header is now wrapped within Router
+    {userRole === "agency" ? <HeaderAgency /> : <Header />}
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/home" element={<Home />} />
