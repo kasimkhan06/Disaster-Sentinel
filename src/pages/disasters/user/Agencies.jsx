@@ -341,7 +341,7 @@ const Agencies = () => {
                   >
                     <TableCell>{agency.name}</TableCell>
                     <TableCell>
-                      {agency.district}, {agency.state}
+                      {agency.city}, {agency.state}
                     </TableCell>
                   </TableRow>
                 ))
@@ -393,7 +393,7 @@ const Agencies = () => {
             <DialogContent>
               <DialogContentText>
                 <Typography variant="subtitle1" gutterBottom>
-                  <strong>Location:</strong> {selectedAgency.district}, {selectedAgency.state}
+                  <strong>Location:</strong> {selectedAgency.city}, {selectedAgency.state}
                 </Typography>
                 {/* Add more agency details here */}
                 {selectedAgency.address && (
@@ -401,14 +401,9 @@ const Agencies = () => {
                     <strong>Address:</strong> {selectedAgency.address}
                   </Typography>
                 )}
-                {selectedAgency.phone && (
+                {selectedAgency.telephone && (
                   <Typography variant="body1" gutterBottom>
-                    <strong>Phone:</strong> {selectedAgency.phone}
-                  </Typography>
-                )}
-                {selectedAgency.email && (
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Email:</strong> {selectedAgency.email}
+                    <strong>Phone:</strong> {selectedAgency.telephone}
                   </Typography>
                 )}
                 {selectedAgency.website && (
@@ -421,11 +416,6 @@ const Agencies = () => {
                     >
                       {selectedAgency.website}
                     </a>
-                  </Typography>
-                )}
-                {selectedAgency.description && (
-                  <Typography variant="body1">
-                    <strong>Description:</strong> {selectedAgency.description}
                   </Typography>
                 )}
               </DialogContentText>

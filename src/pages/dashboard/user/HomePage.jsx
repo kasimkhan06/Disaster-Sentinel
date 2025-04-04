@@ -26,7 +26,7 @@ import {
   Select,
   FormControl,
   InputLabel,
-  Autocomplete
+  Autocomplete,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -44,6 +44,7 @@ import HistoryIcon from "@mui/icons-material/History";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import useDisasterDataHome from "../../../hooks/useDisasterDataHome";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 function HomePage() {
   const theme = useTheme();
@@ -54,7 +55,7 @@ function HomePage() {
 
   // Pagination state
   const [pastDisastersPage, setPastDisastersPage] = useState(0);
-  const [pastDisastersRowsPerPage, setPastDisastersRowsPerPage] = useState(5);
+  const [pastDisastersRowsPerPage, setPastDisastersRowsPerPage] = useState(8);
   const [recentDisastersPage, setRecentDisastersPage] = useState(0);
   const [recentDisastersRowsPerPage, setRecentDisastersRowsPerPage] =
     useState(5);
@@ -65,7 +66,20 @@ function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [disasterTypeFilter, setDisasterTypeFilter] = useState("");
 
-  
+  const [user, setUser] = useState(null);
+  const [isLogin, setIsLogin] = useState(false);
+  useEffect(() => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        console.log("User: "+parsedUser);
+        setIsLogin(true);
+        // {user.full_name ? user.full_name[0].toUpperCase() : "U"}
+      }
+    }, []);
+
+
   // State for recent disasters (static data)
   const [recentDisasters] = useState([
     {
@@ -130,15 +144,24 @@ function HomePage() {
   ].sort();
 
   // Filtered disasters based on filters
-  const filteredPastDisasters = pastDisasters.filter(disaster => {
-    const matchesYear = yearFilter ? disaster.year.toString() === yearFilter : true;
-    const matchesLocation = locationFilter ? disaster.state === locationFilter : true;
-    const matchesDisasterType = disasterTypeFilter ? disaster.type === disasterTypeFilter : true;
-    const matchesSearch = searchTerm ? 
-      disaster.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      disaster.location.toLowerCase().includes(searchTerm.toLowerCase()) : true;
-    
-    return matchesYear && matchesLocation && matchesDisasterType && matchesSearch;
+  const filteredPastDisasters = pastDisasters.filter((disaster) => {
+    const matchesYear = yearFilter
+      ? disaster.year.toString() === yearFilter
+      : true;
+    const matchesLocation = locationFilter
+      ? disaster.state === locationFilter
+      : true;
+    const matchesDisasterType = disasterTypeFilter
+      ? disaster.disaster_type === disasterTypeFilter
+      : true;
+    const matchesSearch = searchTerm
+      ? disaster.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        disaster.location.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+
+    return (
+      matchesYear && matchesLocation && matchesDisasterType && matchesSearch
+    );
   });
 
   // Filtered recent disasters (just showing how you could implement search for this table too)
@@ -177,7 +200,7 @@ function HomePage() {
 
   return (
     <Container maxWidth={false} sx={{ mt: "100px" }}>
-      <Grid container spacing={2} sx={{ width: "100%" }}>
+      <Grid container spacing={0} sx={{ width: "100%" }}>
         {/* Left Column */}
         <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
           <Grid container spacing={2}>
@@ -187,20 +210,28 @@ function HomePage() {
                 sx={{
                   mb: 3,
                   borderRadius: 2,
-                  backgroundColor: "#E8F1F5",
-                  boxShadow: "2px 2px 2px #93A6AD",
+                  // backgroundColor: "#E8F1F5",
+                  boxShadow: "2px 2px 2px rgb(239, 242, 243)",
                 }}
               >
                 <CardContent>
                   <Typography
-                    variant="h5"
+                    // align="center"
                     sx={{
-                      fontWeight: "600",
+                      fontSize: {
+                        xs: "1rem",
+                        sm: "1.2rem",
+                        md: isBelow ? "1.2rem" : "1.4rem",
+                        lg: isBelow ? "1.2rem" : "1.4rem",
+                      },
+                      fontWeight: "500",
+                      mt: 2,
                       mb: 2,
-                      color: theme.palette.primary.dark,
+                      paddingLeft: { xs: "0px", md: "0px", lg: "5x" },
+                      paddingRight: { xs: "0px", md: "0px", lg: "10px" },
                     }}
                   >
-                    Welcome User
+                    Welcome 
                   </Typography>
                   <Typography variant="body1" sx={{ mb: 2 }}>
                     This platform provides comprehensive disaster management
@@ -219,21 +250,32 @@ function HomePage() {
             <Grid size={{ xs: 12, sm: 12, md: 6, lg: 8 }}>
               <Card
                 sx={{
-                  borderRadius: 2,
-                  backgroundColor: "#E8F1F5",
-                  boxShadow: "2px 2px 2px #93A6AD",
+                  // borderRadius: 2,
+                  // backgroundColor: "#E8F1F5",
+                  // boxShadow: "2px 2px 2px rgb(239, 242, 243)",
+                  // boxShadow: "2px 2px 2px #93A6AD",
+                  boxShadow:"none"
                 }}
               >
                 <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 0 }}>
                     <WarningIcon
                       sx={{ mr: 1, color: theme.palette.error.main }}
                     />
                     <Typography
-                      variant="h6"
+                      align="center"
                       sx={{
-                        fontWeight: "600",
-                        color: theme.palette.primary.dark,
+                        fontSize: {
+                          xs: "1rem",
+                          sm: "1.2rem",
+                          md: isBelow ? "1.2rem" : "1.4rem",
+                          lg: isBelow ? "1.2rem" : "1.4rem",
+                        },
+                        fontWeight: "500",
+                        mt: 2,
+                        mb: 2,
+                        paddingLeft: { xs: "0px", md: "0px", lg: "10px" },
+                        paddingRight: { xs: "0px", md: "0px", lg: "10px" },
                       }}
                     >
                       Recent Disasters
@@ -269,7 +311,8 @@ function HomePage() {
                       </TableBody>
                     </Table>
                     <TablePagination
-                      rowsPerPageOptions={[5, 10]}
+                      // rowsPerPageOptions={[5, 10]}
+                      rowsPerPageOptions={[8]}
                       component="div"
                       count={filteredRecentDisasters.length}
                       rowsPerPage={recentDisastersRowsPerPage}
@@ -293,24 +336,35 @@ function HomePage() {
               <Card
                 sx={{
                   mb: 3,
+                  mt:0,
                   borderRadius: 2,
-                  backgroundColor: "#E8F1F5",
-                  boxShadow: "2px 2px 2px #93A6AD",
+                  // backgroundColor: "#E8F1F5",
+                  // boxShadow: "2px 2px 2px rgb(239, 242, 243)",
+                  boxShadow:"none"
                 }}
               >
                 <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <HistoryIcon
                       sx={{ mr: 1, color: theme.palette.warning.main }}
                     />
                     <Typography
-                      variant="h6"
+                      align="center"
                       sx={{
-                        fontWeight: "600",
-                        color: theme.palette.primary.dark,
+                        fontSize: {
+                          xs: "1rem",
+                          sm: "1.2rem",
+                          md: isBelow ? "1.2rem" : "1.4rem",
+                          lg: isBelow ? "1.2rem" : "1.4rem",
+                        },
+                        fontWeight: "500",
+                        mt: 2,
+                        mb: 2,
+                        paddingLeft: { xs: "0px", md: "0px", lg: "10px" },
+                        paddingRight: { xs: "0px", md: "0px", lg: "10px" },
                       }}
                     >
-                      Past Disasters (Last 5 Years)
+                      Past Disasters (Past 3 years)
                     </Typography>
                   </Box>
 
@@ -527,7 +581,9 @@ function HomePage() {
                         <Autocomplete
                           options={[
                             ...new Set(
-                              pastDisasters.map((disaster) => disaster.type)
+                              pastDisasters.map(
+                                (disaster) => disaster.disaster_type
+                              )
                             ),
                           ]}
                           value={disasterTypeFilter}
@@ -601,7 +657,7 @@ function HomePage() {
                     <Typography>Loading past disasters...</Typography>
                   ) : (
                     <Grid container spacing={2}>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 6, sm: 6, md: 2, lg: 6 }}>
                         <TableContainer component={Paper}>
                           <Table size="small">
                             <TableHead>
@@ -630,7 +686,7 @@ function HomePage() {
                             </TableBody>
                           </Table>
                           <TablePagination
-                            rowsPerPageOptions={[5, 10]}
+                            rowsPerPageOptions={[8]}
                             component="div"
                             count={filteredPastDisasters.length}
                             rowsPerPage={pastDisastersRowsPerPage}
@@ -640,17 +696,53 @@ function HomePage() {
                               handlePastDisastersRowsPerPageChange
                             }
                           />
+
+                          {/* Add the message and navigation options */}
+                          <Box
+                            sx={{
+                              p: 2,
+                              textAlign: "center",
+                              // backgroundColor: "#f5f5f5",
+                              borderTop: "1px solid #e0e0e0",
+                            }}
+                          >
+                            <Typography
+                              variant="body1"
+                              sx={{ mb: 2, fontStyle: "italic" }}
+                            >
+                              Want to see more historical disaster data?
+                            </Typography>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                gap: 2,
+                              }}
+                            >
+                              <Button
+                                variant="outlined"
+                                color="primary"
+                                component={Link}
+                                to="/current-location"
+                                startIcon={<LocationOnIcon />}
+                              >
+                                View for any location
+                              </Button>
+                            </Box>
+                          </Box>
                         </TableContainer>
                       </Grid>
-                      <Grid item xs={12} md={6}>
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6 }}>
                         <Box
                           sx={{
-                            height: "300px",
+                            height: "500px",
                             borderRadius: "8px",
                             overflow: "hidden",
                           }}
                         >
-                          <CurrentLocationMap disasters={filteredPastDisasters} />
+                          <CurrentLocationMap
+                            filteredDisasters={filteredPastDisasters}
+                          />
                         </Box>
                       </Grid>
                     </Grid>
@@ -660,100 +752,126 @@ function HomePage() {
             </Grid>
 
             {/* Quick Access Section */}
-            <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }}>
               <Card
                 sx={{
                   borderRadius: 2,
-                  backgroundColor: "#E8F1F5",
-                  boxShadow: "2px 2px 2px #93A6AD",
+                  boxShadow: "2px 2px 2px rgb(239, 242, 243)",
+                  // backgroundColor: "#E8F1F5", // Light background for the card
                 }}
               >
                 <CardContent>
                   <Typography
-                    variant="h6"
+                    align="center"
                     sx={{
-                      fontWeight: "600",
+                      fontSize: {
+                        xs: "1rem",
+                        sm: "1.2rem",
+                        md: isBelow ? "1.2rem" : "1.4rem",
+                        lg: isBelow ? "1.2rem" : "1.4rem",
+                      },
+                      fontWeight: "500",
+                      mt: 1,
                       mb: 2,
-                      color: theme.palette.primary.dark,
                     }}
                   >
                     Quick Access
                   </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <Button
-                        component={Link}
-                        to="/report-missing"
-                        variant="contained"
-                        fullWidth
-                        startIcon={<PersonSearchIcon />}
+                  <Grid container spacing={1}>
+                    {[
+                      {
+                        label: "Report Missing Person",
+                        to: "/MissingPersonPortal",
+                        icon: (
+                          <PersonSearchIcon
+                            sx={{ color: theme.palette.secondary.main }}
+                          />
+                        ),
+                        color: "secondary",
+                      },
+                      {
+                        label: "Check Status",
+                        to: "/status-tracking",
+                        icon: (
+                          <DescriptionIcon
+                            sx={{ color: theme.palette.info.main }}
+                          />
+                        ),
+                        color: "info",
+                      },
+                      {
+                        label: "Agency Details",
+                        to: "/agencies",
+                        icon: (
+                          <ContactEmergencyIcon
+                            sx={{ color: theme.palette.success.main }}
+                          />
+                        ),
+                        color: "success",
+                      },
+                      {
+                        label: "Disaster History",
+                        to: "/current-location",
+                        icon: (
+                          <WarningIcon
+                            sx={{ color: theme.palette.warning.main }}
+                          />
+                        ),
+                        color: "warning",
+                      },
+                    ].map((button, index) => (
+                      <Grid
+                      size={{ xs: 6, sm: 6, md: 12, lg: 12 }}
+                        key={index}
                         sx={{
-                          py: 2,
-                          mb: 1,
-                          backgroundColor: theme.palette.secondary.main,
-                          "&:hover": {
-                            backgroundColor: theme.palette.secondary.dark,
-                          },
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "stretch",
                         }}
                       >
-                        Report Missing Person
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Button
-                        component={Link}
-                        to="/check-status"
-                        variant="contained"
-                        fullWidth
-                        startIcon={<DescriptionIcon />}
-                        sx={{
-                          py: 2,
-                          mb: 1,
-                          backgroundColor: theme.palette.info.main,
-                          "&:hover": {
-                            backgroundColor: theme.palette.info.dark,
-                          },
-                        }}
-                      >
-                        Check Status
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Button
-                        component={Link}
-                        to="/agency-details"
-                        variant="contained"
-                        fullWidth
-                        startIcon={<ContactEmergencyIcon />}
-                        sx={{
-                          py: 2,
-                          backgroundColor: theme.palette.success.main,
-                          "&:hover": {
-                            backgroundColor: theme.palette.success.dark,
-                          },
-                        }}
-                      >
-                        Agency Details
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Button
-                        component={Link}
-                        to="/disaster-history"
-                        variant="contained"
-                        fullWidth
-                        startIcon={<WarningIcon />}
-                        sx={{
-                          py: 2,
-                          backgroundColor: theme.palette.warning.main,
-                          "&:hover": {
-                            backgroundColor: theme.palette.warning.dark,
-                          },
-                        }}
-                      >
-                        Disaster History
-                      </Button>
-                    </Grid>
+                        <Box
+                          sx={{
+                            width: { xs: "100%", sm: "85%", md: "90%" },
+                            mb: 1,
+                            boxShadow: "2px 2px 2px rgba(0,0,0,0.1)",
+                            backgroundColor: "white",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <Button
+                            component={Link}
+                            to={button.to}
+                            fullWidth
+                            startIcon={button.icon}
+                            sx={{
+                              py: 1.5,
+                              backgroundColor: "white",
+                              color: theme.palette.text.primary,
+                              fontWeight: "400",
+                              "& .MuiButton-startIcon": {
+                                marginRight: "12px",
+                                marginLeft: "8px",
+                              },
+                              "&:hover": {
+                                backgroundColor: "#f5f5f5",
+                              },
+                              justifyContent: "flex-start",
+                              textTransform: "none",
+                              fontSize: {
+                                xs: "0.8rem",
+                                sm: "0.9rem",
+                                md: isBelow ? "0.95rem" : "1rem",
+                                lg: isBelow ? "0.95rem" : "1rem",
+                              },
+                              paddingLeft: 2,
+                              borderRadius: "4px",
+                            }}
+                          >
+                            {button.label}
+                          </Button>
+                        </Box>
+                      </Grid>
+                    ))}
                   </Grid>
                 </CardContent>
               </Card>

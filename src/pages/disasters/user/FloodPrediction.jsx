@@ -207,7 +207,7 @@ const FloodPrediction = () => {
           fontWeight: "500",
         }}
       >
-        Flood Prediction
+        Station Information
       </Typography>
 
       {/* Filter controls */}
