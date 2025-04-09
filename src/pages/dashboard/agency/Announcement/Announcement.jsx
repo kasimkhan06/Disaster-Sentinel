@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import EventListing from "./EventListing";
 import { EventFormProvider  } from "../../../../hooks/useEventForm";
 import EventForm from "./CreateEvent";
