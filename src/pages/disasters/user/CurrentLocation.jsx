@@ -42,6 +42,7 @@ import TimelineIcon from "@mui/icons-material/Timeline";
 import MapIcon from "@mui/icons-material/Map";
 import WarningIcon from "@mui/icons-material/Warning";
 import { PiX } from "react-icons/pi";
+import worldMapBackground from "../../dashboard/user/images/world-map-background.jpg";
 
 function CurrentLocation() {
   const theme = useTheme();
@@ -213,8 +214,38 @@ function CurrentLocation() {
     </div>
   ));
 
+  const [hasSelectedLocation, setHasSelectedLocation] = useState(false); 
+  useEffect(() => {
+    setHasSelectedLocation(!!selectedLocation);
+  }, [selectedLocation]);
   return (
     <>
+    <Box
+      // sx={{
+      //   position: "absolute", // Changed back from fixed to relative
+      //   top: 0,
+      //   left: 0,
+      //   right: 0,
+      //   minHeight: "100vh",
+      //   backgroundImage: `url(${worldMapBackground})`,
+      //   backgroundSize: "cover",
+      //   backgroundPosition: "center",
+      //   backgroundAttachment: "fixed", // Keeps background fixed while scrolling
+      //   backgroundRepeat: "repeat-y", // Repeats vertically when content exceeds viewport
+      //   margin: 0,
+      //   padding: 0,
+      //   "&::before": {
+      //     content: '""',
+      //     position: "absolute",
+      //     top: 0,
+      //     left: 0,
+      //     right: 0,
+      //     bottom: 0,
+      //     backgroundColor: `rgba(255, 255, 255, ${hasSelectedLocation ? 0.9 : 0.85})`,
+      //     zIndex: 0,
+      //   },
+      // }}
+    >
       <Container maxWidth={false} sx={{ width: "100%" }}>
         <div
           style={{
@@ -1077,6 +1108,7 @@ function CurrentLocation() {
 
 The xs part takes up when screen is extra small, Similarly small, medium and large classes as well, based on their respective screen size definition in CSS. */}
       </Container>
+      </Box>
     </>
   );
 }
