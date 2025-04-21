@@ -131,7 +131,7 @@ const Header = () => {
                     transformOrigin={{ vertical: "top", horizontal: "right" }}
                     sx={{ marginTop: "10px" }}
                   >
-                    <MenuItem onClick={() => handleNavigation("/profile")}>Profile</MenuItem>
+                    <MenuItem onClick={() => handleNavigation(`/agency-profile/${user.user_id}`)}>Profile</MenuItem>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </Menu>
                 </>
@@ -164,7 +164,6 @@ const Header = () => {
         {user?.role === "agency" ? (
           <>
             <MenuItem onClick={() => handleNavigation("/missing-person")}>Missing Person List</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/agency")}>{user.full_name} Details</MenuItem>
             <MenuItem onClick={() => handleNavigation("/current-location")}>Current Location</MenuItem>
 
             {/* Nested Announcement Dropdown */}

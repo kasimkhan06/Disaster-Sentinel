@@ -6,9 +6,9 @@ import {
   Box,
   Button,
   Card,
+  TextareaAutosize as Textarea,
 } from "@mui/material";
 import AgencyInfo from "../../../../components/AgencyInfo";
-import MaxHeightTextarea from "../../../../components/TextArea";
 import MapLeaflet from "../../../../components/Map";
 import { useNavigate } from "react-router-dom";
 import ImageUpload from "../../../../components/ImageUpload";
@@ -52,20 +52,20 @@ const SuccessMessage = () => {
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
-    agencyName: "",
+    agency_name: "",
     contact1: "",
     contact2: "",
     address: "", 
     district: "",
     state: "",
     website: "",
-    email: "",
-    agencyType: "",
-    dateOfEstablishment: "",
+    date_of_establishment: "",
     volunteers: "",
     lat: "",
     lng: "",
     images: [],
+    description: "",
+    agency_type: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -75,85 +75,95 @@ const RegistrationForm = () => {
   const [markers, setMarkers] = useState([]);
   const [success, setSuccess] = useState(false);
   const [images, setImages] = useState([]);
+  const [user, setUser] = useState(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const navigate = useNavigate();
+
+   useEffect(() => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsLogin(true);
+        console.log("User data:", storedUser);
+      }
+    }, []);
 
   const handleAgencyTypeChange = (e) => {
     setAgencyTypeValue(e.target.value);
     setFormData({
       ...formData,
-      agencyType: e.target.value === "Other" ? "" : e.target.value,
+      agency_type: e.target.value === "Other" ? "" : e.target.value,
     });
   };
 
-  const handleChange = (e, index = null) => {
-    const { name, value } = e.target;
-
-    if (index !== null) {
-      setFormData((prev) => {
-        const updatedArray = [...prev[name + "es"]];
-        updatedArray[index] = value;
-        return { ...prev, [name + "es"]: updatedArray };
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  const updateFormState = (newState) => {
+    setFormData((prevState) => ({ ...prevState, ...newState }));
   };
-
+  
   const validateForm = () => {
     let newErrors = {};
-    if (!formData.agencyName.trim()) newErrors.agencyName = "Agency Name is required";
+    const websiteRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/\S*)?$/;
+    if (!formData.agency_name.trim()) newErrors.agency_name = "Agency Name is required";
     if (!formData.contact1.trim()) newErrors.contact = "Contact Number is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (agencyTypeValue === "Other" && !formData.agencyType.trim())
-      newErrors.agencyType = "Type Of The Agency is required";
-    if (!formData.dateOfEstablishment.trim()) newErrors.dateOfEstablishment = "Date Of Establishment is required";
+    else if (!/^\d{10}$/.test(formData.contact1.trim())) newErrors.contact = "Contact Number must be 10 digits";
+    if (formData.contact2 && !/^\d{10}$/.test(formData.contact2.trim())) newErrors.contact2 = "Contact Number #2 must be 10 digits";
+    if (agencyTypeValue === "Other" && !formData.agency_type.trim())
+      newErrors.agency_type = "Type Of The Agency is required";
+    if (!formData.date_of_establishment.trim()) newErrors.date_of_establishment = "Date Of Establishment is required";
     if (!formData.volunteers.trim()) newErrors.volunteers = "Number of Volunteers is required";
     if (!formData.address.trim()) newErrors.address = "Address is required";
     if (markers.length === 0) newErrors.location = "Location is required";
     if (images.length === 0) newErrors.images = "At least one image is required";
     if (!formData.description.trim()) newErrors.description = "Description is required";
+    if (!formData.website.trim()) {
+      newErrors.website = "Website is required";
+    } else if (!websiteRegex.test(formData.website.trim())) {
+      newErrors.website = "Please enter a valid website URL (e.g:- http://example.com)";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
-    if (validateForm()) {
-      const formData = new FormData();
-      formData.append("agency_name", formData.agencyName);
-      formData.append("contact1", formData.contact1);
-      formData.append("contact2", formData.contact2);
-      formData.append("email", formData.email);
-      formData.append("agency_type", formData.agencyType);
-      formData.append("website", formData.website);
-      formData.append("date_of_establishment", formData.dateOfEstablishment);
-      formData.append("volunteers", formData.volunteers);
-      formData.append("address", formData.address);
-      formData.append("district", formData.district);
-      formData.append("state", formData.state);
-      formData.append("lat", markers[0]?.[0] || "");
-      formData.append("lng", markers[0]?.[1] || "");
+    try{
+      if (validateForm()) {
+        const Data = new FormData();
+        Data.append("user_id", user?.user_id ? parseInt(user.user_id, 10) : null);
+        Data.append("agency_name", formData.agency_name);
+        Data.append("contact1", formData.contact1);
+        Data.append("contact2", formData.contact2);
+        Data.append("agency_type", formData.agency_type);
+        Data.append("website", formData.website);
+        Data.append("date_of_establishment", formData.date_of_establishment);
+        Data.append("volunteers", formData.volunteers);
+        Data.append("address", formData.address);
+        Data.append("district", formData.district);
+        Data.append("state", formData.state);
+        Data.append("lat", markers[0]?.[0] || "");
+        Data.append("lng", markers[0]?.[1] || "");
+        Data.append("description", formData.description);
 
-      images.forEach((image) => {
-        formData.append("images", image);
-      });
+        images.forEach((image) => {
+          Data.append("images", image);
+        });
 
-      console.log("Sending form data...", formData);
-      setSuccess(true);
+        for (let pair of Data.entries()) {
+          console.log(pair[0] + ": " + pair[1]);
+        }
 
-      // try {
-      //   const response = await axios.post(
-      //     "https://your-api-endpoint.com/agency/register/",
-      //     formData,
-      //     { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
-      //   );
-
-      //   console.log("Registration Success:", response.data);
-      //   setSuccess(true);
-      // } catch (error) {
-      //   console.error("Registration Failed:", error.response?.data || error);
-      // }
+        const response = await axios.post(
+          "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/",
+          Data,
+          { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
+        );
+        console.log("Registration Success:", response.data);
+        setSuccess(true);
+      }
+    }catch (error) {
+      console.error("Registration Failed:", error.response?.data || error);
+      setErrors({ form: "Registration failed. Please try again." });
     }
   };
 
@@ -193,7 +203,7 @@ const RegistrationForm = () => {
               agencyTypeValue={agencyTypeValue} 
               selectedState={selectedState} 
               selectedDistrict={selectedDistrict}
-              handleChange={handleChange} 
+              updateFormState={updateFormState} 
               setFormData={setFormData}
               handleAgencyTypeChange={handleAgencyTypeChange} 
               setSelectedState={setSelectedState}
@@ -213,7 +223,28 @@ const RegistrationForm = () => {
             boxShadow: "0 0 10px rgba(14, 12, 12, 0.1)",
           }}
           >
-            <MaxHeightTextarea placeholder="Give a detailed description about the agency" />
+            <Textarea
+              name="description"
+              maxRows={50}
+              aria-label="maximum height"
+              placeholder="Give a detailed description about the agency"
+              value={formData.description}
+              onChange={(e) => updateFormState({ description: e.target.value })}
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                resize: 'none',
+                padding: '8px 12px',
+                fontSize: '0.9rem',
+                lineHeight: 1.5,
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                fontFamily: 'inherit',
+                color: '#1C2025',
+                backgroundColor: '#fff',
+                outline: 'none',
+              }}
+            />
             {errors.description && <Typography color="error">{errors.description}</Typography>}
             <Typography 
               variant="body2" 

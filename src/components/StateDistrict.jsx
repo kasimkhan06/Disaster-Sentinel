@@ -17,7 +17,7 @@ const StateDistrictDropdown = ({
   useEffect(() => {
     const fetchExcelFile = async () => {
       try {
-        const response = await fetch("/District_Masters.xlsx");
+        const response = await fetch("/assets/District_Masters.xlsx");
         const blob = await response.blob();
         const reader = new FileReader();
 
@@ -58,7 +58,7 @@ const StateDistrictDropdown = ({
   const handleStateChange = (event, newValue) => {
     setSelectedState(newValue || "");
     setDistricts(newValue ? stateDistricts[newValue] || [] : []);
-    setSelectedDistrict(""); // Reset district when state changes
+    setSelectedDistrict("");
     setFormData({ ...formData, state: newValue || "", district: "" });
   };
 
