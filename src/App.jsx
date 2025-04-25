@@ -19,6 +19,7 @@ import Verification from "./pages/authentication/verification";
 import DosDontsPage from "./pages/training/dosdonts";
 import MissingPersonPortal from "./pages/missingperson/portal";
 import StatusTracking from "./pages/missingperson/status";
+import UpdateDetails from "./pages/authentication/updateDetails";
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -46,7 +47,7 @@ const App = () => {
         <Route path="/disaster-details/:id" element={<DisasterInfo />} />
         <Route path="/dosdontspage" element={<DosDontsPage />} />
         <Route path="/MissingPersonPortal" element={<MissingPersonPortal />} />
-        <Route path="/status-tracking" element={<StatusTracking />} />
+        <Route path="/statustracking" element={<StatusTracking />} />
         <Route path="/flood-prediction" element={<FloodPrediction />} />
         <Route path="/agencies" element={<Agencies />} />
         <Route path="/registration-form" element={<RegistrationForm />} />
@@ -54,6 +55,10 @@ const App = () => {
         <Route path="/missing-person" element={<MissingPerson />} />
         <Route path="/person-details/:id" element={<PersonInfo />} />
         <Route path="/announcement" element={<AnnouncementPage />} />
+        <Route path="/update
+        
+        
+        details" element={<UpdateDetails />} />
       </Routes>
     </>
   );
