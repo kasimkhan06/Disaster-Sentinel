@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -36,6 +36,7 @@ import { Link } from "react-router-dom";
 import WarningIcon from "@mui/icons-material/Warning";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import DisasterMap from "../../disasters/user/DisasterMap";
+import Map from "./Map";
 import worldMapBackground from "./images/world-map-background.jpg"; // Adjust path
 
 function HomePage() {
@@ -48,15 +49,31 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [selectedDisaster, setSelectedDisaster] = useState(null);
 
+  // Calculate sliced disasters (5 per type) to be used in both the list and map
+  const slicedDisasters = useMemo(() => {
+    const disastersByType = recentDisasters.reduce((acc, disaster) => {
+      if (!acc[disaster.eventtype]) {
+        acc[disaster.eventtype] = [];
+      }
+      acc[disaster.eventtype].push(disaster);
+      return acc;
+    }, {});
+
+    // Get top 5 disasters per type and flatten the array
+    return Object.values(disastersByType)
+      .flatMap(disasters => disasters.slice(0, 5));
+  }, [recentDisasters]);
+
   // Fetch recent disasters from API
   useEffect(() => {
     const fetchRecentDisasters = async () => {
       try {
         // Replace with your actual API call
         const response = await fetch(
-          "https://api.example.com/disasters/recent"
+          "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/disasters/"
         );
         const data = await response.json();
+        console.log("Fetched recent disasters:", data);
         setRecentDisasters(data);
         setLoading(false);
       } catch (error) {
@@ -71,122 +88,51 @@ function HomePage() {
   // Handle disaster selection (for both map markers and table rows)
   const handleDisasterSelect = (disaster) => {
     setSelectedDisaster(disaster);
-    // Navigate to disaster details page
-    // You would typically use navigate() from react-router here
-    // navigate(`/disasters/${disaster.id}`);
   };
 
-  // Mock data for demonstration (replace with actual API data)
-  const mockDisasters = [
-    {
-      id: 1,
-      title: "M7.7 in Myanmar - Copernicus EMS activation",
-      date: "2023-11-15",
-      location: "Myanmar",
-      type: "Earthquake",
-      magnitude: "7.7",
-      coordinates: [21.9162, 95.956], // [lat, lng]
-      details:
-        "Earthquake with magnitude 7.7 in Myanmar. Copernicus EMS activated.",
-    },
-    {
-      id: 2,
-      title: "Floods and flash floods",
-      date: "2023-11-10",
-      location: "Philippines",
-      type: "Flood",
-      severity: "Severe",
-      coordinates: [12.8797, 121.774], // [lat, lng]
-      details: "Severe flooding reported in multiple regions.",
-    },
-    {
-      id: 2,
-      title: "Floods and flash floods",
-      date: "2023-11-10",
-      location: "Philippines",
-      type: "Flood",
-      severity: "Severe",
-      coordinates: [12.8797, 121.774], // [lat, lng]
-      details: "Severe flooding reported in multiple regions.",
-    },
-    {
-      id: 2,
-      title: "Floods and flash floods",
-      date: "2023-11-10",
-      location: "Philippines",
-      type: "Flood",
-      severity: "Severe",
-      coordinates: [12.8797, 121.774], // [lat, lng]
-      details: "Severe flooding reported in multiple regions.",
-    },
-    {
-      id: 2,
-      title: "Floods and flash floods",
-      date: "2023-11-10",
-      location: "Philippines",
-      type: "Flood",
-      severity: "Severe",
-      coordinates: [12.8797, 121.774], // [lat, lng]
-      details: "Severe flooding reported in multiple regions.",
-    },
-    {
-      id: 2,
-      title: "Floods and flash floods",
-      date: "2023-11-10",
-      location: "Philippines",
-      type: "Flood",
-      severity: "Severe",
-      coordinates: [12.8797, 121.774], // [lat, lng]
-      details: "Severe flooding reported in multiple regions.",
-    },
-    // Add more mock disasters as needed
-  ];
-
-  // Use mock data if API is not available
-  useEffect(() => {
-    if (recentDisasters.length === 0 && !loading) {
-      setRecentDisasters(mockDisasters);
-    }
-  }, [loading, recentDisasters]);
+  // Add this near the top of your component, before the HomePage function
+const disasterTypeMap = {
+  EQ: "Earthquake",
+  FL: "Flood",
+  WF: "Wildfire",
+  TC: "Tropical Cyclone",
+  VO: "Volcano",
+  DR: "Drought",
+  // Add other mappings as needed
+};
 
   return (
     <Box
-  sx={{
-    position: "absolute", // Changed back from fixed to relative
-    top: 0,
-    left: 0,
-    right: 0,
-    minHeight: "100vh",
-    backgroundImage: `url(${worldMapBackground})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundAttachment: "fixed", // Keeps background fixed while scrolling
-    backgroundRepeat: "repeat-y", // Repeats vertically when content exceeds viewport
-    margin: 0,
-    padding: 0,
-    "&::before": {
-      content: '""',
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(255, 255, 255, 0.85)",
-      zIndex: 0,
-    },
-  }}
->
-<Container 
-  maxWidth={false} 
-  sx={{ 
-    mt: "100px", 
-    mb: 4, 
-    width: "75%",
-    padding: 0,
-    marginLeft: "auto", // Centers the container
-    marginRight: "auto",
-  }}
->
+      sx={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        minHeight: "100vh",
+        background: `
+      linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+      url(${worldMapBackground})
+    `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "repeat-y",
+        margin: 0,
+        padding: 0,
+        zIndex: 0, // Only needed if you have other elements with zIndex
+      }}
+    >
+      <Container
+        maxWidth={false}
+        sx={{
+          mt: "100px",
+          mb: 4,
+          width: { sm: "90%", md: "85%", lg: "75%" },
+          padding: 0,
+          marginLeft: "auto", // Centers the container
+          marginRight: "auto",
+        }}
+      >
         <Grid container spacing={1}>
           {/* Marquee for most recent disaster */}
           <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
@@ -196,7 +142,7 @@ function HomePage() {
                 boxShadow: 0,
                 border: "none",
                 background: "transparent",
-                width:"75%",
+                width: "75%",
                 margin: "0 auto",
               }}
             >
@@ -220,27 +166,15 @@ function HomePage() {
                     position: "relative",
                     height: "36px",
                     backgroundColor: "#93A6AD",
-                    color: "white",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: 2,
                     mr: 2,
-                    // "&:before": {
-                    //   content: '""',
-                    //   position: "absolute",
-                    //   left: "-10px",
-                    //   bottom: 0,
-                    //   width: 0,
-                    //   height: 0,
-                    //   borderRight: "10px solid #93A6AD",
-                    //   borderTop: "18px solid transparent",
-                    //   borderBottom: "18px solid transparent",
-                    // },
                     "&:after": {
                       content: '""',
                       position: "absolute",
-                      right: "-10px",
+                      right: "-9.7px",
                       bottom: 0,
                       width: 0,
                       height: 0,
@@ -277,7 +211,9 @@ function HomePage() {
                     variant="h6"
                     sx={{
                       fontWeight: "bold",
-                      color: "black",
+                      color: "rgba(45, 45, 68, 0.87)", // Dark text
+                      position: "relative",
+                      zIndex: 1,
                       display: "inline-block",
                       whiteSpace: "nowrap",
                       paddingLeft: "100%",
@@ -290,7 +226,7 @@ function HomePage() {
                     }}
                   >
                     {recentDisasters.length > 0
-                      ? `${recentDisasters[0].title} in ${recentDisasters[0].location} - ${recentDisasters[0].date}`
+                      ? `${recentDisasters[0].title} - ${recentDisasters[0].pubDate}`
                       : "Loading latest disaster information..."}
                   </Typography>
                 </Box>
@@ -298,8 +234,9 @@ function HomePage() {
             </Card>
           </Grid>
           {/* Map Section (75% width) */}
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
-            <Card sx={{ borderRadius: 2, boxShadow: 3, height: "100%" }}>
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ mb: 2,// or whatever value you prefer
+     }}>
+            <Card sx={{ borderRadius: 2, boxShadow: 3, height: "100%",padding: 1 }}>
               <CardContent
                 sx={{
                   p: 0,
@@ -310,72 +247,211 @@ function HomePage() {
                 }}
               >
                 <Box sx={{ height: "500px", width: "100%" }}>
-                  <DisasterMap
-                    disasters={recentDisasters}
-                    onMarkerClick={handleDisasterSelect}
-                    selectedDisaster={selectedDisaster}
-                  />
+                  {loading ? (
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      height="100%"
+                    >
+                      <Typography>Loading map data...</Typography>
+                    </Box>
+                  ) : (
+                    <Map
+                      disasters={slicedDisasters}
+                      onMarkerClick={handleDisasterSelect}
+                      selectedDisaster={selectedDisaster}
+                    />
+                  )}
                 </Box>
               </CardContent>
             </Card>
           </Grid>
 
-          {/* Recent Disasters Table (25% width) */}
+          {/* Recent Disasters Grid organized by disaster types */}
           <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
-            <Card sx={{ borderRadius: 2, boxShadow: 3, height: "100%" }}>
+            <Card
+              sx={{
+                borderRadius: 2,
+                boxShadow: 3,
+                height: "100%",
+              }}
+            >
               <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <WarningIcon
-                    sx={{ mr: 1, color: theme.palette.error.main }}
-                  />
-                  <Typography variant="h6" sx={{ fontWeight: "500" }}>
-                    Recent Disasters
-                  </Typography>
-                </Box>
-
                 {loading ? (
-                  <Typography>Loading recent disasters...</Typography>
+                  <Typography sx={{ color: "text.primary" }}>
+                    Loading recent disasters...
+                  </Typography>
                 ) : (
-                  <TableContainer
-                    component={Paper}
-                    sx={{ maxHeight: "500px", overflow: "auto" }}
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gap: "5px",
+                      width: "100%",
+                      alignItems: "stretch",
+                      overflowX: "hidden",
+                      gridTemplateColumns: {
+                        xs: "1fr", // stack on small screens
+                        sm: "repeat(auto-fit, minmax(200px, 1fr))",
+                        md: "repeat(auto-fit, minmax(180px, 1fr))",
+                        lg: "repeat(auto-fit, minmax(150px, 1fr))",
+                      },
+                    }}
                   >
-                    <Table size="small" stickyHeader>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Title</TableCell>
-                          <TableCell>Location</TableCell>
-                          <TableCell>Type</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {recentDisasters.map((disaster) => (
-                          <TableRow
-                            key={disaster.id}
-                            hover
-                            onClick={() => handleDisasterSelect(disaster)}
+                    {/* Group disasters by type */}
+                    {Object.entries(
+                      recentDisasters.reduce((acc, disaster) => {
+                        if (!acc[disaster.eventtype]) {
+                          acc[disaster.eventtype] = [];
+                        }
+                        acc[disaster.eventtype].push(disaster);
+                        return acc;
+                      }, {})
+                    ).map(([type, disasters]) => (
+                      <Card
+                        key={type}
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          border: "none",
+                          borderRadius: 0,
+                          boxShadow: "none",
+                        }}
+                      >
+                        <CardContent
+                          sx={{
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            p: 1,
+                          }}
+                        >
+                          <Typography
                             sx={{
-                              cursor: "pointer",
-                              backgroundColor:
-                                selectedDisaster?.id === disaster.id
-                                  ? theme.palette.action.selected
-                                  : "inherit",
+                              fontWeight: "bold",
+                              mb: 2,
+                              color: "rgba(84, 91, 100, 0.87)",
+                              position: "relative",
+                              zIndex: 1,
+                              borderBottom: `2px solid rgba(190, 209, 233, 0.87)`,
+                              pb: 1,
+                              wordBreak: "break-word",
+                              textTransform: "uppercase",
+                              fontSize: {
+                                xs: "0.6rem",
+                                sm: "0.7rem",
+                                md: isBelow ? "0.8rem" : "0.9rem",
+                                lg: isBelow ? "0.8rem" : "0.9rem",
+                              },
                             }}
                           >
-                            <TableCell>{disaster.title}</TableCell>
-                            <TableCell>{disaster.location}</TableCell>
-                            <TableCell>{disaster.type}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                            {disasterTypeMap[type] || type}
+                          </Typography>
+
+                          <Box sx={{ flex: 1, overflow: "auto" }}>
+                            <List dense sx={{ p: 0 }}>
+                              {disasters.slice(0, 5).map((disaster) => (
+                                <ListItem
+                                  key={disaster.id}
+                                  button
+                                  onClick={() => handleDisasterSelect(disaster)}
+                                  sx={{
+                                    mb: 1,
+                                    borderRadius: 0,
+                                    "&:hover": {
+                                      backgroundColor:
+                                        theme.palette.action.hover,
+                                    },
+                                    alignItems: "flex-start",
+                                    "&.MuiListItem-dense": {
+                                      paddingLeft: "3px",
+                                    },
+                                    borderBottom:
+                                      "0.5px solid rgb(235, 232, 232)",
+                                    pb: 1,
+                                  }}
+                                >
+                                  <ListItemText
+                                    primary={
+                                      <Typography
+                                        sx={{
+                                          whiteSpace: "normal",
+                                          wordBreak: "break-word",
+                                          color: "text.primary",
+                                          fontSize: {
+                                            xs: "0.7rem",
+                                            sm: "0.7rem",
+                                            md: isBelow ? "0.8rem" : "0.85rem",
+                                            lg: isBelow ? "0.8rem" : "0.85rem",
+                                          },
+                                          fontWeight: "700",
+                                        }}
+                                      >
+                                        {disaster.title}
+                                      </Typography>
+                                    }
+                                    secondary={
+                                      <>
+                                        <Typography
+                                          component="span"
+                                          variant="body2"
+                                          color="text.secondary"
+                                          display="block"
+                                          sx={{
+                                            whiteSpace: "normal",
+                                            fontSize: {
+                                              xs: "0.55rem",
+                                              sm: "0.6rem",
+                                              md: isBelow
+                                                ? "0.6rem"
+                                                : "0.75rem",
+                                              lg: isBelow
+                                                ? "0.6rem"
+                                                : "0.75rem",
+                                            },
+                                          }}
+                                        >
+                                          {disaster.pubDate}
+                                        </Typography>
+                                        <Typography
+                                          component="span"
+                                          variant="body2"
+                                          color="text.secondary"
+                                          sx={{
+                                            whiteSpace: "normal",
+                                            fontSize: {
+                                              xs: "0.55rem",
+                                              sm: "0.6rem",
+                                              md: isBelow
+                                                ? "0.7rem"
+                                                : "0.75rem",
+                                              lg: isBelow
+                                                ? "0.7rem"
+                                                : "0.75rem",
+                                            },
+                                          }}
+                                        >
+                                          {disaster.country}
+                                        </Typography>
+                                      </>
+                                    }
+                                    sx={{ my: 0 }}
+                                  />
+                                </ListItem>
+                              ))}
+                            </List>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </Box>
                 )}
               </CardContent>
             </Card>
           </Grid>
 
-          {/* Source Attribution */}
+          {/* Source Attribution
           <Grid xs={12}>
             <Typography variant="caption" sx={{ fontStyle: "italic" }}>
               Source: Map of disaster within the past 6 days, European Union,
@@ -386,7 +462,7 @@ function HomePage() {
               of its authorities, or concerning the delimitation of its
               frontiers or boundaries.
             </Typography>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </Box>

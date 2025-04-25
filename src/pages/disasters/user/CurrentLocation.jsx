@@ -221,31 +221,25 @@ function CurrentLocation() {
   return (
     <>
     <Box
-      // sx={{
-      //   position: "absolute", // Changed back from fixed to relative
-      //   top: 0,
-      //   left: 0,
-      //   right: 0,
-      //   minHeight: "100vh",
-      //   backgroundImage: `url(${worldMapBackground})`,
-      //   backgroundSize: "cover",
-      //   backgroundPosition: "center",
-      //   backgroundAttachment: "fixed", // Keeps background fixed while scrolling
-      //   backgroundRepeat: "repeat-y", // Repeats vertically when content exceeds viewport
-      //   margin: 0,
-      //   padding: 0,
-      //   "&::before": {
-      //     content: '""',
-      //     position: "absolute",
-      //     top: 0,
-      //     left: 0,
-      //     right: 0,
-      //     bottom: 0,
-      //     backgroundColor: `rgba(255, 255, 255, ${hasSelectedLocation ? 0.9 : 0.85})`,
-      //     zIndex: 0,
-      //   },
-      // }}
-    >
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            minHeight: "100vh",
+            background: `
+          linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+          url(${worldMapBackground})
+        `,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "repeat-y",
+            margin: 0,
+            padding: 0,
+            zIndex: 0, // Only needed if you have other elements with zIndex
+          }}
+        >
       <Container maxWidth={false} sx={{ width: "100%" }}>
         <div
           style={{
@@ -320,7 +314,7 @@ function CurrentLocation() {
         {selectedLocation ? (
           <>
             <Grid container spacing={1} sx={{ m: 0, width: "100%" }}>
-              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }}>
+              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }} >
                 <div
                   style={{
                     margin: "10px",
@@ -1009,9 +1003,10 @@ function CurrentLocation() {
               justifyContent: "center",
               mt: 4,
               p: 3,
-              backgroundColor: "#E8F1F5", // Light background color
+              // backgroundColor: "#E8F1F5", // Light background color
               borderRadius: 2,
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow
+              // boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow
+              // boxShadow: 3,
               animation: "fadeIn 1s ease-in-out", // Fade-in animation
               "@keyframes fadeIn": {
                 "0%": { opacity: 0, transform: "translateY(-10px)" },

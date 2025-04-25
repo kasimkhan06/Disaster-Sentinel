@@ -116,12 +116,33 @@ const Agencies = () => {
   if (loading) {
     return (
       <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              minHeight: "100vh",
+              background: `
+            linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+            url(${worldMapBackground})
+          `,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundAttachment: "fixed",
+              backgroundRepeat: "repeat-y",
+              margin: 0,
+              padding: 0,
+              zIndex: 0, // Only needed if you have other elements with zIndex
+            }}
+          >
+      <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
         minHeight="200px"
       >
         <CircularProgress />
+      </Box>
       </Box>
     );
   }
@@ -136,41 +157,32 @@ const Agencies = () => {
 
   return (
     <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        p: 2,
-        position: "absolute", // Changed back from fixed to relative
-        top: 0,
-        left: 0,
-        right: 0,
-        minHeight: "100vh",
-        backgroundImage: `url(${worldMapBackground})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed", // Keeps background fixed while scrolling
-        backgroundRepeat: "repeat-y", // Repeats vertically when content exceeds viewport
-        margin: 0,
-        padding: 0,
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(255, 255, 255, 0.85)",
-          zIndex: 0,
-        },
-      }}
-    >
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            minHeight: "100vh",
+            background: `
+          linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+          url(${worldMapBackground})
+        `,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "repeat-y",
+            margin: 0,
+            padding: 0,
+            zIndex: 0, // Only needed if you have other elements with zIndex
+          }}
+        >
       <Typography
         align="center"
         sx={{
           pt: "17px",
           pb: "5px",
           mt: 8,
-          mb: 0,
+          mb: 1,
           fontSize: {
             xs: "1rem",
             sm: "1.2rem",
@@ -191,7 +203,7 @@ const Agencies = () => {
         container
         spacing={1}
         sx={{
-          mb: { xs: 1, md: 2 },
+          mb: 1,
           width: {
             xs: "100%",
             sm: "90%",
@@ -214,14 +226,15 @@ const Agencies = () => {
               width: "100%",
               padding: 0,
               paddingLeft: { xs: 1, md: 2 },
-              mb: 2,
+              mb: 0,
               textAlign: "left",
               backgroundColor: "white",
-              boxShadow: "2px 2px 2px #E8F1F5",
+              // boxShadow: "2px 2px 2px #E8F1F5",
               position: "relative",
               height: "48px",
               display: "flex",
               alignItems: "center",
+              boxShadow: 2,
             }}
           >
             <Autocomplete
@@ -311,7 +324,7 @@ const Agencies = () => {
                 "& .MuiAutocomplete-endAdornment": {
                   right: "10px",
                   top: "calc(50% - 12px)", // Center adornment vertically
-                },
+                }, 
               }}
             />
           </Box>
@@ -333,7 +346,7 @@ const Agencies = () => {
               paddingY: "9px",
               mb: 2,
               display: "flex",
-              alignItems: "center",
+              alignItems: "center", boxShadow: 2,
               backgroundColor: "white",
               "&:hover": {
                 backgroundColor: "white",
@@ -376,6 +389,7 @@ const Agencies = () => {
           minHeight: `${headerHeight + rowHeight + paginationHeight}px`,
           display: "flex",
           flexDirection: "column",
+          borderRadius: 2, boxShadow: 3,
         }}
       >
         <TableContainer
