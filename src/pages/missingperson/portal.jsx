@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-// Use Grid from @mui/material, not @mui/material/Grid2 unless you specifically installed and configured v2
+// Use Grid from @mui/material/Grid2 for v6+ features and syntax
+import Grid from "@mui/material/Grid2"; // Changed from v5 Grid
 import {
-    Grid, // Changed from Grid2
     Container,
     TextField,
     Button,
@@ -13,7 +13,7 @@ import {
     FormControl,
     InputLabel,
     Box,
-    // Autocomplete is used within StateDistrictDropdown, not directly needed here unless used elsewhere
+    // Autocomplete is likely used within StateDistrictDropdown
 } from "@mui/material";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -23,7 +23,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 // Import the updated StateDistrictDropdown component
 import StateDistrictDropdown from '../../components/StateDistrict1.jsx'; // Adjust path if necessary
 
-// Custom map marker icon (ensure Leaflet's default icon path is configured or use this)
+// Custom map marker icon (Leaflet default path configuration)
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -31,7 +31,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Component to handle map click event
+// Component to handle map click event (using original logic)
 const LocationSelector = ({ setFormData }) => {
     useMapEvents({
         click(e) {
@@ -47,15 +47,15 @@ const LocationSelector = ({ setFormData }) => {
 };
 
 const MissingPersonPortal = () => {
-    // Add state and district to the initial form data
+    // Keeping original state structure
     const [formData, setFormData] = useState({
         name: "",
         description: "",
         identificationMarks: "",
         lastSeen: null,
-        lastSeenPlace: "", // Added field to store text input for location
-        state: "",         // Added state field
-        district: "",      // Added district field
+        lastSeenPlace: "",
+        state: "",
+        district: "",
         contactInfo: "",
         additionalInfo: "",
         disasterType: "",
@@ -63,14 +63,13 @@ const MissingPersonPortal = () => {
         photo: null,
     });
 
-    // Add state variables to manage the dropdown selections
+    // Keeping original state variables
     const [selectedState, setSelectedState] = useState("");
     const [selectedDistrict, setSelectedDistrict] = useState("");
-
     const [reportedPersons, setReportedPersons] = useState([]);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
-    const [fileError, setFileError] = useState({}); // Changed to object for specific errors
+    const [fileError, setFileError] = useState({});
     const [captchaToken, setCaptchaToken] = useState(null);
     const [imagePreviews, setImagePreviews] = useState({ photo: null, idCard: null });
 
@@ -78,9 +77,10 @@ const MissingPersonPortal = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Using original, more robust file handling
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        const fieldName = e.target.name; // e.g., 'photo' or 'idCard'
+        const fieldName = e.target.name;
 
         if (!file) {
              // Clear existing preview and data if file selection is cancelled
@@ -95,7 +95,7 @@ const MissingPersonPortal = () => {
 
         const fileName = file.name.toLowerCase();
         const fileExtension = fileName.split(".").pop();
-        const allowedTypes = ["jpeg", "jpg"]; // Allow both jpeg and jpg
+        const allowedTypes = ["jpeg"]; // Allow both jpeg
 
         // Clear previous error for this field first
          setFileError((prevErrors) => ({
@@ -107,7 +107,7 @@ const MissingPersonPortal = () => {
         if (!allowedTypes.includes(fileExtension)) {
             setFileError((prevErrors) => ({
                 ...prevErrors,
-                [fieldName]: "Invalid file type! Only JPEG/JPG files are allowed.",
+                [fieldName]: "Invalid file type! Only JPEG files are allowed.",
             }));
             setFormData((prevData) => ({ ...prevData, [fieldName]: null })); // Clear invalid file data
             setImagePreviews((prevPreviews) => ({ ...prevPreviews, [fieldName]: null })); // Clear preview
@@ -119,9 +119,9 @@ const MissingPersonPortal = () => {
         const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
         if (file.size > maxSizeInBytes) {
              setFileError((prevErrors) => ({
-                ...prevErrors,
-                [fieldName]: `File too large! Maximum size is ${maxSizeInBytes / (1024*1024)}MB.`,
-            }));
+                 ...prevErrors,
+                 [fieldName]: `File too large! Maximum size is ${maxSizeInBytes / (1024*1024)}MB.`,
+             }));
             setFormData((prevData) => ({ ...prevData, [fieldName]: null }));
             setImagePreviews((prevPreviews) => ({ ...prevPreviews, [fieldName]: null }));
             e.target.value = null; // Reset file input
@@ -142,17 +142,19 @@ const MissingPersonPortal = () => {
         setImagePreviews((prevPreviews) => ({ ...prevPreviews, [fieldName]: fileUrl }));
     };
 
+
     const handleCaptchaVerify = (token) => {
         setCaptchaToken(token);
         setError(""); // Clear general errors when captcha is verified
     };
 
+    // Using original, more robust submit handler validation
     const handleSubmit = (e) => {
         e.preventDefault();
-        setError(""); // Clear previous errors
-        setSuccess(false); // Reset success state
+        setError("");
+        setSuccess(false);
 
-        // --- Validation ---
+        // --- Validation (Original Robust Checks) ---
         let validationPassed = true;
 
         if (!formData.name.trim()) {
@@ -180,9 +182,9 @@ const MissingPersonPortal = () => {
         } else if (!formData.photo) {
             // Ensure photo error state is updated correctly if needed
              setFileError((prevErrors) => ({
-                ...prevErrors,
-                photo: "Uploading a photo (JPEG/JPG) is required.",
-            }));
+                 ...prevErrors,
+                 photo: "Uploading a photo (JPEG) is required.",
+             }));
             setError("Photo upload is required. Please check file requirements."); // More general error
             validationPassed = false;
         } else if (fileError.photo || fileError.idCard) {
@@ -199,172 +201,177 @@ const MissingPersonPortal = () => {
         }
 
         // --- Submission Logic ---
-        console.log("Form Data Submitted:", formData); // Log data before adding
+        console.log("Form Data Submitted:", formData);
         setReportedPersons([...reportedPersons, { ...formData, id: Date.now() }]);
 
-        // --- Reset Form ---
+        // --- Reset Form (Original Reset Logic) ---
         setFormData({
             name: "",
             description: "",
             identificationMarks: "",
             lastSeen: null,
-            lastSeenPlace: "", // Reset place name text
-            state: "",         // Reset state
-            district: "",      // Reset district
+            lastSeenPlace: "",
+            state: "",
+            district: "",
             contactInfo: "",
             additionalInfo: "",
             disasterType: "",
             idCard: null,
             photo: null,
         });
-
-        // Reset dropdown specific states
         setSelectedState("");
         setSelectedDistrict("");
-
-        // Revoke object URLs and reset previews/errors
         if (imagePreviews.photo) URL.revokeObjectURL(imagePreviews.photo);
         if (imagePreviews.idCard) URL.revokeObjectURL(imagePreviews.idCard);
         setImagePreviews({ photo: null, idCard: null });
         setFileError({});
-
-        // Reset reCAPTCHA (if using the component's reset method - requires a ref)
-        // Or simply reset the token state
         setCaptchaToken(null);
-        // Consider adding a ref to ReCAPTCHA component and calling grecaptcha.reset();
-
+        // Consider adding a ref to ReCAPTCHA component and calling grecaptcha.reset(); if needed
         setError("");
-        setSuccess(true); // Indicate success
-
-         // Optionally clear success message after a delay
+        setSuccess(true);
         setTimeout(() => setSuccess(false), 5000);
-
     };
 
-     // Common TextField styling
+     // Common TextField styling (kept from original)
      const textFieldStyles = {
-         "& .MuiInputBase-root": { padding: "4px 8px" },
-         "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-         "& .MuiInputLabel-root": { fontSize: "0.9rem" },
-         width: "100%",
+        "& .MuiInputBase-root": { padding: "4px 8px" },
+        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+        "& .MuiInputLabel-root": { fontSize: "0.9rem" },
+        width: "100%", // Box controls the 80%, TextField fills the box
      };
 
-     // Common Box styling
+     // Common Box styling (adapted from reference)
      const boxStyles = {
-         width: "80%", padding: 0, mb: 2, textAlign: "left",
-         boxShadow: "2px 2px 2px #E8F1F5", position: "relative",
+        width: "80%",
+        padding: 0,
+        mb: 2, // Consistent margin bottom
+        textAlign: "left",
+        boxShadow: "2px 2px 2px #E8F1F5", // Reference shadow
+        position: "relative",
      };
 
 
     return (
-        <Container maxWidth="lg" sx={{ mt: {xs: 4, md: 10}, pb: 4, minHeight: "100vh", overflowX: "hidden" }}> {/* Prevent horiz scroll */}
-            {/* Title Centered */}
+        // Keeping original container padding/margins, adjusted mt
+        <Container maxWidth="lg" sx={{ mt: {xs: 4, md: 10}, pb: 4, minHeight: "100vh", overflowX: "hidden" }}>
+            {/* Title Centered (Using reference font sizes) */}
             <Typography
                 align="center"
                 sx={{
-                    mt: 2, mb: 4,
-                    fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" }, // Responsive font size
+                    mt: 2,
+                    mb: 4,
+                    fontSize: { xs: "1rem", sm: "1.2rem", md: "1.4rem", lg: "1.4rem" }, // Reference sizes
                     fontWeight: "500",
                 }}
             >
                 Report a Missing Person
             </Typography>
 
-             {/* Error Message Display */}
-            {error && (
-                <Typography color="error" align="center" sx={{ mb: 2 }}>
-                    {error}
-                </Typography>
-            )}
+             {/* Error Message Display (Kept from original) */}
+             {error && (
+                 <Typography color="error" align="center" sx={{ mb: 2 }}>
+                     {error}
+                 </Typography>
+             )}
 
-            {/* Success Message Display */}
-            {success && (
-                <Typography color="success.main" align="center" sx={{ mb: 2 }}>
-                    Report submitted successfully!
-                </Typography>
-            )}
+             {/* Success Message Display (Kept from original) */}
+             {success && (
+                 <Typography color="success.main" align="center" sx={{ mb: 2 }}>
+                     Report submitted successfully!
+                 </Typography>
+             )}
 
-
+            {/* Using Grid v2 */}
             <Grid
                 container
                 spacing={4}
-                alignItems="stretch" // Ensures cards stretch to the same height if content differs
+                alignItems="stretch"
                 sx={{ display: "flex", justifyContent: "center" }}
             >
                 {/* Left Side - Form */}
-                <Grid item xs={12} md={6}> {/* Changed Grid 'size' prop to 'item xs/md' */}
-                    <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3, height: "100%" }}> {/* Added subtle shadow */}
+                <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
+                    {/* Card styling from reference */}
+                    <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0, height: "100%" }}>
                         <Typography
                             align="center"
                             sx={{
-                                mt: 0, mb: 3, // Increased margin bottom
-                                fontSize: { xs: "1.1rem", sm: "1.2rem", md: "1.3rem" },
+                                mt: 0,
+                                mb: 1, // Reference margin
+                                fontSize: { xs: "1rem", sm: "1.2rem", md: "1.2rem", lg: "1.2rem" }, // Reference sizes
                                 fontWeight: "500",
                             }}
                         >
                             Report Details
                         </Typography>
-                        <form onSubmit={handleSubmit} noValidate> {/* Added noValidate to disable default browser validation */}
-                            {/* Using a container Grid for form elements for consistent spacing */}
-                            <Grid container spacing={0} direction="column" alignItems="center"> {/* Center align the Box elements */}
+                        <form onSubmit={handleSubmit} noValidate>
+                            {/* Grid v2 container for form items */}
+                            <Grid container spacing={0} direction="column" alignItems="center"> {/* Center align the Box elements wrapper */}
 
                                 {/* Name Field */}
-                                <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
-                                     <Box sx={boxStyles}>
-                                        <TextField fullWidth label="Name*" name="name" value={formData.name} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} />
+                                <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}> {/* Pushes Box right */}
+                                    <Box sx={boxStyles}>
+                                        <TextField fullWidth label="Name" name="name" value={formData.name} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} />
                                     </Box>
                                 </Grid>
 
                                 {/* Description Field */}
-                                <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+                                <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
                                     <Box sx={boxStyles}>
-                                        <TextField fullWidth label="Description*" name="description" value={formData.description} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} multiline rows={3}/> {/* Allow multiline description */}
+                                        <TextField fullWidth label="Description" name="description" value={formData.description} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} multiline rows={3}/>
                                     </Box>
                                 </Grid>
 
                                 {/* Identification Marks Field */}
-                                <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+                                <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
                                     <Box sx={boxStyles}>
                                         <TextField fullWidth label="Identification Marks" name="identificationMarks" value={formData.identificationMarks} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} />
                                     </Box>
                                 </Grid>
 
                                 {/* Last Seen Location Field (Text Input) */}
-                                <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+                                <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
                                     <Box sx={boxStyles}>
-                                        <TextField fullWidth label="Last Seen Location (Enter Place Name)*" name="lastSeenPlace" value={formData.lastSeenPlace} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} helperText="Or click location on the map"/>
+                                        <TextField fullWidth label="Last Seen Location (Enter Place Name)" name="lastSeenPlace" value={formData.lastSeenPlace} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles}/>
                                     </Box>
                                 </Grid>
 
-                                 {/* State and District Dropdowns - Integrated Here */}
-                                 {/* The StateDistrictDropdown component renders its own Grid items with alignment */}
-                                 <StateDistrictDropdown
-                                     formData={formData}
-                                     setFormData={setFormData} // Pass setFormData down
-                                     selectedState={selectedState}
-                                     setSelectedState={setSelectedState}
-                                     selectedDistrict={selectedDistrict}
-                                     setSelectedDistrict={setSelectedDistrict}
-                                 />
-                                 {/* Ensure StateDistrictDropdown uses <Grid item> internally for proper layout */}
+                                {/* State and District Dropdowns - Integrated Here */}
+                                {/* Wrap StateDistrictDropdown similarly if it doesn't handle its own alignment/width */}
+                                <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                                    {/* This Box ensures the dropdown container aligns like other fields */}
+                                    <Box sx={{...boxStyles, boxShadow: 'none', mb: 0}}>
+                                        <StateDistrictDropdown
+                                            formData={formData}
+                                            setFormData={setFormData}
+                                            selectedState={selectedState}
+                                            setSelectedState={setSelectedState}
+                                            selectedDistrict={selectedDistrict}
+                                            setSelectedDistrict={setSelectedDistrict}
+                                            // Pass common styles if needed by the dropdown component
+                                            // textFieldStyles={textFieldStyles}
+                                            // boxStyles={boxStyles}
+                                        />
+                                    </Box>
+                                </Grid>
+                                {/* Add margin below the dropdown container if needed */}
+                                <Grid size={12} sx={{ height: '16px' }}/> {/* Spacer to mimic mb: 2 */}
 
 
                                 {/* Disaster Type Field */}
-                                <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+                                <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
                                     <Box sx={boxStyles}>
-                                        <FormControl fullWidth required> {/* Added required */}
-                                            <InputLabel sx={{ fontSize: "0.9rem" }} id="disaster-type-label">Disaster Type*</InputLabel>
+                                        <FormControl fullWidth required>
+                                            <InputLabel sx={{ fontSize: "0.9rem" }} id="disaster-type-label">Disaster Type</InputLabel>
                                             <Select
                                                 labelId="disaster-type-label"
-                                                label="Disaster Type*" // Match label
+                                                label="Disaster Type*"
                                                 name="disasterType"
                                                 value={formData.disasterType}
                                                 onChange={handleInputChange}
                                                 sx={{ // Apply similar styling for consistency
                                                     "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                                                     width: "100%",
-                                                    // Adjust vertical padding if needed
-                                                     '& .MuiSelect-select': { paddingTop: '10px', paddingBottom: '10px' },
+                                                    '& .MuiSelect-select': { paddingTop: '10px', paddingBottom: '10px' },
                                                 }}
                                             >
                                                 <MenuItem value="Cyclones">Cyclones</MenuItem>
@@ -374,75 +381,76 @@ const MissingPersonPortal = () => {
                                                 <MenuItem value="Landslides">Landslides</MenuItem>
                                                 <MenuItem value="Fire">Fire</MenuItem>
                                                 <MenuItem value="Heatwave">Heatwave</MenuItem>
-                                                 <MenuItem value="Other">Other</MenuItem> {/* Added Other */}
+                                                <MenuItem value="Other">Other</MenuItem>
                                             </Select>
                                         </FormControl>
                                     </Box>
                                 </Grid>
 
                                 {/* Contact Information Field */}
-                                <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+                                <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
                                     <Box sx={boxStyles}>
-                                        <TextField fullWidth label="Your Contact Information*" name="contactInfo" value={formData.contactInfo} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} />
+                                        <TextField fullWidth label="Contact Information" name="contactInfo" value={formData.contactInfo} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} />
                                     </Box>
                                 </Grid>
 
                                 {/* Additional Information Field */}
-                                <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
-                                    <Box sx={{...boxStyles, mb: 3}}> {/* Adjusted margin */}
+                                <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                                    <Box sx={{...boxStyles, mb: 0}}> {/* Adjusted margin from reference */}
                                         <TextField fullWidth label="Additional Information" name="additionalInfo" value={formData.additionalInfo} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} multiline rows={3}/>
                                     </Box>
                                 </Grid>
 
-                                {/* File Upload Section Title */}
-                                <Grid item xs={12} sx={{ width: '80%', mb: 1 }}>
-                                     <Typography variant="subtitle1" sx={{ fontWeight: '500' }}>Uploads (JPEG/JPG only, max 5MB)</Typography>
+
+                                {/* File Uploads - Reference Layout */}
+                                <Grid container size={12} sx={{ display: "flex", justifyContent: "right" , width: "90%", mt: 2}}>
+                                     <Grid size={{ xs: 12, sm: 6 }} sx={{ textAlign: { xs: 'right', sm: 'right' }, pr: 1, mb: {xs: 1, sm: 0}, alignSelf: 'center' }}>
+                                         <Typography variant="subtitle1">Upload Identity Card:</Typography>
+                                     </Grid>
+                                     <Grid size={{ xs: 12, sm: 6 }} sx={{ textAlign: 'left', pl: 1 }}>
+                                         <Input type="file" name="idCard" onChange={handleFileChange} disableUnderline />
+                                         {fileError.idCard && <Typography color="error" variant="body2" sx={{ display: 'block' }}>{fileError.idCard}</Typography>}
+                                     </Grid>
                                 </Grid>
 
-
-                                {/* ID Card Upload */}
-                                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', width: '100%', mb: 1 }}>
-                                    <Box sx={{ width: '80%', display: 'flex', alignItems: 'center', flexDirection: {xs: 'column', sm: 'row'}, gap: 2 }}>
-                                         <Typography variant="body1" sx={{ minWidth: '150px', textAlign: {xs: 'center', sm: 'left'} }}>Identity Card:</Typography>
-                                         <Input type="file" name="idCard" onChange={handleFileChange} sx={{ flexGrow: 1 }} disableUnderline/>
-                                    </Box>
-                                </Grid>
-                                 <Grid item xs={12} sx={{ width: '80%', pl: { sm: '150px'}, mb: 2}}> {/* Align error below input */}
-                                    {fileError.idCard && <Typography color="error" variant="body2">{fileError.idCard}</Typography>}
-                                </Grid>
-
-
-                                {/* Photo Upload */}
-                                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', width: '100%', mb: 1 }}>
-                                    <Box sx={{ width: '80%', display: 'flex', alignItems: 'center', flexDirection: {xs: 'column', sm: 'row'}, gap: 2 }}>
-                                         <Typography variant="body1" sx={{ minWidth: '150px', textAlign: {xs: 'center', sm: 'left'} }}>Photo (Required*):</Typography>
-                                         <Input type="file" name="photo" onChange={handleFileChange} required sx={{ flexGrow: 1 }} disableUnderline/>
-                                    </Box>
-                                </Grid>
-                                <Grid item xs={12} sx={{ width: '80%', pl: { sm: '150px'}, mb: 2}}> {/* Align error below input */}
-                                      {fileError.photo && <Typography color="error" variant="body2">{fileError.photo}</Typography>}
+                                <Grid container size={12} sx={{ display: "flex", justifyContent: "right" , width: "90%", mt: 2}}>
+                                    <Grid size={{ xs: 12, sm: 6 }} sx={{ textAlign: { xs: 'right', sm: 'right' }, pr: 1, mb: {xs: 1, sm: 0}, alignSelf: 'center' }}>
+                                        <Typography variant="subtitle1">Photo (JPEG Req*):</Typography>
+                                     </Grid>
+                                     <Grid size={{ xs: 12, sm: 6 }} sx={{ textAlign: 'left', pl: 1 }}>
+                                         <Input type="file" name="photo" onChange={handleFileChange} required disableUnderline />
+                                         {fileError.photo && <Typography color="error" variant="body2" sx={{ display: 'block' }}>{fileError.photo}</Typography>}
+                                    </Grid>
                                 </Grid>
 
 
                                 {/* reCAPTCHA */}
-                                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                                <Grid size={12} sx={{ display: 'flex', justifyContent: 'center', my: 2, width: '100%' }}> {/* Centered */}
                                      <ReCAPTCHA
-                                        sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94"} // Ensure this key exists in .env and starts with VITE_
+                                        sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94"} // Use environment variable
                                         onChange={handleCaptchaVerify}
                                     />
                                 </Grid>
 
-                                {/* Submit Button */}
-                                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                                    <Button
-                                        variant="contained" // Use contained variant for primary action
-                                        type="submit"
-                                        size="large"
+                                {/* Submit Button - Reference Style */}
+                                <Grid size={12} sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                                    <Button disableRipple type="submit"
                                         sx={{
-                                            fontWeight: 600,
-                                            px: 5, // Padding left/right
-                                        }}
-                                    >
+                                            height: { md: 52 },
+                                            paddingY: "9px",
+                                            px: 5, // Added padding X for better appearance
+                                            fontSize: "1rem",
+                                            fontWeight: 800,
+                                            // ml:30, // Reference margin - centering is often better
+                                            mb: 2,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            color: 'primary.main', // Use theme color for text
+                                            backgroundColor: "white", // Maintain the original background
+                                            "&:hover": {
+                                                backgroundColor: "white", // Prevent color change on hover
+                                            },
+                                        }}>
                                         Submit Report
                                     </Button>
                                 </Grid>
@@ -452,15 +460,23 @@ const MissingPersonPortal = () => {
                 </Grid>
 
                 {/* Right Side - Map and Previews */}
-                 <Grid item xs={12} md={6}>
+                 <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
                      <Grid container direction="column" spacing={3}> {/* Stack Map and Previews vertically */}
-                        {/* Map Card */}
-                         <Grid item xs={12}>
-                            <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3, position: "relative", overflow: "hidden" }}>
-                                <Typography align="center" sx={{ mt: 0, mb: 2, fontSize: { xs: "1.1rem", sm: "1.2rem", md: "1.3rem" }, fontWeight: "500" }}>
+                         {/* Map Card - Reference Style */}
+                         <Grid size={12}>
+                            <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0, position: "relative", overflow: "hidden" }}>
+                                <Typography
+                                    align="center"
+                                    sx={{
+                                        mt: 0,
+                                        mb: 1, // Reference margin
+                                        fontSize: { xs: "1rem", sm: "1.2rem", md: "1.2rem", lg: "1.2rem" }, // Reference sizes
+                                        fontWeight: "500",
+                                    }}
+                                >
                                     Last Seen Location (Click on Map)
                                 </Typography>
-                                <Box sx={{ position: "relative", width: "100%", height: "400px", borderRadius: 2, overflow: "hidden" }}>
+                                <Box sx={{ position: "relative", width: "100%", height: "400px", borderRadius: 2, overflow: "hidden", mt: 2 }}>
                                     {/* Map */}
                                     <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: "100%", width: "100%", position: "absolute", zIndex: 1 }}>
                                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
@@ -471,36 +487,56 @@ const MissingPersonPortal = () => {
                                         )}
                                         <LocationSelector setFormData={setFormData} />
                                     </MapContainer>
-                                    {/* Blur Overlay */}
-                                    <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", background: `linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 5%), linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 5%), linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 5%), linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 5%)`, zIndex: 2 }} />
+                                    {/* 4-side white blur overlay - Reference Style */}
+                                    <Box
+                                        sx={{
+                                            position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none",
+                                            background: `
+                                                linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%),
+                                                linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%),
+                                                linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%),
+                                                linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%)
+                                            `,
+                                            zIndex: 2,
+                                        }}
+                                    />
                                 </Box>
                             </Card>
-                        </Grid>
+                          </Grid>
 
-                        {/* Image Previews Card */}
-                        {(imagePreviews.photo || imagePreviews.idCard) && ( // Show card if at least one image is previewable
-                             <Grid item xs={12}>
-                                <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
-                                    <Typography align="center" sx={{ mt: 0, mb: 2, fontSize: { xs: "1.1rem", sm: "1.2rem", md: "1.3rem" }, fontWeight: "500" }}>
+                        {/* Image Previews Card - Reference Style */}
+                        {(imagePreviews.photo || imagePreviews.idCard) && ( // Original condition to show card
+                             <Grid size={12}>
+                                <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0 }}>
+                                    <Typography
+                                        align="center"
+                                        sx={{
+                                            mt: 0,
+                                            mb: 1, // Reference margin
+                                            fontSize: { xs: "1rem", sm: "1.2rem", md: "1.2rem", lg: "1.2rem" }, // Reference sizes
+                                            fontWeight: "500",
+                                        }}
+                                    >
                                         Uploaded Images Preview
                                     </Typography>
+                                    {/* Reference Grid layout for previews */}
                                     <Grid container spacing={2} justifyContent="center">
-                                        {imagePreviews.photo && (
-                                             <Grid item xs={imagePreviews.idCard ? 6 : 12} sm={imagePreviews.idCard ? 6 : 8} md={imagePreviews.idCard ? 6 : 10}> {/* Adjust size based on whether ID card is also present */}
-                                                <Typography align="center" variant="caption" display="block" gutterBottom>Photo Preview</Typography>
-                                                <img src={imagePreviews.photo} alt="Uploaded Photo" style={{ width: "100%", borderRadius: 8, border: '1px solid #eee' }} />
-                                            </Grid>
-                                        )}
+                                         {imagePreviews.photo && (
+                                             <Grid item size={imagePreviews.idCard ? { xs: 12, sm: 6 } : { xs: 12 }}> {/* Adjust size based on whether ID card is also present */}
+                                                 <img src={imagePreviews.photo} alt="Uploaded Photo" style={{ width: "100%", borderRadius: 8, border: '1px solid #eee' }} />
+                                                 <Typography align="center" variant="caption" display="block" sx={{ mt: 1 }}>Photo Preview</Typography>
+                                             </Grid>
+                                         )}
                                          {imagePreviews.idCard && (
-                                            <Grid item xs={6} sm={6} md={6}>
-                                                 <Typography align="center" variant="caption" display="block" gutterBottom>ID Card Preview</Typography>
+                                            <Grid item size={{ xs: 12, sm: 6 }}>
                                                  <img src={imagePreviews.idCard} alt="Uploaded ID Card" style={{ width: "100%", borderRadius: 8, border: '1px solid #eee' }} />
-                                            </Grid>
-                                        )}
-                                    </Grid>
+                                                 <Typography align="center" variant="caption" display="block" sx={{ mt: 1 }}>ID Card Preview</Typography>
+                                             </Grid>
+                                         )}
+                                     </Grid>
                                 </Card>
-                             </Grid>
-                        )}
+                            </Grid>
+                         )}
                     </Grid>
                 </Grid>
             </Grid>
@@ -509,646 +545,3 @@ const MissingPersonPortal = () => {
 };
 
 export default MissingPersonPortal;
-
-
-
-
-// import React, { useState } from "react"; 
-// import Grid from "@mui/material/Grid2";
-// import {
-//   Container, 
-//   TextField, 
-//   Button, 
-//   Card, 
-//   Typography, 
-//   Input, 
-//   MenuItem, 
-//   Select, 
-//   FormControl, 
-//   InputLabel, 
-//   Box,
-//   Autocomplete
-// } from "@mui/material";
-// import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
-// import "leaflet/dist/leaflet.css";
-// import L from "leaflet";
-// import ReCAPTCHA from "react-google-recaptcha";
-// import StateDistrictDropdown from '../../components/StateDistrict1.jsx';
-
-// // Custom map marker icon
-// const customIcon = new L.Icon({
-//   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-//   iconSize: [25, 41],
-//   iconAnchor: [12, 41],
-// });
-
-// // Component to handle map click event
-// const LocationSelector = ({ setFormData }) => {
-//   useMapEvents({
-//     click(e) {
-//       setFormData(prev => ({
-//         ...prev,
-//         lastSeen: [e.latlng.lat, e.latlng.lng],
-//         // Clear any place name when clicking directly on map
-//         lastSeenPlace: prev.lastSeenPlace || "Selected Location" 
-//       }));
-//     },
-//   });
-//   return null;
-// };
-
-// const MissingPersonPortal = () => {
-//   const [formData, setFormData] = useState({
-//     name: "",
-//     description: "",
-//     identificationMarks: "",
-//     lastSeen: null,
-//     contactInfo: "",
-//     additionalInfo: "",
-//     disasterType: "",
-//     idCard: null,
-//     photo: null,
-//   });
-
-//   const [reportedPersons, setReportedPersons] = useState([]);
-//   const [error, setError] = useState("");
-//   const [success, setSuccess] = useState(false);
-//   const [fileError, setFileError] = useState("");
-//   const [captchaToken, setCaptchaToken] = useState(null);
-//   const [imagePreviews, setImagePreviews] = useState({ photo: null, idCard: null });
-
-//   const handleInputChange = (e) => {
-//     setFormData({ ...formData, [e.target.name]: e.target.value });
-//   };
-
-//   const handleFileChange = (e) => {
-//     const file = e.target.files[0];
-//     if (!file) return;
-
-//     const fileName = file.name.toLowerCase();
-//     const fileExtension = fileName.split(".").pop();
-
-//     if (fileExtension !== "jpeg") {
-//       setFileError((prevErrors) => ({
-//         ...prevErrors,
-//         [e.target.name]: "Invalid file type! Only .jpeg files are allowed.",
-//       }));
-//       setFormData((prevData) => ({ ...prevData, [e.target.name]: null }));
-//       setImagePreviews((prevPreviews) => ({ ...prevPreviews, [e.target.name]: null }));
-//       return;
-//     }
-
-//     const fileUrl = URL.createObjectURL(file);
-
-//     setFileError((prevErrors) => ({
-//       ...prevErrors,
-//       [e.target.name]: "",
-//     }));
-//     setFormData((prevData) => ({ ...prevData, [e.target.name]: file }));
-//     setImagePreviews((prevPreviews) => ({ ...prevPreviews, [e.target.name]: fileUrl }));
-//   };
-
-//   const handleCaptchaVerify = (token) => {
-//     setCaptchaToken(token);
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-
-//     if (!formData.disasterType) {
-//       setError("Please select a disaster type.");
-//       return;
-//     }
-//     if (!formData.lastSeen) {
-//       setError("Please select a last seen location on the map.");
-//       return;
-//     }
-//     if (!formData.photo) {
-//       setFileError((prevErrors) => ({
-//         ...prevErrors,
-//         photo: "Uploading a photo (JPEG) is required.",
-//       }));
-//       return;
-//     }
-//     if (!captchaToken) {
-//       setError("Please complete the reCAPTCHA verification.");
-//       return;
-//     }
-
-//     setReportedPersons([...reportedPersons, { ...formData, id: Date.now() }]);
-    
-//     setFormData({
-//       name: "",
-//       description: "",
-//       identificationMarks: "",
-//       lastSeen: null,
-//       contactInfo: "",
-//       additionalInfo: "",
-//       disasterType: "",
-//       idCard: null,
-//       photo: null,
-//     });
-
-//     setImagePreviews({ photo: null, idCard: null });
-//     setFileError({});
-//     setCaptchaToken(null);
-//     setError("");
-//     setSuccess(true);
-//   };
-
-//   return (
-//     <Container maxWidth="lg" sx={{ mt: 10, pb: 4, minHeight: "100vh", overflow: "hidden" }}>
-//       {/* Title Centered */}
-//       <Typography
-//                     align="center"
-//                     sx={{
-//                       mt: 2,
-//                       mb: 4,
-//                       fontSize: {
-//                         xs: "1rem",
-//                         sm: "1.2rem",
-//                         md: "1.4rem",
-//                         lg:  "1.4rem",
-//                       },
-//                       fontWeight: "500",
-//                     }}
-//                   >
-//         Report a Missing Person
-//       </Typography>
-
-//       <Grid 
-//         container 
-//         spacing={4} 
-//         alignItems="stretch" 
-//         sx={{ display: "flex", justifyContent: "center" }}
-//       >
-//         {/* Left Side - Form */}
-//         <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
-//           <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0, height: "100%" }}>
-//           <Typography
-//                     align="center"
-//                     sx={{
-//                       mt: 0,
-//                       mb: 1,
-//                       fontSize: {
-//                         xs: "1rem",
-//                         sm: "1.2rem",
-//                         md:  "1.2rem",
-//                         lg:  "1.2rem",
-//                       },
-//                       fontWeight: "500",
-//                     }}
-//                   >
-//               Report Details
-//             </Typography>
-//             <form onSubmit={handleSubmit}>
-//               {/* Name Field */}
-//               <Grid container spacing={0}>
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" }}>
-//                   <Box
-//                     sx={{
-//                       width: "80%",
-//                       padding: 0,
-//                       mb: 2,
-//                       textAlign: "left",
-//                       boxShadow: "2px 2px 2px #E8F1F5",
-//                       position: "relative",
-//                     }}
-//                   >
-//                     <TextField
-//                       fullWidth
-//                       label="Name"
-//                       name="name"
-//                       value={formData.name}
-//                       onChange={handleInputChange}
-//                       required
-//                       variant="outlined"
-//                       sx={{
-//                         "& .MuiInputBase-root": {
-//                           padding: "4px 8px",
-//                         },
-//                         "& .MuiOutlinedInput-notchedOutline": {
-//                           border: "none",
-//                         },
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: "0.9rem",
-//                         },
-//                         width: "100%",
-//                       }}
-//                     />
-//                   </Box>
-//                 </Grid>
-
-//                 {/* Description Field */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" }}>
-//                   <Box
-//                     sx={{
-//                       width: "80%",
-//                       padding: 0,
-//                       mb: 2,
-//                       textAlign: "left",
-//                       boxShadow: "2px 2px 2px #E8F1F5",
-//                       position: "relative",
-//                     }}
-//                   >
-//                     <TextField
-//                       fullWidth
-//                       label="Description"
-//                       name="description"
-//                       value={formData.description}
-//                       onChange={handleInputChange}
-//                       required
-//                       variant="outlined"
-//                       sx={{
-//                         "& .MuiInputBase-root": {
-//                           padding: "4px 8px",
-//                         },
-//                         "& .MuiOutlinedInput-notchedOutline": {
-//                           border: "none",
-//                         },
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: "0.9rem",
-//                         },
-//                         width: "100%",
-//                       }}
-//                     />
-//                   </Box>
-//                 </Grid>
-
-//                 {/* Identification Marks Field */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" }}>
-//                   <Box
-//                     sx={{
-//                       width: "80%",
-//                       padding: 0,
-//                       mb: 2,
-//                       textAlign: "left",
-//                       boxShadow: "2px 2px 2px #E8F1F5",
-//                       position: "relative",
-//                     }}
-//                   >
-//                     <TextField
-//                       fullWidth
-//                       label="Identification Marks"
-//                       name="identificationMarks"
-//                       value={formData.identificationMarks}
-//                       onChange={handleInputChange}
-//                       variant="outlined"
-//                       sx={{
-//                         "& .MuiInputBase-root": {
-//                           padding: "4px 8px",
-//                         },
-//                         "& .MuiOutlinedInput-notchedOutline": {
-//                           border: "none",
-//                         },
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: "0.9rem",
-//                         },
-//                         width: "100%",
-//                       }}
-//                     />
-//                   </Box>
-//                 </Grid>
-
-//                 {/* Last Seen Location Field */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" }}>
-//                   <Box
-//                     sx={{
-//                       width: "80%",
-//                       padding: 0,
-//                       mb: 2,
-//                       textAlign: "left",
-//                       boxShadow: "2px 2px 2px #E8F1F5",
-//                       position: "relative",
-//                     }}
-//                   >
-//                     <TextField
-//                       fullWidth
-//                       label="Last Seen Location (Enter Place Name)"
-//                       name="lastSeenPlace"
-//                       value={formData.lastSeenPlace || ""}
-//                       onChange={(e) => setFormData({ ...formData, lastSeenPlace: e.target.value })}
-//                       required
-//                       variant="outlined"
-//                       sx={{
-//                         "& .MuiInputBase-root": {
-//                           padding: "4px 8px",
-//                         },
-//                         "& .MuiOutlinedInput-notchedOutline": {
-//                           border: "none",
-//                         },
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: "0.9rem",
-//                         },
-//                         width: "100%",
-//                       }}
-//                     />
-//                   </Box>
-//                 </Grid>
-
-//                 {/* Disaster Type Field */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" }}>
-//                   <Box
-//                     sx={{
-//                       width: "80%",
-//                       padding: 0,
-//                       mb: 2,
-//                       textAlign: "left",
-//                       boxShadow: "2px 2px 2px #E8F1F5",
-//                       position: "relative",
-//                     }}
-//                   >
-//                     <FormControl fullWidth>
-//                       <InputLabel sx={{ fontSize: "0.9rem" }}>Disaster Type</InputLabel>
-//                       <Select
-//                         name="disasterType"
-//                         value={formData.disasterType}
-//                         onChange={handleInputChange}
-//                         sx={{
-//                           "& .MuiInputBase-root": {
-//                             padding: "4px 8px",
-//                           },
-//                           "& .MuiOutlinedInput-notchedOutline": {
-//                             border: "none",
-//                           },
-//                         }}
-//                       >
-//                         <MenuItem value="Cyclones">Cyclones</MenuItem>
-//                         <MenuItem value="Earthquakes">Earthquakes</MenuItem>
-//                         <MenuItem value="Tsunamis">Tsunamis</MenuItem>
-//                         <MenuItem value="Floods">Floods</MenuItem>
-//                         <MenuItem value="Landslides">Landslides</MenuItem>
-//                         <MenuItem value="Fire">Fire</MenuItem>
-//                         <MenuItem value="Heatwave">Heatwave</MenuItem>
-//                       </Select>
-//                     </FormControl>
-//                   </Box>
-//                 </Grid>
-
-//                 {/* Contact Information Field */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" }}>
-//                   <Box
-//                     sx={{
-//                       width: "80%",
-//                       padding: 0,
-//                       mb: 2,
-//                       textAlign: "left",
-//                       boxShadow: "2px 2px 2px #E8F1F5",
-//                       position: "relative",
-//                     }}
-//                   >
-//                     <TextField
-//                       fullWidth
-//                       label="Contact Information"
-//                       name="contactInfo"
-//                       value={formData.contactInfo}
-//                       onChange={handleInputChange}
-//                       required
-//                       variant="outlined"
-//                       sx={{
-//                         "& .MuiInputBase-root": {
-//                           padding: "4px 8px",
-//                         },
-//                         "& .MuiOutlinedInput-notchedOutline": {
-//                           border: "none",
-//                         },
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: "0.9rem",
-//                         },
-//                         width: "100%",
-//                       }}
-//                     />
-//                   </Box>
-//                 </Grid>
-
-//                 {/* Additional Information Field */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" }}>
-//                   <Box
-//                     sx={{
-//                       width: "80%",
-//                       padding: 0,
-//                       mb: 0,
-//                       textAlign: "left",
-//                       boxShadow: "2px 2px 2px #E8F1F5",
-//                       position: "relative",
-//                     }}
-//                   >
-//                     <TextField
-//                       fullWidth
-//                       label="Additional Information"
-//                       name="additionalInfo"
-//                       value={formData.additionalInfo}
-//                       onChange={handleInputChange}
-//                       variant="outlined"
-//                       sx={{
-//                         "& .MuiInputBase-root": {
-//                           padding: "4px 8px",
-//                         },
-//                         "& .MuiOutlinedInput-notchedOutline": {
-//                           border: "none",
-//                         },
-//                         "& .MuiInputLabel-root": {
-//                           fontSize: "0.9rem",
-//                         },
-//                         width: "100%",
-//                       }}
-//                     />
-//                   </Box>
-//                 </Grid>
-
-//                 {/* File Uploads */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" , width: "90%" }}>
-//                 <Typography align="center" variant="subtitle1" sx={{ mt: 2, mr: 30 }}>Upload Identity Card:</Typography>
-//                 </Grid>
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" , width: "90%", mr:10 }}>
-//                     <Input type="file" name="idCard" onChange={handleFileChange}  />
-//                     {fileError.idCard && <Typography color="error" variant="body2">{fileError.idCard}</Typography>}
-//                   </Grid>
-                  
-//                   <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" , width: "90%" }}>
-//                 <Typography align="center" variant="subtitle1" sx={{ mt: 2, mr: 21 }}>Upload Photo (JPEG Required):</Typography>
-//                 </Grid>
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "right" , width: "90%", mr:10 }}>
-//                   <Input type="file" name="photo" onChange={handleFileChange} required />
-//                   {fileError.photo && <Typography color="error" variant="body2">{fileError.photo}</Typography>}
-//                 </Grid>
-
-//                 {/* reCAPTCHA */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ml:11}}>
-//                   <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-//                     <ReCAPTCHA sitekey="6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94" onChange={handleCaptchaVerify} />
-//                   </div>
-//                 </Grid>
-
-//                 {/* Submit Button */}
-//                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
-//                   <Button disableRipple type="submit"
-//                     sx={{
-//                       height: { md: 62 }, // Match the height of the Autocomplete boxes
-//                       // padding: "8px 16px", // Adjust padding
-//                       paddingY: "9px",
-//                       // pr: { xs: 1, md: 0 },
-//                       // pl: 1,
-//                       // marginX: "auto",
-//                       fontSize: "1.1rem",
-//                       fontWeight: 800,
-//                       ml:30,
-//                       mb: 2,
-//                       display: "flex",
-//                       alignItems: "center",
-//                       backgroundColor: "white", // Maintain the original background
-//                       "&:hover": {
-//                         backgroundColor: "white", // Prevent color change on hover
-//                       },
-//                     }}>
-//                     Submit
-//                   </Button>
-//                 </Grid>
-//               </Grid>
-//             </form>
-//           </Card>
-//         </Grid>
-
-//         {/* Vertical Line
-//         <Grid item xs={0.5} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-//           <div style={{ width: "2px", height: "100%", backgroundColor: "#ccc" }}></div>
-//         </Grid> */}
-
-//         {/* Right Side - Map */}
-//         <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
-//           <Card
-//             sx={{
-//               p: 3,
-//               borderRadius: 3,
-//               boxShadow: 0,
-//               position: "relative",
-//               overflow: "hidden",
-//             }}
-//           >
-//             <Typography
-//                     align="center"
-//                     sx={{
-//                       mt: 0,
-//                       mb: 1,
-//                       fontSize: {
-//                         xs: "1rem",
-//                         sm: "1.2rem",
-//                         md:  "1.2rem",
-//                         lg:  "1.2rem",
-//                       },
-//                       fontWeight: "500",
-//                     }}
-//                   >
-//               Last Seen Location
-//             </Typography>
-
-//             <Box
-//               sx={{
-//                 position: "relative",
-//                 width: "100%",
-//                 height: "400px",
-//                 borderRadius: 2,
-//                 overflow: "hidden",
-//                 mt: 2,
-//               }}
-//             >
-//               {/* Map */}
-//               <MapContainer
-//   center={[20.5937, 78.9629]}
-//   zoom={5}
-//   style={{
-//     height: "100%",
-//     width: "100%",
-//     position: "absolute",
-//     zIndex: 1,
-//   }}
-// >
-//   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-//   {formData.lastSeen && (
-//     <Marker 
-//       position={formData.lastSeen} 
-//       icon={customIcon}
-//       eventHandlers={{
-//         click: () => {
-//           // Optional: handle marker click if needed
-//         },
-//       }}
-//     >
-//       <Popup>
-//         {formData.lastSeenPlace || "Selected Location"}
-//       </Popup>
-//     </Marker>
-//   )}
-//   <LocationSelector setFormData={setFormData} />
-// </MapContainer>
-
-//               {/* 4-side white blur overlay */}
-//               <Box
-//                 sx={{
-//                   position: "absolute",
-//                   top: 0,
-//                   left: 0,
-//                   width: "100%",
-//                   height: "100%",
-//                   pointerEvents: "none",
-//                   background: `
-//                     linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%),
-//                     linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%),
-//                     linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%),
-//                     linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%)
-//                   `,
-//                   zIndex: 2,
-//                 }}
-//               />
-//             </Box>
-//           </Card>
-
-//           {/* Image Previews */}
-//           {imagePreviews.photo && (
-//             <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ mt: 3 }}>
-//               <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0 }}>
-//               <Typography
-//                     align="center"
-//                     sx={{
-//                       mt: 0,
-//                       mb: 1,
-//                       fontSize: {
-//                         xs: "1rem",
-//                         sm: "1.2rem",
-//                         md:  "1.2rem",
-//                         lg:  "1.2rem",
-//                       },
-//                       fontWeight: "500",
-//                     }}
-//                   >
-//                   Uploaded Images Preview
-//                 </Typography>
-//                 <Grid container spacing={2} justifyContent="center">
-//                   {imagePreviews.idCard ? (
-//                     <>
-//                       <Grid item size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
-//                         <img src={imagePreviews.photo} alt="Uploaded Photo" style={{ width: "100%", borderRadius: 8 }} />
-//                         <Typography align="center">Uploaded Photo</Typography>
-//                       </Grid>
-//                       <Grid item size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
-//                         <img src={imagePreviews.idCard} alt="Uploaded ID Card" style={{ width: "100%", borderRadius: 8 }} />
-//                         <Typography align="center">Uploaded ID Card</Typography>
-//                       </Grid>
-//                     </>
-//                   ) : (
-//                     <Grid item xs={12}>
-//                       <img src={imagePreviews.photo} alt="Uploaded Photo" style={{ width: "100%", borderRadius: 8 }} />
-//                       <Typography align="center">Uploaded Photo</Typography>
-//                     </Grid>
-//                   )}
-//                 </Grid>
-//               </Card>
-//             </Grid>
-//           )}
-//         </Grid>
-//       </Grid>
-//     </Container>
-//   );
-// };
-
-// export default MissingPersonPortal;
