@@ -1,36 +1,61 @@
 import React, { useState } from "react";
-import { Container, Card, Typography, TextField, Button, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
+import {
+  Container,
+  Card,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Box,
+  Avatar,
+  Autocomplete
+} from "@mui/material";
 
 const mockData = [
-  { 
-    id: "12345", 
-    name: "John Doe", 
-    status: "Under Investigation", 
-    disasterType: "Floods", 
-    contactInfo: "9876543210", 
-    additionalInfo: "Wearing a blue shirt",
+  {
+    id: "12345",
+    name: "John Doe",
+    status: "Under Investigation",
+    disasterType: "Floods",
+    contactInfo: "9876543210",
+    additionalInfo: "",
     lastSeen: "Mumbai, India",
+    photo: "https://randomuser.me/api/portraits/men/1.jpg"
   },
-  { 
-    id: "67890", 
-    name: "Jane Smith", 
-    status: "Found", 
-    disasterType: "Earthquake", 
-    contactInfo: "8765432109", 
-    additionalInfo: "Has a birthmark on hand",
+  {
+    id: "67890",
+    name: "Jane Smith",
+    status: "Found",
+    disasterType: "Earthquake",
+    contactInfo: "8765432109",
+    additionalInfo: "",
     lastSeen: "Delhi, India",
-  },
+    photo: "https://randomuser.me/api/portraits/men/1.jpg"
+  }
 ];
 
 const StatusTracking = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [editedInfo, setEditedInfo] = useState({});
+  const [data, setData] = useState(mockData);
 
-  const handleSearch = () => {
-    const foundPerson = mockData.find(
-      (person) => person.id === searchTerm || person.name.toLowerCase() === searchTerm.toLowerCase()
+  const handleSearch = (newValue) => {
+    if (!newValue) return;
+
+    // Extract ID from the format "Name (ID)"
+    const idMatch = newValue.match(/\(([^)]+)\)$/);
+    const idFromText = idMatch ? idMatch[1] : newValue;
+
+    const foundPerson = data.find(
+      (person) =>
+        person.id === idFromText ||
+        person.name.toLowerCase() === newValue.toLowerCase()
     );
+
     if (foundPerson) {
       setSelectedPerson(foundPerson);
       setEditedInfo({ additionalInfo: foundPerson.additionalInfo });
@@ -43,56 +68,129 @@ const StatusTracking = () => {
     setEditedInfo({ ...editedInfo, [e.target.name]: e.target.value });
   };
 
+  const handleSaveChanges = () => {
+    const updatedData = data.map((person) =>
+      person.id === selectedPerson.id
+        ? { ...person, additionalInfo: editedInfo.additionalInfo }
+        : person
+    );
+    setData(updatedData);
+    setSelectedPerson({ ...selectedPerson, additionalInfo: editedInfo.additionalInfo });
+  };
+
+  const handleMarkFound = () => {
+    const updatedData = data.map((person) =>
+      person.id === selectedPerson.id ? { ...person, status: "Found" } : person
+    );
+    setData(updatedData);
+    setSelectedPerson({ ...selectedPerson, status: "Found" });
+  };
+
   return (
     <Container maxWidth="md" sx={{ mt: 8, pb: 4 }}>
-      <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          Track Missing Person Status
-        </Typography>
-        <TextField 
-          fullWidth 
-          label="Enter Name or ID" 
-          variant="outlined" 
-          margin="normal" 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)} 
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "40px" }}>
+        <Autocomplete
+          freeSolo
+          id="person-search-input"
+          disableClearable
+          options={data.map(person => `${person.name} (${person.id})`)}
+          onChange={(event, newValue) => {
+            setSearchTerm(newValue);
+            handleSearch(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Search by Name or ID"
+              slotProps={{
+                input: {
+                  ...params.InputProps,
+                  type: "search",
+                },
+              }}
+              sx={{
+                borderBottom: "2px solid #eee",
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "white",
+                  "& fieldset": {
+                    borderColor: "transparent",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "transparent",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "transparent",
+                  },
+                  "&:focus": {
+                    outline: "none",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "inherit",
+                },
+                "& .MuiInputBase-input": {
+                  fontSize: "1rem",
+                },
+                "&::placeholder": {
+                  fontSize: "1rem",
+                },
+                width: { xs: "300px", md: "400px" },
+              }}
+            />
+          )}
         />
-        <Button variant="contained" color="primary" onClick={handleSearch} sx={{ mt: 2, width: "100%" }}>
-          Search
-        </Button>
-      </Card>
+      </div>
 
       {selectedPerson && (
-        <Card sx={{ p: 3, mt: 4, borderRadius: 3, boxShadow: 3 }}>
-          <Typography variant="h6">Missing Person Details</Typography>
-          <Typography variant="body1"><strong>Name:</strong> {selectedPerson.name}</Typography>
-          <Typography variant="body1"><strong>Disaster Type:</strong> {selectedPerson.disasterType}</Typography>
-          <Typography variant="body1"><strong>Last Seen:</strong> {selectedPerson.lastSeen}</Typography>
-          <Typography variant="body1"><strong>Contact Info:</strong> {selectedPerson.contactInfo}</Typography>
-          
-          {/* Status Dropdown (Editable by Agencies) */}
-          <FormControl fullWidth margin="normal">
+        <Card sx={{ width: 550, mx: "auto", p: 3, mt: 4, borderRadius: 2, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
+          <Typography variant="h6" align="center">Missing Person Details</Typography>
+
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 2 }}>
+            <Avatar src={selectedPerson.photo} sx={{ width: 100, height: 100 }} />
+            <Box>
+              <Typography variant="body1"><strong>Name:</strong> {selectedPerson.name}</Typography>
+              <Typography variant="body1"><strong>Disaster Type:</strong> {selectedPerson.disasterType}</Typography>
+              <Typography variant="body1"><strong>Last Seen:</strong> {selectedPerson.lastSeen}</Typography>
+              <Typography variant="body1"><strong>Contact Info:</strong> {selectedPerson.contactInfo}</Typography>
+              <Typography variant="body1"><strong>Additional Info:</strong> {selectedPerson.additionalInfo}</Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ mt: 2, gap: 2 }}>
+          <TextField
+          // fullWidth
+            sx ={{width: {xs:"85%", sm: "80%"}}}
+            variant="standard"
+            margin="normal"
+            label="Update Additional Information"
+            name="additionalInfo"
+            value={editedInfo.additionalInfo}
+            onChange={handleEditChange}
+          />
+
+          <FormControl
+          // fullWidth 
+          sx ={{width: {xs:"85%", sm: "70%"}}} 
+          margin="normal" variant="standard">
             <InputLabel>Status</InputLabel>
-            <Select value={selectedPerson.status} disabled>
+            <Select value={selectedPerson.status} disabled >
               <MenuItem value="Under Investigation">Under Investigation</MenuItem>
               <MenuItem value="Found">Found</MenuItem>
               <MenuItem value="No Updates">No Updates</MenuItem>
             </Select>
           </FormControl>
+          </Box>
 
-          {/* Editable Fields */}
-          <TextField 
-            fullWidth 
-            margin="normal" 
-            label="Additional Information (Editable)" 
-            name="additionalInfo" 
-            value={editedInfo.additionalInfo} 
-            onChange={handleEditChange} 
-          />
-
-          <Button variant="contained" color="primary" sx={{ mt: 2, width: "50%" , margin: "auto"}}>
-            Save Changes
-          </Button>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
+            <Button color="primary" onClick={handleSaveChanges}>
+              Save Changes
+            </Button>
+            {selectedPerson.status !== "Found" && (
+              <Button color="success" onClick={handleMarkFound}>
+                Mark as Found
+              </Button>
+            )}
+          </Box>
         </Card>
       )}
     </Container>

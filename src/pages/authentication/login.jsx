@@ -20,12 +20,15 @@ const Login = () => {
 
   const handleLogin = async () => {
     let newErrors = {};
+    // Basic validation (keep as is)
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.password.trim()) newErrors.password = "Password is required";
     setErrors(newErrors);
 
+    // Proceed only if basic validation passes
     if (Object.keys(newErrors).length === 0) {
       try {
+        // Make the API call (keep as is)
         const response = await fetch('https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/login/', {
           method: 'POST',
           headers: {
@@ -37,44 +40,54 @@ const Login = () => {
           })
         });
 
+        // Attempt to parse the JSON response
         const data = await response.json();
-        
-        // Log the entire response
+
+        // Log the entire raw response for debugging
         console.log('API Response:', {
           status: response.status,
-          data: data
+          data: data // Log the parsed data
         });
 
+        // Check if the login was successful (status code 200 OK)
         if (response.ok) {
+          // Log the received user details AND permissions
           console.log('Login successful. User details:', {
             id: data.user_id,
             email: data.email,
             role: data.role,
-            full_name: data.full_name
+            full_name: data.full_name,
+            permissions: data.permissions // <<< Log the permissions array
           });
 
+          // Store the relevant user data, INCLUDING permissions, in local storage
+          // The backend response structure is directly stored here.
           localStorage.setItem("user", JSON.stringify(data));
 
-          if(data.role === "user"){
-            navigate("/home");
-          }
-          else navigate("/agency-dashboard");
-
         } else {
-          console.error('Login failed:', data.error || 'Unknown error');
-          // Handle specific errors if needed
+          // Handle login errors (e.g., 401 Unauthorized)
+          console.error('Login failed:', data.error || `HTTP error! status: ${response.status}`);
+          // Update UI with error messages (keep existing logic)
           if (data.error === 'User is not verified') {
             setErrors({...errors, form: 'Please verify your email before logging in'});
           } else if (data.error === 'Invalid credentials') {
             setErrors({...errors, form: 'Invalid email or password'});
+          } else {
+            // Generic error message if specific error isn't matched
+            setErrors({...errors, form: data.error || 'Login failed. Please try again.'});
           }
         }
       } catch (error) {
+        // Handle network errors or issues parsing JSON
         console.error('Login error:', error);
-        setErrors({...errors, form: 'Network error. Please try again.'});
+        setErrors({...errors, form: 'Network error or issue processing response. Please try again.'});
       }
     }
-  };
+    };
+
+          
+
+
 
   const handleRegister = () => {
     navigate("/register");
