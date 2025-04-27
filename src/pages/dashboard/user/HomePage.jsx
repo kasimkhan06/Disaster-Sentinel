@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -60,8 +60,9 @@ function HomePage() {
     }, {});
 
     // Get top 5 disasters per type and flatten the array
-    return Object.values(disastersByType)
-      .flatMap(disasters => disasters.slice(0, 5));
+    return Object.values(disastersByType).flatMap((disasters) =>
+      disasters.slice(0, 5)
+    );
   }, [recentDisasters]);
 
   // Fetch recent disasters from API
@@ -85,21 +86,41 @@ function HomePage() {
     fetchRecentDisasters();
   }, []);
 
-  // Handle disaster selection (for both map markers and table rows)
-  const handleDisasterSelect = (disaster) => {
-    setSelectedDisaster(disaster);
-  };
+  const [highlightedDisaster, setHighlightedDisaster] = useState(null);
 
   // Add this near the top of your component, before the HomePage function
-const disasterTypeMap = {
-  EQ: "Earthquake",
-  FL: "Flood",
-  WF: "Wildfire",
-  TC: "Tropical Cyclone",
-  VO: "Volcano",
-  DR: "Drought",
-  // Add other mappings as needed
-};
+  const disasterTypeMap = {
+    EQ: "Earthquake",
+    FL: "Flood",
+    WF: "Wildfire",
+    TC: "Tropical Cyclone",
+    VO: "Volcano",
+    DR: "Drought",
+    // Add other mappings as needed
+  };
+
+  const mapContainerRef = useRef(null);
+
+  const handleDisasterSelect = (disaster) => {
+    setSelectedDisaster(disaster);
+    setHighlightedDisaster(disaster);
+
+    // Scroll to map container
+    if (mapContainerRef.current) {
+      mapContainerRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+
+    // Remove highlight after 3 seconds
+    setTimeout(() => {
+      setHighlightedDisaster(null);
+    }, 10000);
+  };
+
+  // Get the 3 most recent disasters for the marquee
+  const recentDisastersForMarquee = recentDisasters.slice(0, 3);
 
   return (
     <Box
@@ -134,7 +155,7 @@ const disasterTypeMap = {
         }}
       >
         <Grid container spacing={1}>
-          {/* Marquee for most recent disaster */}
+          {/* Marquee for most recent disasters */}
           <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
             <Card
               sx={{
@@ -142,7 +163,7 @@ const disasterTypeMap = {
                 boxShadow: 0,
                 border: "none",
                 background: "transparent",
-                width: "75%",
+                width: "100%",
                 margin: "0 auto",
               }}
             >
@@ -160,43 +181,6 @@ const disasterTypeMap = {
                   boxShadow: "none",
                 }}
               >
-                {/* Ribbon-style "LATEST" label */}
-                <Box
-                  sx={{
-                    position: "relative",
-                    height: "36px",
-                    backgroundColor: "#93A6AD",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    px: 2,
-                    mr: 2,
-                    "&:after": {
-                      content: '""',
-                      position: "absolute",
-                      right: "-9.7px",
-                      bottom: 0,
-                      width: 0,
-                      height: 0,
-                      borderLeft: "10px solid #93A6AD ",
-                      borderTop: "18px solid transparent",
-                      borderBottom: "18px solid transparent",
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: "bold",
-                      color: "rgb(255, 255, 255)",
-                      position: "relative",
-                      zIndex: 1,
-                    }}
-                  >
-                    LATEST:
-                  </Typography>
-                </Box>
-
                 {/* Scrolling content container */}
                 <Box
                   sx={{
@@ -206,37 +190,72 @@ const disasterTypeMap = {
                     border: "none",
                   }}
                 >
-                  {/* Scrolling content */}
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: "bold",
-                      color: "rgba(45, 45, 68, 0.87)", // Dark text
-                      position: "relative",
-                      zIndex: 1,
-                      display: "inline-block",
-                      whiteSpace: "nowrap",
-                      paddingLeft: "100%",
-                      animation: "scroll 15s linear infinite",
-                      "@keyframes scroll": {
-                        "0%": { transform: "translateX(0)" },
-                        "100%": { transform: "translateX(-100%)" },
-                      },
-                      border: "none",
-                    }}
-                  >
-                    {recentDisasters.length > 0
-                      ? `${recentDisasters[0].title} - ${recentDisasters[0].pubDate}`
-                      : "Loading latest disaster information..."}
-                  </Typography>
+                  {/* Scrolling content using react-fast-marquee */}
+                  <Marquee speed={50} gradient={false}>
+                    {recentDisastersForMarquee.map((disaster, index) => (
+                      <Box
+                        key={disaster.id}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          // Add equal padding on both sides of each item
+                          px: 3, // This creates equal space on both sides
+                        }}
+                      >
+                        <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: "6px", // Fixed width for the bullet container
+                              mx: 1, // This creates equal space around the bullet
+                            }}
+                          >
+                            •
+                          </Box>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: "bold",
+                            color: "rgba(45, 45, 68, 0.87)",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {disaster.title} - {disaster.pubDate}
+                        </Typography>
+                        {/* Only show bullet if not the last item */}
+                        {/* {index < recentDisastersForMarquee.length - 1 && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: "6px", // Fixed width for the bullet container
+                              mx: 1, // This creates equal space around the bullet
+                            }}
+                          >
+                            •
+                          </Box>
+                        )} */}
+                      </Box>
+                      
+                    ))}
+                  </Marquee>
                 </Box>
               </CardContent>
             </Card>
           </Grid>
           {/* Map Section (75% width) */}
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ mb: 2,// or whatever value you prefer
-     }}>
-            <Card sx={{ borderRadius: 2, boxShadow: 3, height: "100%",padding: 1 }}>
+          <Grid
+            size={{ xs: 12, sm: 12, md: 12, lg: 12 }}
+            sx={{
+              mb: 2, // or whatever value you prefer
+            }}
+            ref={mapContainerRef}
+          >
+            <Card
+              sx={{ borderRadius: 2, boxShadow: 3, height: "100%", padding: 1 }}
+            >
               <CardContent
                 sx={{
                   p: 0,
@@ -261,6 +280,7 @@ const disasterTypeMap = {
                       disasters={slicedDisasters}
                       onMarkerClick={handleDisasterSelect}
                       selectedDisaster={selectedDisaster}
+                      highlightedDisaster={highlightedDisaster}
                     />
                   )}
                 </Box>
@@ -450,19 +470,6 @@ const disasterTypeMap = {
               </CardContent>
             </Card>
           </Grid>
-
-          {/* Source Attribution
-          <Grid xs={12}>
-            <Typography variant="caption" sx={{ fontStyle: "italic" }}>
-              Source: Map of disaster within the past 6 days, European Union,
-              2015. Map produced by F.C.RoC. The designation and the
-              presentation of material on the map do not imply the expression of
-              any opinion whatsoever on the part of the European Union
-              concerning the legal status of any country, territory or area or
-              of its authorities, or concerning the delimitation of its
-              frontiers or boundaries.
-            </Typography>
-          </Grid> */}
         </Grid>
       </Container>
     </Box>

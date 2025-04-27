@@ -38,12 +38,14 @@ const cautionIcon = new L.Icon({
 });
 
 const currentLocationIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+  shadowSize: [41, 41],
 });
 
 // Fit map to all markers
@@ -53,7 +55,20 @@ const FitBounds = ({ markers }) => {
   useEffect(() => {
     if (markers.length > 0) {
       const bounds = L.latLngBounds(markers);
-      map.fitBounds(bounds, { padding: [50, 50] });
+      
+      // Calculate the ideal padding based on map size
+      const padding = [20, 20]; // Padding in pixels [top/bottom, left/right]
+      
+      // Fit bounds with padding and max zoom constraint
+      map.fitBounds(bounds, { 
+        padding: padding,
+        maxZoom: 12 // Set a maximum zoom level to prevent over-zooming
+      });
+      
+      // If the map is still too zoomed in after fitting bounds
+      if (map.getZoom() > 12) {
+        map.setZoom(12);
+      }
     }
   }, [markers, map]);
 
@@ -64,7 +79,8 @@ const ChangeView = ({ center, zoom }) => {
   const map = useMap();
   useEffect(() => {
     if (center) {
-      map.setView(center, zoom);
+      const constrainedZoom = Math.min(zoom || 12, 12); // Don't exceed zoom 12
+      map.setView(center, constrainedZoom);
     }
   }, [center, zoom, map]);
   return null;
@@ -77,17 +93,20 @@ const FloodPredictionMap = ({
   focusOnCurrentLocation,
   onLocationFocused,
   showNoStationsMessage,
-  currentLocationState
+  currentLocationState,
 }) => {
   const [mapCenter, setMapCenter] = useState([0, 0]);
-  const [zoomLevel, setZoomLevel] = useState(5);
+  const [zoomLevel, setZoomLevel] = useState(3); // Start with a lower zoom level
   const mapRef = useRef(null);
   const [noStationsPopup, setNoStationsPopup] = useState(null);
   const navigate = useNavigate();
   const currentLocationMarkerRef = useRef(null);
 
   // Extract marker positions from stations
-  const markerPositions = stations.map(station => [station.latitude, station.longitude]);
+  const markerPositions = stations.map((station) => [
+    station.latitude,
+    station.longitude,
+  ]);
 
   // Effect to handle location focus changes
   useEffect(() => {
@@ -101,18 +120,23 @@ const FloodPredictionMap = ({
   // Effect to handle no stations message
   useEffect(() => {
     if (showNoStationsMessage && currentLocationCoords && mapRef.current) {
-      const marker = L.marker([currentLocationCoords.lat, currentLocationCoords.lng], {
-        icon: currentLocationIcon
-      }).addTo(mapRef.current);
+      const marker = L.marker(
+        [currentLocationCoords.lat, currentLocationCoords.lng],
+        {
+          icon: currentLocationIcon,
+        }
+      ).addTo(mapRef.current);
 
       const popup = L.popup()
         .setLatLng([currentLocationCoords.lat, currentLocationCoords.lng])
-        .setContent(`
+        .setContent(
+          `
           <div style="padding: 8px; min-width: 200px;">
             <strong>No stations found in ${currentLocationState}</strong>
             <p>There are no monitoring stations in your current state.</p>
           </div>
-        `)
+        `
+        )
         .openOn(mapRef.current);
 
       setNoStationsPopup(popup);
@@ -141,63 +165,71 @@ const FloodPredictionMap = ({
   };
 
   return (
-    <div style={{
-      position: "relative",
+    <div
+    style={{
       width: "100%",
       height: "100%",
-      borderRadius: "12px",
-      overflow: "hidden",
-    }}>
-      <MapContainer
-        center={mapCenter}
-        zoom={zoomLevel}
-        style={{ 
-          height: "100%", 
-          width: "100%",
-          position: "absolute",
-          zIndex: 1 
-        }}
-        whenCreated={mapInstance => { mapRef.current = mapInstance; }}
-      >
+      // borderRadius: "12px",
+      position: 'relative',
+    }}
+  >
+    <MapContainer
+      center={mapCenter}
+      zoom={zoomLevel}
+      style={{
+        height: "100%",
+        width: "100%",
+        // borderRadius: "12px",
+        filter:
+            "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
+      }}
+      whenCreated={(mapInstance) => {
+        mapRef.current = mapInstance;
+      }}
+    >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
+                  attribution=""
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+
         <ChangeView center={mapCenter} zoom={zoomLevel} />
-        
+
         {stations.map((station, index) => (
-          <Marker 
-            key={index} 
+          <Marker
+            key={index}
             position={[station.latitude, station.longitude]}
-            icon={station.reliability === 'Safe' ? safeIcon : cautionIcon}
+            icon={station.reliability === "Safe" ? safeIcon : cautionIcon}
           >
             <Popup>
               <strong>{station.station}</strong>
               <ul>
                 <li>Station Name: {station.station_name}</li>
-                <li>Danger Level: {parseFloat(station.danger_level).toFixed(2)}</li>
-                <li>Warning Level: {parseFloat(station.warning_level).toFixed(2)}</li>
+                <li>
+                  Danger Level: {parseFloat(station.danger_level).toFixed(2)}
+                </li>
+                <li>
+                  Warning Level: {parseFloat(station.warning_level).toFixed(2)}
+                </li>
               </ul>
-              <button 
-                  onClick={() => handlePredictFlood(station.gaugeid)}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#1976d2',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    width: '100%'
-                  }}
-                >
-                  Predict Flood
-                </button>
+              <button
+                onClick={() => handlePredictFlood(station.gaugeid)}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#1976d2",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  width: "100%",
+                }}
+              >
+                Predict Flood
+              </button>
             </Popup>
           </Marker>
         ))}
-        
+
         {currentLocationCoords && !showNoStationsMessage && (
           <Marker
             position={[currentLocationCoords.lat, currentLocationCoords.lng]}
@@ -206,26 +238,29 @@ const FloodPredictionMap = ({
             <Popup>Your Current Location</Popup>
           </Marker>
         )}
-        
+
         <FitBounds markers={markerPositions} />
       </MapContainer>
-      
+
       {/* Gradient overlay */}
-      <div style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        background: `
-          linear-gradient(to top, rgb(255, 255, 255) 0%, rgba(255, 255, 255, 0) 3%),
-          linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%),
-          linear-gradient(to left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%),
-          linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 3%)
-        `,
-        zIndex: 2,
-      }} />
+      {/* <div
+  style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    pointerEvents: "none",
+    background: `
+      linear-gradient(to top, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 3%),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 3%),
+      linear-gradient(to left, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 3%),
+      linear-gradient(to right, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 3%)
+    `,
+    zIndex: 1000, // Increased z-index to ensure it's above the map
+    borderRadius: "12px",
+  }}
+/> */}
     </div>
   );
 };

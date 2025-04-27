@@ -44,51 +44,33 @@ const PopupHandler = ({ selectedDisaster }) => {
 
   useEffect(() => {
     if (selectedDisaster) {
-      const disaster = selectedDisaster;
       const markerLatLng = L.latLng(
-        parseFloat(disaster.latitude),
-        parseFloat(disaster.longitude)
+        parseFloat(selectedDisaster.latitude),
+        parseFloat(selectedDisaster.longitude)
       );
 
-      // Calculate the needed padding (in pixels) to ensure popup visibility
-      const popupPadding = 150; // Adjust this value based on your popup size
-
-      // Get current map bounds and size
-      const mapBounds = map.getBounds();
-      const mapSize = map.getSize();
-
-      // Convert marker position to container point (pixel coordinates)
-      const markerPoint = map.latLngToContainerPoint(markerLatLng);
-
-      // Check if marker is near any edge
-      const nearLeft = markerPoint.x < popupPadding;
-      const nearRight = markerPoint.x > mapSize.x - popupPadding;
-      const nearTop = markerPoint.y < popupPadding;
-      const nearBottom = markerPoint.y > mapSize.y - popupPadding;
-
-      // Only pan if marker is near an edge
-      if (nearLeft || nearRight || nearTop || nearBottom) {
-        // Calculate new center point with offset
-        const offsetX = nearLeft ? popupPadding : nearRight ? -popupPadding : 0;
-        const offsetY = nearTop ? popupPadding : nearBottom ? -popupPadding : 0;
-
-        const newCenter = map.containerPointToLatLng(
-          markerPoint.subtract([offsetX, offsetY])
-        );
-
-        // Pan to new position without changing zoom
-        map.panTo(newCenter, {
-          animate: true,
-          duration: 0.5,
-        });
-      }
+      // Find the marker that matches the selected disaster
+      Object.values(map._layers).forEach((layer) => {
+        if (
+          layer instanceof L.Marker &&
+          layer.getLatLng().equals(markerLatLng)
+        ) {
+          layer.openPopup();
+        }
+      });
     }
   }, [selectedDisaster, map]);
 
   return null;
 };
 
-const Map = ({ disasters, onMarkerClick, selectedDisaster }) => {
+// Update the Map component with these changes
+const Map = ({
+  disasters,
+  onMarkerClick,
+  selectedDisaster,
+  highlightedDisaster,
+}) => {
   if (!disasters || disasters.length === 0) {
     return (
       <p style={{ padding: "16px", margin: "16px", textAlign: "center" }}>
@@ -169,16 +151,38 @@ const Map = ({ disasters, onMarkerClick, selectedDisaster }) => {
             ]}
             icon={getDisasterIcon(disaster)}
             eventHandlers={{
-              click: () => onMarkerClick(disaster),
+              click: (e) => {
+                // Stop the event from propagating to the map
+                e.originalEvent.preventDefault();
+                e.originalEvent.stopPropagation();
+                onMarkerClick(disaster);
+              },
             }}
           >
-            <Popup
-              autoPan={true}
-              autoPanPadding={[20, 20]}
-              autoPanPaddingTopLeft={[20, 20]}
-              autoPanPaddingBottomRight={[20, 20]}
-            >
-              <div style={{ padding: "8px" }}>
+            {/* Add pulsing animation to the marker if it's the highlighted one */}
+            {highlightedDisaster &&
+              highlightedDisaster.eventid === disaster.eventid && (
+                <div
+                  className="pulse-marker"
+                  style={{
+                    position: "absolute",
+                    width: "40px",
+                    height: "40px",
+                    backgroundColor: "rgba(255, 0, 0, 0.3)",
+                    borderRadius: "50%",
+                    transform: "translate(-50%, -50%)",
+                    pointerEvents: "none",
+                    animation: "pulse 1.5s infinite",
+                    top: "50%",
+                    left: "50%",
+                  }}
+                ></div>
+              )}
+            <Popup closeOnClick={true} autoPan={true} autoPanPadding={[20, 20]}>
+              <div
+                style={{ padding: "8px" }}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <strong style={{ display: "block", marginBottom: "4px" }}>
                   {disaster.title}
                 </strong>
@@ -189,29 +193,51 @@ const Map = ({ disasters, onMarkerClick, selectedDisaster }) => {
                 <p style={{ margin: "2px 0", fontSize: "13px" }}>
                   Date: {disaster.pubDate}
                 </p>
-                <Link
-                  to={`/disasters/${disaster.eventid}`}
-                  style={{
-                    display: "inline-block",
-                    marginTop: "6px",
-                    fontSize: "13px",
-                    color: "#1976d2",
-                    textDecoration: "none",
-                  }}
-                >
-                  View Details
-                </Link>
+                {disaster.link && (
+                  <a
+                    href={disaster.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-block",
+                      marginTop: "6px",
+                      fontSize: "13px",
+                      color: "#1976d2",
+                      textDecoration: "none",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    View Details
+                  </a>
+                )}
               </div>
             </Popup>
           </Marker>
         ))}
 
         <FitBounds markers={markerPositions} />
-        <PopupHandler
-          markerPositions={markerPositions}
-          selectedDisaster={selectedDisaster}
-        />
+        <PopupHandler selectedDisaster={selectedDisaster} />
       </MapContainer>
+
+      {/* Add CSS for the pulse animation */}
+      <style>
+        {`
+          @keyframes pulse {
+            0% {
+              transform: translate(-50%, -50%) scale(0.8);
+              opacity: 0.7;
+            }
+            70% {
+              transform: translate(-50%, -50%) scale(1.3);
+              opacity: 0.2;
+            }
+            100% {
+              transform: translate(-50%, -50%) scale(0.8);
+              opacity: 0;
+            }
+          }
+        `}
+      </style>
     </div>
   );
 };
