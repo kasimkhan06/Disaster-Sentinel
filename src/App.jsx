@@ -2,7 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import CurrentLocation from "./pages/disasters/user/CurrentLocation";
-import Home from "./pages/dashboard/user/Home";
+import HomePage from "./pages/dashboard/user/HomePage";
 import DisasterInfo from "./pages/disasters/user/DisasterInfo";
 import Header from "./components/Header";
 import Login from "./pages/authentication/login";
@@ -38,8 +38,8 @@ const App = () => {
       {userRole === "agency" ? <HeaderAgency /> : <Header />}
 
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification" element={<Verification />} />

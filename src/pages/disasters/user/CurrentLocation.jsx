@@ -42,6 +42,7 @@ import TimelineIcon from "@mui/icons-material/Timeline";
 import MapIcon from "@mui/icons-material/Map";
 import WarningIcon from "@mui/icons-material/Warning";
 import { PiX } from "react-icons/pi";
+import worldMapBackground from "../../dashboard/user/images/world-map-background.jpg";
 
 function CurrentLocation() {
   const theme = useTheme();
@@ -213,16 +214,35 @@ function CurrentLocation() {
     </div>
   ));
 
+  const [hasSelectedLocation, setHasSelectedLocation] = useState(false); 
+  useEffect(() => {
+    setHasSelectedLocation(!!selectedLocation);
+  }, [selectedLocation]);
   return (
     <>
-      <Container maxWidth={false} sx={{ width: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "100px",
+    <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            minHeight: "100vh",
+            background: `
+          linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+          url(${worldMapBackground})
+        `,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "repeat-y",
+            margin: 0,
+            padding: 0,
+            zIndex: 0, // Only needed if you have other elements with zIndex
           }}
         >
+      <Container maxWidth={false} sx={{ width: "100%" }}>
+      <div
+      style={{display:"flex",justifyContent:"center",marginTop:"100px"}}>
           <Autocomplete
             freeSolo
             id="location-input"
@@ -246,14 +266,17 @@ function CurrentLocation() {
                   borderBottom: "2px solid #eee",
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "white",
+                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                     "& fieldset": {
                       borderColor: "transparent", // Remove border before focus
                     },
                     "&:hover fieldset": {
                       borderColor: "transparent", // Remove border on hover
+                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
                     },
                     "&.Mui-focused fieldset": {
                       borderColor: "transparent", // Remove border on focus
+                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
                     },
                     "&:focus": {
                       outline: "none", // Remove black outline
@@ -264,10 +287,10 @@ function CurrentLocation() {
                   },
                   "& .MuiInputBase-input": {
                     fontSize: {
-                      xs: "0.9rem",
-                      sm: "1rem",
-                      md: isBelow ? "1.1rem" : "1.2rem",
-                      lg: isBelow ? "1.1rem" : "1.2rem",
+                      xs: "0.7rem",
+                          sm: "0.8rem",
+                          md: isBelow ? "0.9rem" : "1rem",
+                          lg: isBelow ? "0.9rem" : "1rem",
                     },
                   },
                   "&::placeholder": {
@@ -279,17 +302,18 @@ function CurrentLocation() {
                     },
                   },
                   width: { xs: "300px", md: "400px" },
+                  
                 }}
               />
-              
             )}
             
           />
         </div>
         {selectedLocation ? (
           <>
-            <Grid container spacing={1} sx={{ m: 0, width: "100%" }}>
-              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }}>
+          <Box sx={{borderRadius: 2, boxShadow: 3, height: "100%",backgroundColor:"white", mb:1}}> 
+            <Grid container spacing={1} sx={{ m: 0, width: "100", marginTop: 2, paddingTop: 1 }}>
+              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }} >
                 <div
                   style={{
                     margin: "10px",
@@ -622,6 +646,7 @@ function CurrentLocation() {
                   pb: 3,
                   pt: 3,
                   pl: { xs: 0, md: 1 },
+
                 }}
                 marginX="auto"
               >
@@ -638,12 +663,15 @@ function CurrentLocation() {
                 </Box>
               </Grid>
             </Grid>
+            </Box>
 
+            <Box sx={{borderRadius: 2, boxShadow: 3, height: "100%",backgroundColor:"white", mb:4}}>    
             <div
               style={{
                 margin: "10px",
-                // backgroundColor: "#f7fcff",
+                // backgroundColor: "white",
                 padding: "0px",
+                borderRadius: 2, boxShadow: 3, height: "100%"
               }}
             >
               <Typography
@@ -651,6 +679,7 @@ function CurrentLocation() {
                 sx={{
                   mt: 1,
                   mb: 0,
+                  pt:2,
                   fontSize: {
                     xs: "1rem",
                     sm: "1.2rem",
@@ -665,8 +694,8 @@ function CurrentLocation() {
               <Typography
                 align="center"
                 sx={{
-                  mt: 2,
-                  mb: { xs: 3, md: 5 },
+                  pt: 2,
+                  mb: { xs: 1, md: 2 },
                   fontSize: {
                     xs: "0.9rem",
                     sm: "1rem",
@@ -867,25 +896,25 @@ function CurrentLocation() {
                   }}
                 >
                   <Button
-                    onClick={clearFilters}
-                    disableRipple
-                    sx={{
-                      height: { md: 62 }, // Match the height of the Autocomplete boxes
-                      paddingY: "9px",
-                      // pl: { xs: 1, md: 0 },
-                      // pr: 1,
-                      display: "flex",
-                      // marginX: "auto",
-                      mb: 2,
-                      alignItems: "center",
-                      backgroundColor: "white", // Maintain the original background
-                      "&:hover": {
-                        backgroundColor: "white", // Prevent color change on hover
-                      },
-                    }}
-                  >
-                    Clear Filters
-                  </Button>
+  onClick={(e) => {
+    e.preventDefault(); // Prevent default behavior
+    clearFilters();
+  }}
+  disableRipple
+  sx={{
+    height: { md: 62 },
+    paddingY: "9px",
+    display: "flex",
+    mb: 2,
+    alignItems: "center",
+    backgroundColor: "white",
+    "&:hover": {
+      backgroundColor: "white",
+    },
+  }}
+>
+  Clear Filters
+</Button>
                 </Grid>
               </Grid>
               {/* </Box> */}
@@ -900,7 +929,7 @@ function CurrentLocation() {
                     md: isBelow ? "1rem" : "1.2rem",
                     lg: isBelow ? "1rem" : "1.2rem",
                   },
-                  mb: 3,
+                  mb: 1,
                 }}
               >
                 Total Disasters: {locallyFilteredDisasters.length}
@@ -918,6 +947,7 @@ function CurrentLocation() {
                       flexDirection: "column",
                       height: "400px",
                       overflowY: "auto",
+                      paddingBottom:15,
                     }}
                   >
                     {cards}
@@ -929,6 +959,7 @@ function CurrentLocation() {
                       alignItems: "center",
                       justifyContent: "center",
                       margin: "0 auto",
+                      paddingBottom:17,
                     }}
                   >
                     <Carousel
@@ -952,17 +983,21 @@ function CurrentLocation() {
                           ? "center"
                           : "flex-start",
                       width: "100%",
+                      paddingBottom:17,
                     }}
                   >
                     {cards}
                   </div>
                 )
               ) : (
-                <Typography align="center" sx={{ fontSize: "1.2rem", mt: 4 }}>
+                <Typography align="center" sx={{ fontSize: "1.2rem", mt: 4, paddingBottom:17, }}>
                   No disaster information available.
                 </Typography>
               )}
             </div>
+            </Box>
+            {/* </Box> */}
+          
           </>
         ) : (
           // <Typography align="center" sx={{ mt: 4 }}>
@@ -978,9 +1013,10 @@ function CurrentLocation() {
               justifyContent: "center",
               mt: 4,
               p: 3,
-              backgroundColor: "#E8F1F5", // Light background color
+              // backgroundColor: "#E8F1F5", // Light background color
               borderRadius: 2,
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow
+              // boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow
+              // boxShadow: 3,
               animation: "fadeIn 1s ease-in-out", // Fade-in animation
               "@keyframes fadeIn": {
                 "0%": { opacity: 0, transform: "translateY(-10px)" },
@@ -1077,6 +1113,7 @@ function CurrentLocation() {
 
 The xs part takes up when screen is extra small, Similarly small, medium and large classes as well, based on their respective screen size definition in CSS. */}
       </Container>
+      </Box>
     </>
   );
 }

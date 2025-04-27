@@ -29,6 +29,7 @@ import Grid from "@mui/material/Grid2";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import useAgencyData from "../../../hooks/useAgencyData";
 import { getCurrentLocationState } from "../../../utils/locationUtils";
+import worldMapBackground from "../../dashboard/user/images/world-map-background.jpg";
 
 const Agencies = () => {
   const { agencies, states, loading, error } = useAgencyData();
@@ -73,7 +74,11 @@ const Agencies = () => {
 
   const calculateTableHeight = () => {
     const rowCount = Math.min(paginatedAgencies.length, itemsPerPage);
-    return headerHeight + (rowCount * rowHeight) + (filteredAgencies.length > itemsPerPage ? paginationHeight : 0);
+    return (
+      headerHeight +
+      rowCount * rowHeight +
+      (filteredAgencies.length > itemsPerPage ? paginationHeight : 0)
+    );
   };
 
   const handleUseCurrentLocation = async () => {
@@ -111,12 +116,33 @@ const Agencies = () => {
   if (loading) {
     return (
       <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              minHeight: "100vh",
+              background: `
+            linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+            url(${worldMapBackground})
+          `,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundAttachment: "fixed",
+              backgroundRepeat: "repeat-y",
+              margin: 0,
+              padding: 0,
+              zIndex: 0, // Only needed if you have other elements with zIndex
+            }}
+          >
+      <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
         minHeight="200px"
       >
         <CircularProgress />
+      </Box>
       </Box>
     );
   }
@@ -131,29 +157,45 @@ const Agencies = () => {
 
   return (
     <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        p: 2,
-      }}
-    >
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            minHeight: "100vh",
+            background: `
+          linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+          url(${worldMapBackground})
+        `,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "repeat-y",
+            margin: 0,
+            padding: 0,
+            zIndex: 0, // Only needed if you have other elements with zIndex
+          }}
+        >
       <Typography
         align="center"
         sx={{
-          padding: "16px 0",
+          pt: "17px",
+          pb: "5px",
           mt: 8,
-          mb: 2,
+          mb: 1,
           fontSize: {
             xs: "1rem",
             sm: "1.2rem",
             md: isBelow ? "1.2rem" : "1.4rem",
             lg: isBelow ? "1.2rem" : "1.4rem",
           },
-          fontWeight: "500",
+          fontWeight: "700",
+          color: "rgba(0, 0, 0, 0.87)",
+          position: "relative",
+          zIndex: 1,
         }}
       >
-        Agencies
+        AGENCY DETAILS
       </Typography>
 
       {/* Centered Filter Controls */}
@@ -161,7 +203,7 @@ const Agencies = () => {
         container
         spacing={1}
         sx={{
-          mb: { xs: 1, md: 2 },
+          mb: 1,
           width: {
             xs: "100%",
             sm: "90%",
@@ -184,10 +226,15 @@ const Agencies = () => {
               width: "100%",
               padding: 0,
               paddingLeft: { xs: 1, md: 2 },
-              mb: 2,
+              mb: 0,
               textAlign: "left",
-              boxShadow: "2px 2px 2px #E8F1F5",
+              backgroundColor: "white",
+              // boxShadow: "2px 2px 2px #E8F1F5",
               position: "relative",
+              height: "48px",
+              display: "flex",
+              alignItems: "center",
+              boxShadow: 2,
             }}
           >
             <Autocomplete
@@ -199,7 +246,7 @@ const Agencies = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="State"
+                  // label="State"
                   variant="outlined"
                   slotProps={{
                     input: {
@@ -218,6 +265,14 @@ const Agencies = () => {
                                   sm: "1.2rem",
                                   md: isBelow ? "1.2rem" : "1.4rem",
                                   lg: isBelow ? "1.2rem" : "1.4rem",
+                                },
+                                "&:active": {
+                                  // Remove blue background on click
+                                  backgroundColor: "transparent",
+                                },
+                                "&:focus": {
+                                  // Remove focus outline
+                                  backgroundColor: "transparent",
                                 },
                               }}
                             >
@@ -247,15 +302,29 @@ const Agencies = () => {
                         md: isBelow ? "1rem" : "1.1rem",
                         lg: isBelow ? "1rem" : "1.1rem",
                       },
+                      transform: "translate(14px, 12px) scale(1)", // Adjust label position
+                      "&.MuiInputLabel-shrink": {
+                        transform: "translate(14px, -6px) scale(0.75)", // Adjust shrunk label
+                      },
+                    },
+                    "& .MuiAutocomplete-endAdornment": {
+                      top: "50%", // Center vertically
+                      transform: "translateY(-50%)", // Adjust for exact centering
+                      right: "10px", // Maintain right positioning
+                    },
+                    "& .MuiAutocomplete-popupIndicator": {
+                      padding: "4px", // Adjust padding if needed
                     },
                     width: "100%",
                   }}
                 />
               )}
               sx={{
+                width: "100%",
                 "& .MuiAutocomplete-endAdornment": {
                   right: "10px",
-                },
+                  top: "calc(50% - 12px)", // Center adornment vertically
+                }, 
               }}
             />
           </Box>
@@ -264,7 +333,7 @@ const Agencies = () => {
           size={{ xs: 12, sm: 6, md: 3, lg: 3 }}
           sx={{
             display: "flex",
-            justifyContent: {xs: "center", sm: "left", md: "left"},
+            justifyContent: { xs: "center", sm: "left", md: "left" },
             alignItems: "stretch",
           }}
         >
@@ -273,15 +342,26 @@ const Agencies = () => {
             disableRipple
             disabled={selectedState === "All States"}
             sx={{
-              height: { md: 62 },
+              height: "48px",
               paddingY: "9px",
               mb: 2,
               display: "flex",
-              alignItems: "center",
+              alignItems: "center", boxShadow: 2,
               backgroundColor: "white",
               "&:hover": {
                 backgroundColor: "white",
               },
+              "&:active": {
+                // Remove blue background on click
+                backgroundColor: "white",
+              },
+              "&:focus": {
+                // Remove focus outline
+                backgroundColor: "white",
+              },
+              color: "rgba(0, 0, 0, 0.87)",
+              position: "relative", // Add this
+              zIndex: 1,
             }}
           >
             Clear Filters
@@ -309,11 +389,12 @@ const Agencies = () => {
           minHeight: `${headerHeight + rowHeight + paginationHeight}px`,
           display: "flex",
           flexDirection: "column",
+          borderRadius: 2, boxShadow: 3,
         }}
       >
-        <TableContainer 
-          component={Paper} 
-          sx={{ 
+        <TableContainer
+          component={Paper}
+          sx={{
             flex: 1,
             overflow: "auto",
           }}
@@ -328,26 +409,57 @@ const Agencies = () => {
             <TableBody>
               {paginatedAgencies.length > 0 ? (
                 paginatedAgencies.map((agency) => (
-                  <TableRow 
+                  <TableRow
                     key={agency.id}
                     hover
                     onClick={() => handleRowClick(agency)}
-                    sx={{ 
+                    disableRipple // Remove ripple effect on click
+                    sx={{
                       cursor: "pointer",
-                      '&:hover': {
+                      "&:hover": {
                         backgroundColor: theme.palette.action.hover,
+                      },
+                      "&.Mui-selected": {
+                        backgroundColor: "transparent", // Remove blue background on selection
+                      },
+                      "&.Mui-selected:hover": {
+                        backgroundColor: "transparent", // Keep hover effect
+                      },
+                      "&:active": {
+                        backgroundColor: "transparent", // Remove blue background on click
+                      },
+                      "&:focus": {
+                        backgroundColor: "transparent", // Remove blue background on focus
                       },
                     }}
                   >
-                    <TableCell>{agency.name}</TableCell>
-                    <TableCell>
-                      {agency.district}, {agency.state}
+                    <TableCell
+                      sx={{
+                        color: "rgba(0, 0, 0, 0.87)",
+                        position: "relative",
+                        zIndex: 1,
+                      }}
+                    >
+                      {agency.name}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "rgba(0, 0, 0, 0.87)",
+                        position: "relative",
+                        zIndex: 1,
+                      }}
+                    >
+                      {agency.city}, {agency.state}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={2} align="center">
+                  <TableCell
+                    colSpan={2}
+                    align="center"
+                    sx={{ color: "rgba(0, 0, 0, 0.87)" }}
+                  >
                     No agencies found
                   </TableCell>
                 </TableRow>
@@ -358,10 +470,10 @@ const Agencies = () => {
 
         {/* Pagination */}
         {filteredAgencies.length > itemsPerPage && (
-          <Box 
-            sx={{ 
-              display: "flex", 
-              justifyContent: "center", 
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
               pt: 2,
               pb: 2,
             }}
@@ -391,9 +503,16 @@ const Agencies = () => {
               {selectedAgency.name}
             </DialogTitle>
             <DialogContent>
-              <DialogContentText>
+              <DialogContentText
+                sx={{
+                  color: "rgba(0, 0, 0, 0.87)",
+                  position: "relative", // Add this
+                  zIndex: 1,
+                }}
+              >
                 <Typography variant="subtitle1" gutterBottom>
-                  <strong>Location:</strong> {selectedAgency.district}, {selectedAgency.state}
+                  <strong>Location:</strong> {selectedAgency.city},{" "}
+                  {selectedAgency.state}
                 </Typography>
                 {/* Add more agency details here */}
                 {selectedAgency.address && (
@@ -401,37 +520,38 @@ const Agencies = () => {
                     <strong>Address:</strong> {selectedAgency.address}
                   </Typography>
                 )}
-                {selectedAgency.phone && (
+                {selectedAgency.telephone && (
                   <Typography variant="body1" gutterBottom>
-                    <strong>Phone:</strong> {selectedAgency.phone}
-                  </Typography>
-                )}
-                {selectedAgency.email && (
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Email:</strong> {selectedAgency.email}
+                    <strong>Phone:</strong> {selectedAgency.telephone}
                   </Typography>
                 )}
                 {selectedAgency.website && (
                   <Typography variant="body1" gutterBottom>
                     <strong>Website:</strong>{" "}
-                    <a 
-                      href={selectedAgency.website} 
-                      target="_blank" 
+                    <a
+                      href={selectedAgency.website}
+                      target="_blank"
                       rel="noopener noreferrer"
                     >
                       {selectedAgency.website}
                     </a>
                   </Typography>
                 )}
-                {selectedAgency.description && (
-                  <Typography variant="body1">
-                    <strong>Description:</strong> {selectedAgency.description}
-                  </Typography>
-                )}
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseDialog} color="primary">
+              <Button
+                onClick={handleCloseDialog}
+                color="primary"
+                sx={{
+                  "&:active": {
+                    backgroundColor: "transparent",
+                  },
+                  "&:focus": {
+                    backgroundColor: "transparent",
+                  },
+                }}
+              >
                 Close
               </Button>
             </DialogActions>

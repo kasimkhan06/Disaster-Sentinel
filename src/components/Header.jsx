@@ -11,65 +11,72 @@ import {
   useMediaQuery,
   useTheme,
   Box,
+  Collapse,
+  ListItemText,
+  ListItemIcon,
 } from "@mui/material";
 import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 
-// const PAGES = ["Home", "About", "Contact Us"];
 const Header = () => {
   const [value, setValue] = useState(0);
-  // Initial value is undefined
   const theme = useTheme();
-  console.log(theme);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
-  console.log(isMatch);
 
   const [anchorEl, setAnchorEl] = useState(null);
-  //for dropdown
+  const [openMissingPerson, setOpenMissingPerson] = useState(false);
   const navigate = useNavigate();
 
-  // Check if user is logged in on component mount and when localStorage changes
   useEffect(() => {
     const user = localStorage.getItem("user");
     setIsLoggedIn(!!user);
   }, []);
-  
-  //function for dropdown
+
   const handleOpenMenu = (e) => {
     setAnchorEl(e.currentTarget);
-    //button is the target
+    setOpenMissingPerson(false); // Reset submenu state when opening main menu
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+    setOpenMissingPerson(false);
+  };
+
+  const handleMissingPersonClick = (e) => {
+    e.stopPropagation();
+    setOpenMissingPerson(!openMissingPerson);
   };
 
   const handleNavigation = (path) => {
-    setAnchorEl(null); // Close the dropdown if open
-    navigate(path); // Programmatically navigate to the desired route
+    setAnchorEl(null);
+    navigate(path);
   };
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/logout/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // if you're using token-based auth
-        },
-      });
+      const response = await fetch(
+        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/logout/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       const data = await response.json();
       console.log("Logout response:", data);
 
       if (response.ok) {
-        // Clear user data from localStorage
         localStorage.removeItem("user");
-        localStorage.removeItem("token"); // if you're using tokens
+        localStorage.removeItem("token");
         setIsLoggedIn(false);
-        navigate("/home"); // Redirect to home page after logout
+        navigate("/home");
       } else {
         console.error("Logout failed:", data.message || "Unknown error");
       }
@@ -89,7 +96,6 @@ const Header = () => {
         elevation={2}
       >
         <Toolbar>
-          {/* Typography is used for the text in the app. It is used to style the text and make it more readable. */}
           <Box display="flex" alignItems="center">
             <img src={logo} alt="Logo" style={{ height: "70px" }} />
             <Typography
@@ -100,14 +106,11 @@ const Header = () => {
               }}
               onClick={() => handleNavigation("/home")}
             >
-              DISASTER SENTINAL
+              DISASTER SENTINEL
             </Typography>
           </Box>
           {isMatch ? (
-            <>
-              <DrawerComp />
-              {/* you need to specify the open of the drawer  */}
-            </>
+            <DrawerComp />
           ) : (
             <>
               <Tabs
@@ -124,7 +127,6 @@ const Header = () => {
                   aria-controls="menu"
                   onClick={handleOpenMenu}
                 />
-                {/* Aria control is for opening the menu */}
               </Tabs>
               {isLoggedIn ? (
                 <Button
@@ -134,9 +136,9 @@ const Header = () => {
                     borderColor: "#bdbdbd",
                     color: "black",
                     backgroundColor: "#fafafa",
-                    '&:hover': {
+                    "&:hover": {
                       backgroundColor: "#e0e0e0",
-                    }
+                    },
                   }}
                 >
                   Logout
@@ -149,9 +151,9 @@ const Header = () => {
                     borderColor: "#bdbdbd",
                     color: "black",
                     backgroundColor: "#fafafa",
-                    '&:hover': {
+                    "&:hover": {
                       backgroundColor: "#e0e0e0",
-                    }
+                    },
                   }}
                 >
                   Login
@@ -161,46 +163,66 @@ const Header = () => {
           )}
         </Toolbar>
       </AppBar>
-      {/* anchor means where is it going to be positioning. anchorEl passed here is from e.currentTarget */}
+
+      {/* Main Services Menu */}
       <Menu
         id="menu"
         onClose={handleMenuClose}
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         anchorOrigin={{
-          vertical: "bottom", // Position the menu below the Services tab
-          horizontal: "center", // Align it at the center horizontally
+          vertical: "bottom",
+          horizontal: "center",
         }}
         transformOrigin={{
-          vertical: "top", // Align the menu items to the top of the menu
-          horizontal: "center", // Align the menu items to the center horizontally
+          vertical: "top",
+          horizontal: "center",
         }}
         sx={{
-          minWidth: "160px", // Adjust the minimum width of the menu to ensure enough space
-          marginTop: "10px", // Space between the menu and the "Services" tab
+          minWidth: "200px",
+          marginTop: "10px",
+          "& .MuiMenu-paper": {
+            overflow: "visible",
+          },
         }}
       >
-        <MenuItem
-          onClick={() => handleNavigation("/missingpersonportal")}
-          sx={{ width: "100%", justifyContent: "center" }}
-        >
-          Report Missing person
+        <MenuItem onClick={handleMissingPersonClick}>
+          <ListItemText primary="Report Missing Person" />
+          {openMissingPerson ? <ExpandLess /> : <ExpandMore />}
         </MenuItem>
+
+        <Collapse in={openMissingPerson} timeout="auto" unmountOnExit>
+          <Box sx={{ pl: 3, backgroundColor: "rgba(0, 0, 0, 0.04)" }}>
+            <MenuItem
+              onClick={() => handleNavigation("/missingpersonportal")}
+              sx={{ width: "100%" }}
+            >
+              Report
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleNavigation("/status-tracking")}
+              sx={{ width: "100%" }}
+            >
+              Check Status
+            </MenuItem>
+          </Box>
+        </Collapse>
+
         <MenuItem
           onClick={() => handleNavigation("/agencies")}
-          sx={{ width: "100%", justifyContent: "center" }}
+          sx={{ width: "100%" }}
         >
           Agency Information
         </MenuItem>
         <MenuItem
           onClick={() => handleNavigation("/current-location")}
-          sx={{ width: "100%", justifyContent: "center" }}
+          sx={{ width: "100%" }}
         >
           Current Location
         </MenuItem>
         <MenuItem
           onClick={() => handleNavigation("/flood-prediction")}
-          sx={{ width: "100%", justifyContent: "center" }}
+          sx={{ width: "100%" }}
         >
           Flood Prediction
         </MenuItem>

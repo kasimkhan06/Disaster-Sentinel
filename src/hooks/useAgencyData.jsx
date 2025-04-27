@@ -9,7 +9,7 @@ const useAgencyData = () => {
   useEffect(() => {
     setLoading(true);
     fetch(
-      "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency/"
+      "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/existing-agencies/"
     )
       .then((response) => response.json())
       .then((data) => {
