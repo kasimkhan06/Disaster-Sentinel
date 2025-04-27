@@ -266,14 +266,17 @@ function CurrentLocation() {
                   borderBottom: "2px solid #eee",
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "white",
+                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                     "& fieldset": {
                       borderColor: "transparent", // Remove border before focus
                     },
                     "&:hover fieldset": {
                       borderColor: "transparent", // Remove border on hover
+                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
                     },
                     "&.Mui-focused fieldset": {
                       borderColor: "transparent", // Remove border on focus
+                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
                     },
                     "&:focus": {
                       outline: "none", // Remove black outline
@@ -284,10 +287,10 @@ function CurrentLocation() {
                   },
                   "& .MuiInputBase-input": {
                     fontSize: {
-                      xs: "0.9rem",
-                      sm: "1rem",
-                      md: isBelow ? "1.1rem" : "1.2rem",
-                      lg: isBelow ? "1.1rem" : "1.2rem",
+                      xs: "0.7rem",
+                          sm: "0.8rem",
+                          md: isBelow ? "0.9rem" : "1rem",
+                          lg: isBelow ? "0.9rem" : "1rem",
                     },
                   },
                   "&::placeholder": {
