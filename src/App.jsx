@@ -2,7 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import CurrentLocation from "./pages/disasters/user/CurrentLocation";
-import Home from "./pages/dashboard/user/Home";
+import HomePage from "./pages/dashboard/user/HomePage";
 import DisasterInfo from "./pages/disasters/user/DisasterInfo";
 import Header from "./components/Header";
 import Login from "./pages/authentication/login";
@@ -22,6 +22,7 @@ import Verification from "./pages/authentication/verification";
 import DosDontsPage from "./pages/training/dosdonts";
 import MissingPersonPortal from "./pages/missingperson/portal";
 import StatusTracking from "./pages/missingperson/status";
+import UpdateDetails from "./pages/authentication/updateDetails";
 import Profile from "./pages/dashboard/agency/Profile/Profile"
 
 const App = () => {
@@ -41,8 +42,8 @@ const App = () => {
       {userRole === "agency" ? <HeaderAgency /> : <Header />}
 
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification" element={<Verification />} />
@@ -50,7 +51,7 @@ const App = () => {
         <Route path="/disaster-details/:id" element={<DisasterInfo />} />
         <Route path="/dosdontspage" element={<DosDontsPage />} />
         <Route path="/MissingPersonPortal" element={<MissingPersonPortal />} />
-        <Route path="/status-tracking" element={<StatusTracking />} />
+        <Route path="/statustracking" element={<StatusTracking />} />
         <Route path="/flood-prediction" element={<FloodPrediction />} />
         <Route path="/agencies" element={<Agencies />} />
         <Route path="/registration-form" element={<NewRegistration />} />
@@ -58,6 +59,10 @@ const App = () => {
         <Route path="/missing-person" element={<MissingPerson />} />
         <Route path="/person-details/:id" element={<PersonInfo />} />
         <Route path="/announcement" element={<AnnouncementPage />} />
+        <Route path="/update
+        
+        
+        details" element={<UpdateDetails />} />
         <Route path="/event-listing" element={<EventListing />} />
         <Route path="/create-event" 
         element={
