@@ -1,6 +1,7 @@
-// NewRegistration.jsx
-
+//React
 import React, { useState, useEffect } from "react";
+
+// MUI Components
 import {
     Typography,
     Container,
@@ -15,11 +16,20 @@ import {
     TextareaAutosize as Textarea,
 } from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
+
+// Custom Components
 import AgencyInfo from "../../../../components/AgencyInfo";
 import MapLeaflet from "../../../../components/Map";
-import { useNavigate } from "react-router-dom";
 import ImageUpload from "../../../../components/ImageUpload";
+
+// React Router
+import { useNavigate } from "react-router-dom";
+
+// Axios for API calls
 import axios from "axios";
+
+// Styles & Assets
+import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
 
 const steps = ["Agency Information", "Description", "Image Upload", "Map Location"];
 
@@ -192,7 +202,27 @@ const RegistrationForm = ({ setSuccess }) => {
   };
 
   return (
-    <Box sx={{ width: "80%", mx: "auto", mt: 15 }}>
+    <Box 
+      sx={{
+        position: "absolute",
+        width: "100%", 
+        top: 0,
+        left: 0,
+        right: 0,
+        minHeight: "100vh",
+        background: `
+      linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+      url(${worldMapBackground})
+    `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "repeat-y",
+        margin: 0,
+        padding: 0,
+        zIndex: 0, // Only needed if you have other elements with zIndex
+      }}>
+      <Box sx={{ mt: 15, mb: 4, marginX:"auto", width: "70%", display:"flex", alignContent:"center", flexDirection:"column", }}>
       <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
         {steps.map((label) => (
           <Step key={label}>
@@ -285,7 +315,7 @@ const RegistrationForm = ({ setSuccess }) => {
             </Card>
           </Grid>
         )}
-        
+
         {activeStep === 3 && (
           <Grid item xs={12}>
             <Card sx={{ p: 2 }}>
@@ -310,6 +340,7 @@ const RegistrationForm = ({ setSuccess }) => {
           </Button>
         )}
       </Box>
+    </Box>
     </Box>
   );
 };

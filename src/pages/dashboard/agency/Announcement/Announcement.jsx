@@ -1,8 +1,16 @@
+// React
 import { useState } from "react";
-import EventListing from "./EventListing";
-import { EventFormProvider  } from "../../../../hooks/useEventForm";
+
+// Contexts / Providers
+import { EventFormProvider } from "../../../../hooks/useEventForm";
+
+// Components
 import EventForm from "./CreateEvent";
+import EventListing from "./EventListing";
+
+// Styles & Assets
 import "../../../../../public/css/Announcement.css";
+import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
 
 export default function AnnouncementPage() {
   const [selectedTab, setSelectedTab] = useState(0);

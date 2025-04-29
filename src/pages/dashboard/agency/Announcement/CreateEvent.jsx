@@ -1,5 +1,13 @@
+//React
 import { useState, useEffect, startTransition } from "react";
+
+// React Router
 import { useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+
+
+// MUI Components
 import {
   TextField,
   MenuItem,
@@ -21,15 +29,24 @@ import {
   Chip,
   IconButton,
   FormHelperText,
+  Card,
+  TextareaAutosize,
+  Divider,
 } from "@mui/material";
 import { 
   Add, 
   Delete 
 } from "@mui/icons-material";
-import { Controller } from "react-hook-form";
+
+// Custom Components
 import MaxHeightTextarea from "../../../../components/TextArea";
+
+// Styles & Assets
+import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
+
+// Axios for API requests
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+
 
 const steps = ["Basic Info", "Location", "Details", "Timeline", "Review & Submit"];
 const eventTypes = ["Conference", "Workshop", "Seminar", "Webinar", "Networking"];
@@ -212,476 +229,561 @@ export default function EventFormWithStepper() {
   };
 
   return (
-    <Box sx={{ width: "80%", padding: "20px", marginTop: "80px", alignItems: "center", marginX: "auto" }}>
-      {/* Stepper Component */}
-      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+    <Box 
+      sx={{
+        position: "absolute",
+        width: "100%", 
+        top: 0,
+        left: 0,
+        right: 0,
+        minHeight: "100vh",
+        background: `
+      linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+      url(${worldMapBackground})
+    `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "repeat-y",
+        margin: 0,
+        padding: 0,
+        zIndex: 0, 
+      }}>
+      <Box sx={{ mt: 15, mb: 4, marginX:"auto", width: "70%", display:"flex", alignContent:"center", flexDirection:"column", }}>
+        {/* Stepper Component */}
+        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
 
-      {/* Step Content */}
-      {activeStep === steps.length ? (
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="h6">All steps completed - Event Created!</Typography>
-          <Button onClick={() => setActiveStep(0)} variant="contained" sx={{ mt: 2 }}>
-            Create Another Event
-          </Button>
-        </Box>
-      ) : (
-        <>
-          <Grid container spacing={3} sx={{ mb: 3 }}>
+        {/* Step Content */}
+        {activeStep === steps.length ? (
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="h6">All steps completed - Event Created!</Typography>
+            <Button onClick={() => setActiveStep(0)} variant="contained" sx={{ mt: 2 }}>
+              Create Another Event
+            </Button>
+          </Box>
+        ) : (
+          <>
+            <Grid container spacing={3} sx={{ mb: 3 }}>
 
-            {/* Basic Info Step */}
-            {activeStep === 0 && (
-              <>
-                {/* Event Name */}
-                <Grid item xs={12} md={12}>
-                  <TextField
-                    fullWidth
-                    label={
-                      <span>
-                        Event Name <span style={{ color: 'red' }}>*</span>
-                      </span>
-                    }
-                    variant="standard"
-                    value={formData.name}
-                    onChange={(e) => updateFormState({ name: e.target.value })}
-                    error={!!errors.name}
-                    helperText={errors.name} 
-                    sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                    InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                  />
-                </Grid>
-
-                {/* Date & Time */}
-                <Grid item xs={6} md={3}>
-                  <TextField
-                    fullWidth
-                    type="date"
-                    label={
-                      <span>
-                        Date <span style={{ color: 'red' }}>*</span>
-                      </span>
-                    }
-                    value={formData.date}
-                    onChange={(e) => updateFormState({ ...formData, date: e.target.value })}
-                    error={!!errors.date}
-                    helperText={errors.date} 
-                    InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                    sx = {{width: {xs:"80%", sm: "75%"}, marginX: "20px"}}
-                  />
-                </Grid>
-
-                <Grid item xs={6} md={3} sx={{ marginLeft: "100px" }}>
-                  <TextField
-                    fullWidth
-                    type="time"
-                    label={
-                      <span>
-                        Time <span style={{ color: 'red' }}>*</span>
-                      </span>
-                    }
-                    value={formData.start_time}
-                    onChange={(e) => updateFormState({ ...formData, start_time: e.target.value })}
-                    error={!!errors.start_time}
-                    helperText={errors.start_time} 
-                    InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                    sx = {{width: {xs:"80%", sm: "75%"}, marginX: "20px"}}
-                  />
-                </Grid>
-
-                {/* Event Type */}
-                <Grid item xs={12} md={12}>
-                  <FormControl 
-                    fullWidth 
-                    variant="standard" 
-                    sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
-                    error={!!errors.event_type}
-                  >
-                    <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>
-                      Event Type <span style={{ color: "red" }}>*</span>
-                    </InputLabel>
-                    <Select 
-                      value={formData.event_type}
-                      onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
-                    >
-                      {eventTypes.map((type) => (
-                        <MenuItem key={type} value={type}>
-                          {type}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.event_type && <FormHelperText>{errors.event_type}</FormHelperText>}
-                  </FormControl>
-                </Grid>
-              </>
-            )}
-
-            {/* Location Step */}
-            {activeStep === 1 && (
-              <>
-                <Container maxWidth="md" sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 4 }}>
-                  <Paper 
-                    elevation={3} 
-                    sx={{ 
-                      width: "100%", 
-                      maxWidth: 600, 
-                      p: 3, 
-                      borderRadius: 3, 
-                      bgcolor: "background.paper",
-                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)"
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" justifyContent="space-between">
-                      <Typography variant="body1" fontWeight={600} color="text.primary">
-                        Event Format:
-                      </Typography>
-                      <FormControl>
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={isOnline === "online"} 
-                              color="primary"
-                              onChange={(event) => {
-                                const checked = event.target.checked;
-                                const newLocation_type = checked ? "online" : "offline";
-                                updateFormState({ location_type: newLocation_type });
-                                setIsOnline(newLocation_type);
-                              }}
-                            />
+              {/* Basic Info Step */}
+              {activeStep === 0 && (
+                <Grid item xs={12} sx={{ marginTop: "20px" }}>
+                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                    {/* Event Name & Event Type */}
+                    <Grid container spacing={3}>
+                      {/* Event Name */}
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label={
+                            <span>
+                              Event Name <span style={{ color: 'red' }}>*</span>
+                            </span>
                           }
-                          label={isOnline === "online" ? "Virtual" : "In-Person"}
+                          variant="standard"
+                          value={formData.name}
+                          onChange={(e) => updateFormState({ name: e.target.value })}
+                          error={!!errors.name}
+                          helperText={errors.name}
+                          InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
                         />
-                      </FormControl>
-                    </Box>
-                  </Paper>
-                </Container>
-
-                {/* Online Event */}
-                {isOnline === "online" ? (
-                  <>
-                    <Grid item xs={12} md={12}>
-                      <FormControl fullWidth variant="standard" sx={{ width: { xs: "100%", sm: "95%" }, marginX: "20px" }} error={!!errors.platform}>
-                        <InputLabel sx={{ fontSize: "0.9rem", width: { xs: "100%", sm: "95%" } }}>
-                          Platform <span style={{ color: "red" }}>*</span>
-                        </InputLabel>
-                        <Select 
-                          value={formData.platform}
-                          onChange={(e) => updateFormState({ ...formData, platform: e.target.value })} // Set image based on platform
+                      </Grid>
+                
+                      {/* Event Type */}
+                      <Grid item xs={12} md={6}>
+                        <FormControl
+                          fullWidth
+                          variant="standard"
+                          error={!!errors.event_type}
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
                         >
-                          {platforms.map((type) => (
-                            <MenuItem key={type} value={type}>
-                              {type}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {errors.platform && <FormHelperText>{errors.platform}</FormHelperText>}
-                      </FormControl>
+                          <InputLabel sx={{ fontSize: '0.9rem' }}>
+                            Event Type <span style={{ color: "red" }}>*</span>
+                          </InputLabel>
+                          <Select
+                            value={formData.event_type}
+                            onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
+                          >
+                            {eventTypes.map((type) => (
+                              <MenuItem key={type} value={type}>
+                                {type}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {errors.event_type && <FormHelperText>{errors.event_type}</FormHelperText>}
+                        </FormControl>
+                      </Grid>
                     </Grid>
-
-                    <Grid item xs={12} md={12}>
-                      <TextField
-                        fullWidth
-                        label={
-                          <span>
-                            Meeting Link <span style={{ color: 'red' }}>*</span>
-                          </span>
-                        }
-                        variant="standard"
-                        value={formData.meeting_link}
-                        onChange={(e) => updateFormState({ ...formData, meeting_link: e.target.value })}
-                        error={!!errors.meeting_link}
-                        helperText={errors.meeting_link} 
-                        sx={{ width: { xs: "100%", sm: "95%" }, marginX: "20px" }} 
-                        InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                      />
+                
+                    {/* Date & Time */}
+                    <Grid container spacing={3} sx={{ marginTop: "20px" }}>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                          fullWidth
+                          type="date"
+                          label={
+                            <span>
+                              Date <span style={{ color: 'red' }}>*</span>
+                            </span>
+                          }
+                          value={formData.date}
+                          onChange={(e) => updateFormState({ ...formData, date: e.target.value })}
+                          error={!!errors.date}
+                          helperText={errors.date}
+                          InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                        />
+                      </Grid>
+                
+                      <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                          fullWidth
+                          type="time"
+                          label={
+                            <span>
+                              Time <span style={{ color: 'red' }}>*</span>
+                            </span>
+                          }
+                          value={formData.start_time}
+                          onChange={(e) => updateFormState({ ...formData, start_time: e.target.value })}
+                          error={!!errors.start_time}
+                          helperText={errors.start_time}
+                          InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                        />
+                      </Grid>
                     </Grid>
+                  </Card>
+                </Grid>              
+              )}
 
-                    <Grid item xs={12} md={12}>
-                      <TextField
-                        fullWidth
-                        label={
-                          <span>
-                            Meeting ID <span style={{ color: 'red' }}>*</span>
-                          </span>
-                        }
-                        variant="standard"
-                        value={formData.meeting_id}
-                        onChange={(e) => updateFormState({ ...formData, meeting_id: e.target.value })}
-                        error={!!errors.meeting_id}
-                        helperText={errors.meeting_id} 
-                        sx={{ width: { xs: "100%", sm: "95%" }, marginX: "20px" }} 
-                        InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                      />
-                    </Grid>
-                  </>
-                ) : (
-                  <>
-                    <Grid item xs={12} md={12}>
-                      <TextField
-                        fullWidth
-                        label={
-                          <span>
-                            Venue Name <span style={{ color: 'red' }}>*</span>
-                          </span>
-                        }
-                        variant="standard"
-                        value={formData.venue_name}
-                        onChange={(e) => updateFormState({ ...formData, venue_name: e.target.value })}
-                        error={!!errors.venue_name}
-                        helperText={errors.venue_name} 
-                        sx={{ width: { xs: "100%", sm: "95%" }, marginX: "20px" }} 
-                        InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                      />
-                    </Grid>
+              {/* Location Step */}
+              {activeStep === 1 && (
+                <Grid item xs={12} sx={{ marginTop: "20px" }}>
+                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                    <Container maxWidth="md" sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 4 }}>
+                      <Paper 
+                        elevation={3} 
+                        sx={{ 
+                          width: "100%", 
+                          maxWidth: 600, 
+                          p: 3, 
+                          borderRadius: 3, 
+                          bgcolor: "background.paper",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)"
+                        }}
+                      >
+                        <Box display="flex" alignItems="center" justifyContent="space-between">
+                          <Typography variant="body1" fontWeight={600} color="text.primary">
+                            Event Format:
+                          </Typography>
+                          <FormControl>
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={isOnline === "online"} 
+                                  color="primary"
+                                  onChange={(event) => {
+                                    const checked = event.target.checked;
+                                    const newLocation_type = checked ? "online" : "offline";
+                                    updateFormState({ location_type: newLocation_type });
+                                    setIsOnline(newLocation_type);
+                                  }}
+                                />
+                              }
+                              label={isOnline === "online" ? "Virtual" : "In-Person"}
+                            />
+                          </FormControl>
+                        </Box>
+                      </Paper>
+                    </Container>
 
-                    <Grid item xs={12} md={12}>
-                      <TextField
-                        fullWidth
-                        label={
-                          <span>
-                            Venue Address <span style={{ color: 'red' }}>*</span>
-                          </span>
-                        }
-                        variant="standard"
-                        value={formData.address}
-                        onChange={(e) => updateFormState({ ...formData, address: e.target.value })}
-                        error={!!errors.address}
-                        helperText={errors.address}
-                        sx={{ width: { xs: "100%", sm: "95%" }, marginX: "20px" }} 
-                        InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                      />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label={
-                          <span>
-                            City <span style={{ color: 'red' }}>*</span>
-                          </span>
-                        }
-                        variant="standard"
-                        value={formData.city}
-                        onChange={(e) => updateFormState({ ...formData, city: e.target.value })}
-                        error={!!errors.city}
-                        helperText={errors.city} 
-                        sx={{ width: { xs: "100%", sm: "95%" }, marginX: "20px" }} 
-                        InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                      />
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label={
-                          <span>
-                            State <span style={{ color: 'red' }}>*</span>
-                          </span>
-                        }
-                        variant="standard"
-                        value={formData.state}
-                        onChange={(e) => updateFormState({ ...formData, state: e.target.value })}
-                        error={!!errors.state}
-                        helperText={errors.state} 
-                        sx={{ width: { xs: "100%", sm: "95%" }, marginX: "20px" }} 
-                        InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                      />
-                    </Grid>
-                  </>
-                )}
-              </>
-            )}
-
-            {/* Details Step */}
-            {activeStep === 2 && (
-              <>
-                <Grid item xs={12} md={12} sx={{ marginTop: "5px", marginX: "20px" }}>
-                  <MaxHeightTextarea placeholder="Provide a description of the event." />
-                </Grid>
-
-                <Grid item xs={12} md={12} sx={{ marginTop: "-5px" }}>
-                  <TextField
-                    fullWidth
-                    label="Maximum Attendees (optional)"
-                    type="number"
-                    variant="standard"
-                    value={formData.attendees}
-                    onChange={(e) => updateFormState({ ...formData, attendees: e.target.value })}
-                    sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                    InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={12}>
-                  <FormControl fullWidth variant="standard" sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }} error={!!errors.eventType}>
-                    <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>
-                      Registration Type label <span style={{ color: 'red' }}>*</span>
-                    </InputLabel>
-                      <Select 
-                      value={formData.reg_type}
-                      onChange={(e) => setFormData({ ...formData, reg_type: e.target.value })}>
-                      {regTypes.map((type) => (
-                        <MenuItem key={type} value={type}>
-                          {type}
-                          </MenuItem>
-                      ))}
-                      </Select>
-                    {errors.reg_type && <FormHelperText>{errors.reg_type}</FormHelperText>}
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={12} sx={{ marginTop: "10px", marginX: "20px" }}>
-                  <Controller
-                    name="tags"
-                    control={control}
-                    render={({ field: { onChange } }) => (
-                      <FormControl fullWidth variant="standard" error={!!errors.tags}>
-                        <FormLabel>
-                          Tags (Select up to 5) <span style={{ color: 'red' }}>*</span>
-                        </FormLabel>
-                        <Paper elevation={1} sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2 }}>
-                          <Box display="flex" flexWrap="wrap" gap={1}>
-                            {disasterTags.map((tag) => (
-                              <Chip
-                                key={tag}
-                                label={tag}
-                                variant={selectedTags.includes(tag) ? "filled" : "outlined"}
-                                color={selectedTags.includes(tag) ? "primary" : "default"}
-                                onClick={() => handleTagClick(tag, onChange)}
-                                sx={{ cursor: "pointer" }}
-                              />
-                              ))}
-                          </Box>
-                        </Paper>
-                    {errors.tags && <FormHelperText>{errors.tags}</FormHelperText>}
-                      </FormControl>
-                    )}
-                  />
-                </Grid>
-              </>
-            )}
-
-            {/* Timeline Step */}
-            {activeStep === 3 && (
-              <>
-                <Box sx={{ px: { xs: 2, md: 4 }, py: 3, maxWidth: "1000px", minWidth: "600px", mx: "auto" }}>
-                  <Typography variant="h6" fontWeight="600" color="text.primary" mb={2}>
-                    Event Timeline
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" mb={3}>
-                    Add key activities to your event schedule
-                  </Typography>
-            
-                  <Box display="flex" flexDirection="column" gap={2}> 
-                    {timeline_items.map((item, index) => (
-                      <Paper
-                      key={index}
-                        elevation={2}
-                        sx={{ p: 3, borderRadius: 2, border: "1px solid", borderColor: "grey.500", bgcolor: "background.paper" }}
-                        >
-                        <Grid container spacing={3} alignItems="center">
-                          <Grid item xs={6} md={6}>
-                            <Typography variant="body1" fontWeight={600} color="text.primary">
-                              Time
-                            </Typography>
-                            <TextField
-                              fullWidth
-                              type="time"
-                              value={item.time}
-                              onChange={(e) => handleUpdateItem(index, "time", e.target.value)}
-                              InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                              sx = {{width: {xs:"80%", sm: "75%"}}}
-                              />
-                          </Grid>
-            
+                    {/* Online Event */}
+                    {isOnline === "online" ? (
+                      <>
+                        <Grid container spacing={3} sx={{ marginTop: "10px" }}>
+                          {/* Event Platform */}
                           <Grid item xs={12} md={6}>
-                            <Typography variant="body1" fontWeight={600} color="text.primary">
-                              Activity Description
-                            </Typography>
+                            <FormControl fullWidth variant="standard" sx={{ width: { xs: "100%", sm: "92%" }, marginX: "20px" }} error={!!errors.platform}>
+                              <InputLabel sx={{ fontSize: "0.9rem", width: { xs: "100%", sm: "95%" } }}>
+                                Platform <span style={{ color: "red" }}>*</span>
+                              </InputLabel>
+                              <Select 
+                                value={formData.platform}
+                                onChange={(e) => updateFormState({ ...formData, platform: e.target.value })} // Set image based on platform
+                              >
+                                {platforms.map((type) => (
+                                  <MenuItem key={type} value={type}>
+                                    {type}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {errors.platform && <FormHelperText>{errors.platform}</FormHelperText>}
+                            </FormControl>
+                          </Grid>
+
+                          {/* Meeting Link */}
+                          <Grid item xs={12} md={6}>
                             <TextField
                               fullWidth
-                              placeholder="Enter activity description"
-                              value={item.activity}
-                              onChange={(e) => handleUpdateItem(index, "activity", e.target.value)}
-                              />
-                          </Grid>
-            
-                          <Grid item xs={12} md={1} display="flex" justifyContent="center" alignItems="center">
-                            {timeline_items.length > 1 && (
-                              <IconButton color="error" onClick={() => handleRemoveItem(index)}>
-                                <Delete />
-                              </IconButton>
-                            )}
+                              label={
+                                <span>
+                                  Meeting Link <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.meeting_link}
+                              onChange={(e) => updateFormState({ ...formData, meeting_link: e.target.value })}
+                              error={!!errors.meeting_link}
+                              helperText={errors.meeting_link} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
                           </Grid>
                         </Grid>
-                      </Paper>
-                    ))}
-                  </Box>
-            
-                  <Box display="flex" justifyContent="start" mt={3}>
-                    <Button
-                      variant="contained"
-                      startIcon={<Add />}
-                      onClick={handleAddItem}
-                      sx={{
-                        borderRadius: 2,
-                        bgcolor: "primary.main",
-                        color: "white",
-                        "&:hover": { bgcolor: "primary.dark" },
-                      }}
-                      >
-                      Add Activity
-                    </Button>
-                  </Box>
-                </Box>
-              </>
-            )}
 
-            {/* Review Step */}
-            {activeStep === 4 && (
-              <>
-              <Grid item xs={12}>
-                <Typography variant="h6">Review Your Information</Typography>
-                <Typography variant="body1">Event Name: {formData.name}</Typography>
-                <Typography variant="body1">Date: {formData.date}</Typography>
-                <Typography variant="body1">Time: {formData.start_time}</Typography>
-                <Typography variant="body1">Event Type: {formData.event_type}</Typography>
-                {isOnline ? (
+                        <Grid item xs={12} md={6} sx={{ marginTop: "10px" }}>
+                          <TextField
+                            fullWidth
+                            label={
+                              <span>
+                                Meeting ID <span style={{ color: 'red' }}>*</span>
+                              </span>
+                            }
+                            variant="standard"
+                            value={formData.meeting_id}
+                            onChange={(e) => updateFormState({ ...formData, meeting_id: e.target.value })}
+                            error={!!errors.meeting_id}
+                            helperText={errors.meeting_id} 
+                            sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                            InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                          />
+                        </Grid>
+                      </>
+                    ) : (
+                      <>
+                        <Grid container spacing={3} sx={{ marginTop: "10px" }}>
+                          {/* Venue Name */}
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label={
+                                <span>
+                                  Venue Name <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.venue_name}
+                              onChange={(e) => updateFormState({ ...formData, venue_name: e.target.value })}
+                              error={!!errors.venue_name}
+                              helperText={errors.venue_name} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
+                          </Grid>
+                    
+                          {/* Venue Address */}
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label={
+                                <span>
+                                  Venue Address <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.address}
+                              onChange={(e) => updateFormState({ ...formData, address: e.target.value })}
+                              error={!!errors.address}
+                              helperText={errors.address}
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
+                          </Grid>
+                        </Grid>
+
+                        <Grid container spacing={3} sx={{ marginTop: "10px" }}>
+                          {/* City & State */}
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label={
+                                <span>
+                                  City <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.city}
+                              onChange={(e) => updateFormState({ ...formData, city: e.target.value })}
+                              error={!!errors.city}
+                              helperText={errors.city} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
+                          </Grid>
+
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label={
+                                <span>
+                                  State <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.state}
+                              onChange={(e) => updateFormState({ ...formData, state: e.target.value })}
+                              error={!!errors.state}
+                              helperText={errors.state} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
+                          </Grid>
+                        </Grid>
+                      </>
+                    )}
+                  </Card>
+                </Grid>
+              )}
+
+              {/* Details Step */}
+              {activeStep === 2 && (
+                <Grid item xs={12} sx={{ marginTop: "20px" }}>
+                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                    <Grid item xs={12} md={12} sx={{ marginTop: "5px", marginX: "20px" }}>
+                      <TextareaAutosize
+                        minRows={4}
+                        placeholder="Provide a description of the event."
+                        value={formData.description}
+                        onChange={(e) => updateFormState({ description: e.target.value })}
+                        style={{
+                            width: '97%',
+                            resize: 'none',
+                            padding: '8px 12px',
+                            fontSize: '0.9rem',
+                            lineHeight: 1.5,
+                            borderRadius: '8px',
+                            border: '1px solid #ccc',
+                            color: '#1C2025',
+                            backgroundColor: '#fff',
+                            outline: 'none',
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid container spacing={3} sx={{ marginTop: "10px" }}>
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="Maximum Attendees"
+                          type="number"
+                          variant="standard"
+                          value={formData.attendees}
+                          onChange={(e) => updateFormState({ ...formData, attendees: e.target.value })}
+                          sx = {{width: {xs:"100%", sm: "90%"}, marginX: "20px"}} 
+                          InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <FormControl fullWidth variant="standard" sx={{ width: {xs:"100%", sm: "90%"}, marginX: "20px" }} error={!!errors.eventType}>
+                          <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "90%"} }}>
+                            Registration Type <span style={{ color: 'red' }}>*</span>
+                          </InputLabel>
+                            <Select 
+                            value={formData.reg_type}
+                            onChange={(e) => setFormData({ ...formData, reg_type: e.target.value })}>
+                            {regTypes.map((type) => (
+                              <MenuItem key={type} value={type}>
+                                {type}
+                                </MenuItem>
+                            ))}
+                            </Select>
+                          {errors.reg_type && <FormHelperText>{errors.reg_type}</FormHelperText>}
+                        </FormControl>
+                      </Grid>
+                    </Grid>
+
+                    <Grid container spacing={3} sx={{ marginTop: "25px" }}>
+                      <Grid item xs={12} md={12} sx={{ marginX: "20px" }}>
+                        <Controller
+                          name="tags"
+                          control={control}
+                          render={({ field: { onChange } }) => (
+                            <FormControl fullWidth variant="standard" error={!!errors.tags}>
+                              <FormLabel sx={{ width: {xs:"100%", sm: "90%"}, marginBottom: "10px" }}>
+                                Tags (Select up to 5) <span style={{ color: 'red' }}>*</span>
+                              </FormLabel>
+                              <Paper elevation={1} sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2, width: {xs:"100%", sm: "96%"} }}>
+                                <Box display="flex" flexWrap="wrap" gap={1}>
+                                  {disasterTags.map((tag) => (
+                                    <Chip
+                                      key={tag}
+                                      label={tag}
+                                      variant={selectedTags.includes(tag) ? "filled" : "outlined"}
+                                      color={selectedTags.includes(tag) ? "primary" : "default"}
+                                      onClick={() => handleTagClick(tag, onChange)}
+                                      sx={{ cursor: "pointer" }}
+                                    />
+                                    ))}
+                                </Box>
+                              </Paper>
+                          {errors.tags && <FormHelperText>{errors.tags}</FormHelperText>}
+                            </FormControl>
+                          )}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Card>
+                </Grid>
+              )}
+
+              {/* Timeline Step */}
+              {activeStep === 3 && (
                 <>
-                  <Typography variant="body1">Platform: {formData.platform}</Typography>
-                  <Typography variant="body1">Meeting Link: {formData.meeting_link}</Typography>
-                  <Typography variant="body1">Meeting ID: {formData.meeting_id}</Typography>
+                  <Box sx={{ px: { xs: 2, md: 4 }, py: 3, maxWidth: "1000px", minWidth: "600px", mx: "auto", mt: 5, mb: 2, borderRadius: 3, boxShadow: 3, bgcolor: "background.paper" }}>
+                    <Typography variant="h6" fontWeight="600" color="text.primary" mb={2}>
+                      Event Timeline
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" mb={3}>
+                      Add key activities to your event schedule
+                    </Typography>
+              
+                    <Box display="flex" flexDirection="column" gap={2}> 
+                      {timeline_items.map((item, index) => (
+                        <Paper
+                          key={index}
+                          elevation={2}
+                          sx={{ p: 3, borderRadius: 2, border: "1px solid", borderColor: "grey.500", bgcolor: "background.paper" }}
+                        >
+                          <Grid container spacing={3} alignItems="center">
+                            <Grid item xs={6} md={6}>
+                              <Typography variant="body1" fontWeight={600} color="text.primary">
+                                Time
+                              </Typography>
+                              <TextField
+                                fullWidth
+                                type="time"
+                                value={item.time}
+                                onChange={(e) => handleUpdateItem(index, "time", e.target.value)}
+                                InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
+                                sx = {{width: {xs:"80%", sm: "75%"}}}
+                                />
+                            </Grid>
+              
+                            <Grid item xs={12} md={6}>
+                              <Typography variant="body1" fontWeight={600} color="text.primary">
+                                Activity Description
+                              </Typography>
+                              <TextField
+                                fullWidth
+                                placeholder="Enter activity description"
+                                value={item.activity}
+                                onChange={(e) => handleUpdateItem(index, "activity", e.target.value)}
+                                />
+                            </Grid>
+              
+                            <Grid item xs={12} md={1} display="flex" justifyContent="center" alignItems="center">
+                              {timeline_items.length > 1 && (
+                                <IconButton color="error" onClick={() => handleRemoveItem(index)}>
+                                  <Delete />
+                                </IconButton>
+                              )}
+                            </Grid>
+                          </Grid>
+                        </Paper>
+                      ))}
+                    </Box>
+              
+                    <Box display="flex" justifyContent="start" mt={3}>
+                      <Button
+                        variant="contained"
+                        startIcon={<Add />}
+                        onClick={handleAddItem}
+                        sx={{
+                          borderRadius: 2,
+                          bgcolor: "primary.main",
+                          color: "white",
+                          "&:hover": { bgcolor: "primary.dark" },
+                        }}
+                        >
+                        Add Activity
+                      </Button>
+                    </Box>
+                  </Box>
                 </>
-                ) : (
-                <>
-                  <Typography variant="body1">Venue Name: {formData.venue_name}</Typography>
-                  <Typography variant="body1">Venue Address: {formData.address}</Typography>
-                  <Typography variant="body1">City: {formData.city}</Typography>
-                  <Typography variant="body1">State: {formData.state}</Typography>
-                </>
-                )}
-                {selectedTags.length > 0 && (
-                <Typography variant="body1">Tags: {selectedTags.join(", ")}</Typography>
-                )}
-                <Typography variant="body1">Registration Type: {formData.reg_type}</Typography>
-                <Typography variant="body1">
-                  Maximum Attendees: {formData.attendees?.trim() ? formData.attendees : "Not Entered"}
-                </Typography>
-                {timeline_items.length > 0 && (
-                <Typography variant="body1">
-                  Timeline: {timeline_items.map(item => `${item.time} - ${item.activity}`).join(", ")}
-                </Typography>
-                )}
-                <Typography variant="body1">
-                  Description: {formData.description?.trim() ? formData.description : "Not Entered"}
-                </Typography>
-              </Grid>
-              </>
-            )}
+              )}
+
+              {/* Review Step */}
+              {activeStep === 4 && (
+                <Grid item xs={12} sx={{ mt: 4 }}>
+                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Review Your Information
+                    </Typography>
+                    <Divider sx={{ mb: 2 }} />
+                
+                    <Grid container spacing={1}>
+                      {/* First Column */}
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="h7"><strong>Event Name:</strong> {formData.name}</Typography><br/><br/>
+                        <Typography variant="h7"><strong>Date:</strong> {formData.date}</Typography><br/><br/>
+                        <Typography variant="h7"><strong>Time:</strong> {formData.start_time}</Typography><br/><br/>
+                        <Typography variant="h7"><strong>Event Type:</strong> {formData.event_type}</Typography><br/><br/>
+                
+                        {isOnline ? (
+                          <>
+                            <Typography variant="h7"><strong>Platform:</strong> {formData.platform}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>Meeting Link:</strong> {formData.meeting_link}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>Meeting ID:</strong> {formData.meeting_id}</Typography><br/><br/>
+                          </>
+                        ) : (
+                          <>
+                            <Typography variant="h7"><strong>Venue Name:</strong> {formData.venue_name}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>Venue Address:</strong> {formData.address}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>City:</strong> {formData.city}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>State:</strong> {formData.state}</Typography><br/><br/>
+                          </>
+                        )}
+                      </Grid>
+                
+                      {/* Second Column */}
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="h7"><strong>Registration Type:</strong> {formData.reg_type}</Typography><br/><br/>
+                        <Typography variant="h7">
+                          <strong>Maximum Attendees:</strong>{" "}
+                          {formData.attendees?.trim() ? formData.attendees : "Not Entered"}
+                        </Typography><br/><br/>
+                
+                        {selectedTags.length > 0 && (
+                          <Typography variant="h7"><strong>Tags:</strong> {selectedTags.join(", ")}</Typography>
+                        )}
+                        <br/><br/>
+                
+                        {timeline_items.length > 0 && (
+                          <Typography variant="h7">
+                            <strong>Timeline:</strong>{" "}
+                            {timeline_items.map(item => `${item.time} - ${item.activity}`).join(", ")}
+                          </Typography>
+                        )}
+                        <br/><br/>
+                
+                        <Typography variant="h7" sx={{ whiteSpace: 'pre-wrap' }}>
+                          <strong>Description:</strong>{" "}
+                          {formData.description?.trim() ? formData.description : "Not Entered"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Card>
+                </Grid>              
+              )}
             </Grid>
 
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
@@ -710,8 +812,9 @@ export default function EventFormWithStepper() {
                 </Button>
               )}
             </Box>
-        </>
-      )}
+          </>
+        )}
+      </Box>
     </Box>
   );
 }

@@ -37,7 +37,7 @@ import WarningIcon from "@mui/icons-material/Warning";
 import NewspaperIcon from "@mui/icons-material/Newspaper";
 import DisasterMap from "../../disasters/user/DisasterMap";
 import Map from "./Map";
-import worldMapBackground from "./images/world-map-background.jpg"; // Adjust path
+import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
 
 function HomePage() {
   const theme = useTheme();

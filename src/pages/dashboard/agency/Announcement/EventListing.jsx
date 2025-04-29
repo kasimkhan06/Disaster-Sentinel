@@ -1,4 +1,10 @@
+// React
 import { useEffect, useState } from "react";
+
+// React Router
+import { useParams } from "react-router-dom";
+
+// MUI Components
 import {
   Typography,
   Select,
@@ -11,9 +17,13 @@ import {
   Box,
   useMediaQuery,
 } from "@mui/material";
+
+// Custom Components
 import EventCard from "../../../../components/EventCard";
+
+// Styles & Assets
 import "../../../../../public/css/EventListing.css";
-import { useParams } from "react-router-dom";
+import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
 
 export default function EventListing() {
   const [events, setEvents] = useState(null);

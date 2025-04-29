@@ -42,7 +42,7 @@ import TimelineIcon from "@mui/icons-material/Timeline";
 import MapIcon from "@mui/icons-material/Map";
 import WarningIcon from "@mui/icons-material/Warning";
 import { PiX } from "react-icons/pi";
-import worldMapBackground from "../../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
 
 function CurrentLocation() {
   const theme = useTheme();

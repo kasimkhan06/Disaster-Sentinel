@@ -1,4 +1,7 @@
+//React
 import React, { useState, useEffect } from "react";
+
+// MUI Components
 import { Typography, Box, Grid, Button, Modal, TextField, IconButton, TextareaAutosize as Textarea, CircularProgress } from "@mui/material";
 import {
   Person, 
@@ -10,7 +13,12 @@ import {
 } from "@mui/icons-material";
 import LanguageIcon from "@mui/icons-material/Language";
 import CloseIcon from "@mui/icons-material/Close";
+
+// Axios for API calls
 import axios from "axios";
+
+// Styles & Assets
+import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
 
 const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails }) => {
   const [formData, setFormData] = useState({});
