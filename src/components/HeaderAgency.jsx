@@ -152,71 +152,68 @@ const Header = () => {
         )}
       </Toolbar>
 
-      {/* Services Dropdown Menu */}
       <Menu
+        id="menu"
+        onClose={handleCloseMenu}
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{ marginTop: "10px" }}
+        anchorOrigin={{
+          vertical: "bottom", // Position the menu below the Services tab
+          horizontal: "center", // Align it at the center horizontally
+        }}
+        transformOrigin={{
+          vertical: "top", // Align the menu items to the top of the menu
+          horizontal: "center", // Align the menu items to the center horizontally
+        }}
+        sx={{
+          minWidth: "160px", // Adjust the minimum width of the menu to ensure enough space
+          marginTop: "10px", // Space between the menu and the "Services" tab
+        }}
       >
-        {user?.role === "agency" ? (
-          <>
-            <MenuItem onClick={() => handleNavigation("/missing-person")}>Missing Person List</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/current-location")}>Current Location</MenuItem>
-
-            {/* Nested Announcement Dropdown */}
-            <MenuItem
-              onMouseEnter={handleOpenAnnouncementMenu}
-              onMouseLeave={handleCloseAnnouncementMenu}
-            >
-              Announcement 
-              <span style={{ marginLeft: "8px", display: "flex", alignItems: "center" }}>
-                <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
-              </span>
-            </MenuItem>
-            <Menu
-              anchorEl={anchorElAnnouncement}
-              open={Boolean(anchorElAnnouncement)}
-              onClose={handleCloseAnnouncementMenu}
-              anchorOrigin={{ vertical: 200, horizontal: 560 }}
-              transformOrigin={{ vertical: "top", horizontal: "center" }}
-              sx={{
-                marginLeft: "10px",
-                marginTop: "-10px",
-                pointerEvents: "auto", // Prevents flickering
-              }}
-              onMouseEnter={handleOpenAnnouncementMenu}
-              onMouseLeave={handleCloseAnnouncementMenu} 
-            >
-              <MenuItem onClick={() => handleNavigation("/event-listing")}>Event</MenuItem>
-              <MenuItem onClick={() => handleNavigation("/create-event")}>Create Event</MenuItem>
-            </Menu>
-          </>
-        ) : (
-          <>
-            <MenuItem onClick={() => handleNavigation("/report-missing")}>Report Missing Person</MenuItem>
-            <MenuItem
-              onClick={() => handleNavigation("/agencies")}
-              sx={{ width: "100%", justifyContent: "center" }}
-            >
-              Agency Information
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleNavigation("/current-location")}
-              sx={{ width: "100%", justifyContent: "center" }}
-            >
-              Current Location
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleNavigation("/flood-prediction")}
-              sx={{ width: "100%", justifyContent: "center" }}
-            >
-              Flood Prediction
-            </MenuItem>
-          </>
-        )}
+        <MenuItem
+          onClick={() => handleNavigation("/missing-person")}
+          sx={{ width: "100%", justifyContent: "center" }}
+        >
+          Missing Person List
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleNavigation("/agencies")}
+          sx={{ width: "100%", justifyContent: "center" }}
+        >
+          Agency Information
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleNavigation("/current-location")}
+          sx={{ width: "100%", justifyContent: "start" }}
+        >
+          Current Location
+        </MenuItem>
+        <MenuItem
+          onMouseEnter={handleOpenAnnouncementMenu}
+          onMouseLeave={handleCloseAnnouncementMenu}
+        >
+          Announcement 
+          <span style={{ marginLeft: "8px", display: "flex", alignItems: "center" }}>
+            <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
+          </span>
+        </MenuItem>
+        <Menu
+          anchorEl={anchorElAnnouncement}
+          open={Boolean(anchorElAnnouncement)}
+          onClose={handleCloseAnnouncementMenu}
+          anchorOrigin={{ vertical: 160, horizontal: 550 }}
+          transformOrigin={{ vertical: "top", horizontal: "center" }}
+          sx={{
+            marginLeft: "10px",
+            marginTop: "-10px",
+            pointerEvents: "auto", // Prevents flickering
+          }}
+          onMouseEnter={handleOpenAnnouncementMenu}
+          onMouseLeave={handleCloseAnnouncementMenu} 
+        >
+          <MenuItem onClick={() => handleNavigation("/event-listing")}>Event</MenuItem>
+          <MenuItem onClick={() => handleNavigation("/create-event")}>Create Event</MenuItem>
+        </Menu>
       </Menu>
     </AppBar>
   );

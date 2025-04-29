@@ -19,8 +19,12 @@ return (
         <Grid item xs={12}>
             <TextField
                 fullWidth
-                label="Name Of The Agency"
                 variant="standard"
+                label={
+                    <span>
+                      Agency Name <span style={{ color: 'red' }}>*</span>
+                    </span>
+                }
                 name="agency_name"
                 value={formData.agency_name}
                 onChange={(e) => updateFormState({...formData, agency_name: e.target.value})}
@@ -30,57 +34,82 @@ return (
                 InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
             />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6} sx={{ marginTop: "14px" }}>
             <TextField
                 fullWidth
-                label="Date Of Establishment"
                 variant="standard"
                 type="date"
+                label={
+                    <span>
+                      Founded Date <span style={{ color: 'red' }}>*</span>
+                    </span>
+                }
                 name="date_of_establishment"
                 value={formData.date_of_establishment || ""}
                 onChange={(e) => updateFormState({...formData, date_of_establishment: e.target.value})}
                 error={!!errors.date_of_establishment}
                 helperText={errors.date_of_establishment}
                 InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}}
+                sx = {{width: {xs:"100%", sm: "90%"}, marginX: "20px"}}
             />
         </Grid>
-        <Grid item xs={12} sx={{ marginTop: "10px" }}>
-            <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"}, marginX: "20px" }}>Type Of The Agency</InputLabel>
-            <FormControl fullWidth variant="outlined" sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}>
-                <Select variant="standard" value={agencyTypeValue} onChange={handleAgencyTypeChange}>
-                    <MenuItem value="select">Select...</MenuItem>
-                    <MenuItem value="Non-Governmental Organization (NGO)">Non-Governmental Organization (NGO)</MenuItem>
-                    <MenuItem value="Community Based Organization (CBO)">Community Based Organization (CBO)</MenuItem>
-                    <MenuItem value="Governmental Organization">Governmental Organization</MenuItem>
-                    <MenuItem value="Corporate Social Responsibility (CSR)">Corporate Social Responsibility (CSR)</MenuItem>
-                    <MenuItem value="Disaster Relief">Disaster Relief</MenuItem>
-                    <MenuItem value="Other">Other (Please Specify)</MenuItem>
-                </Select>
-                {errors.agency_type && <FormHelperText>{errors.agency_type}</FormHelperText>}
-            </FormControl>
+        <Grid item xs={6} sx={{ marginTop: "10px" }}>
+            {agencyTypeValue !== "Other" ? (
+                <>
+                <InputLabel sx={{ fontSize: '0.9rem', width: { xs: "100%", sm: "90%" }, marginX: "10px" }}>
+                    Agency Type <span style={{ color: "red" }}>*</span>
+                </InputLabel>
+                <FormControl fullWidth variant="outlined" sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}>
+                    <Select
+                    variant="standard"
+                    label={
+                        <span>
+                          Contact Number #1 <span style={{ color: 'red' }}>*</span>
+                        </span>
+                    }
+                    value={agencyTypeValue}
+                    onChange={handleAgencyTypeChange}
+                    >
+                        <MenuItem value="select">Select...</MenuItem>
+                        <MenuItem value="Non-Governmental Organization (NGO)">Non-Governmental Organization (NGO)</MenuItem>
+                        <MenuItem value="Community Based Organization (CBO)">Community Based Organization (CBO)</MenuItem>
+                        <MenuItem value="Governmental Organization">Governmental Organization</MenuItem>
+                        <MenuItem value="Corporate Social Responsibility (CSR)">Corporate Social Responsibility (CSR)</MenuItem>
+                        <MenuItem value="Disaster Relief">Disaster Relief</MenuItem>
+                        <MenuItem value="Other">Other (Please Specify)</MenuItem>
+                    </Select>
+                    {errors.agency_type && <FormHelperText>{errors.agency_type}</FormHelperText>}
+                </FormControl>
+                </>
+            ) : (
+                <>
+                <TextField
+                    fullWidth
+                    label={
+                        <span>
+                          Specify Type Of The Agency <span style={{ color: 'red' }}>*</span>
+                        </span>
+                    }
+                    variant="standard"
+                    name="agency_type"
+                    value={formData.agency_type}
+                    onChange={(e) => updateFormState({ agency_type: e.target.value })}
+                    error={!!errors.agency_type}
+                    helperText={errors.agency_type}
+                    InputLabelProps={{ style: { fontSize: '0.9rem' } }}
+                    sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                />
+                </>
+            )}
         </Grid>
-
-        {agencyTypeValue === "Other" && (
-        <Grid item xs={12}>
+        <Grid item xs={6}>
             <TextField
                 fullWidth
-                label="Specify Other Type Of Agency"
-                variant="standard"
-                name="agency_type"
-                value={formData.agency_type}
-                onChange={(e) => updateFormState({...formData, agency__type: e.target.value})}
-                error={!!errors.agency_type}
-                helperText={errors.agency_type}
-                InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
-            />
-        </Grid>
-        )}
-        <Grid item xs={12}>
-            <TextField
-                fullWidth
-                label="Contact Number #1"
+                label={
+                    <span>
+                        Contact Number #1 <span style={{ color: 'red' }}>*</span>
+                    </span>
+                }
                 variant="standard"
                 name="contact1"
                 value={formData.contact1}
@@ -88,10 +117,10 @@ return (
                 error={!!errors.contact1}
                 helperText={errors.contact1}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
+                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "20px" }}
             />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6}>
             <TextField
                 fullWidth
                 label="Contact Number #2"
@@ -101,10 +130,10 @@ return (
                 onChange={(e) => updateFormState({...formData, ccontact2: e.target.value})}
                 helperText={errors.contact2}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
+                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "10px" }}
             />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6}>
             <TextField
                 fullWidth
                 label="Website Address (if any)"
@@ -112,26 +141,26 @@ return (
                 name="website"
                 value={formData.website}
                 onChange={(e) => updateFormState({...formData, website: e.target.value})}
+                error={!!errors.website}
                 helperText={errors.website}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
+                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "20px" }}
             />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6}>
             <TextField
                 fullWidth
-                label='Address'
+                label='Number Of Volunteers'
                 variant="standard"
-                name= 'address'
-                value={formData.address}
-                onChange={(e) => updateFormState({...formData, address: e.target.value})}
-                error={!!errors.address}
-                helperText={errors.address}
+                name= 'volunteers'
+                type='number'
+                value={formData.volunteers}
+                onChange={(e) => updateFormState({...formData, volunteers: e.target.value})}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
+                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "10px" }}
             />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6}>
             <StateDistrictDropdown 
                 formData={formData}
                 selectedState={selectedState} 
@@ -141,19 +170,22 @@ return (
                 setSelectedDistrict={setSelectedDistrict}
             />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={6}>
             <TextField
                 fullWidth
-                label='Number Of Volunteers'
+                label={
+                    <span>
+                        Address <span style={{ color: 'red' }}>*</span>
+                    </span>
+                }
                 variant="standard"
-                name= 'volunteers'
-                type='number'
-                value={formData.volunteers}
-                onChange={(e) => updateFormState({...formData, volunteers: e.target.value})}
-                error={!!errors.volunteers}
-                helperText={errors.volunteers}
+                name= 'address'
+                value={formData.address}
+                onChange={(e) => updateFormState({...formData, address: e.target.value})}
+                error={!!errors.address}
+                helperText={errors.address}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
+                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "10px" }}
             />
         </Grid>
     </Grid>

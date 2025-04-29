@@ -1,0 +1,500 @@
+import React, { useState, useEffect } from "react";
+import { Typography, Box, Grid, Button, Modal, TextField, IconButton, TextareaAutosize as Textarea, CircularProgress } from "@mui/material";
+import {
+  Person, 
+  CalendarToday, 
+  LocationOn,
+  Visibility, 
+  Phone, 
+  Edit,
+} from "@mui/icons-material";
+import LanguageIcon from "@mui/icons-material/Language";
+import CloseIcon from "@mui/icons-material/Close";
+import axios from "axios";
+
+const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails }) => {
+  const [formData, setFormData] = useState({});
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const [isUpdating, setIsUpdating] = useState(false); // 🆕 new state for updating loader
+
+  const handleSubmit = async (e, id) => {
+    e.preventDefault();
+    console.log("Submitting:", formData);
+  
+    try {
+      setIsUpdating(true);
+  
+      const Data = new FormData();
+      if (mode === "description") {
+        Data.append("description", formData.description);
+      } else if (mode === "basicDetails") {
+        Data.append("contact1", formData.contact1);
+        Data.append("contact2", formData.contact2);
+        Data.append("website", formData.website);
+        Data.append("address", formData.address);
+      }
+  
+      const response = await axios.patch(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${id}/`,
+        Data,
+        { withCredentials: true }
+      );
+  
+      console.log("Updation Success:", response.data);
+  
+      fetchAgencyDetails(id);
+      handleClose();
+    } catch (error) {
+      console.error("Updation Failed:", error.response?.data || error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };  
+
+  const renderFields = () => {
+    if (mode === "basicDetails") {
+      return (
+        <>
+          <TextField
+            fullWidth
+            label="Address"
+            variant="standard"
+            name="address"
+            value={formData.address || ""}
+            onChange={handleChange}
+            sx={{ my: 1 }}
+          />
+          <TextField
+            fullWidth
+            label="Contact 1"
+            variant="standard"
+            name="contact1"
+            value={formData.contact1 || ""}
+            onChange={handleChange}
+            sx={{ my: 1 }}
+          />
+          <TextField
+            fullWidth
+            label="Contact 2"
+            variant="standard"
+            name="contact2"
+            value={formData.contact2 || ""}
+            onChange={handleChange}
+            sx={{ my: 1 }}
+          />
+          <TextField
+            fullWidth
+            label="Website"
+            variant="standard"
+            name="website"
+            value={formData.website || ""}
+            onChange={handleChange}
+            sx={{ my: 1 }}
+          />
+        </>
+      );
+    } else if (mode === "description") {
+      return (
+        <textarea
+          name="description"
+          value={formData.description || ""}
+          onChange={handleChange}
+          style={{
+            width: "80%",
+            minHeight: "500px",
+            resize: "none",
+            padding: "8px 12px",
+            fontSize: "1.0rem",
+            lineHeight: 1.5,
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            fontFamily: "inherit",
+            color: "#1C2025",
+            backgroundColor: "#fff",
+            outline: "none",
+          }}
+        />
+      );
+    }
+    return null;
+  };
+
+  return (
+    <Modal open={open} onClose={handleClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "90%", sm: 400 },
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: { xs: 2, sm: 3 },
+          borderRadius: 2,
+        }}
+      >
+        <IconButton
+          onClick={handleClose}
+          sx={{ position: "absolute", top: 10, right: 10 }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <Typography variant="h5" gutterBottom sx={{ textAlign: "center" }}>
+          {mode === "basicDetails" ? "Update Basic Details" : "Update Description"}
+        </Typography>
+        <form onSubmit={(e) => handleSubmit(e, userId)}>
+          {renderFields()}
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            {isUpdating ? (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CircularProgress size={24} sx={{ color: "#4caf50" }} />
+                <Typography variant="body2" sx={{ ml: 1 }}>
+                  Updating...
+                </Typography>
+              </Box>
+            ) : (
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                  backgroundColor: "#fff",
+                  color: "#000",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+                  borderRadius: "20px",
+                  px: 4,
+                  py: 1,
+                  fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                  "&:hover": {
+                    backgroundColor: "#f0f0f0",
+                  },
+                }}
+              >
+                Update
+              </Button>
+            )}
+          </Box>
+        </form>
+      </Box>
+    </Modal>
+  );
+};
+
+function Profile() {
+  const [user, setUser] = useState(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [agency, setAgency] = useState(null);
+  const [editMode, setEditMode] = useState(""); 
+  const [initialData, setInitialData] = useState({});
+  const [open, setOpen] = useState(false);
+  const [userId, setUserId] = useState(null);
+
+  const handleOpenBasicDetails = () => {
+    setInitialData({
+      address: agency?.address || "",
+      contact1: agency?.contact1 || "",
+      contact2: agency?.contact2 || "",
+      website: agency?.website || "",
+    });
+    setEditMode("basicDetails");
+    setOpen(true);
+  };
+
+  const handleOpenDescription = () => {
+    setInitialData({
+      description: agency?.description || "",
+    });
+    setEditMode("description");
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setIsLogin(true);
+      fetchAgencyDetails(parsedUser.user_id);
+      setUserId(parsedUser.user_id);
+    }
+  }, []);
+
+  const fetchAgencyDetails = async (userId) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${userId}/`
+      );
+      const data = await response.json();
+      setAgency(data);
+    } catch (error) {
+      console.error("Error fetching agency details:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading || !agency) return <Typography>Loading...</Typography>;
+
+  return (
+    <Box sx={{ width: "100%", backgroundColor: "#f0f2f5", minHeight: "100vh", pb: 8 }}>
+      {/* Banner */}
+      <Box
+        sx={{
+          width: "100%",
+          height: 260,
+          backgroundImage: `url(https://res.cloudinary.com/doxgltggk/${agency.images?.[0]?.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+
+      {/* Profile Card */}
+      <Box
+        sx={{
+          maxWidth: "1000px",
+          mx: "auto",
+          mt: -10,
+          p: 3,
+          backgroundColor: "white",
+          borderRadius: 3,
+          boxShadow: 3,
+          zIndex: 1,
+          position: "relative",
+        }}
+      >
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={4} sx={{ textAlign: "center" }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 500,
+                mb: 2,
+                textAlign: "center",
+                color: "black",
+                textTransform: "uppercase",
+                letterSpacing: 1.5,
+              }}
+            >
+              {agency.agency_name}
+            </Typography>
+            <Box
+              component="img"
+              src={agency.images?.[0]?.image ? `https://res.cloudinary.com/doxgltggk/${agency.images[1].image}` : "/assets/logo_image.webp"}
+              alt="Profile"
+              sx={{
+                width: 180,
+                height: 180,
+                borderRadius: "10px",
+                border: "2px solid #ccc",
+                objectFit: "cover",
+                mb: 2,
+                boxShadow: 1,
+              }}
+            />
+            {/* Center the button */}
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<Edit />}
+                sx={{
+                  mt: 1,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  backgroundColor: "#2e7d32",
+                  color: "white",
+                  borderColor: "#388e3c",
+                  "&:hover": {
+                    backgroundColor: "#4caf50",
+                    borderColor: "#2e7d32",
+                  },
+                }}
+                onClick={handleOpenBasicDetails}
+              >
+                Edit
+              </Button>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column", gap: 5, textAlign: "left", alignItems: "center", justifyContent: "center" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              {[
+              { 
+                label: "Name", 
+                value: agency.agency_name, 
+                icon: <Person fontSize="small" /> 
+              },
+              { 
+                label: "Founded", 
+                value: agency.date_of_establishment, 
+                icon: <CalendarToday fontSize="small" /> 
+              },
+              {
+                  label: "Address",
+                  value: `${agency.address}, ${agency.district}, ${agency.state}`,
+                  icon: <LocationOn fontSize="small" />
+              },
+              { 
+                label: "Contact", 
+                value: agency.contact2 
+                  ? `${agency.contact1}, ${agency.contact2}` 
+                  : agency.contact1,
+                icon: <Phone fontSize="small" /> 
+              },
+              {
+                label: "Website",
+                value: agency.website
+                  ? agency.website
+                  : "No website available",
+                icon: <LanguageIcon fontSize="small" />
+              },              
+              { 
+                label: "Volunteers", 
+                value: agency.volunteers, 
+                icon: <Visibility fontSize="small" /> 
+              },
+              ].map((item, index) => (
+              <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                {item.icon}
+                <Typography sx={{ ml: 1, fontWeight: 600, minWidth: 120 }}>
+                {item.label}:
+                </Typography>
+                <Typography sx={{ ml: 1, color: "text.secondary", wordBreak: "break-word" }}>
+                {item.value}
+                </Typography>
+              </Box>
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* Description Section */}
+      <Box
+        sx={{
+          maxWidth: "1000px",
+          mx: "auto",
+          mt: 4,
+          p: 3,
+          backgroundColor: "white",
+          borderRadius: 3,
+          boxShadow: 2,
+        }}
+      >
+        <Typography variant="h6" fontWeight={600} mb={2}>
+          Description
+        </Typography>
+        <Typography sx={{ color: "text.secondary", whiteSpace: "pre-line" }}>
+          {agency.description || "No description available."}
+        </Typography>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<Edit />}
+          sx={{
+            mt: 1,
+            textTransform: "none",
+            fontWeight: 600,
+            backgroundColor: "#2e7d32",
+            color: "white",
+            borderColor: "#388e3c",
+            "&:hover": {
+              backgroundColor: "#4caf50",
+              borderColor: "#2e7d32",
+            },
+          }}
+          onClick={handleOpenDescription}
+        >
+          Edit
+        </Button>
+      </Box>
+
+      {/* Images Section */}
+      <Box
+        sx={{
+          maxWidth: "1000px",
+          mx: "auto",
+          mt: 4,
+          p: 3,
+          backgroundColor: "white",
+          borderRadius: 3,
+          boxShadow: 2,
+        }}
+      >
+        <Typography variant="h6" fontWeight={600} mb={2}>
+          Gallery
+        </Typography>
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          {agency.images?.map((imgObj, index) => (
+            <Box
+              key={index}
+              component="img"
+              src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
+              alt={`Agency Image ${index}`}
+              sx={{
+                width: 120,
+                height: 120,
+                objectFit: "cover",
+                borderRadius: 2,
+                border: "1px solid #ccc",
+                boxShadow: 1,
+                transition: "transform 0.3s",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                },
+              }}
+            />
+          ))}
+        </Box>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<Edit />}
+          sx={{
+            mt: 1,
+            textTransform: "none",
+            fontWeight: 600,
+            backgroundColor: "#2e7d32",
+            color: "white",
+            borderColor: "#388e3c",
+            "&:hover": {
+              backgroundColor: "#4caf50",
+              borderColor: "#2e7d32",
+            },
+          }}
+          // onClick={handleOpenImages}
+        >
+          Edit
+        </Button>
+      </Box>
+      <UpdateModal
+        open={open}
+        handleClose={handleClose}
+        mode={editMode}
+        initialData={initialData}
+        userId={userId}
+        fetchAgencyDetails={fetchAgencyDetails}
+      />
+    </Box>
+  );
+}
+
+export default Profile;

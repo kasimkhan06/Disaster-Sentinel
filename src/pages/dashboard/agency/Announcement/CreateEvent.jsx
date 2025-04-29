@@ -241,7 +241,11 @@ export default function EventFormWithStepper() {
                 <Grid item xs={12} md={12}>
                   <TextField
                     fullWidth
-                    label="Event Name *"
+                    label={
+                      <span>
+                        Event Name <span style={{ color: 'red' }}>*</span>
+                      </span>
+                    }
                     variant="standard"
                     value={formData.name}
                     onChange={(e) => updateFormState({ name: e.target.value })}
@@ -257,7 +261,11 @@ export default function EventFormWithStepper() {
                   <TextField
                     fullWidth
                     type="date"
-                    label="Date *"
+                    label={
+                      <span>
+                        Date <span style={{ color: 'red' }}>*</span>
+                      </span>
+                    }
                     value={formData.date}
                     onChange={(e) => updateFormState({ ...formData, date: e.target.value })}
                     error={!!errors.date}
@@ -271,7 +279,11 @@ export default function EventFormWithStepper() {
                   <TextField
                     fullWidth
                     type="time"
-                    label="Time *"
+                    label={
+                      <span>
+                        Time <span style={{ color: 'red' }}>*</span>
+                      </span>
+                    }
                     value={formData.start_time}
                     onChange={(e) => updateFormState({ ...formData, start_time: e.target.value })}
                     error={!!errors.start_time}
@@ -289,7 +301,9 @@ export default function EventFormWithStepper() {
                     sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
                     error={!!errors.event_type}
                   >
-                    <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>Event Type *</InputLabel>
+                    <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>
+                      Event Type <span style={{ color: "red" }}>*</span>
+                    </InputLabel>
                     <Select 
                       value={formData.event_type}
                       onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
@@ -351,7 +365,9 @@ export default function EventFormWithStepper() {
                   <>
                     <Grid item xs={12} md={12}>
                       <FormControl fullWidth variant="standard" sx={{ width: { xs: "100%", sm: "95%" }, marginX: "20px" }} error={!!errors.platform}>
-                        <InputLabel sx={{ fontSize: "0.9rem", width: { xs: "100%", sm: "95%" } }}>Platform</InputLabel>
+                        <InputLabel sx={{ fontSize: "0.9rem", width: { xs: "100%", sm: "95%" } }}>
+                          Platform <span style={{ color: "red" }}>*</span>
+                        </InputLabel>
                         <Select 
                           value={formData.platform}
                           onChange={(e) => updateFormState({ ...formData, platform: e.target.value })} // Set image based on platform
@@ -369,7 +385,11 @@ export default function EventFormWithStepper() {
                     <Grid item xs={12} md={12}>
                       <TextField
                         fullWidth
-                        label="Meeting Link *"
+                        label={
+                          <span>
+                            Meeting Link <span style={{ color: 'red' }}>*</span>
+                          </span>
+                        }
                         variant="standard"
                         value={formData.meeting_link}
                         onChange={(e) => updateFormState({ ...formData, meeting_link: e.target.value })}
@@ -383,7 +403,11 @@ export default function EventFormWithStepper() {
                     <Grid item xs={12} md={12}>
                       <TextField
                         fullWidth
-                        label="Meeting ID *"
+                        label={
+                          <span>
+                            Meeting ID <span style={{ color: 'red' }}>*</span>
+                          </span>
+                        }
                         variant="standard"
                         value={formData.meeting_id}
                         onChange={(e) => updateFormState({ ...formData, meeting_id: e.target.value })}
@@ -399,7 +423,11 @@ export default function EventFormWithStepper() {
                     <Grid item xs={12} md={12}>
                       <TextField
                         fullWidth
-                        label="Venue Name *"
+                        label={
+                          <span>
+                            Venue Name <span style={{ color: 'red' }}>*</span>
+                          </span>
+                        }
                         variant="standard"
                         value={formData.venue_name}
                         onChange={(e) => updateFormState({ ...formData, venue_name: e.target.value })}
@@ -413,7 +441,11 @@ export default function EventFormWithStepper() {
                     <Grid item xs={12} md={12}>
                       <TextField
                         fullWidth
-                        label="Venue Address *"
+                        label={
+                          <span>
+                            Venue Address <span style={{ color: 'red' }}>*</span>
+                          </span>
+                        }
                         variant="standard"
                         value={formData.address}
                         onChange={(e) => updateFormState({ ...formData, address: e.target.value })}
@@ -427,7 +459,11 @@ export default function EventFormWithStepper() {
                     <Grid item xs={12} md={6}>
                       <TextField
                         fullWidth
-                        label="City *"
+                        label={
+                          <span>
+                            City <span style={{ color: 'red' }}>*</span>
+                          </span>
+                        }
                         variant="standard"
                         value={formData.city}
                         onChange={(e) => updateFormState({ ...formData, city: e.target.value })}
@@ -441,7 +477,11 @@ export default function EventFormWithStepper() {
                     <Grid item xs={12} md={6}>
                       <TextField
                         fullWidth
-                        label="State *"
+                        label={
+                          <span>
+                            State <span style={{ color: 'red' }}>*</span>
+                          </span>
+                        }
                         variant="standard"
                         value={formData.state}
                         onChange={(e) => updateFormState({ ...formData, state: e.target.value })}
@@ -478,7 +518,9 @@ export default function EventFormWithStepper() {
 
                 <Grid item xs={12} md={12}>
                   <FormControl fullWidth variant="standard" sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }} error={!!errors.eventType}>
-                    <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>Registration Type</InputLabel>
+                    <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>
+                      Registration Type label <span style={{ color: 'red' }}>*</span>
+                    </InputLabel>
                       <Select 
                       value={formData.reg_type}
                       onChange={(e) => setFormData({ ...formData, reg_type: e.target.value })}>
@@ -498,7 +540,9 @@ export default function EventFormWithStepper() {
                     control={control}
                     render={({ field: { onChange } }) => (
                       <FormControl fullWidth variant="standard" error={!!errors.tags}>
-                        <FormLabel>Tags (Select up to 5)</FormLabel>
+                        <FormLabel>
+                          Tags (Select up to 5) <span style={{ color: 'red' }}>*</span>
+                        </FormLabel>
                         <Paper elevation={1} sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2 }}>
                           <Box display="flex" flexWrap="wrap" gap={1}>
                             {disasterTags.map((tag) => (
@@ -665,7 +709,7 @@ export default function EventFormWithStepper() {
                 Next
                 </Button>
               )}
-          </Box>
+            </Box>
         </>
       )}
     </Box>

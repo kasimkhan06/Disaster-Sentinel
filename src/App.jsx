@@ -8,8 +8,8 @@ import Header from "./components/Header";
 import Login from "./pages/authentication/login";
 import Register from "./pages/authentication/register";
 import HeaderAgency from "./components/HeaderAgency";
-import RegistrationForm from "./pages/dashboard/agency/RegistrationPage/RegistrationForm";
-import AgencyDashboard from "./pages/dashboard/agency/agencyDashboard";
+import NewRegistration from "./pages/dashboard/agency/RegistrationPage/NewRegistration";
+import AgencyDashboard from "./pages/dashboard/AgencyDashboard";
 import MissingPerson from "./pages/dashboard/agency/Missing Person/MissingPerson";
 import PersonInfo from "./pages/dashboard/agency/Missing Person/PersonInfo";
 import AnnouncementPage from "./pages/dashboard/agency/Announcement/Announcement";
@@ -22,6 +22,7 @@ import Verification from "./pages/authentication/verification";
 import DosDontsPage from "./pages/training/dosdonts";
 import MissingPersonPortal from "./pages/missingperson/portal";
 import StatusTracking from "./pages/missingperson/status";
+import Profile from "./pages/dashboard/agency/Profile/Profile"
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -52,7 +53,7 @@ const App = () => {
         <Route path="/status-tracking" element={<StatusTracking />} />
         <Route path="/flood-prediction" element={<FloodPrediction />} />
         <Route path="/agencies" element={<Agencies />} />
-        <Route path="/registration-form" element={<RegistrationForm />} />
+        <Route path="/registration-form" element={<NewRegistration />} />
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
         <Route path="/missing-person" element={<MissingPerson />} />
         <Route path="/person-details/:id" element={<PersonInfo />} />
@@ -64,6 +65,7 @@ const App = () => {
           <EventForm />
         </EventFormProvider>
         } />
+        <Route path="/agency-profile/:id" element={<Profile />} />
       </Routes>
     </>
   );
