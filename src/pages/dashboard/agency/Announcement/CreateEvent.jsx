@@ -42,7 +42,7 @@ import {
 import MaxHeightTextarea from "../../../../components/TextArea";
 
 // Styles & Assets
-import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 // Axios for API requests
 import axios from "axios";
@@ -193,8 +193,7 @@ export default function EventFormWithStepper() {
 
   const validateForm = () => 
   {
-    const newErrors = {};
-
+    let newErrors = {};
     if(activeStep === 0){
       if (!formData.name?.trim()) newErrors.name = "Event name is required";
       if (!formData.date?.trim()) newErrors.date = "Date is required";
@@ -202,12 +201,32 @@ export default function EventFormWithStepper() {
       if (!formData.event_type?.trim()) newErrors.event_type = "Event type is required";
     }
     else if (activeStep === 1) {
-      let newErrors = {};
       if (formData.location_type === "online") {
         if (!formData.platform?.trim()) newErrors.platform = "Platform is required";
-        if (!formData.meeting_link?.trim()) newErrors.meeting_link = "Meeting Link is required";
+        if (!formData.meeting_link?.trim()) {
+          newErrors.meeting_link = "Meeting Link is required";
+        } else {
+            const url = new URL(formData.meeting_link.trim());
+            const host = url.hostname.toLowerCase();
+        
+            const platformDomainMap = {
+              google: "meet.google.com",
+              zoom: "zoom.us",
+              microsoft: "teams.microsoft.com",
+              webex: "webex.com",
+            };
+        
+            const expectedDomain = platformDomainMap[formData.platform.toLowerCase().split(" ")[0]];
+            console.log("Expected Domain:", expectedDomain);
+        
+            if (!expectedDomain) {
+              newErrors.platform = "Unknown platform selected";
+            } else if (!host.includes(expectedDomain)) {
+              newErrors.meeting_link = `The meeting link must be a valid ${formData.platform} URL`;
+            }
+          }  
         if (!formData.meeting_id?.trim()) newErrors.meeting_id = "Meeting ID is required";
-      } else {
+        } else {
         if (!formData.venue_name?.trim()) newErrors.venue_name = "Venue name is required";
         if (!formData.address?.trim()) newErrors.address = "Address is required";
         if (!formData.city?.trim()) newErrors.city = "City is required";
@@ -215,7 +234,6 @@ export default function EventFormWithStepper() {
       }
     }
     else if(activeStep === 2){
-      let newErrors = {}; 
       if (!formData.reg_type.trim()) newErrors.reg_type = "Registration type is required";
       if (selectedTags.length === 0) newErrors.tags = "At least one tag is required";
     }
@@ -441,8 +459,8 @@ export default function EventFormWithStepper() {
                               variant="standard"
                               value={formData.meeting_link}
                               onChange={(e) => updateFormState({ ...formData, meeting_link: e.target.value })}
-                              error={!!errors.meeting_link}
-                              helperText={errors.meeting_link} 
+                              error={Boolean(errors.meeting_link)}
+                              helperText={errors.meeting_link || ""} 
                               sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />

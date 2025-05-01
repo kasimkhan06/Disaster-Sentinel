@@ -111,7 +111,7 @@ return (
                     error={!!errors.agency_type}
                     helperText={errors.agency_type}
                     InputLabelProps={{ style: { fontSize: '0.9rem' } }}
-                    sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                    sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px", marginTop: "2px" }}   
                 />
                 </>
             )}
@@ -150,7 +150,11 @@ return (
         <Grid item xs={6}>
             <TextField
                 fullWidth
-                label="Website Address (if any)"
+                label={
+                    <span>
+                        Website Address <span style={{ color: 'red' }}>*</span>
+                    </span>
+                }
                 variant="standard"
                 name="website"
                 value={formData.website}

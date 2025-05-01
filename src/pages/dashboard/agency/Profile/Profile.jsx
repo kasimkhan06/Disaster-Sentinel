@@ -18,7 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 
 // Styles & Assets
-import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails }) => {
   const [formData, setFormData] = useState({});

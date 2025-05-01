@@ -23,7 +23,8 @@ import DosDontsPage from "./pages/training/dosdonts";
 import MissingPersonPortal from "./pages/missingperson/portal";
 import StatusTracking from "./pages/missingperson/status";
 import UpdateDetails from "./pages/authentication/updateDetails";
-import Profile from "./pages/dashboard/agency/Profile/Profile"
+import Profile from "./pages/dashboard/agency/Profile/Profile";
+import TestMissingPerson from "./pages/dashboard/agency/Missing Person/TestMissingPerson";
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -66,11 +67,14 @@ const App = () => {
         <Route path="/event-listing" element={<EventListing />} />
         <Route path="/create-event" 
         element={
-        <EventFormProvider>
+          <EventFormProvider>
           <EventForm />
         </EventFormProvider>
         } />
         <Route path="/agency-profile/:id" element={<Profile />} />
+
+        
+        <Route path="/missing-person-1" element={<TestMissingPerson />} />
       </Routes>
     </>
   );

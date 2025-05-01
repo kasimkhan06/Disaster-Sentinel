@@ -29,7 +29,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 // Styles & Assets
-import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const steps = ["Agency Information", "Description", "Image Upload", "Map Location"];
 
@@ -234,7 +234,7 @@ const RegistrationForm = ({ setSuccess }) => {
       <Grid container spacing={3} sx={{ mb: 3 }}>
         {activeStep === 0 && (
           <Grid item xs={12} sx={{ marginTop: "10px" }}>
-            <Card sx={{ p: 2 }}>
+            <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
               <AgencyInfo
                 formData={formData} 
                 errors={errors}  
@@ -253,7 +253,7 @@ const RegistrationForm = ({ setSuccess }) => {
 
         {activeStep === 1 && (
           <Grid item xs={12}>
-            <Card sx={{ p: 2 }}>
+            <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
               <TextareaAutosize
                 minRows={4}
                 placeholder="Give a detailed description about the agency"
@@ -294,7 +294,7 @@ const RegistrationForm = ({ setSuccess }) => {
 
         {activeStep === 2 && (
           <Grid item xs={12}>
-            <Card sx={{ p: 2 }}>
+            <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
               <Typography variant="h6" sx={{ textAlign: "start", mb: 1, color: "black" }}>
                 Upload Images
               </Typography>
@@ -317,12 +317,18 @@ const RegistrationForm = ({ setSuccess }) => {
         )}
 
         {activeStep === 3 && (
-          <Grid item xs={12}>
-            <Card sx={{ p: 2 }}>
-              <MapLeaflet markers={markers} setMarkers={setMarkers} />
-              {errors.location && <Typography color="error">{errors.location}</Typography>}
-            </Card>
-          </Grid>
+          <Grid container justifyContent="center" sx={{ marginTop: "20px" }}>
+            <Grid item xs={12} sm={10} md={8} lg={8}>
+              <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                <MapLeaflet markers={markers} setMarkers={setMarkers} />
+                {errors.location && (
+                  <Typography color="error" textAlign="center" mt={2}>
+                    {errors.location}
+                  </Typography>
+                )}
+              </Card>
+            </Grid>
+          </Grid>        
         )}
       </Grid>
 

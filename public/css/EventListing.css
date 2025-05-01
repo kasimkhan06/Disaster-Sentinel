@@ -1,3 +1,30 @@
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: -1;
+  background: linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+              url('/assets/background_image/world-map-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.container {
+  background-color: rgba(255, 255, 255, 0.85); /* slight overlay to enhance readability */
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin-top: 100px; /* Center the container */
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 1;
+  position: relative;
+}
+
 .event-card {
   display: flex;
   flex-direction: column;
@@ -7,10 +34,7 @@
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background: #ffffff;
-}
-
-.event-card-container {
-  justify-content: center;
+  margin: 10px; /* Space between cards */
 }
 
 .event-card:hover {
@@ -95,15 +119,15 @@
   color: #333;
 }
 
-.event-card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  justify-content: center;
-  padding: 16px;
+.event-no-events {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #555;
+  margin-top: 50px; /* Space above the message */
 }
 
-.event-card-container .event-card {
-  flex: 1 1 280px; /* Set a fixed width */
-  max-width: 280px; /* Ensure it doesn’t stretch too much */
+.event-no-events h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-top: 20px; /* Space above the heading */
 }

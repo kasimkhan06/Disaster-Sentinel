@@ -29,7 +29,7 @@ import Grid from "@mui/material/Grid2";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import useAgencyData from "../../../hooks/useAgencyData";
 import { getCurrentLocationState } from "../../../utils/locationUtils";
-import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const Agencies = () => {
   const { agencies, states, loading, error } = useAgencyData();

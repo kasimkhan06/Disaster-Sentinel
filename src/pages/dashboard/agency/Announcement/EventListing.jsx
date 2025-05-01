@@ -23,7 +23,7 @@ import EventCard from "../../../../components/EventCard";
 
 // Styles & Assets
 import "../../../../../public/css/EventListing.css";
-import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 export default function EventListing() {
   const [events, setEvents] = useState(null);
@@ -81,139 +81,93 @@ export default function EventListing() {
   };
 
   return (
-    <div className="container" style={{ padding: "20px", marginTop: "65px" }}>
-      <div className="header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <Box sx={{ flexGrow: 1, justifyItems: "center", marginX: "auto" }}>
-          <Typography variant="h4" sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}>Announcements</Typography>
-        </Box>
-      </div>
-      <div className="controls" style={{ display: "flex", gap: "15px" }}>
-        {/* Filter Box */}
-
-        {/* <Box
-          sx={{
-            paddingLeft: 3,
-            mb: 3,
-            textAlign: "left",
-            boxShadow: "2px 2px 2px #E8F1F5",
-            position: "absolute",
-            top: isBelow ? "0px" : "10px", 
-            width: { xs: "300px", md: "150px" },
-            marginX: "auto",
-          }}
-        >
-           <InputLabel
+    <div className="background-image">
+      <div className="container" >
+        <div className="header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <Box sx={{ flexGrow: 1, justifyItems: "center", marginX: "auto" }}>
+            <Typography variant="h4" sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}>Announcements</Typography>
+          </Box>
+        </div>
+        <div className="controls" style={{ display: "flex", gap: "15px" }}>
+          {/* Sort Box */}
+          <Box
             sx={{
-              position: "absolute", 
-              top: -5, 
-              left: 16, 
-              backgroundColor: "background.paper", 
-              padding: "0 2px", 
-              fontSize: {
-                xs: "0.55rem",
-                sm: "0.6rem",
-                md: "0.75rem",
-              },
-              color: "text.secondary", 
-              fontStyle: "italic",
+              paddingLeft: 3,
+              mb: 3,
+              textAlign: "left",
+              boxShadow: "2px 2px 2px #E8F1F5",
+              position: "relative", 
+              width: { xs: "300px", md: "150px" },
+              marginX: "auto",
             }}
           >
-            Filter
-          </InputLabel>
-          <FormControl fullWidth>
-            <Select
-              value={filter} 
-              onChange={(e) => setFilter(e.target.value)}
+            <InputLabel
               sx={{
-                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                "& .MuiSelect-select": { padding: "9px 32px 4px 12px" },
+                position: "absolute", 
+                top: -5, 
+                left: 16, 
+                backgroundColor: "background.paper", 
+                padding: "0 2px", 
                 fontSize: {
-                  xs: "0.7rem",
-                  sm: "0.8rem",
-                  md: "1rem",
+                  xs: "0.55rem",
+                  sm: "0.6rem",
+                  md: "0.75rem",
                 },
+                color: "text.secondary", 
+                fontStyle: "italic",
               }}
             >
-              <MenuItem value="all">All Events</MenuItem>
-              <MenuItem value="upcoming">Upcoming</MenuItem>
-              <MenuItem value="past">Past</MenuItem>
-              <MenuItem value="draft">Drafts</MenuItem>
-            </Select>
-          </FormControl>
-        </Box> */}
+              Sort
+            </InputLabel>
+            <FormControl fullWidth>
+              <Select
+                value={sort} 
+                onChange={(e) => setSort(e.target.value)}
+                sx={{
+                  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                  "& .MuiSelect-select": { padding: "9px 32px 4px 12px" },
+                  fontSize: {
+                    xs: "0.7rem",
+                    sm: "0.8rem",
+                    md: "1rem",
+                  },
+                }}
+              >
+                <MenuItem value="newest">Newest First</MenuItem>
+                <MenuItem value="oldest">Oldest First</MenuItem>
+                <MenuItem value="nameAZ">Name A-Z</MenuItem>
+                <MenuItem value="nameZA">Name Z-A</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </div>
 
-        {/* Sort Box */}
-        <Box
-          sx={{
-            paddingLeft: 3,
-            mb: 3,
-            textAlign: "left",
-            boxShadow: "2px 2px 2px #E8F1F5",
-            position: "relative", 
-            width: { xs: "300px", md: "150px" },
-            marginX: "auto",
-          }}
-        >
-          <InputLabel
-            sx={{
-              position: "absolute", 
-              top: -5, 
-              left: 16, 
-              backgroundColor: "background.paper", 
-              padding: "0 2px", 
-              fontSize: {
-                xs: "0.55rem",
-                sm: "0.6rem",
-                md: "0.75rem",
-              },
-              color: "text.secondary", 
-              fontStyle: "italic",
-            }}
-          >
-            Sort
-          </InputLabel>
-          <FormControl fullWidth>
-            <Select
-              value={sort} 
-              onChange={(e) => setSort(e.target.value)}
-              sx={{
-                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                "& .MuiSelect-select": { padding: "9px 32px 4px 12px" },
-                fontSize: {
-                  xs: "0.7rem",
-                  sm: "0.8rem",
-                  md: "1rem",
-                },
-              }}
-            >
-              <MenuItem value="newest">Newest First</MenuItem>
-              <MenuItem value="oldest">Oldest First</MenuItem>
-              <MenuItem value="nameAZ">Name A-Z</MenuItem>
-              <MenuItem value="nameZA">Name Z-A</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
+        {isLoading ? (
+          <div className="loading-events" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "50vh" }}>
+            <CircularProgress size={50} sx={{ color: "#4F646F", marginBottom: "10px" }} />
+            <Typography>Loading events...</Typography>
+          </div>
+        ) : filteredEvents().length === 0 ? (
+          <div className="no-events">
+            <Typography variant="h6">No events found</Typography>
+            <Button variant="contained" color="primary">Create Your First Event</Button>
+          </div>
+        ) : (
+          <Grid container spacing={3}>
+            {filteredEvents().map((event) => (
+              <Grid item xs={12} sm={6} md={4} key={event.id}>
+                <EventCard event={event} refreshEvents={refreshEvents} /> {/* Pass refreshEvents */}
+              </Grid>
+            ))}
+          </Grid>
+        )}
+
       </div>
-
-      {isLoading ? (
-        <div className="loading-events" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
-          <CircularProgress size={50} sx={{ color: "#4F646F", marginBottom: "10px" }} />
-          <Typography>Loading events...</Typography>
+        <div className="footer" style={{ marginTop: "20px", textAlign: "center" }}>
+          <Typography variant="body2" color="text.secondary">
+            &copy; {new Date().getFullYear()} Disaster Sentinel. All rights reserved.
+          </Typography>
         </div>
-      ) : filteredEvents().length === 0 ? (
-        <div className="no-events">
-          <Typography variant="h6">No events found</Typography>
-          <Button variant="contained" color="primary">Create Your First Event</Button>
-        </div>
-      ) : (
-        <Grid container spacing={3}>
-          {filteredEvents().map((event) => (
-            <Grid item xs={12} sm={6} md={4} key={event.id}>
-              <EventCard event={event} refreshEvents={refreshEvents} /> {/* Pass refreshEvents */}
-            </Grid>
-          ))}
-        </Grid>
-      )}
     </div>
   );
 }

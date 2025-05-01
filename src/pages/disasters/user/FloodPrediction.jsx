@@ -15,7 +15,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import fetchStationData from "../../../hooks/fetchStationData";
 import FloodPredictionMap from "./FloodPredictionMap";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
-import worldMapBackground from "/assets/Background Image/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const FloodPrediction = () => {
   const [selectedLocation, setSelectedLocation] = useState("All States");
