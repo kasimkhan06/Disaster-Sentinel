@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Typography, Box, TextField, Button, Link } from "@mui/material";
 import axios from "axios";
 import { useLocation } from "react-router-dom"; // Import useLocation
-
+import worldMapBackground from "../dashboard/user/images/world-map-background.jpg";
 
 
 const Verification = () => {
@@ -71,8 +71,28 @@ const Verification = () => {
 
   return (
     <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                minHeight: "100vh",
+                background: `
+              linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+              url(${worldMapBackground})
+            `,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundAttachment: "fixed",
+                backgroundRepeat: "repeat-y",
+                margin: 0,
+                padding: 0,
+                zIndex: 0, // Only needed if you have other elements with zIndex
+              }}
+            >
+    <Box
       sx={{
-        background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
+        // background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
@@ -89,8 +109,8 @@ const Verification = () => {
           minHeight: "60vh", 
           backgroundColor: "#fff",
           paddingTop: "10px",
-          borderRadius: "12px",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          borderRadius: 2,
+          boxShadow: 3,
           textAlign: "center",
           display: "flex",
           flexDirection: "column",
@@ -146,6 +166,7 @@ const Verification = () => {
           </Typography>
         </Box>
       </Box>
+    </Box>
     </Box>
   );
 };

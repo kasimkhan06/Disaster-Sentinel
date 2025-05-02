@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -24,48 +25,79 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Chip,
+  Avatar,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
+import PublicIcon from "@mui/icons-material/Public";
+import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import useAgencyData from "../../../hooks/useAgencyData";
 import { getCurrentLocationState } from "../../../utils/locationUtils";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const Agencies = () => {
-  const { agencies, states, loading, error } = useAgencyData();
-  const [filteredAgencies, setFilteredAgencies] = useState([]);
+  const { existingAgencies, addedAgencies, states, loading, error } =
+    useAgencyData();
+  const navigate = useNavigate();
+
   const [selectedState, setSelectedState] = useState("All States");
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState(null);
   const [page, setPage] = useState(1);
   const [selectedAgency, setSelectedAgency] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openVolunteerDialog, setOpenVolunteerDialog] = useState(false);
+  const [volunteerMessage, setVolunteerMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [agencyNameFilter, setAgencyNameFilter] = useState("");
+  const [agencySuggestions, setAgencySuggestions] = useState([]);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isBelow = useMediaQuery("(max-width:1470px)");
 
-  const itemsPerPage = isMobile ? 10 : 20;
-  const rowHeight = isMobile ? 48 : 53;
-  const headerHeight = 57;
+  const itemsPerPage = 20;
+  const rowHeight = 30; // Reduced row height
+  const headerHeight = 50; // Reduced header height
   const paginationHeight = 72;
+  const avatarSize = 20; // New constant for avatar size
+
+  // Sort agencies alphabetically by name
+  const allAgencies = [...existingAgencies, ...addedAgencies].sort((a, b) => {
+    const nameA = a?.name?.toLowerCase() || '';
+    const nameB = b?.name?.toLowerCase() || '';
+    return nameA.localeCompare(nameB);
+  });
+
+  const [filteredAgencies, setFilteredAgencies] = useState(allAgencies);
 
   useEffect(() => {
-    setFilteredAgencies(agencies);
+    setFilteredAgencies(allAgencies);
     setPage(1);
-  }, [agencies]);
+  }, [existingAgencies, addedAgencies]);
 
   useEffect(() => {
-    if (selectedState === "All States") {
-      setFilteredAgencies(agencies);
-    } else {
-      const filtered = agencies.filter(
-        (agency) => agency.state === selectedState
-      );
-      setFilteredAgencies(filtered);
+    let filtered = allAgencies;
+    
+    if (selectedState !== "All States") {
+      filtered = filtered.filter((agency) => agency.state === selectedState);
     }
+    
+    if (agencyNameFilter) {
+      filtered = filtered.filter((agency) => {
+        const name = agency?.name?.toLowerCase() || '';
+        const agencyName = agency?.agency_name?.toLowerCase() || '';
+        const filter = agencyNameFilter.toLowerCase();
+        return name.includes(filter) || agencyName.includes(filter);
+      });
+    }
+    
+    setFilteredAgencies(filtered);
     setPage(1);
-  }, [selectedState, agencies]);
+  }, [selectedState, agencyNameFilter, existingAgencies, addedAgencies]);
 
   const paginatedAgencies = filteredAgencies.slice(
     (page - 1) * itemsPerPage,
@@ -74,11 +106,7 @@ const Agencies = () => {
 
   const calculateTableHeight = () => {
     const rowCount = Math.min(paginatedAgencies.length, itemsPerPage);
-    return (
-      headerHeight +
-      rowCount * rowHeight +
-      (filteredAgencies.length > itemsPerPage ? paginationHeight : 0)
-    );
+    return headerHeight + rowCount * rowHeight;
   };
 
   const handleUseCurrentLocation = async () => {
@@ -105,47 +133,91 @@ const Agencies = () => {
   };
 
   const handleRowClick = (agency) => {
-    setSelectedAgency(agency);
-    setOpenDialog(true);
+    if (agency.isAddedAgency) {
+      navigate(`/agency/${agency.id}`);
+    } else {
+      setSelectedAgency(agency);
+      setOpenDialog(true);
+    }
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
 
-  if (loading) {
-    return (
-      <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              minHeight: "100vh",
-              background: `
-            linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
-            url(${worldMapBackground})
-          `,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundAttachment: "fixed",
-              backgroundRepeat: "repeat-y",
-              margin: 0,
-              padding: 0,
-              zIndex: 0, // Only needed if you have other elements with zIndex
-            }}
-          >
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="200px"
-      >
-        <CircularProgress />
-      </Box>
-      </Box>
-    );
-  }
+  const handleOpenVolunteerDialog = () => {
+    setOpenVolunteerDialog(true);
+    setOpenDialog(false);
+  };
+
+  const handleCloseVolunteerDialog = () => {
+    setOpenVolunteerDialog(false);
+    setVolunteerMessage("");
+    setSubmitError(null);
+    setSubmitSuccess(false);
+  };
+
+  const handleVolunteerSubmit = async () => {
+    if (!volunteerMessage.trim()) {
+      setSubmitError("Please enter a message");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch(
+        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/volunteer-interests/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            agency_id: selectedAgency.id,
+            message: volunteerMessage,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit volunteer interest");
+      }
+
+      setSubmitSuccess(true);
+      setVolunteerMessage("");
+    } catch (err) {
+      setSubmitError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const updateAgencySuggestions = (inputValue, stateFilter) => {
+    let filtered = allAgencies;
+    
+    if (stateFilter !== "All States") {
+      filtered = filtered.filter(agency => agency.state === stateFilter);
+    }
+    
+    if (inputValue) {
+      const inputLower = inputValue.toLowerCase();
+      filtered = filtered.filter(agency => {
+        const name = agency?.name?.toLowerCase() || '';
+        return name.includes(inputLower);
+      });
+    }
+    
+    // Get unique agency names
+    let uniqueNames = [...new Set(filtered.map(agency => agency?.name || '').filter(name => name))];
+    
+    // If no input value (initial click), show only first 5 suggestions
+    if (!inputValue) {
+      uniqueNames = uniqueNames.slice(0, 5);
+    }
+    
+    setAgencySuggestions(uniqueNames);
+  };
 
   if (error) {
     return (
@@ -157,25 +229,27 @@ const Agencies = () => {
 
   return (
     <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            minHeight: "100vh",
-            background: `
+      sx={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        minHeight: "100vh",
+        overflowY: "scroll", // Always show scrollbar
+    width: "100vw", 
+        background: `
           linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
           url(${worldMapBackground})
         `,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundAttachment: "fixed",
-            backgroundRepeat: "repeat-y",
-            margin: 0,
-            padding: 0,
-            zIndex: 0, // Only needed if you have other elements with zIndex
-          }}
-        >
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "repeat-y",
+        margin: 0,
+        padding: 0,
+        zIndex: 0,
+      }}
+    >
       <Typography
         align="center"
         sx={{
@@ -198,176 +272,245 @@ const Agencies = () => {
         AGENCY DETAILS
       </Typography>
 
-      {/* Centered Filter Controls */}
       <Grid
-        container
-        spacing={1}
-        sx={{
-          mb: 1,
-          width: {
-            xs: "100%",
-            sm: "90%",
-            md: "83%",
-            lg: isBelow ? "70%" : "60%",
-          },
-          marginX: "auto",
+  container
+  spacing={1}
+  sx={{
+    mb: 0,
+    width: {
+      xs: "100%",
+      sm: "90%",
+      md: "83%",
+      lg: isBelow ? "70%" : "60%",
+    },
+    marginX: "auto",
+    maxWidth: "100%",
+  }}
+>
+  {/* State Filter */}
+  <Grid
+    size={{ xs: 6, sm: 6, md: 4, lg: 3 }} // Adjusted size
+    sx={{
+      display: "flex",
+      justifyContent: "left",
+      alignItems: "stretch",
+    }}
+  >
+    <Box
+      sx={{
+        width: { xs: "100%", sm: "75%", md: "100%" },
+        paddingLeft: 0,
+        mb: 2,
+        textAlign: "left",
+        position: "relative",
+      }}
+    >
+      <Autocomplete
+        options={["All States", ...states]}
+        value={selectedState}
+        onChange={(event, newValue) => {
+          const newState = newValue || "All States";
+          setSelectedState(newState);
+          updateAgencySuggestions(agencyNameFilter, newState);
         }}
-      >
-        <Grid
-          size={{ xs: 12, sm: 6, md: 4, lg: 4 }}
-          sx={{
-            display: "flex",
-            justifyContent: "right",
-            alignItems: "stretch",
-          }}
-        >
-          <Box
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="outlined"
+            // label="Filter by State"
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  <Tooltip title="Use my current location">
+                    <IconButton
+                      onClick={handleUseCurrentLocation}
+                      disabled={isLocating || loading}
+                      size="small"
+                      sx={{ mr: -1 }}
+                    >
+                      {isLocating ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <MyLocationIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </Tooltip>
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
             sx={{
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: "white",
+                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                "& fieldset": {
+                  borderColor: "transparent !important",
+                },
+                "&:hover fieldset": {
+                  borderColor: "transparent",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "transparent",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+                },
+                "&.Mui-disabled fieldset": {
+                  borderColor: "transparent !important",
+                },
+              },
+              "& .MuiInputLabel-root": {
+                color: "inherit",
+              },
+              "& .MuiInputBase-input": {
+                fontSize: {
+                  xs: "0.7rem",
+                  sm: "0.8rem",
+                  md: isBelow ? "0.9rem" : "1rem",
+                  lg: isBelow ? "0.9rem" : "1rem",
+                },
+              },
               width: "100%",
-              padding: 0,
-              paddingLeft: { xs: 1, md: 2 },
-              mb: 0,
-              textAlign: "left",
-              backgroundColor: "white",
-              // boxShadow: "2px 2px 2px #E8F1F5",
-              position: "relative",
-              height: "48px",
-              display: "flex",
-              alignItems: "center",
-              boxShadow: 2,
             }}
-          >
-            <Autocomplete
-              options={["All States", ...states]}
-              value={selectedState}
-              onChange={(event, newValue) =>
-                setSelectedState(newValue || "All States")
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  // label="State"
-                  variant="outlined"
-                  slotProps={{
-                    input: {
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          <Tooltip title="Use my current location">
-                            <IconButton
-                              onClick={handleUseCurrentLocation}
-                              disabled={isLocating}
-                              size="small"
-                              sx={{
-                                mr: -1,
-                                fontSize: {
-                                  xs: "1rem",
-                                  sm: "1.2rem",
-                                  md: isBelow ? "1.2rem" : "1.4rem",
-                                  lg: isBelow ? "1.2rem" : "1.4rem",
-                                },
-                                "&:active": {
-                                  // Remove blue background on click
-                                  backgroundColor: "transparent",
-                                },
-                                "&:focus": {
-                                  // Remove focus outline
-                                  backgroundColor: "transparent",
-                                },
-                              }}
-                            >
-                              {isLocating ? (
-                                <CircularProgress size={20} />
-                              ) : (
-                                <MyLocationIcon fontSize="small" />
-                              )}
-                            </IconButton>
-                          </Tooltip>
-                          {params.InputProps?.endAdornment}
-                        </>
-                      ),
-                    },
-                  }}
-                  sx={{
-                    "& .MuiInputBase-root": {
-                      padding: "4px 8px",
-                    },
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
-                    },
-                    "& .MuiInputLabel-root": {
-                      fontSize: {
-                        xs: "0.8rem",
-                        sm: "0.9rem",
-                        md: isBelow ? "1rem" : "1.1rem",
-                        lg: isBelow ? "1rem" : "1.1rem",
-                      },
-                      transform: "translate(14px, 12px) scale(1)", // Adjust label position
-                      "&.MuiInputLabel-shrink": {
-                        transform: "translate(14px, -6px) scale(0.75)", // Adjust shrunk label
-                      },
-                    },
-                    "& .MuiAutocomplete-endAdornment": {
-                      top: "50%", // Center vertically
-                      transform: "translateY(-50%)", // Adjust for exact centering
-                      right: "10px", // Maintain right positioning
-                    },
-                    "& .MuiAutocomplete-popupIndicator": {
-                      padding: "4px", // Adjust padding if needed
-                    },
-                    width: "100%",
-                  }}
-                />
-              )}
-              sx={{
-                width: "100%",
-                "& .MuiAutocomplete-endAdornment": {
-                  right: "10px",
-                  top: "calc(50% - 12px)", // Center adornment vertically
-                }, 
-              }}
-            />
-          </Box>
-        </Grid>
-        <Grid
-          size={{ xs: 12, sm: 6, md: 3, lg: 3 }}
-          sx={{
-            display: "flex",
-            justifyContent: { xs: "center", sm: "left", md: "left" },
-            alignItems: "stretch",
-          }}
-        >
-          <Button
-            onClick={handleClearFilters}
-            disableRipple
-            disabled={selectedState === "All States"}
-            sx={{
-              height: "48px",
-              paddingY: "9px",
-              mb: 2,
-              display: "flex",
-              alignItems: "center", boxShadow: 2,
-              backgroundColor: "white",
-              "&:hover": {
-                backgroundColor: "white",
-              },
-              "&:active": {
-                // Remove blue background on click
-                backgroundColor: "white",
-              },
-              "&:focus": {
-                // Remove focus outline
-                backgroundColor: "white",
-              },
-              color: "rgba(0, 0, 0, 0.87)",
-              position: "relative", // Add this
-              zIndex: 1,
-            }}
-          >
-            Clear Filters
-          </Button>
-        </Grid>
-      </Grid>
+          />
+        )}
+        sx={{
+          "& .MuiAutocomplete-endAdornment": {
+            right: "10px",
+          },
+        }}
+        disabled={loading}
+      />
+    </Box>
+  </Grid>
+
+  {/* Agency Name Filter */}
+  <Grid
+  size={{ xs: 6, sm: 6, md: 4, lg: 3 }}
+  sx={{
+    display: "flex",
+    justifyContent: "left",
+    alignItems: "stretch",
+  }}
+>
+  <Box
+    sx={{
+      width: { xs: "100%", sm: "75%", md: "100%" },
+      paddingLeft: 0,
+      mb: 2,
+      textAlign: "left",
+      position: "relative",
+    }}
+  >
+<Autocomplete
+  freeSolo
+  options={agencySuggestions}
+  value={agencyNameFilter}
+  onChange={(event, newValue) => {
+    setAgencyNameFilter(newValue || "");
+  }}
+  onInputChange={(event, newInputValue) => {
+    setAgencyNameFilter(newInputValue);
+    updateAgencySuggestions(newInputValue, selectedState);
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      variant="outlined"
+      placeholder="Type to search agencies..."
+      InputLabelProps={{
+        shrink: false,
+        style: { display: 'none' }
+      }}
+      inputProps={{
+        ...params.inputProps,
+        'aria-label': 'Filter by Agency Name',
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          backgroundColor: "white",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+          "& fieldset": {
+            borderColor: "transparent !important",
+          },
+          "&:hover fieldset": {
+            borderColor: "transparent",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "transparent",
+            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+          },
+          "& .MuiInputBase-input::placeholder": {
+            opacity: 1,
+            color: theme.palette.text.secondary,
+          },
+        },
+        "& .MuiInputBase-input": {
+          fontSize: {
+            xs: "0.7rem",
+            sm: "0.8rem",
+            md: isBelow ? "0.9rem" : "1rem",
+            lg: isBelow ? "0.9rem" : "1rem",
+          },
+          "&::placeholder": {
+            color: theme.palette.text.secondary,
+          },
+        },
+        width: "100%",
+      }}
+      disabled={loading}
+    />
+  )}
+  noOptionsText={
+    <Typography variant="body1" color="text.secondary">
+      {!agencyNameFilter && selectedState === "All States"
+        ? "Start typing to search agencies"
+        : selectedState === "All States" && agencyNameFilter
+        ? `No agencies found with name containing "${agencyNameFilter}"`
+        : !agencyNameFilter
+        ? `No agencies found in ${selectedState}`
+        : `No agencies found in ${selectedState} with name containing "${agencyNameFilter}"`}
+    </Typography>
+  }
+  disabled={loading}
+/>
+  </Box>
+</Grid>
+
+  {/* Clear Filters Button */}
+  <Grid
+    size={{ xs: 6, sm: 6, md: 4, lg: 2 }} // Adjusted size
+    sx={{
+      display: "flex",
+      justifyContent: "left",
+      alignItems: "stretch",
+    }}
+  >
+    <Button
+      onClick={() => {
+        handleClearFilters();
+        setAgencyNameFilter("");
+        setAgencySuggestions([]);
+      }}
+      disableRipple
+      disabled={(selectedState === "All States" && !agencyNameFilter) || loading}
+      sx={{
+        height: { md: 53.69 },
+        paddingY: "9px",
+        mb: 2,
+        display: "flex",
+        alignItems: "left",
+        "&:hover": {
+          backgroundColor: "transparent",
+        },
+        width: { xs: "50%", sm: "40%", md: "60%", lg: "100%" },
+      }}
+    >
+      Clear Filters
+    </Button>
+  </Grid>
+</Grid>
 
       {locationError && (
         <Typography color="error" align="center" sx={{ mb: 2 }}>
@@ -375,7 +518,6 @@ const Agencies = () => {
         </Typography>
       )}
 
-      {/* Table with dynamic height */}
       <Box
         sx={{
           width: {
@@ -385,111 +527,172 @@ const Agencies = () => {
             lg: isBelow ? "70%" : "60%",
           },
           marginX: "auto",
-          height: `${calculateTableHeight()}px`,
-          minHeight: `${headerHeight + rowHeight + paginationHeight}px`,
+          height: loading ? "200px" : 'auto',
+          minHeight: loading ? "200px" : `${headerHeight + (rowHeight * Math.min(paginatedAgencies.length, itemsPerPage))}px`,
           display: "flex",
           flexDirection: "column",
-          borderRadius: 2, boxShadow: 3,
+          borderRadius: 2,
+          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
+          mb: filteredAgencies.length > itemsPerPage ? 0 : 2,
+          overflow: 'hidden',
         }}
       >
-        <TableContainer
-          component={Paper}
+        {loading ? (
+          <Box
           sx={{
-            flex: 1,
-            overflow: "auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "200px",
+            backgroundColor: "white",
+            width: "100%",
+            marginX: "auto",
           }}
         >
-          <Table stickyHeader aria-label="agencies table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: "bold" }}>Agency Name</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Location</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedAgencies.length > 0 ? (
-                paginatedAgencies.map((agency) => (
-                  <TableRow
-                    key={agency.id}
-                    hover
-                    onClick={() => handleRowClick(agency)}
-                    disableRipple // Remove ripple effect on click
-                    sx={{
-                      cursor: "pointer",
-                      "&:hover": {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                      "&.Mui-selected": {
-                        backgroundColor: "transparent", // Remove blue background on selection
-                      },
-                      "&.Mui-selected:hover": {
-                        backgroundColor: "transparent", // Keep hover effect
-                      },
-                      "&:active": {
-                        backgroundColor: "transparent", // Remove blue background on click
-                      },
-                      "&:focus": {
-                        backgroundColor: "transparent", // Remove blue background on focus
-                      },
+          <CircularProgress />
+          <Typography sx={{ ml: 2 }}>Loading agency details...</Typography>
+        </Box>
+        ) : (
+          <TableContainer component={Paper} sx={{ overflow: 'hidden' }}>
+            <Table aria-label="agencies table">
+              <TableHead>
+                <TableRow>
+                  <TableCell 
+                    sx={{ 
+                      fontWeight: "600",
+                      backgroundColor: theme.palette.grey[50],
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      width: "70%", // Agency Name column takes 70% width
                     }}
                   >
-                    <TableCell
-                      sx={{
-                        color: "rgba(0, 0, 0, 0.87)",
-                        position: "relative",
-                        zIndex: 1,
-                      }}
-                    >
-                      {agency.name}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        color: "rgba(0, 0, 0, 0.87)",
-                        position: "relative",
-                        zIndex: 1,
-                      }}
-                    >
-                      {agency.city}, {agency.state}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={2}
-                    align="center"
-                    sx={{ color: "rgba(0, 0, 0, 0.87)" }}
+                    Agency Name
+                  </TableCell>
+                  <TableCell 
+                    sx={{ 
+                      fontWeight: "600",
+                      backgroundColor: theme.palette.grey[50],
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      width: "30%", // Location column takes 30% width
+                    }}
                   >
-                    No agencies found
+                    Location
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* Pagination */}
-        {filteredAgencies.length > itemsPerPage && (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              pt: 2,
-              pb: 2,
-            }}
-          >
-            <Pagination
-              count={Math.ceil(filteredAgencies.length / itemsPerPage)}
-              page={page}
-              onChange={handlePageChange}
-              color="primary"
-              size={isMobile ? "small" : "medium"}
-            />
-          </Box>
+              </TableHead>
+              <TableBody>
+                {paginatedAgencies.length > 0 ? (
+                  paginatedAgencies.map((agency) => (
+                    <TableRow
+                      key={agency.id}
+                      hover
+                      onClick={() => handleRowClick(agency)}
+                      sx={{
+                        cursor: "pointer",
+                        "&:hover": {
+                          backgroundColor: theme.palette.grey[50],
+                        },
+                        "&:last-child td": {
+                          borderBottom: 0,
+                        },
+                        height: rowHeight, // Set explicit row height
+                      }}
+                    >
+                      <TableCell sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Avatar 
+                            sx={{ 
+                              width: avatarSize, 
+                              height: avatarSize, 
+                              mr: 1.5,
+                              backgroundColor: agency?.isAddedAgency 
+                                ? theme.palette.success.light 
+                                : theme.palette.success.light,
+                              fontSize: '0.8rem',
+                            }}
+                          >
+                            {agency?.isAddedAgency ? (
+                              <VolunteerActivismIcon fontSize="inherit" />
+                            ) : (
+                              <PublicIcon fontSize="inherit" />
+                            )}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="body1" fontWeight="500" sx={{ fontSize: '0.875rem' }}>
+                              {agency?.name || agency?.agency_name || 'Unknown Agency'}
+                            </Typography>
+                            {/* {agency?.isAddedAgency && (
+                              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                                Community-added
+                              </Typography>
+                            )} */}
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
+                        <Box>
+                          <Typography variant="body1" sx={{ fontSize: '0.875rem' }}>
+                            {agency?.city || agency?.district || 'Location not specified'}, {agency?.state || 'State not specified'}
+                          </Typography>
+                          {/* <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                            {agency?.state || 'State not specified'}
+                          </Typography> */}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
+                      <Typography variant="body1" color="text.secondary">
+                        No agencies found matching your criteria
+                      </Typography>
+                      <Button 
+                        onClick={() => {
+                          handleClearFilters();
+                          setAgencyNameFilter("");
+                          setAgencySuggestions([]);
+                        }}
+                        variant="text" 
+                        size="small"
+                        sx={{ mt: 1 }}
+                      >
+                        Clear filters
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </Box>
 
-      {/* Agency Details Dialog */}
+      {filteredAgencies.length > 0 && (
+        <Box
+          sx={{
+            width: {
+              xs: "100%",
+              sm: "90%",
+              md: "83%",
+              lg: isBelow ? "70%" : "60%",
+            },
+            marginX: "auto",
+            display: "flex",
+            justifyContent: "center",
+            pt: 2,
+            pb: 2,
+          }}
+        >
+          <Pagination
+            count={Math.ceil(filteredAgencies.length / itemsPerPage)}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            size={isMobile ? "small" : "medium"}
+          />
+        </Box>
+      )}
+
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -503,18 +706,11 @@ const Agencies = () => {
               {selectedAgency.name}
             </DialogTitle>
             <DialogContent>
-              <DialogContentText
-                sx={{
-                  color: "rgba(0, 0, 0, 0.87)",
-                  position: "relative", // Add this
-                  zIndex: 1,
-                }}
-              >
+              <DialogContentText>
                 <Typography variant="subtitle1" gutterBottom>
                   <strong>Location:</strong> {selectedAgency.city},{" "}
                   {selectedAgency.state}
                 </Typography>
-                {/* Add more agency details here */}
                 {selectedAgency.address && (
                   <Typography variant="body1" gutterBottom>
                     <strong>Address:</strong> {selectedAgency.address}
@@ -540,23 +736,83 @@ const Agencies = () => {
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button
-                onClick={handleCloseDialog}
-                color="primary"
-                sx={{
-                  "&:active": {
-                    backgroundColor: "transparent",
-                  },
-                  "&:focus": {
-                    backgroundColor: "transparent",
-                  },
-                }}
-              >
+              <Button onClick={handleOpenVolunteerDialog} color="primary">
+                Be a Volunteer
+              </Button>
+              <Button onClick={handleCloseDialog} color="primary">
                 Close
               </Button>
             </DialogActions>
           </>
         )}
+      </Dialog>
+
+      <Dialog
+        open={openVolunteerDialog}
+        onClose={handleCloseVolunteerDialog}
+        aria-labelledby="volunteer-dialog"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="volunteer-dialog">
+          Volunteer Interest for {selectedAgency?.name}
+        </DialogTitle>
+        <DialogContent>
+          {submitSuccess ? (
+            <Typography color="primary" gutterBottom>
+              Your volunteer interest has been submitted successfully!
+            </Typography>
+          ) : (
+            <>
+              <DialogContentText gutterBottom>
+                Please write a message to the agency about your interest in
+                volunteering:
+              </DialogContentText>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="volunteer-message"
+                label="Your Message"
+                type="text"
+                fullWidth
+                variant="outlined"
+                multiline
+                rows={4}
+                value={volunteerMessage}
+                onChange={(e) => setVolunteerMessage(e.target.value)}
+                error={!!submitError}
+                helperText={submitError}
+              />
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {submitSuccess ? (
+            <Button onClick={handleCloseVolunteerDialog} color="primary">
+              Close
+            </Button>
+          ) : (
+            <>
+              <Button onClick={handleCloseVolunteerDialog} color="secondary">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleVolunteerSubmit}
+                color="primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <CircularProgress size={24} />
+                    <Typography sx={{ ml: 1 }}>Submitting...</Typography>
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </Button>
+            </>
+          )}
+        </DialogActions>
       </Dialog>
     </Box>
   );

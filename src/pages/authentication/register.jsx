@@ -4,6 +4,7 @@ import {Typography,Box,Grid,TextField,RadioGroup,FormControlLabel,Radio,Button,A
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import { AccountCircle, Phone, Email, Lock, Business } from "@mui/icons-material";
 import axios from "axios";
+import worldMapBackground from "../dashboard/user/images/world-map-background.jpg";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -87,9 +88,31 @@ const Register = () => {
 
   return (
     <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            minHeight: "100vh",
+            overflowY: "scroll", // Always show scrollbar
+        width: "100vw", 
+            background: `
+              linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+              url(${worldMapBackground})
+            `,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "repeat-y",
+            margin: 0,
+            padding: 0,
+            zIndex: 0,
+          }}
+        >
+    <Box
       sx={{
         // background: "linear-gradient(to bottom,rgb(79, 68, 88), #ffffff)",
-        background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
+        // background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
@@ -106,8 +129,7 @@ const Register = () => {
           paddingTop: 3,
           paddingBottom: 2,
           backgroundColor: "#ffffff",
-          borderRadius: "12px",
-          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+          borderRadius: 2, boxShadow: 3,
           textAlign: "center",
         }}
       >
@@ -187,6 +209,7 @@ const Register = () => {
           </Button>
         </Typography>
       </Box>
+    </Box>
     </Box>
   );
 };
