@@ -38,6 +38,10 @@ const DisasterInfo = () => {
   let loadingImages = true;
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     fetch(
       `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/past-disasters/?ordering=-year`
     )
@@ -157,7 +161,6 @@ const DisasterInfo = () => {
         )}
       </Box>
 
-      {/* Rest of the code remains the same as in the previous version */}
       <Grid container spacing={1} sx={{ m: 0, width: "75%", marginX: "auto", marginTop: 1 }}>
         {/* First Grid - Disaster Info */}
         <Grid size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{ 
@@ -440,7 +443,7 @@ const DisasterInfo = () => {
           </Box>
 
           {/* Images Section */}
-          <Box sx={{ mt: 4, mb: 2 }}>
+          <Box sx={{ mt: 2, mb: 2 }}>
             <Box sx={{ borderBottom: "2px solid #eee", mb: 3, mx: { xs: "17px", sm: "17px", md: "32px" } }}>
               <Typography
                 sx={{
