@@ -181,16 +181,23 @@ const FloodPredictionMap = ({
         width: "100%",
         // borderRadius: "12px",
         filter:
-            "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
+            "brightness(0.85) contrast(1.4) saturate(1) hue-rotate(10deg)",
       }}
       whenCreated={(mapInstance) => {
         mapRef.current = mapInstance;
       }}
     >
         <TileLayer
-                  attribution=""
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
+        />
+        
+        {/* Labels layer that only appears when zoomed in */}
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png"
+          minZoom={5} // Only show labels when zoomed in to level 10 or higher
+        />
 
         <ChangeView center={mapCenter} zoom={zoomLevel} />
 

@@ -17,7 +17,7 @@ const StateDistrictDropdown = ({
   useEffect(() => {
     const fetchExcelFile = async () => {
       try {
-        const response = await fetch("/District_Masters.xlsx");
+        const response = await fetch("/assets/District_Masters.xlsx");
         const blob = await response.blob();
         const reader = new FileReader();
 
@@ -58,7 +58,7 @@ const StateDistrictDropdown = ({
   const handleStateChange = (event, newValue) => {
     setSelectedState(newValue || "");
     setDistricts(newValue ? stateDistricts[newValue] || [] : []);
-    setSelectedDistrict(""); // Reset district when state changes
+    setSelectedDistrict("");
     setFormData({ ...formData, state: newValue || "", district: "" });
   };
 
@@ -70,15 +70,23 @@ const StateDistrictDropdown = ({
   return (
     <Grid container spacing={2}>
       {/* State Autocomplete */}
-      <Grid item xs={12} sx={{ marginTop: "10px" }}>
+      <Grid item xs={12}>
         <Autocomplete
           options={Object.keys(stateDistricts)} // List of states
           value={selectedState}
           onChange={handleStateChange}
           renderInput={(params) => (
-            <TextField {...params} label="State" variant="standard" />
+            <TextField 
+            {...params} 
+            label={
+              <span>
+                  State <span style={{ color: 'red' }}>*</span>
+              </span>
+          }
+            variant="standard" 
+            />
           )}
-          sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}}
+          sx = {{width: {xs:"100%", sm: "90%"}, marginX: "20px"}}
         />
       </Grid>
 
@@ -90,9 +98,16 @@ const StateDistrictDropdown = ({
             value={selectedDistrict}
             onChange={handleDistrictChange}
             renderInput={(params) => (
-              <TextField {...params} label="District" variant="standard" />
+              <TextField 
+              {...params} 
+              label={
+                <span>
+                    District <span style={{ color: 'red' }}>*</span>
+                </span>
+              }
+              variant="standard" />
             )}
-            sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}}
+            sx = {{width: {xs:"100%", sm: "90%"}, marginX: "20px"}}
           />
         </Grid>
       )}

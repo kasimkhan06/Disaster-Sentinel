@@ -15,7 +15,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import fetchStationData from "../../../hooks/fetchStationData";
 import FloodPredictionMap from "./FloodPredictionMap";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
-import worldMapBackground from "../../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const FloodPrediction = () => {
   const [selectedLocation, setSelectedLocation] = useState("All States");
@@ -402,7 +402,7 @@ const FloodPrediction = () => {
 
           {/* Clear filters button */}
           <Grid
-            size={{ xs: 12, sm: 12, md: 4, lg: 2 }}
+            size={{ xs: 12, sm: 12, md: 4, lg: 3 }}
             sx={{
               display: "flex",
               justifyContent: "center",
@@ -435,6 +435,7 @@ const FloodPrediction = () => {
         sx={{
           flex: 1,
           position: "relative",
+          mx:3,
           marginX: "auto",
           mb: 4,
           overflow: "hidden",

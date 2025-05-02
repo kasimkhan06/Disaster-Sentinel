@@ -13,15 +13,20 @@ import {
   Box,
   Avatar,
 } from "@mui/material";
+import { EventFormProvider } from "../hooks/useEventForm";
 import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import EventListing from "../pages/dashboard/agency/Announcement/EventListing";
+import EventForm from "../pages/dashboard/agency/Announcement/CreateEvent";
 
 const Header = () => {
   const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElAnnouncement, setAnchorElAnnouncement] = useState(null);
   const [anchorElProfile, setAnchorElProfile] = useState(null);
-  
+
   const theme = useTheme();
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
@@ -38,15 +43,22 @@ const Header = () => {
     }
   }, []);
 
+  // Services Menu Handlers
   const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
 
+  // Announcement Submenu Handlers
+  const handleOpenAnnouncementMenu = (e) => setAnchorElAnnouncement(e.currentTarget);
+  const handleCloseAnnouncementMenu = () => setAnchorElAnnouncement(null);
+
+  // Profile Menu Handlers
   const handleOpenProfileMenu = (e) => setAnchorElProfile(e.currentTarget);
   const handleCloseProfileMenu = () => setAnchorElProfile(null);
 
   const handleNavigation = (path) => {
     navigate(path);
     handleCloseMenu();
+    handleCloseAnnouncementMenu();
     handleCloseProfileMenu();
   };
 
@@ -119,7 +131,7 @@ const Header = () => {
                     transformOrigin={{ vertical: "top", horizontal: "right" }}
                     sx={{ marginTop: "10px" }}
                   >
-                    <MenuItem onClick={() => handleNavigation("/profile")}>Profile</MenuItem>
+                    <MenuItem onClick={() => handleNavigation(`/agency-profile/${user.user_id}`)}>Profile</MenuItem>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </Menu>
                 </>
@@ -140,29 +152,68 @@ const Header = () => {
         )}
       </Toolbar>
 
-      {/* Services Dropdown Menu */}
       <Menu
+        id="menu"
+        onClose={handleCloseMenu}
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{ marginTop: "10px" }}
+        anchorOrigin={{
+          vertical: "bottom", // Position the menu below the Services tab
+          horizontal: "center", // Align it at the center horizontally
+        }}
+        transformOrigin={{
+          vertical: "top", // Align the menu items to the top of the menu
+          horizontal: "center", // Align the menu items to the center horizontally
+        }}
+        sx={{
+          minWidth: "160px", // Adjust the minimum width of the menu to ensure enough space
+          marginTop: "10px", // Space between the menu and the "Services" tab
+        }}
       >
-        {user?.role === "agency" ? (
-          <>
-            <MenuItem onClick={() => handleNavigation("/missing-person")}>Missing Person List</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/agency")}>{user.full_name} Details</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/current-location")}>Current Location</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/announcement")}>Announcement</MenuItem>
-          </>
-        ) : (
-          <>
-            <MenuItem onClick={() => handleNavigation("/report-missing")}>Report Missing Person</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/agency")}>Agency Information</MenuItem>
-            <MenuItem onClick={() => handleNavigation("/current-location")}>Current Location</MenuItem>
-          </>
-        )}
+        <MenuItem
+          onClick={() => handleNavigation("/missing-person")}
+          sx={{ width: "100%", justifyContent: "center" }}
+        >
+          Missing Person List
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleNavigation("/agencies")}
+          sx={{ width: "100%", justifyContent: "center" }}
+        >
+          Agency Information
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleNavigation("/current-location")}
+          sx={{ width: "100%", justifyContent: "start" }}
+        >
+          Current Location
+        </MenuItem>
+        <MenuItem
+          onMouseEnter={handleOpenAnnouncementMenu}
+          onMouseLeave={handleCloseAnnouncementMenu}
+        >
+          Announcement 
+          <span style={{ marginLeft: "8px", display: "flex", alignItems: "center" }}>
+            <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
+          </span>
+        </MenuItem>
+        <Menu
+          anchorEl={anchorElAnnouncement}
+          open={Boolean(anchorElAnnouncement)}
+          onClose={handleCloseAnnouncementMenu}
+          anchorOrigin={{ vertical: 160, horizontal: 550 }}
+          transformOrigin={{ vertical: "top", horizontal: "center" }}
+          sx={{
+            marginLeft: "10px",
+            marginTop: "-10px",
+            pointerEvents: "auto", // Prevents flickering
+          }}
+          onMouseEnter={handleOpenAnnouncementMenu}
+          onMouseLeave={handleCloseAnnouncementMenu} 
+        >
+          <MenuItem onClick={() => handleNavigation("/event-listing")}>Event</MenuItem>
+          <MenuItem onClick={() => handleNavigation("/create-event")}>Create Event</MenuItem>
+        </Menu>
       </Menu>
     </AppBar>
   );

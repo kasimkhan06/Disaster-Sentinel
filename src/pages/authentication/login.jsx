@@ -4,6 +4,7 @@ import { Typography, Box, Grid, TextField, Button, Avatar, } from "@mui/material
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -60,6 +61,29 @@ const Login = () => {
             permissions: data.permissions // <<< Log the permissions array
           });
 
+          if (data.role === "user") {
+            navigate("/home");
+          } 
+          else {
+            try {
+              const response = await fetch(
+                `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${data.user_id}`
+              );
+              const agenycData = await response.json();
+              console.log("Agency details:", agenycData);
+              if(!agenycData) {
+                console.error("Agency details not found for user ID:", agenycData.user_id);
+                navigate("/registration-form");
+              }
+              else if (agenycData) {
+                console.log("Agency details:", agenycData);
+                navigate("/agency-dashboard");
+              }
+            } catch (error) {
+              console.error("Error fetching agency details:", error);
+            }
+          }
+
           // Store the relevant user data, INCLUDING permissions, in local storage
           // The backend response structure is directly stored here.
           localStorage.setItem("user", JSON.stringify(data));
@@ -103,8 +127,28 @@ const Login = () => {
 
   return (
     <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            minHeight: "100vh",
+            background: `
+          linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+          url(${worldMapBackground})
+        `,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "repeat-y",
+            margin: 0,
+            padding: 0,
+            zIndex: 0, // Only needed if you have other elements with zIndex
+          }}
+        >
+    <Box
       sx={{
-        background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
+        // background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
@@ -119,8 +163,8 @@ const Login = () => {
           backgroundColor: "#fff",
           paddingTop: "25px",
           paddingBottom: "25px",
-          borderRadius: "12px",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+          borderRadius: 2,
+          boxShadow: 3,
         }}
       >
         <Box sx={{ textAlign: "center" }}>
@@ -198,6 +242,7 @@ const Login = () => {
           </Typography>
         </Box>
       </Box>
+    </Box>
     </Box>
   );
 };

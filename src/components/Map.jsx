@@ -76,7 +76,7 @@ function MapLeaflet({ markers, setMarkers }) {
     const [city, setCity] = useState("");
     const location = UserGeoLocation();
     const mapRef = useRef(null);
-    const ZOOM_LEVEL = 16;
+    const ZOOM_LEVEL = 14;
 
     const saveMarkers = useCallback((newMarkerCoords) => {
         setMarkers([newMarkerCoords]);
@@ -145,7 +145,15 @@ function MapLeaflet({ markers, setMarkers }) {
                 center={center}
                 zoom={ZOOM_LEVEL}
                 scrollWheelZoom={false}
-                style={{ height: "400px", width: "100%", marginTop: "10px" }}
+                style={{ 
+                    height: "350px", 
+                    width: "100%", 
+                    marginTop: "10px", 
+                    borderRadius: "5px", 
+                    border: "1px solid #ccc", 
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.3)", 
+                    filter: "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
+                }}
                 ref={mapRef}
             >
                 <TileLayer attribution={osm.maptiler.attribution} url={osm.maptiler.url} />
