@@ -13,6 +13,7 @@ import {
   Avatar,
   Autocomplete
 } from "@mui/material";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const mockData = [
   {
@@ -87,8 +88,37 @@ const StatusTracking = () => {
   };
 
   return (
+    <Box 
+    sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            minHeight: "100vh",
+            background: `
+          linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+          url(${worldMapBackground})
+        `,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "repeat-y",
+            margin: 0,
+            padding: 0,
+            zIndex: 0, // Only needed if you have other elements with zIndex
+          }}
+    // sx={{         
+    //              position: "relative", minHeight: "100vh",
+    //              background: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${worldMapBackground})`,
+    //              backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundRepeat: "repeat-y",
+    //              overflowX: "hidden",
+    //              overflowY: "hidden",
+    //              marginTop:"65px", 
+    //             //  display: 'flex', flexDirection: 'column', 
+    //             }}
+                >
     <Container maxWidth="md" sx={{ mt: 8, pb: 4 }}>
-      <div style={{ display: "flex", justifyContent: "center", marginTop: "40px" }}>
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "100px" }}>
         <Autocomplete
           freeSolo
           id="person-search-input"
@@ -112,6 +142,7 @@ const StatusTracking = () => {
                 borderBottom: "2px solid #eee",
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "white",
+                  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                   "& fieldset": {
                     borderColor: "transparent",
                   },
@@ -129,7 +160,12 @@ const StatusTracking = () => {
                   color: "inherit",
                 },
                 "& .MuiInputBase-input": {
-                  fontSize: "1rem",
+                  fontSize: {
+                    xs: "0.7rem",
+                        sm: "0.8rem",
+                        // md: isBelow ? "0.9rem" : "1rem",
+                        // lg: isBelow ? "0.9rem" : "1rem",
+                  },
                 },
                 "&::placeholder": {
                   fontSize: "1rem",
@@ -194,6 +230,7 @@ const StatusTracking = () => {
         </Card>
       )}
     </Container>
+    </Box>
   );
 };
 
