@@ -4,7 +4,7 @@ import {Typography,Box,Grid,TextField,RadioGroup,FormControlLabel,Radio,Button,A
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import { AccountCircle, Phone, Email, Lock, Business } from "@mui/icons-material";
 import axios from "axios";
-import worldMapBackground from "../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const Register = () => {
   const navigate = useNavigate();

@@ -1,5 +1,13 @@
+//React
 import { useState, useEffect, startTransition } from "react";
+
+// React Router
 import { useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+
+
+// MUI Components
 import {
   TextField,
   MenuItem,
@@ -21,16 +29,27 @@ import {
   Chip,
   IconButton,
   FormHelperText,
+  Card,
+  TextareaAutosize,
+  Divider,
 } from "@mui/material";
 import { 
   Add, 
   Delete 
 } from "@mui/icons-material";
-import { Controller } from "react-hook-form";
+
+// Custom Components
 import MaxHeightTextarea from "../../../../components/TextArea";
 
+// Styles & Assets
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+
+// Axios for API requests
+import axios from "axios";
+
+
 const steps = ["Basic Info", "Location", "Details", "Timeline", "Review & Submit"];
-const eventTypes = ["Conference", "Workshop", "Seminar", "Webinar", "Networking", "Other"];
+const eventTypes = ["Conference", "Workshop", "Seminar", "Webinar", "Networking"];
 const platforms = ["Zoom", "Google Meet", "Microsoft Teams", "Webex"];
 const regTypes = ["Free", "Paid"];
 const disasterTags = [
@@ -42,47 +61,63 @@ const disasterTags = [
 export default function EventFormWithStepper() {
   const { control } = useForm(); 
   const [activeStep, setActiveStep] = useState(0);
-  const [isOnline, setIsOnline] = useState("offline");
+  const [isOnline, setIsOnline] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
-  const [timelineItems, setTimelineItems] = useState([{ time: "", activity: "" }]);
+  const [timeline_items, setTimelineItems] = useState([
+    { time: "", activity: "" },
+  ]);
   const [errors, setErrors] = useState({});
+  const [user, setUser] = useState(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setIsLogin(true);
+      console.log("User data:", storedUser);
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
-      name: "",
-      date: "",
-      startTime: "",
-      eventType: "",
-      platform: "",
-      meetingLink: "",
-      meetingID: "",
-      venueName: "",
-      address: "",
-      city: "",
-      state: "",
-      attendees: "",
-      regType: "",
-      tags: [],
-      timelineItems: [],
-      description: "",
-      locationType: "online",
+    name: "",
+    date: "",
+    start_time: "",
+    event_type: "",
+    platform: "",
+    meeting_link: "",
+    meeting_id: "",
+    venue_name: "",
+    address: "",
+    city: "",
+    state: "",
+    attendees: "",
+    reg_type: "",
+    tags: [],
+    timeline_items: [],
+    description: "",
+    location_type: "online",
   });
 
   const updateFormState = (newState) => {
     setFormData((prevState) => ({ ...prevState, ...newState }));
   };
 
-  const handleUpdateItem = (index, field, value) => {
-    setTimelineItems((prevItems) => {
-      const newItems = [...prevItems];
-      newItems[index][field] = value;
-      return newItems;
-    });
-  };
+  const formatTime = (time) => (time.length === 5 ? time + ":00" : time);
 
+  const handleUpdateItem = (index, field, value) => {
+    setTimelineItems((prevItems) =>
+      prevItems.map((item, i) =>
+        i === index ? { ...item, [field]: field === "time" ? formatTime(value) : value } : item
+      )
+    );
+  };
+  
   const handleRemoveItem = (index) => {
     setTimelineItems((prevItems) => prevItems.filter((_, i) => i !== index));
-  };
+  };  
 
   const handleAddItem = () => {
     setTimelineItems((prevItems) => [...prevItems, { time: "", activity: "" }]);
@@ -101,28 +136,51 @@ export default function EventFormWithStepper() {
   };
 
   const handleSubmit = async () => {
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("date", formData.date);
-    data.append("startTime", formData.startTime);
-    data.append("eventType", formData.eventType);
-    data.append("platform", formData.platform);
-    data.append("meetingLink", formData.meetingLink);
-    data.append("meetingID", formData.meetingID);
-    data.append("venueName", formData.venueName);
-    data.append("address", formData.address);
-    data.append("city", formData.city);
-    data.append("state", formData.state);
-    data.append("attendees", formData.attendees);
-    data.append("regType", formData.regType);
-    data.append("tags", JSON.stringify(selectedTags));
-    data.append("timelineItems", JSON.stringify(timelineItems));
-    data.append("description", formData.description);
-
-    console.log("Form Data:", data.name);
-    setActiveStep((prevStep) => prevStep + 1);
-    setErrors({});
-  };
+    try {
+      const data = new FormData();
+      data.append("user_id", user?.user_id ? parseInt(user.user_id, 10) : null);
+      data.append("name", formData.name);
+      data.append("date", formData.date);
+      data.append("start_time", formData.start_time);
+      data.append("event_type", formData.event_type);
+      data.append("platform", formData.platform || "");
+      data.append("meeting_link", formData.meeting_link);
+      data.append("meeting_id", formData.meeting_id);
+      data.append("venue_name", formData.venue_name);
+      data.append("address", formData.address);
+      data.append("city", formData.city);
+      data.append("state", formData.state);
+      data.append("attendees", formData.attendees);
+      data.append("reg_type", formData.reg_type);
+      data.append("tags", JSON.stringify(selectedTags));
+      data.append("timeline_items", JSON.stringify(timeline_items));
+      data.append("description", formData.description);
+      data.append("location_type", formData.location_type);
+  
+      for (let pair of data.entries()) {
+        console.log(pair[0] + ": " + pair[1]);
+      }
+  
+      setActiveStep((prevStep) => prevStep + 1);
+      setErrors({});
+  
+      const response = await axios.post(
+        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/",
+        data,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      console.log("Event Created Successfully:", response.data);
+      navigate("/event-listing");
+    } catch (error) {
+      console.error("Event Creation Failed:", error.response?.data || error);
+    }
+  };  
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
@@ -135,33 +193,52 @@ export default function EventFormWithStepper() {
 
   const validateForm = () => 
   {
-    const newErrors = {};
-
+    let newErrors = {};
     if(activeStep === 0){
       if (!formData.name?.trim()) newErrors.name = "Event name is required";
       if (!formData.date?.trim()) newErrors.date = "Date is required";
-      if (!formData.startTime?.trim()) newErrors.startTime = "Start time is required";
-      if (!formData.eventType?.trim()) newErrors.eventType = "Event type is required";
+      if (!formData.start_time?.trim()) newErrors.start_time = "Start time is required";
+      if (!formData.event_type?.trim()) newErrors.event_type = "Event type is required";
     }
     else if (activeStep === 1) {
-      if (formData.locationType === "online") {
+      if (formData.location_type === "online") {
         if (!formData.platform?.trim()) newErrors.platform = "Platform is required";
-        if (!formData.meetingLink?.trim()) newErrors.meetingLink = "Meeting Link is required";
-        if (!formData.meetingID?.trim()) newErrors.meetingID = "Meeting ID is required";
-      } else {
-        if (!formData.venueName?.trim()) newErrors.venueName = "Venue name is required";
+        if (!formData.meeting_link?.trim()) {
+          newErrors.meeting_link = "Meeting Link is required";
+        } else {
+            const url = new URL(formData.meeting_link.trim());
+            const host = url.hostname.toLowerCase();
+        
+            const platformDomainMap = {
+              google: "meet.google.com",
+              zoom: "zoom.us",
+              microsoft: "teams.microsoft.com",
+              webex: "webex.com",
+            };
+        
+            const expectedDomain = platformDomainMap[formData.platform.toLowerCase().split(" ")[0]];
+            console.log("Expected Domain:", expectedDomain);
+        
+            if (!expectedDomain) {
+              newErrors.platform = "Unknown platform selected";
+            } else if (!host.includes(expectedDomain)) {
+              newErrors.meeting_link = `The meeting link must be a valid ${formData.platform} URL`;
+            }
+          }  
+        if (!formData.meeting_id?.trim()) newErrors.meeting_id = "Meeting ID is required";
+        } else {
+        if (!formData.venue_name?.trim()) newErrors.venue_name = "Venue name is required";
         if (!formData.address?.trim()) newErrors.address = "Address is required";
         if (!formData.city?.trim()) newErrors.city = "City is required";
         if (!formData.state?.trim()) newErrors.state = "State is required";
       }
     }
     else if(activeStep === 2){
-      if (!formData.regType.trim()) newErrors.regType = "Registration type is required";
+      if (!formData.reg_type.trim()) newErrors.reg_type = "Registration type is required";
       if (selectedTags.length === 0) newErrors.tags = "At least one tag is required";
     }
 
     setErrors(newErrors);
-    // Return true if no errors, false otherwise  
     return Object.keys(newErrors).length === 0;
   };
 
@@ -170,430 +247,561 @@ export default function EventFormWithStepper() {
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
-      {/* Stepper Component */}
-      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+    <Box 
+      sx={{
+        position: "absolute",
+        width: "100%", 
+        top: 0,
+        left: 0,
+        right: 0,
+        minHeight: "100vh",
+        background: `
+      linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+      url(${worldMapBackground})
+    `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "repeat-y",
+        margin: 0,
+        padding: 0,
+        zIndex: 0, 
+      }}>
+      <Box sx={{ mt: 15, mb: 4, marginX:"auto", width: "70%", display:"flex", alignContent:"center", flexDirection:"column", }}>
+        {/* Stepper Component */}
+        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
 
-      {/* Step Content */}
-      {activeStep === steps.length ? (
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="h6">All steps completed - Event Created!</Typography>
-          <Button onClick={() => setActiveStep(0)} variant="contained" sx={{ mt: 2 }}>
-            Create Another Event
-          </Button>
-        </Box>
-      ) : (
-        <>
-          <Grid container spacing={3} sx={{ mb: 3 }}>
+        {/* Step Content */}
+        {activeStep === steps.length ? (
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="h6">All steps completed - Event Created!</Typography>
+            <Button onClick={() => setActiveStep(0)} variant="contained" sx={{ mt: 2 }}>
+              Create Another Event
+            </Button>
+          </Box>
+        ) : (
+          <>
+            <Grid container spacing={3} sx={{ mb: 3 }}>
 
-            {/* Basic Info Step */}
-            {activeStep === 0 && (
-              <>
-                {/* Event Name */}
-                <Grid item xs={12} md={12}>
-                  <TextField
-                    fullWidth
-                    label="Event Name *"
-                    variant="standard"
-                    value={formData.name}
-                    onChange={(e) => updateFormState({ name: e.target.value })}
-                    error={!!errors.name}
-                    helperText={errors.name} 
-                    sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                    InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                  />
-                </Grid>
-
-                {/* Date & Time */}
-                <Grid item xs={6} md={3}>
-                  <TextField
-                    fullWidth
-                    type="date"
-                    label="Date *"
-                    value={formData.date}
-                    onChange={(e) => updateFormState({ ...formData, date: e.target.value })}
-                    error={!!errors.date}
-                    helperText={errors.date} 
-                    InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                    sx = {{width: {xs:"80%", sm: "75%"}, marginX: "20px"}}
-                  />
-                </Grid>
-
-                <Grid item xs={6} md={3} sx={{ marginLeft: "100px" }}>
-                  <TextField
-                    fullWidth
-                    type="time"
-                    label="Time *"
-                    value={formData.startTime}
-                    onChange={(e) => updateFormState({ ...formData, startTime: e.target.value })}
-                    error={!!errors.startTime}
-                    helperText={errors.startTime} 
-                    InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                    sx = {{width: {xs:"80%", sm: "75%"}, marginX: "20px"}}
-                  />
-                </Grid>
-
-                {/* Event Type */}
-                <Grid item xs={12} md={12}>
-                  <FormControl 
-                    fullWidth 
-                    variant="standard" 
-                    sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }}
-                    error={!!errors.eventType}
-                  >
-                    <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>Event Type *</InputLabel>
-                    <Select 
-                      value={formData.eventType}
-                      onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
-                    >
-                      {eventTypes.map((type) => (
-                        <MenuItem key={type} value={type}>
-                          {type}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.eventType && <FormHelperText>{errors.eventType}</FormHelperText>}
-                  </FormControl>
-                </Grid>
-              </>
-            )}
-
-            {/* Location Step */}
-            {activeStep === 1 && (
-              <>
-                <Container maxWidth="md" sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 4 }}>
-                  <Paper 
-                      elevation={3} 
-                      sx={{ 
-                        width: "100%", 
-                        maxWidth: 600, 
-                      p: 3, 
-                      borderRadius: 3, 
-                      bgcolor: "background.paper",
-                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)"
-                    }}
-                    >
-                    <Box display="flex" alignItems="center" justifyContent="space-between">
-                    <Typography variant="body1" fontWeight={600} color="text.primary">
-                        Event Format:
-                    </Typography>
-                    <FormControl>
-                        <FormControlLabel
-                        control={
-                          <Switch
-                          checked={isOnline}
-                          color="primary"
-                          onChange={(event) => {
-                            const checked = event.target.checked;
-                            const newLocationType = checked ? "online" : "offline";
-                            updateFormState({ locationType: newLocationType });
-                            setIsOnline(checked);
-                          }}
-                          />
-                        }
-                        label={isOnline ? "Virtual" : "In-Person"}
-                        />
-                    </FormControl>
-                    </Box>
-                  </Paper>
-                </Container>
-
-                {isOnline ? (
-                  <>
-                    <Grid item xs={12} md={12}>
-                      <FormControl fullWidth variant="standard" sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }} error={!!errors.platform}>
-                        <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>Platform</InputLabel>
-                          <Select 
-                          value={formData.platform}
-                          onChange={(e) => setFormData({ ...formData, platform: e.target.value })}>
-                          {platforms.map((type) => (
-                            <MenuItem key={type} value={type}>
-                              {type}
-                              </MenuItem>
-                          ))}
-                          </Select>
-                        {errors.platform && <FormHelperText>{errors.platform}</FormHelperText>}
-                      </FormControl>
-                    </Grid>
-
-                    <Grid item xs={12} md={12}>
-                      <TextField
-                        fullWidth
-                        label="Meeting Link *"
-                        variant="standard"
-                        value={formData.meetingLink}
-                        onChange={(e) => updateFormState({ ...formData, meetingLink: e.target.value })}
-                        error={!!errors.meetingLink}
-                        helperText={errors.meetingLink} 
-                        sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                        InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                      />
-                    </Grid>
-
-                    <Grid item xs={12} md={12}>
-                      <TextField
-                        fullWidth
-                        label="Meeting ID *"
-                        variant="standard"
-                        value={formData.meetingID}
-                        onChange={(e) => updateFormState({ ...formData, meetingID: e.target.value })}
-                        error={!!errors.meetingID}
-                        helperText={errors.meetingID} 
-                        sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                        InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                      />
-                    </Grid>
-                  </>
-                  ) : (
-                    <>
-                      <Grid item xs={12} md={12}>
-                        <TextField
-                          fullWidth
-                          label="Venue Name *"
-                          variant="standard"
-                          value={formData.venueName}
-                          onChange={(e) => updateFormState({ ...formData, venueName: e.target.value })}
-                          error={!!errors.venueName}
-                          helperText={errors.venueName} 
-                          sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                          InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                        />
-                      </Grid>
-
-                      <Grid item xs={12} md={12}>
-                        <TextField
-                          fullWidth
-                          label="Venue Address *"
-                          variant="standard"
-                          value={formData.address}
-                          onChange={(e) => updateFormState({ ...formData, address: e.target.value})}
-                          error={!!errors.address}
-                          helperText={errors.address}
-                          sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                          InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                        />
-                      </Grid>
-
+              {/* Basic Info Step */}
+              {activeStep === 0 && (
+                <Grid item xs={12} sx={{ marginTop: "20px" }}>
+                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                    {/* Event Name & Event Type */}
+                    <Grid container spacing={3}>
+                      {/* Event Name */}
                       <Grid item xs={12} md={6}>
                         <TextField
                           fullWidth
-                          label="City *"
+                          label={
+                            <span>
+                              Event Name <span style={{ color: 'red' }}>*</span>
+                            </span>
+                          }
                           variant="standard"
-                          value={formData.city}
-                          onChange={(e) => updateFormState({ ...formData, city: e.target.value })}
-                          error={!!errors.city}
-                          helperText={errors.city} 
-                          sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
+                          value={formData.name}
+                          onChange={(e) => updateFormState({ name: e.target.value })}
+                          error={!!errors.name}
+                          helperText={errors.name}
                           InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
                         />
                       </Grid>
-
+                
+                      {/* Event Type */}
                       <Grid item xs={12} md={6}>
-                        <TextField
+                        <FormControl
                           fullWidth
-                          label="State *"
                           variant="standard"
-                          value={formData.state}
-                          onChange={(e) => updateFormState({ ...formData, state: e.target.value })}
-                          error={!!errors.state}
-                          helperText={errors.state} 
-                          sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                          InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                        />
-                      </Grid>
-                    </>
-                  )}
-              </>
-            )}
-
-            {/* Details Step */}
-            {activeStep === 2 && (
-              <>
-                <Grid item xs={12} md={12} sx={{ marginTop: "5px", marginX: "20px" }}>
-                  <MaxHeightTextarea placeholder="Provide a description of the event." />
-                </Grid>
-
-                <Grid item xs={12} md={12} sx={{ marginTop: "-5px" }}>
-                  <TextField
-                    fullWidth
-                    label="Maximum Attendees (optional)"
-                    type="number"
-                    variant="standard"
-                    value={formData.attendees}
-                    onChange={(e) => updateFormState({ ...formData, attendees: e.target.value })}
-                    sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
-                    InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={12}>
-                  <FormControl fullWidth variant="standard" sx={{ width: {xs:"100%", sm: "95%"}, marginX: "20px" }} error={!!errors.eventType}>
-                    <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "95%"} }}>Registration Type</InputLabel>
-                      <Select 
-                      value={formData.regType}
-                      onChange={(e) => setFormData({ ...formData, regType: e.target.value })}>
-                      {regTypes.map((type) => (
-                        <MenuItem key={type} value={type}>
-                          {type}
-                          </MenuItem>
-                      ))}
-                      </Select>
-                    {errors.regType && <FormHelperText>{errors.regType}</FormHelperText>}
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} md={12} sx={{ marginTop: "10px", marginX: "20px" }}>
-                  <Controller
-                    name="tags"
-                    control={control}
-                    render={({ field: { onChange } }) => (
-                      <FormControl fullWidth variant="standard" error={!!errors.tags}>
-                        <FormLabel>Tags (Select up to 5)</FormLabel>
-                        <Paper elevation={1} sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2 }}>
-                          <Box display="flex" flexWrap="wrap" gap={1}>
-                            {disasterTags.map((tag) => (
-                              <Chip
-                                key={tag}
-                                label={tag}
-                                variant={selectedTags.includes(tag) ? "filled" : "outlined"}
-                                color={selectedTags.includes(tag) ? "primary" : "default"}
-                                onClick={() => handleTagClick(tag, onChange)}
-                                sx={{ cursor: "pointer" }}
-                              />
-                              ))}
-                          </Box>
-                        </Paper>
-                    {errors.tags && <FormHelperText>{errors.tags}</FormHelperText>}
-                      </FormControl>
-                    )}
-                  />
-                </Grid>
-              </>
-            )}
-
-            {/* Timeline Step */}
-            {activeStep === 3 && (
-              <>
-                <Box sx={{ px: { xs: 2, md: 4 }, py: 3, maxWidth: "1000px", minWidth: "600px", mx: "auto" }}>
-                  <Typography variant="h6" fontWeight="600" color="text.primary" mb={2}>
-                    Event Timeline
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" mb={3}>
-                    Add key activities to your event schedule
-                  </Typography>
-            
-                  <Box display="flex" flexDirection="column" gap={2}> 
-                    {timelineItems.map((item, index) => (
-                      <Paper
-                      key={index}
-                        elevation={2}
-                        sx={{ p: 3, borderRadius: 2, border: "1px solid", borderColor: "grey.500", bgcolor: "background.paper" }}
+                          error={!!errors.event_type}
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
                         >
-                        <Grid container spacing={3} alignItems="center">
-                          <Grid item xs={6} md={6}>
-                            <Typography variant="body1" fontWeight={600} color="text.primary">
-                              Time
-                            </Typography>
-                            <TextField
-                              fullWidth
-                              type="time"
-                              value={item.time}
-                              onChange={(e) => handleUpdateItem(index, "time", e.target.value)}
-                              InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                              sx = {{width: {xs:"80%", sm: "75%"}}}
-                              />
-                          </Grid>
-            
+                          <InputLabel sx={{ fontSize: '0.9rem' }}>
+                            Event Type <span style={{ color: "red" }}>*</span>
+                          </InputLabel>
+                          <Select
+                            value={formData.event_type}
+                            onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
+                          >
+                            {eventTypes.map((type) => (
+                              <MenuItem key={type} value={type}>
+                                {type}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {errors.event_type && <FormHelperText>{errors.event_type}</FormHelperText>}
+                        </FormControl>
+                      </Grid>
+                    </Grid>
+                
+                    {/* Date & Time */}
+                    <Grid container spacing={3} sx={{ marginTop: "20px" }}>
+                      <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                          fullWidth
+                          type="date"
+                          label={
+                            <span>
+                              Date <span style={{ color: 'red' }}>*</span>
+                            </span>
+                          }
+                          value={formData.date}
+                          onChange={(e) => updateFormState({ ...formData, date: e.target.value })}
+                          error={!!errors.date}
+                          helperText={errors.date}
+                          InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                        />
+                      </Grid>
+                
+                      <Grid item xs={12} sm={6} md={3}>
+                        <TextField
+                          fullWidth
+                          type="time"
+                          label={
+                            <span>
+                              Time <span style={{ color: 'red' }}>*</span>
+                            </span>
+                          }
+                          value={formData.start_time}
+                          onChange={(e) => updateFormState({ ...formData, start_time: e.target.value })}
+                          error={!!errors.start_time}
+                          helperText={errors.start_time}
+                          InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Card>
+                </Grid>              
+              )}
+
+              {/* Location Step */}
+              {activeStep === 1 && (
+                <Grid item xs={12} sx={{ marginTop: "20px" }}>
+                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                    <Container maxWidth="md" sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 4 }}>
+                      <Paper 
+                        elevation={3} 
+                        sx={{ 
+                          width: "100%", 
+                          maxWidth: 600, 
+                          p: 3, 
+                          borderRadius: 3, 
+                          bgcolor: "background.paper",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)"
+                        }}
+                      >
+                        <Box display="flex" alignItems="center" justifyContent="space-between">
+                          <Typography variant="body1" fontWeight={600} color="text.primary">
+                            Event Format:
+                          </Typography>
+                          <FormControl>
+                            <FormControlLabel
+                              control={
+                                <Switch
+                                  checked={isOnline === "online"} 
+                                  color="primary"
+                                  onChange={(event) => {
+                                    const checked = event.target.checked;
+                                    const newLocation_type = checked ? "online" : "offline";
+                                    updateFormState({ location_type: newLocation_type });
+                                    setIsOnline(newLocation_type);
+                                  }}
+                                />
+                              }
+                              label={isOnline === "online" ? "Virtual" : "In-Person"}
+                            />
+                          </FormControl>
+                        </Box>
+                      </Paper>
+                    </Container>
+
+                    {/* Online Event */}
+                    {isOnline === "online" ? (
+                      <>
+                        <Grid container spacing={3} sx={{ marginTop: "10px" }}>
+                          {/* Event Platform */}
                           <Grid item xs={12} md={6}>
-                            <Typography variant="body1" fontWeight={600} color="text.primary">
-                              Activity Description
-                            </Typography>
+                            <FormControl fullWidth variant="standard" sx={{ width: { xs: "100%", sm: "92%" }, marginX: "20px" }} error={!!errors.platform}>
+                              <InputLabel sx={{ fontSize: "0.9rem", width: { xs: "100%", sm: "95%" } }}>
+                                Platform <span style={{ color: "red" }}>*</span>
+                              </InputLabel>
+                              <Select 
+                                value={formData.platform}
+                                onChange={(e) => updateFormState({ ...formData, platform: e.target.value })} // Set image based on platform
+                              >
+                                {platforms.map((type) => (
+                                  <MenuItem key={type} value={type}>
+                                    {type}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {errors.platform && <FormHelperText>{errors.platform}</FormHelperText>}
+                            </FormControl>
+                          </Grid>
+
+                          {/* Meeting Link */}
+                          <Grid item xs={12} md={6}>
                             <TextField
                               fullWidth
-                              placeholder="Enter activity description"
-                              value={item.activity}
-                              onChange={(e) => handleUpdateItem(index, "activity", e.target.value)}
-                              />
-                          </Grid>
-            
-                          <Grid item xs={12} md={1} display="flex" justifyContent="center" alignItems="center">
-                            {timelineItems.length > 1 && (
-                              <IconButton color="error" onClick={() => handleRemoveItem(index)}>
-                                <Delete />
-                              </IconButton>
-                            )}
+                              label={
+                                <span>
+                                  Meeting Link <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.meeting_link}
+                              onChange={(e) => updateFormState({ ...formData, meeting_link: e.target.value })}
+                              error={Boolean(errors.meeting_link)}
+                              helperText={errors.meeting_link || ""} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
                           </Grid>
                         </Grid>
-                      </Paper>
-                    ))}
-                  </Box>
-            
-                  <Box display="flex" justifyContent="start" mt={3}>
-                    <Button
-                      variant="contained"
-                      startIcon={<Add />}
-                      onClick={handleAddItem}
-                      sx={{
-                        borderRadius: 2,
-                        bgcolor: "primary.main",
-                        color: "white",
-                        "&:hover": { bgcolor: "primary.dark" },
-                      }}
-                      >
-                      Add Activity
-                    </Button>
-                  </Box>
-                </Box>
-              </>
-            )}
 
-            {/* Review Step */}
-            {activeStep === 4 && (
-              <>
-              <Grid item xs={12}>
-                <Typography variant="h6">Review Your Information</Typography>
-                <Typography variant="body1">Event Name: {formData.name}</Typography>
-                <Typography variant="body1">Date: {formData.date}</Typography>
-                <Typography variant="body1">Time: {formData.startTime}</Typography>
-                <Typography variant="body1">Event Type: {formData.eventType}</Typography>
-                {isOnline ? (
+                        <Grid item xs={12} md={6} sx={{ marginTop: "10px" }}>
+                          <TextField
+                            fullWidth
+                            label={
+                              <span>
+                                Meeting ID <span style={{ color: 'red' }}>*</span>
+                              </span>
+                            }
+                            variant="standard"
+                            value={formData.meeting_id}
+                            onChange={(e) => updateFormState({ ...formData, meeting_id: e.target.value })}
+                            error={!!errors.meeting_id}
+                            helperText={errors.meeting_id} 
+                            sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                            InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                          />
+                        </Grid>
+                      </>
+                    ) : (
+                      <>
+                        <Grid container spacing={3} sx={{ marginTop: "10px" }}>
+                          {/* Venue Name */}
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label={
+                                <span>
+                                  Venue Name <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.venue_name}
+                              onChange={(e) => updateFormState({ ...formData, venue_name: e.target.value })}
+                              error={!!errors.venue_name}
+                              helperText={errors.venue_name} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
+                          </Grid>
+                    
+                          {/* Venue Address */}
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label={
+                                <span>
+                                  Venue Address <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.address}
+                              onChange={(e) => updateFormState({ ...formData, address: e.target.value })}
+                              error={!!errors.address}
+                              helperText={errors.address}
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
+                          </Grid>
+                        </Grid>
+
+                        <Grid container spacing={3} sx={{ marginTop: "10px" }}>
+                          {/* City & State */}
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label={
+                                <span>
+                                  City <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.city}
+                              onChange={(e) => updateFormState({ ...formData, city: e.target.value })}
+                              error={!!errors.city}
+                              helperText={errors.city} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
+                          </Grid>
+
+                          <Grid item xs={12} md={6}>
+                            <TextField
+                              fullWidth
+                              label={
+                                <span>
+                                  State <span style={{ color: 'red' }}>*</span>
+                                </span>
+                              }
+                              variant="standard"
+                              value={formData.state}
+                              onChange={(e) => updateFormState({ ...formData, state: e.target.value })}
+                              error={!!errors.state}
+                              helperText={errors.state} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                            />
+                          </Grid>
+                        </Grid>
+                      </>
+                    )}
+                  </Card>
+                </Grid>
+              )}
+
+              {/* Details Step */}
+              {activeStep === 2 && (
+                <Grid item xs={12} sx={{ marginTop: "20px" }}>
+                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                    <Grid item xs={12} md={12} sx={{ marginTop: "5px", marginX: "20px" }}>
+                      <TextareaAutosize
+                        minRows={4}
+                        placeholder="Provide a description of the event."
+                        value={formData.description}
+                        onChange={(e) => updateFormState({ description: e.target.value })}
+                        style={{
+                            width: '97%',
+                            resize: 'none',
+                            padding: '8px 12px',
+                            fontSize: '0.9rem',
+                            lineHeight: 1.5,
+                            borderRadius: '8px',
+                            border: '1px solid #ccc',
+                            color: '#1C2025',
+                            backgroundColor: '#fff',
+                            outline: 'none',
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid container spacing={3} sx={{ marginTop: "10px" }}>
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="Maximum Attendees"
+                          type="number"
+                          variant="standard"
+                          value={formData.attendees}
+                          onChange={(e) => updateFormState({ ...formData, attendees: e.target.value })}
+                          sx = {{width: {xs:"100%", sm: "90%"}, marginX: "20px"}} 
+                          InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <FormControl fullWidth variant="standard" sx={{ width: {xs:"100%", sm: "90%"}, marginX: "20px" }} error={!!errors.eventType}>
+                          <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "90%"} }}>
+                            Registration Type <span style={{ color: 'red' }}>*</span>
+                          </InputLabel>
+                            <Select 
+                            value={formData.reg_type}
+                            onChange={(e) => setFormData({ ...formData, reg_type: e.target.value })}>
+                            {regTypes.map((type) => (
+                              <MenuItem key={type} value={type}>
+                                {type}
+                                </MenuItem>
+                            ))}
+                            </Select>
+                          {errors.reg_type && <FormHelperText>{errors.reg_type}</FormHelperText>}
+                        </FormControl>
+                      </Grid>
+                    </Grid>
+
+                    <Grid container spacing={3} sx={{ marginTop: "25px" }}>
+                      <Grid item xs={12} md={12} sx={{ marginX: "20px" }}>
+                        <Controller
+                          name="tags"
+                          control={control}
+                          render={({ field: { onChange } }) => (
+                            <FormControl fullWidth variant="standard" error={!!errors.tags}>
+                              <FormLabel sx={{ width: {xs:"100%", sm: "90%"}, marginBottom: "10px" }}>
+                                Tags (Select up to 5) <span style={{ color: 'red' }}>*</span>
+                              </FormLabel>
+                              <Paper elevation={1} sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2, width: {xs:"100%", sm: "96%"} }}>
+                                <Box display="flex" flexWrap="wrap" gap={1}>
+                                  {disasterTags.map((tag) => (
+                                    <Chip
+                                      key={tag}
+                                      label={tag}
+                                      variant={selectedTags.includes(tag) ? "filled" : "outlined"}
+                                      color={selectedTags.includes(tag) ? "primary" : "default"}
+                                      onClick={() => handleTagClick(tag, onChange)}
+                                      sx={{ cursor: "pointer" }}
+                                    />
+                                    ))}
+                                </Box>
+                              </Paper>
+                          {errors.tags && <FormHelperText>{errors.tags}</FormHelperText>}
+                            </FormControl>
+                          )}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Card>
+                </Grid>
+              )}
+
+              {/* Timeline Step */}
+              {activeStep === 3 && (
                 <>
-                  <Typography variant="body1">Platform: {formData.platform}</Typography>
-                  <Typography variant="body1">Meeting Link: {formData.meetingLink}</Typography>
-                  <Typography variant="body1">Meeting ID: {formData.meetingID}</Typography>
+                  <Box sx={{ px: { xs: 2, md: 4 }, py: 3, maxWidth: "1000px", minWidth: "600px", mx: "auto", mt: 5, mb: 2, borderRadius: 3, boxShadow: 3, bgcolor: "background.paper" }}>
+                    <Typography variant="h6" fontWeight="600" color="text.primary" mb={2}>
+                      Event Timeline
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" mb={3}>
+                      Add key activities to your event schedule
+                    </Typography>
+              
+                    <Box display="flex" flexDirection="column" gap={2}> 
+                      {timeline_items.map((item, index) => (
+                        <Paper
+                          key={index}
+                          elevation={2}
+                          sx={{ p: 3, borderRadius: 2, border: "1px solid", borderColor: "grey.500", bgcolor: "background.paper" }}
+                        >
+                          <Grid container spacing={3} alignItems="center">
+                            <Grid item xs={6} md={6}>
+                              <Typography variant="body1" fontWeight={600} color="text.primary">
+                                Time
+                              </Typography>
+                              <TextField
+                                fullWidth
+                                type="time"
+                                value={item.time}
+                                onChange={(e) => handleUpdateItem(index, "time", e.target.value)}
+                                InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
+                                sx = {{width: {xs:"80%", sm: "75%"}}}
+                                />
+                            </Grid>
+              
+                            <Grid item xs={12} md={6}>
+                              <Typography variant="body1" fontWeight={600} color="text.primary">
+                                Activity Description
+                              </Typography>
+                              <TextField
+                                fullWidth
+                                placeholder="Enter activity description"
+                                value={item.activity}
+                                onChange={(e) => handleUpdateItem(index, "activity", e.target.value)}
+                                />
+                            </Grid>
+              
+                            <Grid item xs={12} md={1} display="flex" justifyContent="center" alignItems="center">
+                              {timeline_items.length > 1 && (
+                                <IconButton color="error" onClick={() => handleRemoveItem(index)}>
+                                  <Delete />
+                                </IconButton>
+                              )}
+                            </Grid>
+                          </Grid>
+                        </Paper>
+                      ))}
+                    </Box>
+              
+                    <Box display="flex" justifyContent="start" mt={3}>
+                      <Button
+                        variant="contained"
+                        startIcon={<Add />}
+                        onClick={handleAddItem}
+                        sx={{
+                          borderRadius: 2,
+                          bgcolor: "primary.main",
+                          color: "white",
+                          "&:hover": { bgcolor: "primary.dark" },
+                        }}
+                        >
+                        Add Activity
+                      </Button>
+                    </Box>
+                  </Box>
                 </>
-                ) : (
-                <>
-                  <Typography variant="body1">Venue Name: {formData.venueName}</Typography>
-                  <Typography variant="body1">Venue Address: {formData.address}</Typography>
-                  <Typography variant="body1">City: {formData.city}</Typography>
-                  <Typography variant="body1">State: {formData.state}</Typography>
-                </>
-                )}
-                {selectedTags.length > 0 && (
-                <Typography variant="body1">Tags: {selectedTags.join(", ")}</Typography>
-                )}
-                <Typography variant="body1">Registration Type: {formData.regType}</Typography>
-                <Typography variant="body1">
-                  Maximum Attendees: {formData.attendees?.trim() ? formData.attendees : "Not Entered"}
-                </Typography>
-                {timelineItems.length > 0 && (
-                <Typography variant="body1">
-                  Timeline: {timelineItems.map(item => `${item.time} - ${item.activity}`).join(", ")}
-                </Typography>
-                )}
-                <Typography variant="body1">
-                  Description: {formData.description?.trim() ? formData.description : "Not Entered"}
-                </Typography>
-              </Grid>
-              </>
-            )}
+              )}
+
+              {/* Review Step */}
+              {activeStep === 4 && (
+                <Grid item xs={12} sx={{ mt: 4 }}>
+                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Review Your Information
+                    </Typography>
+                    <Divider sx={{ mb: 2 }} />
+                
+                    <Grid container spacing={1}>
+                      {/* First Column */}
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="h7"><strong>Event Name:</strong> {formData.name}</Typography><br/><br/>
+                        <Typography variant="h7"><strong>Date:</strong> {formData.date}</Typography><br/><br/>
+                        <Typography variant="h7"><strong>Time:</strong> {formData.start_time}</Typography><br/><br/>
+                        <Typography variant="h7"><strong>Event Type:</strong> {formData.event_type}</Typography><br/><br/>
+                
+                        {isOnline ? (
+                          <>
+                            <Typography variant="h7"><strong>Platform:</strong> {formData.platform}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>Meeting Link:</strong> {formData.meeting_link}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>Meeting ID:</strong> {formData.meeting_id}</Typography><br/><br/>
+                          </>
+                        ) : (
+                          <>
+                            <Typography variant="h7"><strong>Venue Name:</strong> {formData.venue_name}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>Venue Address:</strong> {formData.address}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>City:</strong> {formData.city}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>State:</strong> {formData.state}</Typography><br/><br/>
+                          </>
+                        )}
+                      </Grid>
+                
+                      {/* Second Column */}
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="h7"><strong>Registration Type:</strong> {formData.reg_type}</Typography><br/><br/>
+                        <Typography variant="h7">
+                          <strong>Maximum Attendees:</strong>{" "}
+                          {formData.attendees?.trim() ? formData.attendees : "Not Entered"}
+                        </Typography><br/><br/>
+                
+                        {selectedTags.length > 0 && (
+                          <Typography variant="h7"><strong>Tags:</strong> {selectedTags.join(", ")}</Typography>
+                        )}
+                        <br/><br/>
+                
+                        {timeline_items.length > 0 && (
+                          <Typography variant="h7">
+                            <strong>Timeline:</strong>{" "}
+                            {timeline_items.map(item => `${item.time} - ${item.activity}`).join(", ")}
+                          </Typography>
+                        )}
+                        <br/><br/>
+                
+                        <Typography variant="h7" sx={{ whiteSpace: 'pre-wrap' }}>
+                          <strong>Description:</strong>{" "}
+                          {formData.description?.trim() ? formData.description : "Not Entered"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Card>
+                </Grid>              
+              )}
             </Grid>
 
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
@@ -601,29 +809,30 @@ export default function EventFormWithStepper() {
               Back
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
-            {activeStep === steps.length - 1 ? (
-              <Button variant="contained" onClick={handleSubmit()} sx={{ mr: 1 }}>
-              Submit
-              </Button>
-            ) : (
-              <Button 
-              variant="contained"
-              onClick={() => 
-              {
-                const isValid = validateForm();
-                console.log("Validation Result:", isValid);
-                if (isValid) {
-                  handleNext(); 
-                }
-              }} 
-              sx={{ mr: 1 }}
-              >
-              Next
-              </Button>
-            )}
-          </Box>
-        </>
-      )}
+              {activeStep === steps.length - 1 ? (
+                <Button variant="contained" onClick={handleSubmit} sx={{ mr: 1 }}>
+                Submit
+                </Button>
+              ) : (
+                <Button 
+                variant="contained"
+                onClick={() => 
+                {
+                  const isValid = validateForm();
+                  console.log("Validation Result:", isValid);
+                  if (isValid) {
+                    handleNext(); 
+                  }
+                }} 
+                sx={{ mr: 1 }}
+                >
+                Next
+                </Button>
+              )}
+            </Box>
+          </>
+        )}
+      </Box>
     </Box>
   );
 }

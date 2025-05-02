@@ -4,7 +4,7 @@ import { Typography, Box, Grid, TextField, Button, Avatar, } from "@mui/material
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
-import worldMapBackground from "../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -60,6 +60,29 @@ const Login = () => {
             full_name: data.full_name,
             permissions: data.permissions // <<< Log the permissions array
           });
+
+          if (data.role === "user") {
+            navigate("/home");
+          } 
+          else {
+            try {
+              const response = await fetch(
+                `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${data.user_id}`
+              );
+              const agenycData = await response.json();
+              console.log("Agency details:", agenycData);
+              if(!agenycData) {
+                console.error("Agency details not found for user ID:", agenycData.user_id);
+                navigate("/registration-form");
+              }
+              else if (agenycData) {
+                console.log("Agency details:", agenycData);
+                navigate("/agency-dashboard");
+              }
+            } catch (error) {
+              console.error("Error fetching agency details:", error);
+            }
+          }
 
           // Store the relevant user data, INCLUDING permissions, in local storage
           // The backend response structure is directly stored here.
