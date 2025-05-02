@@ -4,7 +4,7 @@ import { Typography, Box, Grid, TextField, Button, Avatar, } from "@mui/material
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
-import worldMapBackground from "../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
