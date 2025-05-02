@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react"; // Added useCallback
 import Grid from "@mui/material/Grid2";
 import { Container, Typography, Box, Alert, Card } from "@mui/material";
-import worldMapBackground from "../../pages/dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 // Import components
 import MissingPersonForm from '../missingperson/form'; // Adjust path

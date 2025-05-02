@@ -13,7 +13,7 @@ import {
   Avatar,
   Autocomplete
 } from "@mui/material";
-import worldMapBackground from "../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const mockData = [
   {

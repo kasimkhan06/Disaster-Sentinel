@@ -267,7 +267,7 @@
 
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Modal, Checkbox, FormGroup, FormControlLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Pagination, CircularProgress } from '@mui/material';
-import worldMapBackground from "../../../pages/dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const permissionsList = [
   "can_view_missing",
