@@ -34,7 +34,7 @@ import PublicIcon from "@mui/icons-material/Public";
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import useAgencyData from "../../../hooks/useAgencyData";
 import { getCurrentLocationState } from "../../../utils/locationUtils";
-import worldMapBackground from "../../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const Agencies = () => {
   const { existingAgencies, addedAgencies, states, loading, error } =

@@ -25,7 +25,7 @@ import useDisasterSummary from "../../../hooks/useDisasterSummary";
 import fetchDisasterImages from "../../../hooks/fetchDisasterImages";
 import axios from "axios";
 import DisasterMap from "./DisasterMap";
-import worldMapBackground from "../../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const DisasterInfo = () => {
   const { id } = useParams();

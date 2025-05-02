@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Typography, Box, TextField, Button, Link } from "@mui/material";
 import axios from "axios";
 import { useLocation } from "react-router-dom"; // Import useLocation
-import worldMapBackground from "../dashboard/user/images/world-map-background.jpg";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 
 const Verification = () => {

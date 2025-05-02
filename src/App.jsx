@@ -8,11 +8,14 @@ import Header from "./components/Header";
 import Login from "./pages/authentication/login";
 import Register from "./pages/authentication/register";
 import HeaderAgency from "./components/HeaderAgency";
-import RegistrationForm from "./pages/dashboard/agency/RegistrationPage/RegistrationForm";
-import AgencyDashboard from "./pages/dashboard/agency/agencyDashboard";
+import NewRegistration from "./pages/dashboard/agency/RegistrationPage/NewRegistration";
+import AgencyDashboard from "./pages/dashboard/AgencyDashboard";
 import MissingPerson from "./pages/dashboard/agency/Missing Person/MissingPerson";
 import PersonInfo from "./pages/dashboard/agency/Missing Person/PersonInfo";
 import AnnouncementPage from "./pages/dashboard/agency/Announcement/Announcement";
+import EventListing from "./pages/dashboard/agency/Announcement/EventListing";
+import EventForm from "./pages/dashboard/agency/Announcement/CreateEvent";
+import { EventFormProvider } from "./hooks/useEventForm";
 import FloodPrediction from "./pages/disasters/user/FloodPrediction";
 import Agencies from "./pages/disasters/user/Agencies";
 import Verification from "./pages/authentication/verification";
@@ -20,6 +23,8 @@ import DosDontsPage from "./pages/training/dosdonts";
 import MissingPersonPortal from "./pages/missingperson/portal";
 import StatusTracking from "./pages/missingperson/status";
 import UpdateDetails from "./pages/authentication/updateDetails";
+import Profile from "./pages/dashboard/agency/Profile/Profile";
+import TestMissingPerson from "./pages/dashboard/agency/Missing Person/TestMissingPerson";
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -50,7 +55,7 @@ const App = () => {
         <Route path="/statustracking" element={<StatusTracking />} />
         <Route path="/flood-prediction" element={<FloodPrediction />} />
         <Route path="/agencies" element={<Agencies />} />
-        <Route path="/registration-form" element={<RegistrationForm />} />
+        <Route path="/registration-form" element={<NewRegistration />} />
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
         <Route path="/missing-person" element={<MissingPerson />} />
         <Route path="/person-details/:id" element={<PersonInfo />} />
@@ -59,6 +64,17 @@ const App = () => {
         
         
         details" element={<UpdateDetails />} />
+        <Route path="/event-listing" element={<EventListing />} />
+        <Route path="/create-event" 
+        element={
+          <EventFormProvider>
+          <EventForm />
+        </EventFormProvider>
+        } />
+        <Route path="/agency-profile/:id" element={<Profile />} />
+
+        
+        <Route path="/missing-person-1" element={<TestMissingPerson />} />
       </Routes>
     </>
   );

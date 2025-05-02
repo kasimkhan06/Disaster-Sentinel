@@ -30,7 +30,7 @@ const MissingPerson = () => {
             gender: "Male", 
             mark: "Scar on the left eye", 
             age: 30, 
-            img: "/assets/pexels-rpnickson-2559941.jpg",
+            img: "/assets/person.png",
             description: "Last seen near Altino Panjim wearing a blue shirt and jeans. Scar on the left eye."
         },
         { 
@@ -42,7 +42,7 @@ const MissingPerson = () => {
             gender: "Female", 
             mark: "Mole on the right cheek", 
             age: 25, 
-            img: "/assets/pexels-rpnickson-2559941.jpg",
+            img: "/assets/person.png",
             description: "Disappeared from Fatorda, Margao. Last seen wearing a red dress near the bus stand."
         },
         { 
@@ -54,7 +54,7 @@ const MissingPerson = () => {
             gender: "Male", 
             mark: "Tattoo on left arm", 
             age: 40, 
-            img: "/assets/pexels-rpnickson-2559941.jpg",
+            img: "/assets/person.png",
             description: "Left home for work and did not return. Has a tribal tattoo on his left arm."
         },
         { 
@@ -66,7 +66,7 @@ const MissingPerson = () => {
             gender: "Female", 
             mark: "Burn mark on right hand", 
             age: 35, 
-            img: "/assets/pexels-rpnickson-2559941.jpg",
+            img: "/assets/person.png",
             description: "Was last seen near Dabolim railway station. Recognizable by a burn mark on her right hand."
         },
         { 
@@ -78,7 +78,7 @@ const MissingPerson = () => {
             gender: "Male", 
             mark: "Gap between front teeth", 
             age: 50, 
-            img: "/assets/pexels-rpnickson-2559941.jpg",
+            img: "/assets/person.png",
             description: "Last seen at the Ponda market. Has a noticeable gap between his front teeth."
         },
         { 
@@ -90,7 +90,7 @@ const MissingPerson = () => {
             gender: "Male", 
             mark: "Gap between front teeth", 
             age: 50, 
-            img: "/assets/pexels-rpnickson-2559941.jpg",
+            img: "/assets/person.png",
             description: "Seen last near a tea stall at Farmagudi. He has a distinct gap in his front teeth."
         },
         { 
@@ -102,7 +102,7 @@ const MissingPerson = () => {
             gender: "Male", 
             mark: "Gap between front teeth", 
             age: 50, 
-            img: "/assets/pexels-rpnickson-2559941.jpg",
+            img: "/assets/person.png",
             description: "Went missing near Valpoi bus stop. Wore a white shirt and black pants."
         },
         { 
@@ -114,7 +114,7 @@ const MissingPerson = () => {
             gender: "Male", 
             mark: "Gap between front teeth", 
             age: 50, 
-            img: "/assets/pexels-rpnickson-2559941.jpg",
+            img: "/assets/person.png",
             description: "Reported missing from a roadside eatery in Valpoi. Had a small bag with him."
         }
     ];     
@@ -150,7 +150,7 @@ const MissingPerson = () => {
     return (
         <Box sx={{ p: 2 }}>
             <Typography
-                align="left"
+                align="center"
                 sx={{
                     mt: 10,
                     ml: { xs: 2, sm: 4, md: 4 },
