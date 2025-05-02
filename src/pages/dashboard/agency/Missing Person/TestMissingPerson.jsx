@@ -322,7 +322,7 @@ function TestMissingPerson() {
                                 border: "none",
                             }}
                             >
-                                {/* Scrolling content using react-fast-marquee */}
+                                {/* Scrolling content using react-fast-marquee
                                 <Marquee speed={50} gradient={false}>
                                     {rows.map((person, index) => (
                                         <Box
@@ -358,7 +358,7 @@ function TestMissingPerson() {
                                         </Typography>
                                         </Box>
                                     ))}
-                                </Marquee>
+                                </Marquee> */}
                             </Box>
                         </CardContent>
                     </Card>

@@ -74,7 +74,7 @@ const App = () => {
         <Route path="/agency-profile/:id" element={<Profile />} />
 
         
-        <Route path="/missing-person-1" element={<TestMissingPerson />} />
+        <Route path="/missingperson" element={<TestMissingPerson />} />
       </Routes>
     </>
   );
