@@ -58,104 +58,113 @@ const UpdateDetails = () => {
   };
 
   return (
-    <Container
-      maxWidth="sm"
+    <Box
       sx={{
-        mt: 8,
-        mb: 4,
-        backgroundColor: "#fff",
-        borderRadius: "12px",
-        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-        p: 4,
+        background: "linear-gradient(to bottom, #647E8B, #D2DFF8)",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 4,
       }}
     >
-      <Box textAlign="center" mb={3}>
-        <Avatar
-          sx={{
-            bgcolor: "#4F646F",
-            width: 60,
-            height: 60,
-            margin: "auto",
-          }}
-        >
-          <PersonIcon fontSize="large" />
-        </Avatar>
-        <Typography variant="h5" fontWeight="bold" mt={2}>
-          Update Details
-        </Typography>
-      </Box>
+      <Container
+        maxWidth="sm"
+        sx={{
+          backgroundColor: "#fff",
+          borderRadius: "12px",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          p: 4,
+        }}
+      >
+        <Box textAlign="center" mb={3}>
+          <Avatar
+            sx={{
+              bgcolor: "#4F646F",
+              width: 60,
+              height: 60,
+              margin: "auto",
+            }}
+          >
+            <PersonIcon fontSize="large" />
+          </Avatar>
+          <Typography variant="h5" fontWeight="bold" mt={2}>
+            Update Details
+          </Typography>
+        </Box>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Full Name"
-            variant="standard"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            error={!!errors.fullName}
-            helperText={errors.fullName}
-            InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-          />
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Full Name"
+              variant="standard"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              error={!!errors.fullName}
+              helperText={errors.fullName}
+              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Email"
+              variant="standard"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email}
+              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Contact"
+              variant="standard"
+              name="contact"
+              value={formData.contact}
+              onChange={handleChange}
+              error={!!errors.contact}
+              helperText={errors.contact}
+              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Address"
+              variant="standard"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              error={!!errors.address}
+              helperText={errors.address}
+              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
+            />
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Email"
-            variant="standard"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            error={!!errors.email}
-            helperText={errors.email}
-            InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Contact"
-            variant="standard"
-            name="contact"
-            value={formData.contact}
-            onChange={handleChange}
-            error={!!errors.contact}
-            helperText={errors.contact}
-            InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Address"
-            variant="standard"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            error={!!errors.address}
-            helperText={errors.address}
-            InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-          />
-        </Grid>
-      </Grid>
 
-      <Box textAlign="center" mt={4}>
-        <Button
-          variant="contained"
-          size="large"
-          sx={{
-            textTransform: "uppercase",
-            backgroundColor: "#4F646F",
-            padding: "10px 20px",
-            fontSize: "14px",
-          }}
-          onClick={handleSubmit}
-        >
-          Update
-        </Button>
-      </Box>
-    </Container>
+        <Box textAlign="center" mt={4}>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{
+              textTransform: "uppercase",
+              backgroundColor: "#4F646F",
+              padding: "10px 20px",
+              fontSize: "14px",
+            }}
+            onClick={handleSubmit}
+          >
+            Update
+          </Button>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

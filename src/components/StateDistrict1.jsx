@@ -98,7 +98,7 @@ const StateDistrictDropdown = ({
 
   // Common Box styling from the target example
   const boxStyles = {
-      width: "80%", // Match target width
+      width: "100%", // Match target width
       padding: 0,
       mb: 2, // Margin bottom
       textAlign: "left",

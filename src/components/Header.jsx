@@ -200,7 +200,7 @@ const Header = () => {
               Report
             </MenuItem>
             <MenuItem
-              onClick={() => handleNavigation("/status-tracking")}
+              onClick={() => handleNavigation("/statustracking")}
               sx={{ width: "100%" }}
             >
               Check Status
