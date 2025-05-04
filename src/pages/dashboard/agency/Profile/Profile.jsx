@@ -2,7 +2,18 @@
 import React, { useState, useEffect } from "react";
 
 // MUI Components
-import { Typography, Box, Grid, Button, Modal, TextField, IconButton, TextareaAutosize as Textarea, CircularProgress } from "@mui/material";
+import { 
+  Typography, 
+  Box, 
+  Grid, 
+  Button, 
+  Modal, 
+  TextField, 
+  IconButton, 
+  TextareaAutosize as Textarea, 
+  CircularProgress
+} from "@mui/material";
+
 import {
   Person, 
   CalendarToday, 
@@ -19,6 +30,9 @@ import axios from "axios";
 
 // Styles & Assets
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+import { margin, padding } from "@mui/system";
 
 const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails }) => {
   const [formData, setFormData] = useState({});
@@ -272,54 +286,166 @@ function Profile() {
           backgroundImage: `url(https://res.cloudinary.com/doxgltggk/${agency.images?.[0]?.image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          position: "relative",
+          zIndex: 1,
         }}
       />
-
-      {/* Profile Card */}
       <Box
         sx={{
-          maxWidth: "1000px",
-          mx: "auto",
-          mt: -10,
-          p: 3,
-          backgroundColor: "white",
-          borderRadius: 3,
-          boxShadow: 3,
-          zIndex: 1,
           position: "relative",
+          width: "100%",
+          minHeight: "100vh",
+          background: `
+            linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+            url(${worldMapBackground})
+          `,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+          backgroundRepeat: "repeat-y",
         }}
       >
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4} sx={{ textAlign: "center" }}>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 500,
-                mb: 2,
-                textAlign: "center",
-                color: "black",
-                textTransform: "uppercase",
-                letterSpacing: 1.5,
-              }}
-            >
-              {agency.agency_name}
+        {/* Profile Card */}
+        <Box
+          sx={{
+            maxWidth: "1000px",
+            mx: "auto",
+            mt: -5,
+            p: 3,
+            backgroundColor: "white",
+            borderRadius: 3,
+            boxShadow: 3,
+            zIndex: 1,
+            position: "relative",
+          }}
+        >
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4} sx={{ textAlign: "center" }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 500,
+                  mb: 2,
+                  textAlign: "center",
+                  color: "black",
+                  textTransform: "uppercase",
+                  letterSpacing: 1.5,
+                }}
+              >
+                {agency.agency_name}
+              </Typography>
+              <Box
+                component="img"
+                src={agency.images?.[0]?.image ? `https://res.cloudinary.com/doxgltggk/${agency.images[1].image}` : "/assets/logo_image.webp"}
+                alt="Profile"
+                sx={{
+                  width: 180,
+                  height: 180,
+                  borderRadius: "10px",
+                  border: "2px solid #ccc",
+                  objectFit: "cover",
+                  mb: 2,
+                  boxShadow: 1,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column", gap: 5, textAlign: "left", alignItems: "center", justifyContent: "center" }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {[
+                { 
+                  label: "Name", 
+                  value: agency.agency_name, 
+                  icon: <Person fontSize="small" /> 
+                },
+                { 
+                  label: "Founded", 
+                  value: agency.date_of_establishment, 
+                  icon: <CalendarToday fontSize="small" /> 
+                },
+                {
+                    label: "Address",
+                    value: `${agency.address}, ${agency.district}, ${agency.state}`,
+                    icon: <LocationOn fontSize="small" />
+                },
+                { 
+                  label: "Contact", 
+                  value: agency.contact2 
+                    ? `${agency.contact1}, ${agency.contact2}` 
+                    : agency.contact1,
+                  icon: <Phone fontSize="small" /> 
+                },
+                {
+                  label: "Website",
+                  value: agency.website
+                    ? agency.website
+                    : "No website available",
+                  icon: <LanguageIcon fontSize="small" />
+                },              
+                { 
+                  label: "Volunteers", 
+                  value: agency.volunteers, 
+                  icon: <Visibility fontSize="small" /> 
+                },
+                ].map((item, index) => (
+                <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  {item.icon}
+                  <Typography sx={{ ml: 1, fontWeight: 600, minWidth: 120 }}>
+                  {item.label}:
+                  </Typography>
+                  <Typography sx={{ ml: 1, color: "text.secondary", wordBreak: "break-word" }}>
+                  {item.value}
+                  </Typography>
+                </Box>
+                ))}
+              </Box>
+            </Grid>
+            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}>  
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<Edit />}
+                  sx={{
+                    mt: 1,
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: "green",
+                    borderColor: "#388e3c",
+                    "&:hover": {
+                      backgroundColor: "black",
+                      borderColor: "black",
+                      color: "white",
+                    }
+                  }}
+                  onClick={handleOpenBasicDetails}
+                >
+                  Edit
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+
+        {/* Description Section */}
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              maxWidth: "1000px",
+              mx: "auto",
+              mt: 4,
+              p: 3,
+              backgroundColor: "white",
+              borderRadius: 3,
+              boxShadow: 2,
+            }}
+          >
+            {/* <Typography variant="h6" fontWeight={600} mb={2}>
+              Description
+            </Typography> */}
+            <Typography sx={{ color: "text.secondary", whiteSpace: "pre-line" }}>
+              {agency.description || "No description available."}
             </Typography>
-            <Box
-              component="img"
-              src={agency.images?.[0]?.image ? `https://res.cloudinary.com/doxgltggk/${agency.images[1].image}` : "/assets/logo_image.webp"}
-              alt="Profile"
-              sx={{
-                width: 180,
-                height: 180,
-                borderRadius: "10px",
-                border: "2px solid #ccc",
-                objectFit: "cover",
-                mb: 2,
-                boxShadow: 1,
-              }}
-            />
-            {/* Center the button */}
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}> 
               <Button
                 variant="outlined"
                 size="small"
@@ -328,179 +454,118 @@ function Profile() {
                   mt: 1,
                   textTransform: "none",
                   fontWeight: 600,
-                  backgroundColor: "#2e7d32",
-                  color: "white",
+                  color: "green",
                   borderColor: "#388e3c",
                   "&:hover": {
-                    backgroundColor: "#4caf50",
-                    borderColor: "#2e7d32",
+                    backgroundColor: "black",
+                    borderColor: "black",
+                    color: "white",
                   },
                 }}
-                onClick={handleOpenBasicDetails}
+                onClick={handleOpenDescription}
               >
                 Edit
               </Button>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column", gap: 5, textAlign: "left", alignItems: "center", justifyContent: "center" }}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              {[
-              { 
-                label: "Name", 
-                value: agency.agency_name, 
-                icon: <Person fontSize="small" /> 
-              },
-              { 
-                label: "Founded", 
-                value: agency.date_of_establishment, 
-                icon: <CalendarToday fontSize="small" /> 
-              },
-              {
-                  label: "Address",
-                  value: `${agency.address}, ${agency.district}, ${agency.state}`,
-                  icon: <LocationOn fontSize="small" />
-              },
-              { 
-                label: "Contact", 
-                value: agency.contact2 
-                  ? `${agency.contact1}, ${agency.contact2}` 
-                  : agency.contact1,
-                icon: <Phone fontSize="small" /> 
-              },
-              {
-                label: "Website",
-                value: agency.website
-                  ? agency.website
-                  : "No website available",
-                icon: <LanguageIcon fontSize="small" />
-              },              
-              { 
-                label: "Volunteers", 
-                value: agency.volunteers, 
-                icon: <Visibility fontSize="small" /> 
-              },
-              ].map((item, index) => (
-              <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                {item.icon}
-                <Typography sx={{ ml: 1, fontWeight: 600, minWidth: 120 }}>
-                {item.label}:
-                </Typography>
-                <Typography sx={{ ml: 1, color: "text.secondary", wordBreak: "break-word" }}>
-                {item.value}
-                </Typography>
-              </Box>
-              ))}
-            </Box>
-          </Grid>
+            </Grid>
+          </Box>
         </Grid>
-      </Box>
 
-      {/* Description Section */}
-      <Box
-        sx={{
-          maxWidth: "1000px",
-          mx: "auto",
-          mt: 4,
-          p: 3,
-          backgroundColor: "white",
-          borderRadius: 3,
-          boxShadow: 2,
-        }}
-      >
-        <Typography variant="h6" fontWeight={600} mb={2}>
-          Description
-        </Typography>
-        <Typography sx={{ color: "text.secondary", whiteSpace: "pre-line" }}>
-          {agency.description || "No description available."}
-        </Typography>
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<Edit />}
-          sx={{
-            mt: 1,
-            textTransform: "none",
-            fontWeight: 600,
-            backgroundColor: "#2e7d32",
-            color: "white",
-            borderColor: "#388e3c",
-            "&:hover": {
-              backgroundColor: "#4caf50",
-              borderColor: "#2e7d32",
-            },
-          }}
-          onClick={handleOpenDescription}
-        >
-          Edit
-        </Button>
+        <Grid item xs={12}> 
+          {/* Images Section */}
+          <Box
+            sx={{
+              maxWidth: "1000px",
+              mx: "auto",
+              mt: 4,
+              p: 3,
+              backgroundColor: "white",
+              borderRadius: 3,
+              boxShadow: 2,
+            }}
+          >
+            {/* <Typography variant="h6" fontWeight={600} mb={2}>
+              Gallery
+            </Typography> */}
+            <Box sx={{ my: 2 }}>
+              <Carousel
+                responsive={{
+                  desktop: {
+                    breakpoint: { max: 3000, min: 1024 },
+                    items: 4,
+                  },
+                  tablet: {
+                    breakpoint: { max: 1024, min: 600 },
+                    items: 2,
+                  },
+                  mobile: {
+                    breakpoint: { max: 600, min: 0 },
+                    items: 1,
+                  },
+                }}
+                ssr={true}
+                infinite={true}
+                autoPlay={true}
+                autoPlaySpeed={2000}
+                arrows={true}
+                containerClass="carousel-container"
+                additionalTransfrom={0}
+                style={{ padding: "0 20px" }}
+              >
+                {agency.images?.map((imgObj, index) => (
+                  <Box
+                    key={index}
+                    component="img"
+                    src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
+                    alt={`Agency Image ${index}`}
+                    sx={{
+                      width: "100%",
+                      height: 180,
+                      borderRadius: 2,
+                      border: "1px solid #ccc",
+                      boxShadow: 1,
+                      transition: "transform 0.3s",
+                      "&:hover": {
+                        transform: "scale(1.05)",
+                      },
+                      marginLeft: "20px",
+                    }}
+                  />
+                ))}
+              </Carousel>
+            </Box>
+            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}> 
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<Edit />}
+                sx={{
+                  mt: 1,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  color: "green",
+                  borderColor: "#388e3c",
+                  "&:hover": {
+                    backgroundColor: "black",
+                    borderColor: "black",
+                    color: "white",
+                  },
+                }}
+                // onClick={handleOpenImages}
+              >
+                Edit
+              </Button>
+            </Grid>
+          </Box>
+        </Grid>
+        <UpdateModal
+          open={open}
+          handleClose={handleClose}
+          mode={editMode}
+          initialData={initialData}
+          userId={userId}
+          fetchAgencyDetails={fetchAgencyDetails}
+        />
       </Box>
-
-      {/* Images Section */}
-      <Box
-        sx={{
-          maxWidth: "1000px",
-          mx: "auto",
-          mt: 4,
-          p: 3,
-          backgroundColor: "white",
-          borderRadius: 3,
-          boxShadow: 2,
-        }}
-      >
-        <Typography variant="h6" fontWeight={600} mb={2}>
-          Gallery
-        </Typography>
-        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          {agency.images?.map((imgObj, index) => (
-            <Box
-              key={index}
-              component="img"
-              src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
-              alt={`Agency Image ${index}`}
-              sx={{
-                width: 120,
-                height: 120,
-                objectFit: "cover",
-                borderRadius: 2,
-                border: "1px solid #ccc",
-                boxShadow: 1,
-                transition: "transform 0.3s",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                },
-              }}
-            />
-          ))}
-        </Box>
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<Edit />}
-          sx={{
-            mt: 1,
-            textTransform: "none",
-            fontWeight: 600,
-            backgroundColor: "#2e7d32",
-            color: "white",
-            borderColor: "#388e3c",
-            "&:hover": {
-              backgroundColor: "#4caf50",
-              borderColor: "#2e7d32",
-            },
-          }}
-          // onClick={handleOpenImages}
-        >
-          Edit
-        </Button>
-      </Box>
-      <UpdateModal
-        open={open}
-        handleClose={handleClose}
-        mode={editMode}
-        initialData={initialData}
-        userId={userId}
-        fetchAgencyDetails={fetchAgencyDetails}
-      />
     </Box>
   );
 }

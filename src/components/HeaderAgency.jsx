@@ -12,14 +12,15 @@ import {
   useTheme,
   Box,
   Avatar,
+  Collapse,
+  ListItemText,
 } from "@mui/material";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { EventFormProvider } from "../hooks/useEventForm";
 import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import EventListing from "../pages/dashboard/agency/Announcement/EventListing";
-import EventForm from "../pages/dashboard/agency/Announcement/CreateEvent";
 
 const Header = () => {
   const [value, setValue] = useState(0);
@@ -33,6 +34,7 @@ const Header = () => {
 
   const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
+  const [openAnnouncement, setOpenAnnouncement] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -70,6 +72,11 @@ const Header = () => {
     navigate("/login");
   };
 
+  const handleAnnouncementClick = (e) => {
+    e.stopPropagation();
+    setOpenAnnouncement(!openAnnouncement);
+  };
+
   return (
     <AppBar
       sx={{ bgcolor: "#fafafa", color: "black", boxShadow: "0px 1px 7px #bdbdbd" }}
@@ -98,17 +105,8 @@ const Header = () => {
               onChange={(e, value) => setValue(value)}
               TabIndicatorProps={{ sx: { backgroundColor: "#bdbdbd" } }}
             >
-              {user?.role === "agency" ? (
-                <>
-                  <Tab label="Home" component={Link} to="/agency-dashboard" />
-                  <Tab label="Services" onClick={handleOpenMenu} />
-                </>
-              ) : (
-                <>
-                  <Tab label="Home" component={Link} to="/home" />
-                  <Tab label="Services" onClick={handleOpenMenu} />
-                </>
-              )}
+              <Tab label="Home" component={Link} to="/agency-dashboard" />
+              <Tab label="Services" onClick={handleOpenMenu} />
             </Tabs>
 
             {/* Profile / Login Section - Always Rightmost */}
@@ -129,7 +127,10 @@ const Header = () => {
                     onClose={handleCloseProfileMenu}
                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                     transformOrigin={{ vertical: "top", horizontal: "right" }}
-                    sx={{ marginTop: "10px" }}
+                    sx={{
+                      minWidth: "160px", // Adjust the minimum width of the menu to ensure enough space
+                      marginTop: "10px", // Space between the menu and the "Services" tab
+                    }}
                   >
                     <MenuItem onClick={() => handleNavigation(`/agency-profile/${user.user_id}`)}>Profile</MenuItem>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
@@ -176,44 +177,27 @@ const Header = () => {
         >
           Missing Person List
         </MenuItem>
-        <MenuItem
-          onClick={() => handleNavigation("/agencies")}
-          sx={{ width: "100%", justifyContent: "center" }}
-        >
-          Agency Information
+        <MenuItem onClick={handleAnnouncementClick}>
+          <ListItemText primary="Announcement" />
+          {openAnnouncement ? <ExpandLess /> : <ExpandMore />}
         </MenuItem>
-        <MenuItem
-          onClick={() => handleNavigation("/current-location")}
-          sx={{ width: "100%", justifyContent: "start" }}
-        >
-          Current Location
-        </MenuItem>
-        <MenuItem
-          onMouseEnter={handleOpenAnnouncementMenu}
-          onMouseLeave={handleCloseAnnouncementMenu}
-        >
-          Announcement 
-          <span style={{ marginLeft: "8px", display: "flex", alignItems: "center" }}>
-            <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
-          </span>
-        </MenuItem>
-        <Menu
-          anchorEl={anchorElAnnouncement}
-          open={Boolean(anchorElAnnouncement)}
-          onClose={handleCloseAnnouncementMenu}
-          anchorOrigin={{ vertical: 160, horizontal: 550 }}
-          transformOrigin={{ vertical: "top", horizontal: "center" }}
-          sx={{
-            marginLeft: "10px",
-            marginTop: "-10px",
-            pointerEvents: "auto", // Prevents flickering
-          }}
-          onMouseEnter={handleOpenAnnouncementMenu}
-          onMouseLeave={handleCloseAnnouncementMenu} 
-        >
-          <MenuItem onClick={() => handleNavigation("/event-listing")}>Event</MenuItem>
-          <MenuItem onClick={() => handleNavigation("/create-event")}>Create Event</MenuItem>
-        </Menu>
+
+        <Collapse in={openAnnouncement} timeout="auto" unmountOnExit>
+          <Box sx={{ pl: 3, backgroundColor: "rgba(0, 0, 0, 0.04)" }}>
+            <MenuItem
+              onClick={() => handleNavigation("/event-listing")}
+              sx={{ width: "100%" }}
+            >
+              Event
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleNavigation("/create-event")}
+              sx={{ width: "100%" }}
+            >
+              Create Event
+            </MenuItem>
+          </Box>
+        </Collapse>
       </Menu>
     </AppBar>
   );
