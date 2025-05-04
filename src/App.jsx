@@ -18,6 +18,7 @@ import EventForm from "./pages/dashboard/agency/Announcement/CreateEvent";
 import { EventFormProvider } from "./hooks/useEventForm";
 import FloodPrediction from "./pages/disasters/user/FloodPrediction";
 import Agencies from "./pages/disasters/user/Agencies";
+import AgencyProfile from "./pages/disasters/user/AgencyProfile";
 import Verification from "./pages/authentication/verification";
 import DosDontsPage from "./pages/training/dosdonts";
 import MissingPersonPortal from "./pages/missingperson/portal";
@@ -55,6 +56,7 @@ const App = () => {
         <Route path="/statustracking" element={<StatusTracking />} />
         <Route path="/flood-prediction" element={<FloodPrediction />} />
         <Route path="/agencies" element={<Agencies />} />
+        <Route path="/agency/:id" element={<AgencyProfile />} />
         <Route path="/registration-form" element={<NewRegistration />} />
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
         <Route path="/missing-person" element={<MissingPerson />} />

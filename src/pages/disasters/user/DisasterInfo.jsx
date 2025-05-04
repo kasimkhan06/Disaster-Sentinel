@@ -161,6 +161,7 @@ const DisasterInfo = () => {
         )}
       </Box>
 
+      {/* Rest of the code remains the same as in the previous version */}
       <Grid container spacing={1} sx={{ m: 0, width: "75%", marginX: "auto", marginTop: 1 }}>
         {/* First Grid - Disaster Info */}
         <Grid size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{ 
@@ -396,7 +397,7 @@ const DisasterInfo = () => {
                       variant="contained"
                       onClick={handleReadArticleClick}
                       sx={{
-                        marginTop: "10px",
+                        marginTop: "20px",
                         backgroundColor: "#fff",
                         color: "#000",
                         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
@@ -443,7 +444,7 @@ const DisasterInfo = () => {
           </Box>
 
           {/* Images Section */}
-          <Box sx={{ mt: 2, mb: 2 }}>
+          <Box sx={{ mt: 4, mb: 2 }}>
             <Box sx={{ borderBottom: "2px solid #eee", mb: 3, mx: { xs: "17px", sm: "17px", md: "32px" } }}>
               <Typography
                 sx={{
