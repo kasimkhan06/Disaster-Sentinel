@@ -22,7 +22,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-import AgencyMap from "./AgencyMap"; 
+import AgencyMap from "./AgencyMap";
 // import { env } from 'process';
 
 const AgencyProfile = () => {
@@ -134,7 +134,7 @@ const AgencyProfile = () => {
               align="center"
               sx={{
                 mt: 10,
-                ml: { xs: 2, sm: 4, md: 4 },
+                // ml: { xs: 2, sm: 4, md: 4 },
                 fontSize: { xs: "1.5rem", sm: "1.7rem", md: "1.8rem" },
                 fontWeight: "bold",
                 textTransform: "uppercase",
@@ -146,17 +146,19 @@ const AgencyProfile = () => {
               align="center"
               sx={{
                 mt: 1,
-                ml: { xs: 2, sm: 4, md: 5 },
-                fontSize: { xs: "0.7rem", sm: "0.7rem", md: "1rem" },
+                // ml: { xs: 2, sm: 4, md: 5 },
+                fontSize: { xs: "0.6rem", sm: "0.7rem", md: "0.9rem" },
                 fontWeight: "400",
+                fontStyle: "italic",
               }}
             >
-              <Chip
+              {agency.agency_type}
+              {/* <Chip
                 label={agency.agency_type}
                 color="primary"
                 size="small"
                 sx={{ textTransform: "capitalize" }}
-              />
+              /> */}
             </Typography>
           </>
         )}
@@ -169,212 +171,258 @@ const AgencyProfile = () => {
       >
         {/* First Grid - Agency Info */}
         <Grid
-          size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
-          sx={{
-            backgroundColor: "#fff",
-            borderRadius: 2,
-            boxShadow: 3,
-            padding: 2,
-            mx: 3,
-          }}
-        >
-          {loading ? (
-            <>
-              <Skeleton variant="rectangular" width="100%" height={400} />
-              <Box sx={{ mt: 2 }}>
-                {[1, 2, 3, 4, 5, 6].map((item) => (
-                  <Skeleton
-                    key={item}
-                    variant="text"
-                    width="100%"
-                    height={40}
-                  />
-                ))}
-              </Box>
-            </>
-          ) : (
-            <>
-              <Grid
-                container
-                justifyContent="center"
-                spacing={0}
-                sx={{ mt: 0 }}
-                align="left"
-              >
-                {/* Information Fields */}
-                <Grid size={{ xs: 11, sm: 12, md: 10, lg: 5 }}>
-                    {/* Banner Image - Only show if there are images */}
-              {images.length > 0 && (
-                <Box
-                  sx={{
-                    width: "100%",
-                    // height: { xs: 200, sm: 250, md: 300 },
-                    mb: 0,
-                    borderRadius: 2,
-                    overflow: "hidden",
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    image={images[0].url}
-                    alt="Agency banner"
+  size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
+  sx={{
+    backgroundColor: "#fff",
+    borderRadius: 2,
+    boxShadow: 3,
+    padding: 2,
+    mx: 3,
+  }}
+>
+  {loading ? (
+    <>
+      <Skeleton variant="rectangular" width="100%" height={400} />
+      <Box sx={{ mt: 2 }}>
+        {[1, 2, 3, 4, 5, 6].map((item) => (
+          <Skeleton key={item} variant="text" width="100%" height={40} />
+        ))}
+      </Box>
+    </>
+  ) : (
+    <>
+      <Grid
+        container
+        justifyContent="center"
+        spacing={0}
+        sx={{ mt: 0 }}
+        align="left"
+        paddingBottom={2}
+      >
+        {/* Information Fields */}
+        <Grid size={{ xs: 11, sm: 12, md: 10, lg: 5 }}>
+          {/* Banner Image - Only show if there are images */}
+          {images.length > 0 && (
+            <Box
+              sx={{
+                width: "100%",
+                mb: 0,
+                borderRadius: 2,
+                overflow: "hidden",
+              }}
+            >
+              <CardMedia
+                component="img"
+                image={images[0].url}
+                alt="Agency banner"
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                }}
+              />
+            </Box>
+          )}
+          <Card
+            sx={{
+              p: { xs: "8px", sm: "8px", md: "16px" },
+              boxShadow: "none",
+              border: "none",
+            }}
+          >
+            <CardContent sx={{ p: { xs: "8px", sm: "8px", md: "16px" } }}>
+              {[
+                {
+                  label: "Established",
+                  value: new Date(
+                    agency.date_of_establishment
+                  ).toLocaleDateString(),
+                  icon: <CalendarToday sx={{ color: "#AEC6CF" }} />,
+                },
+                {
+                  label: "Primary Contact",
+                  value: agency.contact1,
+                  icon: <Phone sx={{ color: "#4CAF50" }} />,
+                  isPhone: true,
+                },
+                agency.contact2 && {
+                  label: "Secondary Contact",
+                  value: agency.contact2,
+                  icon: <Phone sx={{ color: "#4CAF50" }} />,
+                  isPhone: true,
+                },
+                agency.website && {
+                  label: "Website",
+                  value: agency.website,
+                  icon: <Language sx={{ color: "#2196F3" }} />,
+                  isLink: true,
+                },
+                {
+                  label: "Address",
+                  value: `${agency.address}, ${agency.district}, ${agency.state}`,
+                  icon: <LocationOn sx={{ color: "#cd1c18" }} />,
+                },
+                agency.volunteers && {
+                  label: "Volunteers",
+                  value: agency.volunteers,
+                  icon: <People sx={{ color: "#d3d3d3" }} />,
+                },
+              ]
+                .filter(Boolean)
+                .map((item, index) => (
+                  <Grid
+                    key={index}
+                    size={{ xs: 11, sm: 6, md: 8, lg: 10 }}
                     sx={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit:"contain"
-                    }}
-                  />
-                </Box>
-              )}
-                  <Card
-                    sx={{
-                      p: { xs: "8px", sm: "8px", md: "16px" },
-                      boxShadow: "none",
-                      border: "none",
+                      padding: 1,
+                      borderBottom: "2px solid #eee",
+                      textAlign: "center",
                     }}
                   >
-                    <CardContent
-                      sx={{ p: { xs: "8px", sm: "8px", md: "16px" } }}
-                    >
-                      {[
-                        {
-                          label: "Established",
-                          value: new Date(
-                            agency.date_of_establishment
-                          ).toLocaleDateString(),
-                          icon: <CalendarToday sx={{ color: "#AEC6CF" }} />,
-                        },
-                        {
-                          label: "Primary Contact",
-                          value: agency.contact1,
-                          icon: <Phone sx={{ color: "#4CAF50" }} />,
-                        },
-                        agency.contact2 && {
-                          label: "Secondary Contact",
-                          value: agency.contact2,
-                          icon: <Phone sx={{ color: "#4CAF50" }} />,
-                        },
-                        agency.website && {
-                          label: "Website",
-                          value: agency.website,
-                          icon: <Language sx={{ color: "#2196F3" }} />,
-                          isLink: true,
-                        },
-                        {
-                          label: "Address",
-                          value: `${agency.address}, ${agency.district}, ${agency.state}`,
-                          icon: <LocationOn sx={{ color: "#cd1c18" }} />,
-                        },
-                        agency.volunteers && {
-                          label: "Volunteers",
-                          value: agency.volunteers,
-                          icon: <People sx={{ color: "#d3d3d3" }} />,
-                        },
-                      ]
-                        .filter(Boolean)
-                        .map((item, index) => (
-                          <Grid
-                            key={index}
-                            size={{ xs: 11, sm: 6, md: 8, lg: 10 }}
-                            sx={{
-                              padding: 1,
-                              borderBottom: "2px solid #eee",
-                              textAlign: "center",
-                            }}
-                          >
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                              {item.icon}
-                              <Typography
-                                sx={{
-                                  marginLeft: 1,
-                                  fontSize: {
-                                    xs: "0.7rem",
-                                    sm: "0.7rem",
-                                    md: "0.8rem",
-                                    lg: "1rem",
-                                  },
-                                  fontWeight: 500,
-                                }}
-                              >
-                                {item.label}:
-                              </Typography>
-                              {item.isLink ? (
-                                <Link
-                                  href={
-                                    item.value.startsWith("http")
-                                      ? item.value
-                                      : `https://${item.value}`
-                                  }
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  sx={{
-                                    marginLeft: 1,
-                                    fontSize: {
-                                      xs: "0.7rem",
-                                      sm: "0.7rem",
-                                      md: "0.8rem",
-                                      lg: "1rem",
-                                    },
-                                    color: "#2196F3",
-                                    textDecoration: "none",
-                                    "&:hover": {
-                                      textDecoration: "underline",
-                                    },
-                                  }}
-                                >
-                                  {item.value.replace(/^https?:\/\//, "")}
-                                </Link>
-                              ) : (
-                                <Typography
-                                  variant="body1"
-                                  sx={{
-                                    marginLeft: 1,
-                                    fontSize: {
-                                      xs: "0.7rem",
-                                      sm: "0.7rem",
-                                      md: "0.8rem",
-                                      lg: "1rem",
-                                    },
-                                  }}
-                                >
-                                  {item.value}
-                                </Typography>
-                              )}
-                            </Box>
-                          </Grid>
-                        ))}
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                {/* Map Section - Only show if lat/lng exists */}
-                {agency.lat && agency.lng && (
-  <Grid
-    container
-    justifyContent="center"
-    size={{ xs: 11, sm: 10, md: 10, lg: 7 }}
-    sx={{ pr: { xs: 2, md: 7 }, mt: 2 }}
-  >
-    <Box sx={{ width: '100%' }}>
-      <Typography
-        variant="h6"
-        sx={{
-          mb: 1,
-          textAlign: 'center',
-          fontWeight: 500,
-          fontSize: '1.1rem'
-        }}
-      >
-        Location
-      </Typography>
-      <AgencyMap agency={agency} />
-    </Box>
-  </Grid>
-)}
-              </Grid>
-            </>
-          )}
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      {item.icon}
+                      <Typography
+                        sx={{
+                          marginLeft: 1,
+                          fontSize: {
+                            xs: "0.7rem",
+                            sm: "0.7rem",
+                            md: "0.8rem",
+                            lg: "1rem",
+                          },
+                          fontWeight: 500,
+                        }}
+                      >
+                        {item.label}:
+                      </Typography>
+                      {item.isLink ? (
+                        <Link
+                          href={
+                            item.value.startsWith("http")
+                              ? item.value
+                              : `https://${item.value}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{
+                            marginLeft: 1,
+                            fontSize: {
+                              xs: "0.7rem",
+                              sm: "0.7rem",
+                              md: "0.8rem",
+                              lg: "1rem",
+                            },
+                            color: "#2196F3",
+                            textDecoration: "none",
+                            "&:hover": {
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          {item.value.replace(/^https?:\/\//, "")}
+                        </Link>
+                      ) : item.isPhone ? (
+                        <Typography
+                          variant="body1"
+                          onClick={() => {
+                            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+                            if (window.confirm(`Do you want to call ${item.value}?`)) {
+                              if (isMobile) {
+                                window.location.href = `tel:${item.value}`;
+                              } else {
+                                // For desktop, show a message since calling isn't possible
+                                alert(`Please use your phone to call ${item.value}`);
+                              }
+                            }
+                          }}
+                          sx={{
+                            marginLeft: 1,
+                            fontSize: {
+                              xs: "0.7rem",
+                              sm: "0.7rem",
+                              md: "0.8rem",
+                              lg: "1rem",
+                            },
+                            color: "#4CAF50",
+                            cursor: "pointer",
+                            "&:hover": {
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          {item.value}
+                        </Typography>
+                      ) : (
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            marginLeft: 1,
+                            fontSize: {
+                              xs: "0.7rem",
+                              sm: "0.7rem",
+                              md: "0.8rem",
+                              lg: "1rem",
+                            },
+                          }}
+                        >
+                          {item.value}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Grid>
+                ))}
+            </CardContent>
+            <Box
+            sx={{
+              mt: 0,
+              pl:3,
+              pr: { xs: "17px", sm: "17px", md: "10px" },
+              textAlign: "justify",
+            }}
+          >
+            {loading ? (
+              <>
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" width="60%" />
+              </>
+            ) : (
+              <Typography
+                component="div"
+                sx={{
+                  fontSize: {
+                    xs: "0.7rem",
+                    sm: "0.7rem",
+                    md: "0.8rem",
+                    lg: "0.9rem",
+                  },
+                  textAlign: "justify",
+                }}
+              >
+                <ReactMarkdown>{agency.description}</ReactMarkdown>
+              </Typography>
+            )}
+          </Box>
+          </Card>
         </Grid>
+
+        {/* Map Section - Only show if lat/lng exists */}
+        {agency.lat && agency.lng && (
+          <Grid
+            justifyContent="center"
+            size={{ xs: 11, sm: 10, md: 10, lg: 7 }}
+            sx={{ px: { xs: 2, md: 5 }, mt: 0 }}
+          >
+            <Box sx={{ width: "100%" }}>
+              <AgencyMap agency={agency} />
+            </Box>
+          </Grid>
+        )}
+      </Grid>
+    </>
+  )}
+</Grid>
 
         {/* Second Grid - Description */}
         <Grid
@@ -388,7 +436,7 @@ const AgencyProfile = () => {
             mb: 4,
           }}
         >
-          <Box
+          {/* <Box
             sx={{
               borderBottom: "2px solid #eee",
               mx: { xs: "17px", sm: "17px", md: "32px" },
@@ -435,90 +483,107 @@ const AgencyProfile = () => {
                 <ReactMarkdown>{agency.description}</ReactMarkdown>
               </Typography>
             )}
-          </Box>
+          </Box> */}
 
           {/* Images Section */}
-<Box sx={{ mt: 4, mb: 2 }}>
-  <Box sx={{ borderBottom: "2px solid #eee", mb: 3, mx: { xs: "17px", sm: "17px", md: "32px" } }}>
-    <Typography
-      sx={{
-        mb: 1,
-        fontSize: { xs: "1rem", sm: "1rem", md: "1.3rem" },
-        fontWeight: 500,
-        textAlign: "center",
-      }}
-    >
-      Gallery
-    </Typography>
-  </Box>
-  {loadingImages ? (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "repeat(2, 1fr)",
-          sm: "repeat(3, 1fr)",
-          md: "repeat(4, 1fr)",
-          lg: "repeat(5, 1fr)",
-        },
-        gap: 2,
-        p: 1,
-      }}
-    >
-      {[1, 2, 3, 4, 5].map((item) => (
-        <Skeleton key={item} variant="rectangular" height={200} />
-      ))}
-    </Box>
-  ) : images.length > 1 ? (
-    <>
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "repeat(2, 1fr)",
-            sm: "repeat(3, 1fr)",
-            md: "repeat(4, 1fr)",
-            lg: "repeat(5, 1fr)",
-          },
-          gap: 2,
-          p: 1,
-        }}
-      >
-        {images.slice(1).map((imgObj, index) => (
-          <Card key={imgObj.id || index} sx={{ height: '100%' }}>
-            <CardMedia
-              component="img"
-              height="200"
-              image={imgObj.url}
-              alt={`Agency image ${index + 2}`}
+          <Box sx={{ mt: 4, mb: 2 }}>
+            {/* <Box
               sx={{
-                width: "100%",
-                height: "200px",
-                objectFit: "cover",
-                '&:hover': {
-                  transform: 'scale(1.03)',
-                  transition: 'transform 0.3s ease-in-out'
-                }
+                borderBottom: "2px solid #eee",
+                mb: 3,
+                mx: { xs: "17px", sm: "17px", md: "32px" },
               }}
-            />
-            {imgObj.caption && (
-              <CardContent sx={{ p: 1 }}>
-                <Typography variant="caption">
-                  {imgObj.caption}
+            >
+              <Typography
+                sx={{
+                  mb: 1,
+                  fontSize: { xs: "1rem", sm: "1rem", md: "1.3rem" },
+                  fontWeight: 500,
+                  textAlign: "center",
+                }}
+              >
+                Gallery
+              </Typography>
+            </Box> */}
+            {loadingImages ? (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "repeat(2, 1fr)",
+                    sm: "repeat(3, 1fr)",
+                    md: "repeat(4, 1fr)",
+                    lg: "repeat(5, 1fr)",
+                  },
+                  gap: 2,
+                  p: 1,
+                }}
+              >
+                {[1, 2, 3, 4, 5].map((item) => (
+                  <Skeleton key={item} variant="rectangular" height={200} />
+                ))}
+              </Box>
+            ) : images.length > 1 ? (
+              <>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: {
+                      xs: "repeat(2, 1fr)",
+                      sm: "repeat(3, 1fr)",
+                      md: "repeat(4, 1fr)",
+                      lg: "repeat(5, 1fr)",
+                    },
+                    gap: 2,
+                    p: 1,
+                  }}
+                >
+                  {images.slice(1).map((imgObj, index) => (
+                    <Card key={imgObj.id || index} sx={{ height: "100%" }}>
+                      <CardMedia
+                        component="img"
+                        height="200"
+                        image={imgObj.url}
+                        alt={`Agency image ${index + 2}`}
+                        sx={{
+                          width: "100%",
+                          height: "200px",
+                          objectFit: "cover",
+                          "&:hover": {
+                            transform: "scale(1.03)",
+                            transition: "transform 0.3s ease-in-out",
+                          },
+                        }}
+                      />
+                      {imgObj.caption && (
+                        <CardContent sx={{ p: 1 }}>
+                          <Typography variant="caption">
+                            {imgObj.caption}
+                          </Typography>
+                        </CardContent>
+                      )}
+                    </Card>
+                  ))}
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    textAlign: "center",
+                    mt: 1,
+                    color: "text.secondary",
+                  }}
+                >
+                  Showing {images.length - 1} image
+                  {images.length - 1 !== 1 ? "s" : ""}
                 </Typography>
-              </CardContent>
+              </>
+            ) : (
+              <Typography align="center">
+                No additional images available
+              </Typography>
             )}
-          </Card>
-        ))}
-      </Box>
-      <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1, color: 'text.secondary' }}>
-        Showing {images.length - 1} image{images.length - 1 !== 1 ? 's' : ''}
-      </Typography>
-    </>
-  ) : (
-    <Typography align="center">No additional images available</Typography>
-  )}
-</Box>
+          </Box>
         </Grid>
       </Grid>
     </Box>

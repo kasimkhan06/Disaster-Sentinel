@@ -6,7 +6,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
-const Login = () => {
+const Login = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -53,6 +53,7 @@ const Login = () => {
         // Check if the login was successful (status code 200 OK)
         if (response.ok) {
           // Log the received user details AND permissions
+          setIsLoggedIn(true); 
           console.log('Login successful. User details:', {
             id: data.user_id,
             email: data.email,
@@ -108,10 +109,6 @@ const Login = () => {
       }
     }
     };
-
-          
-
-
 
   const handleRegister = () => {
     navigate("/register");

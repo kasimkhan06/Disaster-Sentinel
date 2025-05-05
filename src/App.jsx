@@ -29,6 +29,7 @@ import TestMissingPerson from "./pages/dashboard/agency/Missing Person/TestMissi
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in by retrieving from localStorage
@@ -36,17 +37,18 @@ const App = () => {
     if (userData) {
       const parsedData = JSON.parse(userData);
       setUserRole(parsedData.role);
+      setIsLoggedIn(true);
     }
   }, []);
 
   return (
     <>
-      {userRole === "agency" ? <HeaderAgency /> : <Header />}
+      {userRole === "agency" ? <HeaderAgency /> : <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
 
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/current-location" element={<CurrentLocation />} />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState, useRef } from 'react';
 import {
   AppBar,
   Button,
@@ -21,10 +21,11 @@ import logo from "./logo.png";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
-const Header = () => {
+const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [value, setValue] = useState(0);
   const theme = useTheme();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const initialLoad = useRef(true); 
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -32,9 +33,22 @@ const Header = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    setIsLoggedIn(!!user);
+    const handleStorageChange = () => {
+      const user = localStorage.getItem("user");
+      setIsLoggedIn(!!user);
+    };
+  
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+  
+    // Check auth on initial load
+    handleStorageChange();
+  
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
+
 
   const handleOpenMenu = (e) => {
     setAnchorEl(e.currentTarget);
