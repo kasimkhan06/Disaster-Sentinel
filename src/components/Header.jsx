@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AppBar,
   Button,
@@ -13,22 +13,22 @@ import {
   Box,
   Collapse,
   ListItemText,
-  ListItemIcon,
+  Avatar,
 } from "@mui/material";
 import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 
 const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [value, setValue] = useState(0);
   const theme = useTheme();
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const initialLoad = useRef(true); 
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [accountAnchorEl, setAccountAnchorEl] = useState(null);
   const [openMissingPerson, setOpenMissingPerson] = useState(false);
   const navigate = useNavigate();
 
@@ -38,10 +38,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       setIsLoggedIn(!!user);
     };
   
-    // Listen for storage changes
     window.addEventListener('storage', handleStorageChange);
-  
-    // Check auth on initial load
     handleStorageChange();
   
     return () => {
@@ -49,15 +46,22 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
     };
   }, []);
 
-
   const handleOpenMenu = (e) => {
     setAnchorEl(e.currentTarget);
-    setOpenMissingPerson(false); // Reset submenu state when opening main menu
+    setOpenMissingPerson(false);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
     setOpenMissingPerson(false);
+  };
+
+  const handleAccountMenuOpen = (event) => {
+    setAccountAnchorEl(event.currentTarget);
+  };
+
+  const handleAccountMenuClose = () => {
+    setAccountAnchorEl(null);
   };
 
   const handleMissingPersonClick = (e) => {
@@ -90,6 +94,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
         setIsLoggedIn(false);
+        handleAccountMenuClose();
         navigate("/home");
       } else {
         console.error("Logout failed:", data.message || "Unknown error");
@@ -102,88 +107,160 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   return (
     <>
       <AppBar
+  sx={{
+    bgcolor: "#fafafa",
+    color: "black",
+    boxShadow: "0px 1px 7px #bdbdbd",
+  }}
+  elevation={2}
+>
+  <Toolbar>
+    {/* Left-aligned content */}
+    <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
+      <img src={logo} alt="Logo" style={{ height: "70px" }} />
+      <Typography
         sx={{
-          bgcolor: "#fafafa",
-          color: "black",
-          boxShadow: "0px 1px 7px #bdbdbd",
+          fontSize: "1.2rem",
+          paddingLeft: "10px",
+          fontFamily: "DM Serif Text, serif",
+          cursor: "pointer",
         }}
-        elevation={2}
+        onClick={() => handleNavigation("/home")}
       >
-        <Toolbar>
-          <Box display="flex" alignItems="center">
-            <img src={logo} alt="Logo" style={{ height: "70px" }} />
-            <Typography
-              sx={{
-                fontSize: "1.2rem",
-                paddingLeft: "10px",
-                fontFamily: "DM Serif Text, serif",
+        DISASTER SENTINAL
+      </Typography>
+      {!isMatch && (
+        <Tabs
+  textColor="inherit"
+  value={value}
+  onChange={(e, value) => setValue(value)}
+  TabIndicatorProps={{
+    sx: { backgroundColor: "#bdbdbd" },
+  }}
+  sx={{ 
+    ml: 4,
+    '& .MuiTab-root': {
+      minWidth: 'auto', // Allow tabs to size naturally
+      width: 'auto',   // Prevent forced width
+      padding: '6px 16px', // Consistent padding with account button
+      '&:focus': {
+        outline: 'none',
+      }
+    }
+  }}
+>
+  <Tab label="Home" component={Link} to="/home" />
+  <Tab
+    label="Services"
+    aria-controls="services-menu"
+    onClick={handleOpenMenu}
+  />
+</Tabs>
+      )}
+    </Box>
+    
+    {/* Right-aligned content */}
+    {isMatch ? (
+      <DrawerComp />
+    ) : (
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        {isLoggedIn ? (
+          <>
+            <Button
+  id="account-button"
+  aria-controls="account-menu"
+  aria-haspopup="true"
+  onClick={handleAccountMenuOpen}
+  disableRipple
+  sx={{
+    color: "black",
+    textTransform: "none",
+    padding: "6px 16px",
+    gap: 1,
+    minWidth: 130,
+    width: "auto",
+    transition: 'none', // <-- Add this
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+    '&:focus': {
+      outline: 'none',
+      transform: 'none',
+    },
+    '&:active': {
+      transform: 'none',
+    },
+    '&.Mui-focusVisible': {
+      boxShadow: 'none',
+      backgroundColor: 'transparent',
+    }
+  }}
+  
+>
+  <AccountCircle />
+  <Typography variant="body1">Account</Typography>
+</Button>
+            <Menu
+              id="account-menu"
+              anchorEl={accountAnchorEl}
+              open={Boolean(accountAnchorEl)}
+              onClose={handleAccountMenuClose}
+              keepMounted
+              disableScrollLock
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
               }}
-              onClick={() => handleNavigation("/home")}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              sx={{
+                minWidth: "200px",
+                marginTop: "15px",
+                "& .MuiMenu-paper": {
+                  overflow: "visible",
+                  transform: 'none !important',
+                },
+              }}
             >
-              DISASTER SENTINEL
-            </Typography>
-          </Box>
-          {isMatch ? (
-            <DrawerComp />
-          ) : (
-            <>
-              <Tabs
-                textColor="inherit"
-                value={value}
-                onChange={(e, value) => setValue(value)}
-                TabIndicatorProps={{
-                  sx: { backgroundColor: "#bdbdbd" },
-                }}
-              >
-                <Tab label="Home" component={Link} to="/home" />
-                <Tab
-                  label="Services"
-                  aria-controls="menu"
-                  onClick={handleOpenMenu}
-                />
-              </Tabs>
-              {isLoggedIn ? (
-                <Button
-                  onClick={handleLogout}
-                  sx={{
-                    marginLeft: "auto",
-                    borderColor: "#bdbdbd",
-                    color: "black",
-                    backgroundColor: "#fafafa",
-                    "&:hover": {
-                      backgroundColor: "#e0e0e0",
-                    },
-                  }}
-                >
-                  Logout
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => handleNavigation("/login")}
-                  sx={{
-                    marginLeft: "auto",
-                    borderColor: "#bdbdbd",
-                    color: "black",
-                    backgroundColor: "#fafafa",
-                    "&:hover": {
-                      backgroundColor: "#e0e0e0",
-                    },
-                  }}
-                >
-                  Login
-                </Button>
-              )}
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
+              <MenuItem onClick={() => {
+                handleAccountMenuClose();
+                handleNavigation("/edit-profile")
+              }}>
+                Edit Profile
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
+          </>
+        ) : (
+          <Button
+            onClick={() => handleNavigation("/login")}
+            sx={{
+              borderColor: "#bdbdbd",
+              color: "black",
+              backgroundColor: "#fafafa",
+              "&:hover": {
+                backgroundColor: "#e0e0e0",
+              },
+            }}
+          >
+            Login
+          </Button>
+        )}
+      </Box>
+    )}
+  </Toolbar>
+</AppBar>
 
       {/* Main Services Menu */}
       <Menu
-        id="menu"
+        id="services-menu"
         onClose={handleMenuClose}
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
+        keepMounted
+        disableScrollLock
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "center",
