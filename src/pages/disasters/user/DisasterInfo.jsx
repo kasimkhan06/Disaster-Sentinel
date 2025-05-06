@@ -33,9 +33,15 @@ const DisasterInfo = () => {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [summaryTitle, setSummaryTitle] = useState("");
+  const [filteredSummary, setFilteredSummary] = useState("");
   const readArticleRef = useRef(null);
   let loadingSummary = true;
   let loadingImages = true;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     fetch(
@@ -61,6 +67,26 @@ const DisasterInfo = () => {
     error: summaryError,
   } = useDisasterSummary(disaster);
   loadingSummary = summaryLoading;
+
+  useEffect(() => {
+    if (summary) {
+      const lines = summary.split('\n');
+      
+      // Set the second line as title (index 1)
+      if (lines.length > 1) {
+        const cleanTitle = lines[2].replace(/^#+\s*/, '').trim();
+        setSummaryTitle(cleanTitle);
+      } else {
+        setSummaryTitle("Summary"); // Fallback if there's no second line
+      }
+      
+      // Remove first two lines from the displayed summary
+      const filteredSummary = lines.length > 2 
+        ? lines.slice(3).join('\n') 
+        : ''; // If there are <= 2 lines, show empty content
+      setFilteredSummary(filteredSummary);
+    }
+  }, [summary]);
 
   const {
     images,
@@ -113,7 +139,7 @@ const DisasterInfo = () => {
               sx={{ 
                 mx: 'auto', 
                 mt: 10,
-                bgcolor: 'transparent' // Remove grey background
+                bgcolor: 'transparent'
               }} 
             />
             <Skeleton 
@@ -123,7 +149,7 @@ const DisasterInfo = () => {
               sx={{ 
                 mx: 'auto', 
                 mt: 1,
-                bgcolor: 'transparent' // Remove grey background
+                bgcolor: 'transparent'
               }} 
             />
           </>
@@ -157,7 +183,6 @@ const DisasterInfo = () => {
         )}
       </Box>
 
-      {/* Rest of the code remains the same as in the previous version */}
       <Grid container spacing={1} sx={{ m: 0, width: "75%", marginX: "auto", marginTop: 1 }}>
         {/* First Grid - Disaster Info */}
         <Grid size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{ 
@@ -312,19 +337,21 @@ const DisasterInfo = () => {
           <Box sx={{ borderBottom: "2px solid #eee", mx: { xs: "17px", sm: "17px", md: "32px" }, mt: 2 }}>
             <Typography
               sx={{
-                mb: 1,
+                mb: 0,
                 fontSize: { xs: "1rem", sm: "1rem", md: "1.3rem" },
                 fontWeight: 500,
                 textAlign: "center",
+                padding: 0,
               }}
             >
-              Summary
+              <ReactMarkdown>{summaryTitle}</ReactMarkdown>
             </Typography>
           </Box>
           <Box
             sx={{
               mt: 0,
-              p: { xs: "17px", sm: "17px", md: "32px" },
+              px: { xs: "17px", sm: "17px", md: "32px" },
+              py: 2,
               position: "relative",
               borderTop: "none",
               borderBottom: "1px solid transparent",
@@ -374,7 +401,7 @@ const DisasterInfo = () => {
                       },
                     }}
                   >
-                    <ReactMarkdown>{summary}</ReactMarkdown>
+                    <ReactMarkdown>{filteredSummary}</ReactMarkdown>
                   </Typography>
                 </Box>
 
@@ -393,7 +420,7 @@ const DisasterInfo = () => {
                       variant="contained"
                       onClick={handleReadArticleClick}
                       sx={{
-                        marginTop: "10px",
+                        marginTop: "20px",
                         backgroundColor: "#fff",
                         color: "#000",
                         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
@@ -440,9 +467,9 @@ const DisasterInfo = () => {
           </Box>
 
           {/* Images Section */}
-          <Box sx={{ mt: 4, mb: 2 }}>
+          <Box sx={{ mt: 3, mb: 2 }}>
             <Box sx={{ borderBottom: "2px solid #eee", mb: 3, mx: { xs: "17px", sm: "17px", md: "32px" } }}>
-              <Typography
+              {/* <Typography
                 sx={{
                   mb: 1,
                   fontSize: { xs: "1rem", sm: "1rem", md: "1.3rem" },
@@ -451,7 +478,7 @@ const DisasterInfo = () => {
                 }}
               >
                 Images
-              </Typography>
+              </Typography> */}
             </Box>
             {loadingImages ? (
               <Box

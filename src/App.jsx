@@ -18,6 +18,7 @@ import EventForm from "./pages/dashboard/agency/Announcement/CreateEvent";
 import { EventFormProvider } from "./hooks/useEventForm";
 import FloodPrediction from "./pages/disasters/user/FloodPrediction";
 import Agencies from "./pages/disasters/user/Agencies";
+import AgencyProfile from "./pages/disasters/user/AgencyProfile";
 import Verification from "./pages/authentication/verification";
 import DosDontsPage from "./pages/training/dosdonts";
 import MissingPersonPortal from "./pages/missingperson/portal";
@@ -27,6 +28,7 @@ import Profile from "./pages/dashboard/agency/Profile/Profile";
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in by retrieving from localStorage
@@ -34,17 +36,18 @@ const App = () => {
     if (userData) {
       const parsedData = JSON.parse(userData);
       setUserRole(parsedData.role);
+      setIsLoggedIn(true);
     }
   }, []);
 
   return (
     <>
-      {userRole === "agency" ? <HeaderAgency /> : <Header />}
+      {userRole === "agency" ? <HeaderAgency /> : <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
 
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification" element={<Verification />} />
         <Route path="/current-location" element={<CurrentLocation />} />
@@ -54,6 +57,7 @@ const App = () => {
         <Route path="/statustracking" element={<StatusTracking />} />
         <Route path="/flood-prediction" element={<FloodPrediction />} />
         <Route path="/agencies" element={<Agencies />} />
+        <Route path="/agency/:id" element={<AgencyProfile />} />
         <Route path="/registration-form" element={<NewRegistration />} />
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
         <Route path="/missing-person" element={<MissingPerson />} />
