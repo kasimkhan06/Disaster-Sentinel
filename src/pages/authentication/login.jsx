@@ -109,10 +109,6 @@ const Login = () => {
     }
     };
 
-          
-
-
-
   const handleRegister = () => {
     navigate("/register");
   };

@@ -19,6 +19,8 @@ const mockData = [
   {
     id: "12345",
     name: "John Doe",
+    age : 30,
+    gender : "Male",
     status: "Under Investigation",
     disasterType: "Floods",
     contactInfo: "9876543210",
@@ -29,6 +31,8 @@ const mockData = [
   {
     id: "67890",
     name: "Jane Smith",
+    age : 28,
+    gender : "Female",
     status: "Found",
     disasterType: "Earthquake",
     contactInfo: "8765432109",
@@ -107,16 +111,7 @@ const StatusTracking = () => {
             padding: 0,
             zIndex: 0, // Only needed if you have other elements with zIndex
           }}
-    // sx={{         
-    //              position: "relative", minHeight: "100vh",
-    //              background: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${worldMapBackground})`,
-    //              backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundRepeat: "repeat-y",
-    //              overflowX: "hidden",
-    //              overflowY: "hidden",
-    //              marginTop:"65px", 
-    //             //  display: 'flex', flexDirection: 'column', 
-    //             }}
-                >
+    >
     <Container maxWidth="md" sx={{ mt: 8, pb: 4 }}>
       <div style={{ display: "flex", justifyContent: "center", marginTop: "100px" }}>
         <Autocomplete
@@ -185,6 +180,8 @@ const StatusTracking = () => {
             <Avatar src={selectedPerson.photo} sx={{ width: 100, height: 100 }} />
             <Box>
               <Typography variant="body1"><strong>Name:</strong> {selectedPerson.name}</Typography>
+              <Typography variant="body1"><strong>Age:</strong> {selectedPerson.age}</Typography>
+              <Typography variant="body1"><strong>Gender:</strong> {selectedPerson.gender}</Typography>
               <Typography variant="body1"><strong>Disaster Type:</strong> {selectedPerson.disasterType}</Typography>
               <Typography variant="body1"><strong>Last Seen:</strong> {selectedPerson.lastSeen}</Typography>
               <Typography variant="body1"><strong>Contact Info:</strong> {selectedPerson.contactInfo}</Typography>

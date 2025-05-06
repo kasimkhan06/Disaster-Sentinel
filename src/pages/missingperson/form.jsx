@@ -62,7 +62,7 @@ const MissingPersonForm = ({
     };
 
     return (
-        <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0, height: "100%" }}>
+        <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0, }}>
             <Typography align="center" sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, fontWeight: "500", mb: 0 }}>
                 Report Details
             </Typography>
@@ -113,7 +113,6 @@ const MissingPersonForm = ({
                             <TextField fullWidth label="Identification Marks" name="identificationMarks" value={formData.identificationMarks} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} />
                         </Box>
                     </Grid>
-
 
                     {/* Last Seen Location Field (Editable + Search Button) */}
                     <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
@@ -193,7 +192,6 @@ const MissingPersonForm = ({
                         </Box>
                     </Grid>
 
-
                     {/* ... File Uploads ... */}
                      <Grid container size={12} sx={{ display: "flex", justifyContent: "right", width: "90%", mt: 2 }}>
                         <Grid size={{ xs: 12, sm: 6 }} sx={{ textAlign: { xs: 'right', sm: 'right' }, pr: 1, mb: { xs: 1, sm: 0 }, alignSelf: 'center' }}>
@@ -224,7 +222,7 @@ const MissingPersonForm = ({
 
                     {/* ... Submit Button ... */}
                     <Grid size={12} sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                        <Button disableRipple type="submit" sx={{ height: { md: 52 }, paddingY: "9px", px: 5, fontSize: "1rem", fontWeight: 800, mb: 2, display: "flex", alignItems: "center", "&:hover": { backgroundColor: "white" }, }}>
+                        <Button disableRipple type="submit" sx={{ height: { md: 52 }, paddingY: "9px", px: 5, fontSize: "1rem", fontWeight: 800, display: "flex", alignItems: "center", "&:hover": { backgroundColor: "white" }, }}>
                             Submit Report
                         </Button>
                     </Grid>

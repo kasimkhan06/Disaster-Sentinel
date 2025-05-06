@@ -169,15 +169,14 @@ const MissingPersonPortal = () => {
         setStatusMessage({ type: '', text: '' });
         const validationErrors = {};
 
-        // --- Validation Checks (logic remains the same) ---
+        // --- Validation Checks ---
         if (!formData.name.trim()) validationErrors.name = "Name is required.";
-        if (!formData.age.trim()) newErrors.age = "Age is required";
-        if (!formData.gender.trim()) newErrors.gender = "Gender is required";
+        if (!formData.age.trim()) validationErrors.age = "Age is required."; 
+        if (!formData.gender.trim()) validationErrors.gender = "Gender is required.";
         if (!formData.description.trim()) validationErrors.description = "Description is required.";
         if (!formData.lastSeen) {
              validationErrors.location = "Last seen location is required.";
         }
-        // ... other validation checks ...
         if (!formData.state) validationErrors.state = "State is required.";
         if (formData.state && !formData.district) validationErrors.district = "District is required.";
         if (!formData.disasterType) validationErrors.disasterType = "Disaster type is required.";
@@ -187,7 +186,6 @@ const MissingPersonPortal = () => {
         if (errors.idCard) validationErrors.idCard = errors.idCard;
         if (!captchaToken) validationErrors.captcha = "Please complete the reCAPTCHA verification.";
 
-
         setErrors(validationErrors);
 
         if (Object.keys(validationErrors).length > 0) {
@@ -195,7 +193,7 @@ const MissingPersonPortal = () => {
             return;
         }
 
-        // --- Submission Logic (remains the same) ---
+        // --- Submission Logic ---
         setStatusMessage({ type: 'info', text: 'Submitting report...' });
         console.log("Form Data Submitted:", formData);
         const apiFormData = new FormData();
@@ -233,15 +231,15 @@ const MissingPersonPortal = () => {
         }, 1500);
     };
 
-
     return (
-        <Box sx={{ 
-             position: "relative", minHeight: "100vh",
-             background: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${worldMapBackground})`,
-             backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundRepeat: "repeat-y",
-             overflowX: "hidden",
-             overflowY: "hidden",
-        }}>
+        <Box
+            sx={{   
+                    position: "absolute",top: 0, left: 0,right: 0,
+                    minHeight: "100vh",background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+                    url(${worldMapBackground})`,
+                    backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundRepeat: "repeat-y", margin: 0, padding: 0, zIndex: 0, // Only needed if you have other elements with zIndex
+                }}
+                >
             <Container maxWidth="lg" sx={{ pt: { xs: 4, md: 8 }, pb: 4, position: "relative" }}>
                 <Typography align="center" sx={{ mt: 1, mb: 3, fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.5rem" }, fontWeight: "500"
                  }}>
@@ -269,7 +267,6 @@ const MissingPersonPortal = () => {
                             setSelectedState={setSelectedState}
                             selectedDistrict={selectedDistrict}
                             setSelectedDistrict={setSelectedDistrict}
-                            // Pass search function and loading state
                             searchMapLocation={searchMapLocation}
                             isSearchingLocation={isSearchingLocation}
                         />
@@ -281,7 +278,7 @@ const MissingPersonPortal = () => {
                              <Typography align="center" sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, fontWeight: "500", mb: 0 }}>
                                 Last Seen Location Map
                             </Typography>
-                            {/* Interactive Map Component - Removed handleInputChange */}
+                            {/* Interactive Map Component */}
                             <InteractiveMap
                                 formData={formData}
                                 setFormData={setFormData}
