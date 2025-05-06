@@ -134,7 +134,7 @@ const Agencies = () => {
 
   const handleRowClick = (agency) => {
     if (agency.isAddedAgency) {
-      navigate(`/agency/${agency.id}`);
+      navigate(`/agency/${agency.user_id}`);
     } else {
       setSelectedAgency(agency);
       setOpenDialog(true);
