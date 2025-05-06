@@ -3,7 +3,6 @@ import { CalendarToday, LocationOn, Videocam, People, Edit, Delete, Send } from 
 import { useNavigate } from "react-router-dom";
 import "../../public/css/EventListing.css";
 import axios from "axios";
-import refreshEvents  from "../pages/dashboard/agency/Announcement/EventListing";
 
 export default function EventCard({ event, refreshEvents }) {
   const navigate = useNavigate();
@@ -34,7 +33,6 @@ export default function EventCard({ event, refreshEvents }) {
     }
   };
 
-
   const getImage = () => {
     if (event.event_type === "Seminar" || event.event_type === "Conference" || event.event_type === "Networking") {
       return "/assets/Event Images/seminar.jpg";
@@ -57,13 +55,15 @@ export default function EventCard({ event, refreshEvents }) {
           <Typography variant="body2">
             <CalendarToday fontSize="small" /> {event.date}
           </Typography>
-          {event.locationType === "online" ? (
+          {event.location_type === "online" ? (
             <Typography variant="body2">
               <Videocam fontSize="small" /> Online ({event.platform})
+              <br />
+              <Send fontSize="small" /> {event.meeting_link}
             </Typography>
           ) : (
             <Typography variant="body2">
-              <LocationOn fontSize="small" /> {event.venue_name || "Unknown"}, {event.city || "Unknown"}
+              <LocationOn fontSize="small" /> {event.venue_name}, {event.city}, {event.state}
             </Typography>
           )}
           <Typography variant="body2">

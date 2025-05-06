@@ -67,7 +67,7 @@ const App = () => {
         <Route path="/event-listing" element={<EventListing />} />
         <Route path="/create-event" 
         element={
-          <EventFormProvider>
+        <EventFormProvider>
           <EventForm />
         </EventFormProvider>
         } />

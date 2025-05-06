@@ -32,6 +32,7 @@ export default function EventListing() {
   const [sort, setSort] = useState("newest");
   const isBelow = useMediaQuery("(max-width:1470px)");
   const [isLoading, setIsLoading] = useState(false);
+  const [deletedEvents, setDeletedEvents] = useState([]);
 
   // Function to fetch events (used initially and for refreshing)
   const fetchEvents = async () => {
@@ -39,14 +40,36 @@ export default function EventListing() {
     try {
       const response = await fetch("https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/");
       const data = await response.json();
-      console.log("Fetched events:", data);
-      setEvents(data);
+      const currentDate = new Date();
+  
+      // Filter expired and delete them
+      const validEvents = [];
+      for (const event of data) {
+        const eventDate = new Date(event.date);
+        if (eventDate >= currentDate) {
+          validEvents.push(event);
+        } else {
+          try {
+            await fetch(`https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${event.id}/`, {
+              method: "DELETE",
+            });
+            setDeletedEvents(prev => [...prev, event]);
+            setTimeout(() => {
+              setDeletedEvents(prev => prev.filter(e => e.id !== event.id));
+            }, 100000);
+          } catch (deleteError) {
+            console.error(`Failed to delete expired event: ${event.name}`, deleteError);
+          }
+        }
+      }
+  
+      setEvents(validEvents);
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  };  
 
   // Fetch events when the component mounts
   useEffect(() => {
@@ -156,12 +179,40 @@ export default function EventListing() {
           <Grid container spacing={3}>
             {filteredEvents().map((event) => (
               <Grid item xs={12} sm={6} md={4} key={event.id}>
-                <EventCard event={event} refreshEvents={refreshEvents} /> {/* Pass refreshEvents */}
+                <EventCard 
+                event={event} 
+                refreshEvents={refreshEvents} 
+              /> 
               </Grid>
             ))}
           </Grid>
         )}
 
+        {deletedEvents.length > 0 && (
+          <div className="deleted-events-sidebar" style={{
+            position: "fixed",
+            right: 0,
+            top: 80,
+            width: "250px",
+            background: "#fce4ec",
+            borderLeft: "2px solid #f06292",
+            padding: "10px",
+            zIndex: 999,
+            boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+          }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
+              Deleted Event
+            </Typography>
+            {deletedEvents.map(event => (
+              <Box key={event.id} sx={{ mb: 1 }}>
+                <Typography variant="body2">{event.name}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {new Date(event.date).toLocaleString()}
+                </Typography>
+              </Box>
+            ))}
+          </div>
+        )}
       </div>
         <div className="footer" style={{ marginTop: "20px", textAlign: "center" }}>
           <Typography variant="body2" color="text.secondary">
