@@ -431,9 +431,9 @@ export default function AgencyDashboard() {
                   width: { xs: "100%", md: "300px" },
                 }}
               />
-              <Button disableRipple
-                // variant="contained"
-                sx={{ height: '40px', width: { xs: '100%', sm: 'auto' } }}
+              <Button 
+                disableRipple
+                // sx={{ height: '40px', width: { xs: '100%', sm: 'auto' } }}
                 onClick={() => handleSearch(searchEmail)}
               >
                 Search
@@ -448,7 +448,7 @@ export default function AgencyDashboard() {
               <Box sx={{ mt: 2 }}>
                 <Typography>Name: {searchResult.full_name}</Typography>
                 <Typography>Email: {searchResult.email}</Typography>
-                <Button variant="outlined" sx={{ mt: 1 }} onClick={() => handleAcceptRequest(searchResult)}>
+                <Button disableRipple sx={{ mt: 1 }} onClick={() => handleAcceptRequest(searchResult)}>
                   Add Volunteer
                 </Button>
               </Box>
@@ -478,7 +478,7 @@ export default function AgencyDashboard() {
                       <TableCell>{req.volunteer_email}</TableCell>
                       <TableCell>{req.message}</TableCell>
                       <TableCell>
-                        <Button variant="contained" onClick={() => handleAcceptRequest(req)}>Accept</Button>
+                        <Button disableRipple onClick={() => handleAcceptRequest(req)}>Accept</Button>
                         </TableCell>
                     </TableRow>
                   ))}
@@ -522,7 +522,8 @@ export default function AgencyDashboard() {
 
                       <TableCell>
                         <Button
-                          variant="outlined"
+                        disableRipple
+                          // variant="outlined"
                           onClick={() => {
                             const updatedPermissions = permissionsList.filter(p => volunteers[idx][p]);
                             handleSavePermissions(vol.member.id, updatedPermissions);
