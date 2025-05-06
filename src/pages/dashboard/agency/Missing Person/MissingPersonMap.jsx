@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import osm from "../../../../components/osm-providers";
+import { useNavigate } from "react-router-dom";
 
 // Custom Leaflet icon
 const myIcon = new L.Icon({
@@ -17,7 +18,8 @@ const MissingPersonMap = ({ name, missingDate, locations, selectedPerson }) => {
   const [markers, setMarkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const markerRefs = useRef([]);
-  const mapRef = useRef(null); // Separate ref for the map
+  const mapRef = useRef(null); 
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -159,12 +161,38 @@ const MissingPersonMap = ({ name, missingDate, locations, selectedPerson }) => {
               </div>
 
               {marker.persons.map((person, i) => (
-                <div key={i} style={{ marginBottom: "5px", borderBottom: "1px solid #ccc", paddingBottom: "5px" }}>
-                  <span style={{ color: "#d32f2f", fontSize: "16px" }}>
+                <div
+                  key={i}
+                  style={{
+                    marginBottom: "10px",
+                    borderBottom: "1px solid #ccc",
+                    paddingBottom: "8px",
+                  }}
+                >
+                  <span style={{ color: "#d32f2f", fontSize: "16px", fontWeight: 600 }}>
                     {person.name}
                   </span>
                   <br />
-                  <span style={{ color: "#555" }}>Missing date: {person.missingDate}</span>
+                  <span style={{ color: "#555", fontSize: "14px" }}>
+                    Missing date: {person.missingDate}
+                  </span>
+                  <br />
+                  <span
+                    onClick={() =>
+                      navigate(`/person-details/${person.id}`, {
+                        state: { person },
+                      })
+                    }
+                    style={{
+                      color: "#1976d2",
+                      cursor: "pointer",
+                      fontSize: "10px",
+                      marginTop: "4px",
+                      display: "inline-block",
+                    }}
+                  >
+                    View Details
+                  </span>
                 </div>
               ))}
             </div>

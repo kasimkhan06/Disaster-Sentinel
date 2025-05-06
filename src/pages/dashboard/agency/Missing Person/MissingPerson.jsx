@@ -407,10 +407,6 @@ function MissingPerson() {
                         {rows.map((person) => (
                             <Grid item xs={12} sm={6} md={6} key={person.id}>
                                 <Card
-                                    // onClick={() =>
-                                    // navigate(`/person-details/${person.id}`, {
-                                    //     state: { person },
-                                    // })}
                                     onClick={() => handlePersonSelect(person)}
                                     sx={{
                                         borderRadius: 3,
