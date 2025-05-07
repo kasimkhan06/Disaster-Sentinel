@@ -98,13 +98,12 @@ const MissingPersonForm = ({
     
         // Map event types to readable disaster types
         const eventTypeMap = {
-            EQ: "Earthquake",
-            FL: "Flood",
-            WF: "Wildfire",
-            TC: "Tropical Cyclone",
-            VO: "Volcano",
-            DR: "Drought",
-            // Extend as needed
+            EQ: "Earthquakes",
+            FL: "Floods",
+            WF: "Wildfires",
+            TC: "Cyclones",
+            VO: "Volcanoes",
+            DR: "Droughts",
         };
     
         // Map filtered disasters to enriched objects with proper event_type mapping
