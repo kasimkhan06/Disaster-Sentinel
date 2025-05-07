@@ -205,17 +205,17 @@ const FloodPrediction = () => {
         <Typography
           align="center"
           sx={{
-            pt: "17px",
-            pb: "5px",
-            mt: 8,
-            mb: 1,
+            mt: 10,
+          p:2,
+          mb:0.5,
             fontSize: {
-              xs: "1rem",
-              sm: "1.2rem",
-              md: isBelow ? "1.2rem" : "1.4rem",
-              lg: isBelow ? "1.2rem" : "1.4rem",
+              xs: "1.3rem",
+              sm: "1.3rem",
+              md: "1.4rem",
+              lg: "1.45rem",
+              xl: "1.45rem",
             },
-            fontWeight: "700",
+            fontWeight: "bold",
             color: "rgba(0, 0, 0, 0.87)",
             position: "relative",
             zIndex: 1,

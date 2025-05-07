@@ -67,8 +67,8 @@ const Agencies = () => {
 
   // Sort agencies alphabetically by name
   const allAgencies = [...existingAgencies, ...addedAgencies].sort((a, b) => {
-    const nameA = a?.name?.toLowerCase() || '';
-    const nameB = b?.name?.toLowerCase() || '';
+    const nameA = a?.name?.toLowerCase() || "";
+    const nameB = b?.name?.toLowerCase() || "";
     return nameA.localeCompare(nameB);
   });
 
@@ -81,20 +81,20 @@ const Agencies = () => {
 
   useEffect(() => {
     let filtered = allAgencies;
-    
+
     if (selectedState !== "All States") {
       filtered = filtered.filter((agency) => agency.state === selectedState);
     }
-    
+
     if (agencyNameFilter) {
       filtered = filtered.filter((agency) => {
-        const name = agency?.name?.toLowerCase() || '';
-        const agencyName = agency?.agency_name?.toLowerCase() || '';
+        const name = agency?.name?.toLowerCase() || "";
+        const agencyName = agency?.agency_name?.toLowerCase() || "";
         const filter = agencyNameFilter.toLowerCase();
         return name.includes(filter) || agencyName.includes(filter);
       });
     }
-    
+
     setFilteredAgencies(filtered);
     setPage(1);
   }, [selectedState, agencyNameFilter, existingAgencies, addedAgencies]);
@@ -195,27 +195,31 @@ const Agencies = () => {
   };
   const updateAgencySuggestions = (inputValue, stateFilter) => {
     let filtered = allAgencies;
-    
+
     if (stateFilter !== "All States") {
-      filtered = filtered.filter(agency => agency.state === stateFilter);
+      filtered = filtered.filter((agency) => agency.state === stateFilter);
     }
-    
+
     if (inputValue) {
       const inputLower = inputValue.toLowerCase();
-      filtered = filtered.filter(agency => {
-        const name = agency?.name?.toLowerCase() || '';
+      filtered = filtered.filter((agency) => {
+        const name = agency?.name?.toLowerCase() || "";
         return name.includes(inputLower);
       });
     }
-    
+
     // Get unique agency names
-    let uniqueNames = [...new Set(filtered.map(agency => agency?.name || '').filter(name => name))];
-    
+    let uniqueNames = [
+      ...new Set(
+        filtered.map((agency) => agency?.name || "").filter((name) => name)
+      ),
+    ];
+
     // If no input value (initial click), show only first 5 suggestions
     if (!inputValue) {
       uniqueNames = uniqueNames.slice(0, 5);
     }
-    
+
     setAgencySuggestions(uniqueNames);
   };
 
@@ -236,7 +240,7 @@ const Agencies = () => {
         right: 0,
         minHeight: "100vh",
         overflowY: "scroll", // Always show scrollbar
-    width: "100vw", 
+        width: "100vw",
         background: `
           linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
           url(${worldMapBackground})
@@ -253,264 +257,268 @@ const Agencies = () => {
       <Typography
         align="center"
         sx={{
-          pt: "17px",
-          pb: "5px",
-          mt: 8,
-          mb: 1,
+          mt: 10,
+          p:2,
+          mb:0.5,
           fontSize: {
-            xs: "1rem",
-            sm: "1.2rem",
-            md: isBelow ? "1.2rem" : "1.4rem",
-            lg: isBelow ? "1.2rem" : "1.4rem",
+            xs: "1.3rem",
+            sm: "1.3rem",
+            md: "1.4rem",
+            lg: "1.45rem",
+            xl: "1.45rem",
           },
-          fontWeight: "700",
+          fontWeight: "bold",
+          textTransform: "uppercase",
           color: "rgba(0, 0, 0, 0.87)",
           position: "relative",
           zIndex: 1,
         }}
       >
-        AGENCY DETAILS
+         AGENCY DETAILS 
       </Typography>
 
       <Grid
-  container
-  spacing={1}
-  sx={{
-    mb: 0,
-    width: {
-      xs: "100%",
-      sm: "90%",
-      md: "83%",
-      lg: isBelow ? "70%" : "60%",
-    },
-    marginX: "auto",
-    maxWidth: "100%",
-  }}
->
-  {/* State Filter */}
-  <Grid
-    size={{ xs: 6, sm: 6, md: 4, lg: 3 }} // Adjusted size
-    sx={{
-      display: "flex",
-      justifyContent: "left",
-      alignItems: "stretch",
-    }}
-  >
-    <Box
-      sx={{
-        width: { xs: "100%", sm: "75%", md: "100%" },
-        paddingLeft: 0,
-        mb: 2,
-        textAlign: "left",
-        position: "relative",
-      }}
-    >
-      <Autocomplete
-        options={["All States", ...states]}
-        value={selectedState}
-        onChange={(event, newValue) => {
-          const newState = newValue || "All States";
-          setSelectedState(newState);
-          updateAgencySuggestions(agencyNameFilter, newState);
-        }}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            // label="Filter by State"
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  <Tooltip title="Use my current location">
-                    <IconButton
-                      onClick={handleUseCurrentLocation}
-                      disabled={isLocating || loading}
-                      size="small"
-                      sx={{ mr: -1 }}
-                    >
-                      {isLocating ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <MyLocationIcon fontSize="small" />
-                      )}
-                    </IconButton>
-                  </Tooltip>
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "white",
-                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                "& fieldset": {
-                  borderColor: "transparent !important",
-                },
-                "&:hover fieldset": {
-                  borderColor: "transparent",
-                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "transparent",
-                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
-                },
-                "&.Mui-disabled fieldset": {
-                  borderColor: "transparent !important",
-                },
-              },
-              "& .MuiInputLabel-root": {
-                color: "inherit",
-              },
-              "& .MuiInputBase-input": {
-                fontSize: {
-                  xs: "0.7rem",
-                  sm: "0.8rem",
-                  md: isBelow ? "0.9rem" : "1rem",
-                  lg: isBelow ? "0.9rem" : "1rem",
-                },
-              },
-              width: "100%",
-            }}
-          />
-        )}
+        container
+        spacing={1}
         sx={{
-          "& .MuiAutocomplete-endAdornment": {
-            right: "10px",
+          mb: 0,
+          mt:1,
+          width: {
+            xs: "100%",
+            sm: "90%",
+            md: "83%",
+            lg: isBelow ? "70%" : "60%",
           },
+          marginX: "auto",
+          maxWidth: "100%",
         }}
-        disabled={loading}
-      />
-    </Box>
-  </Grid>
+      >
+        {/* State Filter */}
+        <Grid
+          size={{ xs: 6, sm: 6, md: 4, lg: 3 }} // Adjusted size
+          sx={{
+            display: "flex",
+            justifyContent: "left",
+            alignItems: "stretch",
+          }}
+        >
+          <Box
+            sx={{
+              width: { xs: "100%", sm: "75%", md: "100%" },
+              paddingLeft: 0,
+              mb: 2,
+              textAlign: "left",
+              position: "relative",
+            }}
+          >
+            <Autocomplete
+              options={["All States", ...states]}
+              value={selectedState}
+              onChange={(event, newValue) => {
+                const newState = newValue || "All States";
+                setSelectedState(newState);
+                updateAgencySuggestions(agencyNameFilter, newState);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  // label="Filter by State"
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        <Tooltip title="Use my current location">
+                          <IconButton
+                            onClick={handleUseCurrentLocation}
+                            disabled={isLocating || loading}
+                            size="small"
+                            sx={{ mr: -1 }}
+                          >
+                            {isLocating ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <MyLocationIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                        </Tooltip>
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                      "& fieldset": {
+                        borderColor: "transparent !important",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "transparent",
+                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "transparent",
+                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+                      },
+                      "&.Mui-disabled fieldset": {
+                        borderColor: "transparent !important",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "inherit",
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: {
+                        xs: "0.7rem",
+                        sm: "0.8rem",
+                        md: isBelow ? "0.9rem" : "1rem",
+                        lg: isBelow ? "0.9rem" : "1rem",
+                      },
+                    },
+                    width: "100%",
+                  }}
+                />
+              )}
+              sx={{
+                "& .MuiAutocomplete-endAdornment": {
+                  right: "10px",
+                },
+              }}
+              disabled={loading}
+            />
+          </Box>
+        </Grid>
 
-  {/* Agency Name Filter */}
-  <Grid
-  size={{ xs: 6, sm: 6, md: 4, lg: 3 }}
-  sx={{
-    display: "flex",
-    justifyContent: "left",
-    alignItems: "stretch",
-  }}
->
-  <Box
-    sx={{
-      width: { xs: "100%", sm: "75%", md: "100%" },
-      paddingLeft: 0,
-      mb: 2,
-      textAlign: "left",
-      position: "relative",
-    }}
-  >
-<Autocomplete
-  freeSolo
-  options={agencySuggestions}
-  value={agencyNameFilter}
-  onChange={(event, newValue) => {
-    setAgencyNameFilter(newValue || "");
-  }}
-  onInputChange={(event, newInputValue) => {
-    setAgencyNameFilter(newInputValue);
-    updateAgencySuggestions(newInputValue, selectedState);
-  }}
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      variant="outlined"
-      placeholder="Type to search agencies..."
-      InputLabelProps={{
-        shrink: false,
-        style: { display: 'none' }
-      }}
-      inputProps={{
-        ...params.inputProps,
-        'aria-label': 'Filter by Agency Name',
-      }}
-      sx={{
-        "& .MuiOutlinedInput-root": {
-          backgroundColor: "white",
-          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-          "& fieldset": {
-            borderColor: "transparent !important",
-          },
-          "&:hover fieldset": {
-            borderColor: "transparent",
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
-          },
-          "&.Mui-focused fieldset": {
-            borderColor: "transparent",
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
-          },
-          "& .MuiInputBase-input::placeholder": {
-            opacity: 1,
-            color: theme.palette.text.secondary,
-          },
-        },
-        "& .MuiInputBase-input": {
-          fontSize: {
-            xs: "0.7rem",
-            sm: "0.8rem",
-            md: isBelow ? "0.9rem" : "1rem",
-            lg: isBelow ? "0.9rem" : "1rem",
-          },
-          "&::placeholder": {
-            color: theme.palette.text.secondary,
-          },
-        },
-        width: "100%",
-      }}
-      disabled={loading}
-    />
-  )}
-  noOptionsText={
-    <Typography variant="body1" color="text.secondary">
-      {!agencyNameFilter && selectedState === "All States"
-        ? "Start typing to search agencies"
-        : selectedState === "All States" && agencyNameFilter
-        ? `No agencies found with name containing "${agencyNameFilter}"`
-        : !agencyNameFilter
-        ? `No agencies found in ${selectedState}`
-        : `No agencies found in ${selectedState} with name containing "${agencyNameFilter}"`}
-    </Typography>
-  }
-  disabled={loading}
-/>
-  </Box>
-</Grid>
+        {/* Agency Name Filter */}
+        <Grid
+          size={{ xs: 6, sm: 6, md: 4, lg: 3 }}
+          sx={{
+            display: "flex",
+            justifyContent: "left",
+            alignItems: "stretch",
+          }}
+        >
+          <Box
+            sx={{
+              width: { xs: "100%", sm: "75%", md: "100%" },
+              paddingLeft: 0,
+              mb: 2,
+              textAlign: "left",
+              position: "relative",
+            }}
+          >
+            <Autocomplete
+              freeSolo
+              options={agencySuggestions}
+              value={agencyNameFilter}
+              onChange={(event, newValue) => {
+                setAgencyNameFilter(newValue || "");
+              }}
+              onInputChange={(event, newInputValue) => {
+                setAgencyNameFilter(newInputValue);
+                updateAgencySuggestions(newInputValue, selectedState);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  placeholder="Type to search agencies..."
+                  InputLabelProps={{
+                    shrink: false,
+                    style: { display: "none" },
+                  }}
+                  inputProps={{
+                    ...params.inputProps,
+                    "aria-label": "Filter by Agency Name",
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                      "& fieldset": {
+                        borderColor: "transparent !important",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "transparent",
+                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "transparent",
+                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+                      },
+                      "& .MuiInputBase-input::placeholder": {
+                        opacity: 1,
+                        color: theme.palette.text.secondary,
+                      },
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: {
+                        xs: "0.7rem",
+                        sm: "0.8rem",
+                        md: isBelow ? "0.9rem" : "1rem",
+                        lg: isBelow ? "0.9rem" : "1rem",
+                      },
+                      "&::placeholder": {
+                        color: theme.palette.text.secondary,
+                      },
+                    },
+                    width: "100%",
+                  }}
+                  disabled={loading}
+                />
+              )}
+              noOptionsText={
+                <Typography variant="body1" color="text.secondary">
+                  {!agencyNameFilter && selectedState === "All States"
+                    ? "Start typing to search agencies"
+                    : selectedState === "All States" && agencyNameFilter
+                    ? `No agencies found with name containing "${agencyNameFilter}"`
+                    : !agencyNameFilter
+                    ? `No agencies found in ${selectedState}`
+                    : `No agencies found in ${selectedState} with name containing "${agencyNameFilter}"`}
+                </Typography>
+              }
+              disabled={loading}
+            />
+          </Box>
+        </Grid>
 
-  {/* Clear Filters Button */}
-  <Grid
-    size={{ xs: 6, sm: 6, md: 4, lg: 2 }} // Adjusted size
-    sx={{
-      display: "flex",
-      justifyContent: "left",
-      alignItems: "stretch",
-    }}
-  >
-    <Button
-      onClick={() => {
-        handleClearFilters();
-        setAgencyNameFilter("");
-        setAgencySuggestions([]);
-      }}
-      disableRipple
-      disabled={(selectedState === "All States" && !agencyNameFilter) || loading}
-      sx={{
-        height: { md: 53.69 },
-        paddingY: "9px",
-        mb: 2,
-        display: "flex",
-        alignItems: "left",
-        "&:hover": {
-          backgroundColor: "transparent",
-        },
-        width: { xs: "50%", sm: "40%", md: "60%", lg: "100%" },
-      }}
-    >
-      Clear Filters
-    </Button>
-  </Grid>
-</Grid>
+        {/* Clear Filters Button */}
+        <Grid
+          size={{ xs: 6, sm: 6, md: 4, lg: 2 }} // Adjusted size
+          sx={{
+            display: "flex",
+            justifyContent: "left",
+            alignItems: "stretch",
+          }}
+        >
+          <Button
+            onClick={() => {
+              handleClearFilters();
+              setAgencyNameFilter("");
+              setAgencySuggestions([]);
+            }}
+            disableRipple
+            disabled={
+              (selectedState === "All States" && !agencyNameFilter) || loading
+            }
+            sx={{
+              height: { md: 53.69 },
+              paddingY: "9px",
+              mb: 2,
+              display: "flex",
+              alignItems: "left",
+              "&:hover": {
+                backgroundColor: "transparent",
+              },
+              width: { xs: "50%", sm: "40%", md: "60%", lg: "100%" },
+            }}
+          >
+            Clear Filters
+          </Button>
+        </Grid>
+      </Grid>
 
       {locationError && (
         <Typography color="error" align="center" sx={{ mb: 2 }}>
@@ -527,38 +535,43 @@ const Agencies = () => {
             lg: isBelow ? "70%" : "60%",
           },
           marginX: "auto",
-          height: loading ? "200px" : 'auto',
-          minHeight: loading ? "200px" : `${headerHeight + (rowHeight * Math.min(paginatedAgencies.length, itemsPerPage))}px`,
+          height: loading ? "200px" : "auto",
+          minHeight: loading
+            ? "200px"
+            : `${
+                headerHeight +
+                rowHeight * Math.min(paginatedAgencies.length, itemsPerPage)
+              }px`,
           display: "flex",
           flexDirection: "column",
           borderRadius: 2,
           boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
           mb: filteredAgencies.length > itemsPerPage ? 0 : 2,
-          overflow: 'hidden',
+          overflow: "hidden",
         }}
       >
         {loading ? (
           <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "200px",
-            backgroundColor: "white",
-            width: "100%",
-            marginX: "auto",
-          }}
-        >
-          <CircularProgress />
-          <Typography sx={{ ml: 2 }}>Loading agency details...</Typography>
-        </Box>
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "200px",
+              backgroundColor: "white",
+              width: "100%",
+              marginX: "auto",
+            }}
+          >
+            <CircularProgress />
+            <Typography sx={{ ml: 2 }}>Loading agency details...</Typography>
+          </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ overflow: 'hidden' }}>
+          <TableContainer component={Paper} sx={{ overflow: "hidden" }}>
             <Table aria-label="agencies table">
               <TableHead>
                 <TableRow>
-                  <TableCell 
-                    sx={{ 
+                  <TableCell
+                    sx={{
                       fontWeight: "600",
                       backgroundColor: theme.palette.grey[50],
                       borderBottom: `1px solid ${theme.palette.divider}`,
@@ -567,8 +580,8 @@ const Agencies = () => {
                   >
                     Agency Name
                   </TableCell>
-                  <TableCell 
-                    sx={{ 
+                  <TableCell
+                    sx={{
                       fontWeight: "600",
                       backgroundColor: theme.palette.grey[50],
                       borderBottom: `1px solid ${theme.palette.divider}`,
@@ -597,17 +610,21 @@ const Agencies = () => {
                         height: rowHeight, // Set explicit row height
                       }}
                     >
-                      <TableCell sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
+                      <TableCell
+                        sx={{
+                          borderBottom: `1px solid ${theme.palette.divider}`,
+                        }}
+                      >
                         <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Avatar 
-                            sx={{ 
-                              width: avatarSize, 
-                              height: avatarSize, 
+                          <Avatar
+                            sx={{
+                              width: avatarSize,
+                              height: avatarSize,
                               mr: 1.5,
-                              backgroundColor: agency?.isAddedAgency 
-                                ? theme.palette.success.light 
+                              backgroundColor: agency?.isAddedAgency
+                                ? theme.palette.success.light
                                 : theme.palette.success.light,
-                              fontSize: '0.8rem',
+                              fontSize: "0.8rem",
                             }}
                           >
                             {agency?.isAddedAgency ? (
@@ -617,8 +634,14 @@ const Agencies = () => {
                             )}
                           </Avatar>
                           <Box>
-                            <Typography variant="body1" fontWeight="500" sx={{ fontSize: '0.875rem' }}>
-                              {agency?.name || agency?.agency_name || 'Unknown Agency'}
+                            <Typography
+                              variant="body1"
+                              fontWeight="500"
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              {agency?.name ||
+                                agency?.agency_name ||
+                                "Unknown Agency"}
                             </Typography>
                             {/* {agency?.isAddedAgency && (
                               <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
@@ -628,10 +651,20 @@ const Agencies = () => {
                           </Box>
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
+                      <TableCell
+                        sx={{
+                          borderBottom: `1px solid ${theme.palette.divider}`,
+                        }}
+                      >
                         <Box>
-                          <Typography variant="body1" sx={{ fontSize: '0.875rem' }}>
-                            {agency?.city || agency?.district || 'Location not specified'}, {agency?.state || 'State not specified'}
+                          <Typography
+                            variant="body1"
+                            sx={{ fontSize: "0.875rem" }}
+                          >
+                            {agency?.city ||
+                              agency?.district ||
+                              "Location not specified"}
+                            , {agency?.state || "State not specified"}
                           </Typography>
                           {/* <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
                             {agency?.state || 'State not specified'}
@@ -646,13 +679,13 @@ const Agencies = () => {
                       <Typography variant="body1" color="text.secondary">
                         No agencies found matching your criteria
                       </Typography>
-                      <Button 
+                      <Button
                         onClick={() => {
                           handleClearFilters();
                           setAgencyNameFilter("");
                           setAgencySuggestions([]);
                         }}
-                        variant="text" 
+                        variant="text"
                         size="small"
                         sx={{ mt: 1 }}
                       >
