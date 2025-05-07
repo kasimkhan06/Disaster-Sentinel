@@ -62,7 +62,7 @@ const MissingPersonForm = ({
     };
 
     return (
-        <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0, }}>
+        <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0,  }}>
             <Typography align="center" sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, fontWeight: "500", mb: 0 }}>
                 Report Details
             </Typography>
@@ -113,6 +113,7 @@ const MissingPersonForm = ({
                             <TextField fullWidth label="Identification Marks" name="identificationMarks" value={formData.identificationMarks} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} />
                         </Box>
                     </Grid>
+
 
                     {/* Last Seen Location Field (Editable + Search Button) */}
                     <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
@@ -191,6 +192,7 @@ const MissingPersonForm = ({
                             <TextField fullWidth label="Additional Information" name="additionalInfo" value={formData.additionalInfo} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} multiline rows={3} />
                         </Box>
                     </Grid>
+
 
                     {/* ... File Uploads ... */}
                      <Grid container size={12} sx={{ display: "flex", justifyContent: "right", width: "90%", mt: 2 }}>
