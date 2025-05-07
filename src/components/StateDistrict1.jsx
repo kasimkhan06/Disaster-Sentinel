@@ -125,7 +125,6 @@ const StateDistrictDropdown = ({
                 sx={textFieldStyles} // Apply TextField styling
               />
             )}
-             // Removed Autocomplete specific sx width/margin, handled by Box now
           />
         </Box>
       </Grid>
