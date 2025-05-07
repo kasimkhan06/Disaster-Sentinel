@@ -37,6 +37,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import { debounce } from "lodash";
+import { margin, padding } from "@mui/system";
 
 // Set default marker icon options
 // delete L.Icon.Default.prototype._getIconUrl;
@@ -439,15 +440,25 @@ const AgencyMap = ({ agency }) => {
   };
 
   const getProfileIcon = () => {
+    const iconStyle = {
+      fontSize: {
+        xs: "0.8rem", // Extra small screens
+        sm: "0.9rem", // Small screens
+        md: "1.1rem", // Medium screens
+      },
+      alignSelf: "center",
+      paddingBottom: "0.2rem",
+    };
+
     switch (profile) {
       case "driving-traffic":
-        return <DirectionsCar />;
+        return <DirectionsCar sx={iconStyle} />;
       case "walking":
-        return <DirectionsWalk />;
+        return <DirectionsWalk sx={iconStyle} />;
       case "cycling":
-        return <DirectionsBike />;
+        return <DirectionsBike sx={iconStyle} />;
       default:
-        return <DirectionsCar />;
+        return <DirectionsCar sx={iconStyle} />;
     }
   };
 
@@ -540,13 +551,13 @@ const AgencyMap = ({ agency }) => {
       </Box>
 
       {/* Location Search Controls */}
-      <Grid container spacing={2} alignItems="center">
+      <Grid container spacing={1} alignItems="center">
         <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
           <Paper
             // elevation={3}
             sx={{
               p: 2,
-              mb: 2,
+              mb: 0,
               // borderRadius: 2,
               // backgroundColor: "background.paper",
               border: "none",
@@ -558,7 +569,7 @@ const AgencyMap = ({ agency }) => {
                 <Box sx={{ position: "relative" }}>
                   <TextField
                     fullWidth
-                    label="Enter your location in India"
+                    label="Enter location"
                     variant="outlined"
                     value={inputAddress}
                     onChange={(e) => {
@@ -613,6 +624,12 @@ const AgencyMap = ({ agency }) => {
                           outline: "none",
                         },
                       },
+                      fontSize: {
+                        xs: "0.7rem",
+                        sm: "0.7rem",
+                        md: "0.8rem",
+                        lg: "0.9rem",
+                      },
                     }}
                   />
                   {showSuggestions && suggestions.length > 0 && (
@@ -642,7 +659,15 @@ const AgencyMap = ({ agency }) => {
                               suggestion.coordinates[0],
                             ]);
                           }}
-                          sx={{ py: 1 }}
+                          sx={{
+                            py: 1,
+                            fontSize: {
+                              xs: "0.7rem",
+                              sm: "0.7rem",
+                              md: "0.8rem",
+                              lg: "0.9rem",
+                            },
+                          }}
                         >
                           <Typography variant="body2">
                             {suggestion.name}
@@ -681,6 +706,12 @@ const AgencyMap = ({ agency }) => {
                       "& .MuiSelect-icon": {
                         color: "rgba(0, 0, 0, 0.54)", // Match Material-UI default
                       },
+                      fontSize: {
+                        xs: "0.7rem",
+                        sm: "0.7rem",
+                        md: "0.8rem",
+                        lg: "0.9rem",
+                      },
                     }}
                   >
                     <MenuItem value="driving-traffic">Driving</MenuItem>
@@ -692,13 +723,31 @@ const AgencyMap = ({ agency }) => {
               <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
                 <Button
                   fullWidth
-                  variant="contained"
+                  // variant="contained"
                   color="primary"
                   onClick={handleSearchLocation}
                   disabled={loading || !inputAddress.trim()}
                   startIcon={
-                    loading ? <CircularProgress size={20} /> : getProfileIcon()
+                    loading ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        {getProfileIcon()}
+                      </Box>
+                    )
                   }
+                  sx={{
+                    textTransform: "uppercase",
+                    fontSize: {
+                      xs: "0.7rem",
+                      sm: "0.7rem",
+                      md: "0.8rem",
+                      lg: "0.75rem",
+                    },
+                    "&:hover": {
+                      backgroundColor: "transparent",
+                    },
+                  }}
                 >
                   {loading ? "Calculating..." : "Find Route"}
                 </Button>
@@ -708,7 +757,16 @@ const AgencyMap = ({ agency }) => {
                   {error && !distance && (
                     <Typography
                       color="error"
-                      sx={{ mt: 0, textAlign: "center" }}
+                      sx={{
+                        mt: 0,
+                        textAlign: "center",
+                        fontSize: {
+                          xs: "0.7rem",
+                          sm: "0.7rem",
+                          md: "0.8rem",
+                          lg: "0.75rem",
+                        },
+                      }}
                     >
                       {error}
                     </Typography>
@@ -740,7 +798,17 @@ const AgencyMap = ({ agency }) => {
                 alignItems="flex-start"
               >
                 <Box>
-                  <Typography variant="body1">
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontSize: {
+                        xs: "0.7rem",
+                        sm: "0.7rem",
+                        md: "0.8rem",
+                        lg: "0.9rem",
+                      },
+                    }}
+                  >
                     Distance to {agency.agency_name}:{" "}
                     <Typography component="span" fontWeight="bold">
                       {distance} km
@@ -748,7 +816,18 @@ const AgencyMap = ({ agency }) => {
                   </Typography>
                   {duration ? (
                     <Box>
-                      <Typography variant="body1" sx={{ mt: 1 }}>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          mt: 1,
+                          fontSize: {
+                            xs: "0.7rem",
+                            sm: "0.7rem",
+                            md: "0.8rem",
+                            lg: "0.9rem",
+                          },
+                        }}
+                      >
                         Estimated travel time:{" "}
                         <Typography component="span" fontWeight="bold">
                           {duration >= 60
@@ -767,6 +846,12 @@ const AgencyMap = ({ agency }) => {
                               fontStyle: "italic",
                               color: "text.secondary",
                               display: "block", // Changed to block to force new line
+                              fontSize: {
+                                xs: "0.6rem",
+                                sm: "0.6rem",
+                                md: "0.7rem",
+                                lg: "0.8rem",
+                              },
                             }}
                           >
                             (Live traffic data not available for this route)

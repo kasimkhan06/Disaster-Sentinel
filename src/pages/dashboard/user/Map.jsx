@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -71,6 +71,15 @@ const Map = ({
   selectedDisaster,
   highlightedDisaster,
 }) => {
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      // Remove the default zoom control if it exists
+      mapRef.current._zoomControl?.remove();
+    }
+  }, []);
+
   if (!disasters || disasters.length === 0) {
     return (
       <p style={{ padding: "16px", margin: "16px", textAlign: "center" }}>
@@ -135,12 +144,39 @@ const Map = ({
           width: "100%",
           filter:
             "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
+            
         }}
+        zoomControl={false} 
+        ref={mapRef}
       >
         <TileLayer
           attribution=""
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        {/* Add custom zoom control at bottom-left */}
+        <div className="leaflet-bottom leaflet-left">
+          <div className="leaflet-control leaflet-bar leaflet-control-zoom">
+            <a
+              className="leaflet-control-zoom-in"
+              href="#"
+              title="Zoom in"
+              role="button"
+              aria-label="Zoom in"
+            >
+              +
+            </a>
+            <a
+              className="leaflet-control-zoom-out"
+              href="#"
+              title="Zoom out"
+              role="button"
+              aria-label="Zoom out"
+            >
+              -
+            </a>
+          </div>
+        </div>
 
         {validDisasters.map((disaster) => (
           <Marker
@@ -178,7 +214,7 @@ const Map = ({
                   }}
                 ></div>
               )}
-            <Popup closeOnClick={true} autoPan={true} autoPanPadding={[20, 20]}>
+            <Popup closeOnClick={true} autoPan={true} autoPanPadding={[20, 20]} sx={{ zIndex: "1000 !important" }}>
               <div
                 style={{ padding: "8px" }}
                 onClick={(e) => e.stopPropagation()}
@@ -221,23 +257,29 @@ const Map = ({
 
       {/* Add CSS for the pulse animation */}
       <style>
-        {`
-          @keyframes pulse {
-            0% {
-              transform: translate(-50%, -50%) scale(0.8);
-              opacity: 0.7;
-            }
-            70% {
-              transform: translate(-50%, -50%) scale(1.3);
-              opacity: 0.2;
-            }
-            100% {
-              transform: translate(-50%, -50%) scale(0.8);
-              opacity: 0;
-            }
-          }
-        `}
-      </style>
+  {`
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.7;
+      }
+      70% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0.2;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+      }
+    }
+    .leaflet-container {
+      z-index: 1;
+    }
+    .leaflet-top, .leaflet-bottom {
+      z-index: 1000;
+    }
+  `}
+</style>
     </div>
   );
 };

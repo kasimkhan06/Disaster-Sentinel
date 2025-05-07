@@ -5,6 +5,7 @@ import CurrentLocation from "./pages/disasters/user/CurrentLocation";
 import HomePage from "./pages/dashboard/user/HomePage";
 import DisasterInfo from "./pages/disasters/user/DisasterInfo";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import Login from "./pages/authentication/login";
 import Register from "./pages/authentication/register";
 import HeaderAgency from "./components/HeaderAgency";
@@ -25,6 +26,7 @@ import MissingPersonPortal from "./pages/missingperson/portal";
 import StatusTracking from "./pages/missingperson/status";
 import UpdateDetails from "./pages/authentication/updateDetails";
 import Profile from "./pages/dashboard/agency/Profile/Profile";
+import { Box } from "@mui/material";
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -43,6 +45,7 @@ const App = () => {
   return (
     <>
       {userRole === "agency" ? <HeaderAgency /> : <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+
 
       <Routes>
         <Route path="/" element={<HomePage />} />

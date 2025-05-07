@@ -11,6 +11,10 @@ import {
   Skeleton,
   Chip,
   Link,
+  Button,
+  TextField,
+  CircularProgress,
+  Dialog,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import {
@@ -31,9 +35,25 @@ const AgencyProfile = () => {
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(true);
+  const [volunteer, setVolunteer] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [volunteerMessage, setVolunteerMessage] = useState("");
+  const [submitError, setSubmitError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userID, setUserID] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    // Check if user is logged in by retrieving from localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      console.log("User Data:", parsedData);
+      setUserID(parsedData.user_id);
+    }
   }, []);
 
   useEffect(() => {
@@ -80,6 +100,56 @@ const AgencyProfile = () => {
 
     fetchAgencyData();
   }, [id]);
+
+  const handleVolunteerClick = () => {
+    setVolunteer(true);
+  };
+
+  const handleCloseVolunteer = () => {
+    setVolunteer(false);
+    setVolunteerMessage("");
+    setSubmitError(null);
+    setSubmitSuccess(false);
+  };
+
+  const handleVolunteerSubmit = async () => {
+    if (!volunteerMessage.trim()) {
+      setSubmitError("Please enter a message");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch(
+        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/volunteer-interests/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            volunteer_id: userID,
+            agency_id: agency.user_id,
+            message: volunteerMessage,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Already submitted a request.");
+      }
+
+      setSubmitSuccess(true);
+      setVolunteerMessage("");
+      setVolunteer(false);
+    } catch (err) {
+      setSubmitError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Box
@@ -135,7 +205,11 @@ const AgencyProfile = () => {
               sx={{
                 mt: 10,
                 // ml: { xs: 2, sm: 4, md: 4 },
-                fontSize: { xs: "1.5rem", sm: "1.7rem", md: "1.8rem" },
+                fontSize: { xs: "1.3rem",
+                  sm: "1.3rem",
+                  md: "1.4rem",
+                  lg: "1.45rem",
+                  xl: "1.45rem", },
                 fontWeight: "bold",
                 textTransform: "uppercase",
               }}
@@ -171,258 +245,415 @@ const AgencyProfile = () => {
       >
         {/* First Grid - Agency Info */}
         <Grid
-  size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
-  sx={{
-    backgroundColor: "#fff",
-    borderRadius: 2,
-    boxShadow: 3,
-    padding: 2,
-    mx: 3,
-  }}
->
-  {loading ? (
-    <>
-      <Skeleton variant="rectangular" width="100%" height={400} />
-      <Box sx={{ mt: 2 }}>
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <Skeleton key={item} variant="text" width="100%" height={40} />
-        ))}
-      </Box>
-    </>
-  ) : (
-    <>
-      <Grid
-        container
-        justifyContent="center"
-        spacing={0}
-        sx={{ mt: 0 }}
-        align="left"
-        paddingBottom={2}
-      >
-        {/* Information Fields */}
-        <Grid size={{ xs: 11, sm: 12, md: 10, lg: 5 }}>
-          {/* Banner Image - Only show if there are images */}
-          {images.length > 0 && (
-            <Box
-              sx={{
-                width: "100%",
-                mb: 0,
-                borderRadius: 2,
-                overflow: "hidden",
-              }}
-            >
-              <CardMedia
-                component="img"
-                image={images[0].url}
-                alt="Agency banner"
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                }}
-              />
-            </Box>
-          )}
-          <Card
-            sx={{
-              p: { xs: "8px", sm: "8px", md: "16px" },
-              boxShadow: "none",
-              border: "none",
-            }}
-          >
-            <CardContent sx={{ p: { xs: "8px", sm: "8px", md: "16px" } }}>
-              {[
-                {
-                  label: "Established",
-                  value: new Date(
-                    agency.date_of_establishment
-                  ).toLocaleDateString(),
-                  icon: <CalendarToday sx={{ color: "#AEC6CF" }} />,
-                },
-                {
-                  label: "Primary Contact",
-                  value: agency.contact1,
-                  icon: <Phone sx={{ color: "#4CAF50" }} />,
-                  isPhone: true,
-                },
-                agency.contact2 && {
-                  label: "Secondary Contact",
-                  value: agency.contact2,
-                  icon: <Phone sx={{ color: "#4CAF50" }} />,
-                  isPhone: true,
-                },
-                agency.website && {
-                  label: "Website",
-                  value: agency.website,
-                  icon: <Language sx={{ color: "#2196F3" }} />,
-                  isLink: true,
-                },
-                {
-                  label: "Address",
-                  value: `${agency.address}, ${agency.district}, ${agency.state}`,
-                  icon: <LocationOn sx={{ color: "#cd1c18" }} />,
-                },
-                agency.volunteers && {
-                  label: "Volunteers",
-                  value: agency.volunteers,
-                  icon: <People sx={{ color: "#d3d3d3" }} />,
-                },
-              ]
-                .filter(Boolean)
-                .map((item, index) => (
+          size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
+          sx={{
+            backgroundColor: "#fff",
+            borderRadius: 2,
+            boxShadow: 3,
+            px: 2,
+            pt: 2,
+            pb: 0,
+            mx: 3,
+          }}
+          minHeight={660}
+          height="100%"
+        >
+          {loading ? (
+            <>
+              <Skeleton variant="rectangular" width="100%" height={400} />
+              <Box sx={{ mt: 2 }}>
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                  <Skeleton
+                    key={item}
+                    variant="text"
+                    width="100%"
+                    height={40}
+                  />
+                ))}
+              </Box>
+            </>
+          ) : (
+            <>
+              <Grid
+                container
+                justifyContent="center"
+                spacing={0}
+                sx={{ mt: 0 }}
+                align="left"
+                paddingBottom={2}
+              >
+                {/* Information Fields */}
+                <Grid size={{ xs: 11, sm: 12, md: 10, lg: 5 }}>
                   <Grid
-                    key={index}
-                    size={{ xs: 11, sm: 6, md: 8, lg: 10 }}
-                    sx={{
-                      padding: 1,
-                      borderBottom: "2px solid #eee",
-                      textAlign: "center",
-                    }}
+                    container
+                    justifyContent="center"
+                    spacing={0}
+                    sx={{ mt: 0 }}
+                    align="left"
+                    paddingBottom={0}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      {item.icon}
-                      <Typography
+                    <Grid size={{ xs: 11, sm: 12, md: 10, lg: 12 }}>
+                      {/* Banner Image - Only show if there are images */}
+                      {images.length > 0 && (
+                        <Box
+                          sx={{
+                            width: "100%",
+                            mb: 0,
+                            borderRadius: 2,
+                            overflow: "hidden",
+                          }}
+                        >
+                          <CardMedia
+                            component="img"
+                            image={images[0].url}
+                            alt="Agency banner"
+                            sx={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "contain",
+                            }}
+                          />
+                        </Box>
+                      )}
+                      <Card
                         sx={{
-                          marginLeft: 1,
-                          fontSize: {
-                            xs: "0.7rem",
-                            sm: "0.7rem",
-                            md: "0.8rem",
-                            lg: "1rem",
-                          },
-                          fontWeight: 500,
+                          px: { xs: "8px", sm: "8px", md: "16px" },
+                          pt:1,
+                          pb:0,
+                          boxShadow: "none",
+                          border: "none",
                         }}
                       >
-                        {item.label}:
-                      </Typography>
-                      {item.isLink ? (
-                        <Link
-                          href={
-                            item.value.startsWith("http")
-                              ? item.value
-                              : `https://${item.value}`
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            marginLeft: 1,
-                            fontSize: {
-                              xs: "0.7rem",
-                              sm: "0.7rem",
-                              md: "0.8rem",
-                              lg: "1rem",
-                            },
-                            color: "#2196F3",
-                            textDecoration: "none",
-                            "&:hover": {
-                              textDecoration: "underline",
-                            },
-                          }}
+                        <CardContent
+                          sx={{ p: { xs: "8px", sm: "8px", md: "16px" } }}
                         >
-                          {item.value.replace(/^https?:\/\//, "")}
-                        </Link>
-                      ) : item.isPhone ? (
-                        <Typography
-                          variant="body1"
-                          onClick={() => {
-                            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-                            if (window.confirm(`Do you want to call ${item.value}?`)) {
-                              if (isMobile) {
-                                window.location.href = `tel:${item.value}`;
-                              } else {
-                                // For desktop, show a message since calling isn't possible
-                                alert(`Please use your phone to call ${item.value}`);
-                              }
-                            }
-                          }}
-                          sx={{
-                            marginLeft: 1,
-                            fontSize: {
-                              xs: "0.7rem",
-                              sm: "0.7rem",
-                              md: "0.8rem",
-                              lg: "1rem",
+                          {[
+                            {
+                              label: "Established",
+                              value: new Date(
+                                agency.date_of_establishment
+                              ).toLocaleDateString(),
+                              icon: <CalendarToday sx={{ color: "#AEC6CF" }} />,
                             },
-                            color: "#4CAF50",
-                            cursor: "pointer",
-                            "&:hover": {
-                              textDecoration: "underline",
+                            {
+                              label: "Primary Contact",
+                              value: agency.contact1,
+                              icon: <Phone sx={{ color: "#4CAF50" }} />,
+                              isPhone: true,
                             },
-                          }}
-                        >
-                          {item.value}
-                        </Typography>
-                      ) : (
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            marginLeft: 1,
-                            fontSize: {
-                              xs: "0.7rem",
-                              sm: "0.7rem",
-                              md: "0.8rem",
-                              lg: "1rem",
+                            agency.contact2 && {
+                              label: "Secondary Contact",
+                              value: agency.contact2,
+                              icon: <Phone sx={{ color: "#4CAF50" }} />,
+                              isPhone: true,
                             },
-                          }}
-                        >
-                          {item.value}
-                        </Typography>
-                      )}
-                    </Box>
+                            agency.website && {
+                              label: "Website",
+                              value: agency.website,
+                              icon: <Language sx={{ color: "#2196F3" }} />,
+                              isLink: true,
+                            },
+                            {
+                              label: "Address",
+                              value: `${agency.address}, ${agency.district}, ${agency.state}`,
+                              icon: <LocationOn sx={{ color: "#cd1c18" }} />,
+                            },
+                            agency.volunteers && {
+                              label: "Volunteers",
+                              value: agency.volunteers,
+                              icon: <People sx={{ color: "#d3d3d3" }} />,
+                            },
+                          ]
+                            .filter(Boolean)
+                            .map((item, index) => (
+                              <Grid
+                                key={index}
+                                size={{ xs: 11, sm: 6, md: 8, lg: 10 }}
+                                sx={{
+                                  padding: 1,
+                                  borderBottom: "2px solid #eee",
+                                  textAlign: "center",
+                                }}
+                              >
+                                <Box
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                >
+                                  {item.icon}
+                                  <Typography
+                                    sx={{
+                                      marginLeft: 1,
+                                      fontSize: {
+                                        xs: "0.7rem",
+                                        sm: "0.7rem",
+                                        md: "0.8rem",
+                                        lg: "1rem",
+                                      },
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {item.label}:
+                                  </Typography>
+                                  {item.isLink ? (
+                                    <Link
+                                      href={
+                                        item.value.startsWith("http")
+                                          ? item.value
+                                          : `https://${item.value}`
+                                      }
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      sx={{
+                                        marginLeft: 1,
+                                        fontSize: {
+                                          xs: "0.7rem",
+                                          sm: "0.7rem",
+                                          md: "0.8rem",
+                                          lg: "1rem",
+                                        },
+                                        color: "#2196F3",
+                                        textDecoration: "none",
+                                        "&:hover": {
+                                          textDecoration: "underline",
+                                        },
+                                      }}
+                                    >
+                                      {item.value.replace(/^https?:\/\//, "")}
+                                    </Link>
+                                  ) : item.isPhone ? (
+                                    <Typography
+                                      variant="body1"
+                                      onClick={() => {
+                                        const isMobile = /Mobi|Android/i.test(
+                                          navigator.userAgent
+                                        );
+                                        if (
+                                          window.confirm(
+                                            `Do you want to call ${item.value}?`
+                                          )
+                                        ) {
+                                          if (isMobile) {
+                                            window.location.href = `tel:${item.value}`;
+                                          } else {
+                                            // For desktop, show a message since calling isn't possible
+                                            alert(
+                                              `Please use your phone to call ${item.value}`
+                                            );
+                                          }
+                                        }
+                                      }}
+                                      sx={{
+                                        marginLeft: 1,
+                                        fontSize: {
+                                          xs: "0.7rem",
+                                          sm: "0.7rem",
+                                          md: "0.8rem",
+                                          lg: "1rem",
+                                        },
+                                        color: "#4CAF50",
+                                        cursor: "pointer",
+                                        "&:hover": {
+                                          textDecoration: "underline",
+                                        },
+                                      }}
+                                    >
+                                      {item.value}
+                                    </Typography>
+                                  ) : (
+                                    <Typography
+                                      variant="body1"
+                                      sx={{
+                                        marginLeft: 1,
+                                        fontSize: {
+                                          xs: "0.7rem",
+                                          sm: "0.7rem",
+                                          md: "0.8rem",
+                                          lg: "1rem",
+                                        },
+                                      }}
+                                    >
+                                      {item.value}
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </Grid>
+                            ))}
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                    <Grid
+                      size={{ xs: 11, sm: 10, md: 10, lg: 12 }}
+                      sx={{ px: { xs: 2, md: 1 }, mt: 0 }}
+                    >
+                      <Button
+                        fullWidth
+                        // variant="contained"
+                        color="primary"
+                        onClick={handleVolunteerClick}
+                        disableRipple
+                        //remove the background on hover
+                        sx={{
+                          "&:hover": {
+                            backgroundColor: "transparent",
+                          },
+                          textTransform: "uppercase",
+                          fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.9rem", xl: "1rem" },
+                          fontWeight: 500,
+                          padding: 1,
+                        }}
+                      >
+                        WANT TO VOLUNTEER?
+                      </Button>
+                    </Grid>
+                    <Grid size={{ xs: 11, sm: 10, md: 10, lg: 12 }}>
+                      <Box sx={{ width: "100%" }}>
+                        {volunteer && !submitSuccess && (
+                          <Grid
+                            container
+                            justifyContent="center"
+                            spacing={0}
+                            sx={{ mt: 0 }}
+                            align="left"
+                            paddingBottom={2}
+                          >
+                            <Grid size={{ xs: 11, sm: 12, md: 10, lg: 12 }}>
+                              <Typography
+                                sx={{
+                                  fontSize: {
+                                    xs: "0.7rem",
+                                    sm: "0.7rem",
+                                    md: "0.8rem",
+                                    lg: "0.9rem",
+                                  },
+                                  textAlign: "center",
+                                }}
+                              >
+                                Please write a message to the agency:
+                              </Typography>
+                            </Grid>
+                            <Grid
+                              size={{ xs: 11, sm: 12, md: 10, lg: 12 }}
+                              sx={{ width: "80%", mx: 4 }}
+                            >
+                              <TextField
+                                // autoFocus
+                                // margin="dense"
+                                id="volunteer-message"
+                                label="Your Message"
+                                type="text"
+                                fullWidth
+                                // variant="outlined"
+                                multiline
+                                rows={2}
+                                value={volunteerMessage}
+                                onChange={(e) =>
+                                  setVolunteerMessage(e.target.value)
+                                }
+                                error={!!submitError}
+                                helperText={submitError}
+                              />
+                            </Grid>
+                            <Grid
+                              size={{ xs: 11, sm: 12, md: 10, lg: 12 }}
+                              sx={{
+                                alignItems: "center",
+                                display: "flex",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {submitSuccess ? (
+                                <Button
+                                  onClick={handleCloseVolunteer}
+                                  color="primary"
+                                >
+                                  Close
+                                </Button>
+                              ) : (
+                                <>
+                                  <Button
+                                    onClick={handleCloseVolunteer}
+                                    color="secondary"
+                                    sx={{
+                                      "&:hover": {
+                                        backgroundColor: "transparent",
+                                      },
+                                      textTransform: "uppercase",
+                                      fontSize: {
+                                        xs: "0.6rem",
+                                        sm: "0.6rem",
+                                        md: "0.7rem",
+                                        lg: "0.8rem",
+                                      },
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    onClick={handleVolunteerSubmit}
+                                    color="primary"
+                                    disabled={isSubmitting}
+                                    sx={{
+                                      "&:hover": {
+                                        backgroundColor: "transparent",
+                                      },
+                                      textTransform: "uppercase",
+                                      fontSize: {
+                                        xs: "0.6rem",
+                                        sm: "0.6rem",
+                                        md: "0.7rem",
+                                        lg: "0.8rem",
+                                      },
+                                    }}
+                                  >
+                                    {isSubmitting ? (
+                                      <>
+                                        <CircularProgress size={24} />
+                                        <Typography sx={{ ml: 1 }}>
+                                          Submitting...
+                                        </Typography>
+                                      </>
+                                    ) : (
+                                      "Submit"
+                                    )}
+                                  </Button>
+                                </>
+                              )}
+                            </Grid>
+                          </Grid>
+                        )}
+                        {submitSuccess && !volunteer && (
+                          <Typography> Thank you for your request.</Typography>
+                        )}
+                      </Box>
+                    </Grid>
                   </Grid>
-                ))}
-            </CardContent>
-            <Box
-            sx={{
-              mt: 0,
-              pl:3,
-              pr: { xs: "17px", sm: "17px", md: "10px" },
-              textAlign: "justify",
-            }}
-          >
-            {loading ? (
-              <>
-                <Skeleton variant="text" />
-                <Skeleton variant="text" />
-                <Skeleton variant="text" />
-                <Skeleton variant="text" width="60%" />
-              </>
-            ) : (
-              <Typography
-                component="div"
-                sx={{
-                  fontSize: {
-                    xs: "0.7rem",
-                    sm: "0.7rem",
-                    md: "0.8rem",
-                    lg: "0.9rem",
-                  },
-                  textAlign: "justify",
-                }}
-              >
-                <ReactMarkdown>{agency.description}</ReactMarkdown>
-              </Typography>
-            )}
-          </Box>
-          </Card>
+                </Grid>
+                <Grid size={{ xs: 11, sm: 12, md: 10, lg: 7 }}>
+                  <Grid
+                    container
+                    justifyContent="center"
+                    spacing={0}
+                    sx={{ mt: 0 }}
+                    align="left"
+                    paddingBottom={2}
+                  >
+                    {/* Map Section - Only show if lat/lng exists */}
+                    {agency.lat && agency.lng && (
+                      <Grid
+                        justifyContent="center"
+                        size={{ xs: 11, sm: 10, md: 10, lg: 12 }}
+                        sx={{ px: { xs: 2, md: 5 }, mt: 0 }}
+                      >
+                        <Box sx={{ width: "100%" }}>
+                          <AgencyMap agency={agency} />
+                        </Box>
+                      </Grid>
+                    )}
+                  </Grid>
+                </Grid>
+              </Grid>
+            </>
+          )}
         </Grid>
-
-        {/* Map Section - Only show if lat/lng exists */}
-        {agency.lat && agency.lng && (
-          <Grid
-            justifyContent="center"
-            size={{ xs: 11, sm: 10, md: 10, lg: 7 }}
-            sx={{ px: { xs: 2, md: 5 }, mt: 0 }}
-          >
-            <Box sx={{ width: "100%" }}>
-              <AgencyMap agency={agency} />
-            </Box>
-          </Grid>
-        )}
-      </Grid>
-    </>
-  )}
-</Grid>
 
         {/* Second Grid - Description */}
         <Grid
@@ -436,14 +667,14 @@ const AgencyProfile = () => {
             mb: 4,
           }}
         >
-          {/* <Box
+          <Box
             sx={{
               borderBottom: "2px solid #eee",
               mx: { xs: "17px", sm: "17px", md: "32px" },
               mt: 2,
             }}
           >
-            <Typography
+            {/* <Typography
               sx={{
                 mb: 1,
                 fontSize: { xs: "1rem", sm: "1rem", md: "1.3rem" },
@@ -452,12 +683,13 @@ const AgencyProfile = () => {
               }}
             >
               About Us
-            </Typography>
+            </Typography> */}
           </Box>
           <Box
             sx={{
               mt: 0,
-              p: { xs: "17px", sm: "17px", md: "32px" },
+              px: { xs: "17px", sm: "17px", md: "32px" },
+              py: 1,
               textAlign: "justify",
             }}
           >
@@ -483,18 +715,18 @@ const AgencyProfile = () => {
                 <ReactMarkdown>{agency.description}</ReactMarkdown>
               </Typography>
             )}
-          </Box> */}
+          </Box>
 
           {/* Images Section */}
-          <Box sx={{ mt: 4, mb: 2 }}>
-            {/* <Box
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Box
               sx={{
                 borderBottom: "2px solid #eee",
                 mb: 3,
                 mx: { xs: "17px", sm: "17px", md: "32px" },
               }}
             >
-              <Typography
+              {/* <Typography
                 sx={{
                   mb: 1,
                   fontSize: { xs: "1rem", sm: "1rem", md: "1.3rem" },
@@ -503,8 +735,8 @@ const AgencyProfile = () => {
                 }}
               >
                 Gallery
-              </Typography>
-            </Box> */}
+              </Typography> */}
+            </Box>
             {loadingImages ? (
               <Box
                 sx={{
@@ -516,7 +748,8 @@ const AgencyProfile = () => {
                     lg: "repeat(5, 1fr)",
                   },
                   gap: 2,
-                  p: 1,
+                  px: { xs: "17px", sm: "17px", md: "32px" },
+                  py: 1,
                 }}
               >
                 {[1, 2, 3, 4, 5].map((item) => (
@@ -535,7 +768,8 @@ const AgencyProfile = () => {
                       lg: "repeat(5, 1fr)",
                     },
                     gap: 2,
-                    p: 1,
+                    px: { xs: "17px", sm: "17px", md: "32px" },
+                    py: 1,
                   }}
                 >
                   {images.slice(1).map((imgObj, index) => (
