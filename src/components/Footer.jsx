@@ -46,9 +46,9 @@ const Footer = () => {
           </Grid>
           <Grid size={{ xs: 6, sm: 6, md: 4, lg: 4 }} sx={{ textAlign: 'center' }} >
             <Typography variant="h6" gutterBottom>
-              Connect With Us
+              Made By:
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+            {/* <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
               <Link href="#" color="inherit">
                 <Facebook />
               </Link>
@@ -61,13 +61,21 @@ const Footer = () => {
               <Link href="#" color="inherit">
                 <LinkedIn />
               </Link>
-            </Box>
+            </Box> */}
+            {/*get 2 names on one line*/}
+            <Typography variant="body2" gutterBottom>
+              Kasim Khan, Pranavi Sawant,
+            </Typography>
+            <Typography variant="body2" gutterBottom>
+            Sachi Kamat, Saish Shirodkar, 
+            </Typography>
+            <Typography variant="body2">
+            Sparsh Kamat
+            </Typography>
             <Typography variant="body2" mt={2}>
               Email: contact@floodpredict.com
             </Typography>
-            <Typography variant="body2">
-              Phone: +1 234 567 8901
-            </Typography>
+            
           </Grid>
         </Grid>
         <Box mt={3} pt={1} borderTop="1px solid rgba(255, 255, 255, 0.1)">
