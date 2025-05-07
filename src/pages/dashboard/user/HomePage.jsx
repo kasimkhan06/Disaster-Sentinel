@@ -38,6 +38,7 @@ import NewspaperIcon from "@mui/icons-material/Newspaper";
 import DisasterMap from "../../disasters/user/DisasterMap";
 import Map from "./Map";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import Footer from "../../../components/Footer";
 
 function HomePage() {
   const theme = useTheme();
@@ -141,6 +142,7 @@ function HomePage() {
         margin: 0,
         padding: 0,
         zIndex: 0, // Only needed if you have other elements with zIndex
+        // width: "100%", 
       }}
     >
       <Container
@@ -472,6 +474,7 @@ function HomePage() {
           </Grid>
         </Grid>
       </Container>
+      <Footer />
     </Box>
   );
 }
