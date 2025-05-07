@@ -22,10 +22,9 @@ import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "./logo.png";
 
-const Header = () => {
+const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [anchorElAnnouncement, setAnchorElAnnouncement] = useState(null);
   const [anchorElProfile, setAnchorElProfile] = useState(null);
 
   const theme = useTheme();
