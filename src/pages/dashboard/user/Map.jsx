@@ -214,7 +214,7 @@ const Map = ({
                   }}
                 ></div>
               )}
-            <Popup closeOnClick={true} autoPan={true} autoPanPadding={[20, 20]}>
+            <Popup closeOnClick={true} autoPan={true} autoPanPadding={[20, 20]} sx={{ zIndex: "1000 !important" }}>
               <div
                 style={{ padding: "8px" }}
                 onClick={(e) => e.stopPropagation()}
@@ -257,23 +257,29 @@ const Map = ({
 
       {/* Add CSS for the pulse animation */}
       <style>
-        {`
-          @keyframes pulse {
-            0% {
-              transform: translate(-50%, -50%) scale(0.8);
-              opacity: 0.7;
-            }
-            70% {
-              transform: translate(-50%, -50%) scale(1.3);
-              opacity: 0.2;
-            }
-            100% {
-              transform: translate(-50%, -50%) scale(0.8);
-              opacity: 0;
-            }
-          }
-        `}
-      </style>
+  {`
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.7;
+      }
+      70% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0.2;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+      }
+    }
+    .leaflet-container {
+      z-index: 1;
+    }
+    .leaflet-top, .leaflet-bottom {
+      z-index: 1000;
+    }
+  `}
+</style>
     </div>
   );
 };
