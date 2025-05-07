@@ -161,7 +161,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 
           {/* Right-aligned content */}
           {isMatch ? (
-            <DrawerComp />
+            <DrawerComp isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
           ) : (
             <Box sx={{ display: "flex", alignItems: "center" }}>
               {isLoggedIn ? (

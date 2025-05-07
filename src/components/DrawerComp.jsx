@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Drawer,
   IconButton,
@@ -15,7 +15,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { Link, useNavigate } from "react-router-dom";
 
-const DrawerComp = () => {
+const DrawerComp = ({isLoggedIn, setIsLoggedIn }) => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [homeOpen, setHomeOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -26,6 +26,50 @@ const DrawerComp = () => {
     setHomeOpen(!homeOpen);
   };
   // const drawerWidth = `${longestItemLength * 10}px`;
+  useEffect(() => {
+      const handleStorageChange = () => {
+        const user = localStorage.getItem("user");
+        setIsLoggedIn(!!user);
+      };
+  
+      window.addEventListener("storage", handleStorageChange);
+      handleStorageChange();
+  
+      return () => {
+        window.removeEventListener("storage", handleStorageChange);
+      };
+    }, []);
+
+    const handleLogout = async () => {
+      try {
+        const response = await fetch(
+          "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/logout/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+  
+        const data = await response.json();
+        console.log("Logout response:", data);
+  
+        if (response.ok) {
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+          setIsLoggedIn(false);
+          handleAccountMenuClose();
+          navigate("/home");
+        } else {
+          console.error("Logout failed:", data.message || "Unknown error");
+        }
+      } catch (error) {
+        console.error("Logout error:", error);
+      }
+    };
+
 
   return (
     <>
@@ -41,7 +85,7 @@ const DrawerComp = () => {
         <List>
           {/* Home with Expand/Collapse */}
           <ListItemButton onClick={handleESClick}>
-            <ListItemText primary="Emergency Services" />
+            <ListItemText primary="Services" />
             {homeOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
 
@@ -72,18 +116,42 @@ const DrawerComp = () => {
               >
                 <ListItemText primary="Current Location" />
               </ListItemButton>
+              <ListItemButton
+                sx={{ pl: 4 }}
+                onClick={() => {
+                  setOpenDrawer(false), navigate("/flood-prediction");
+                }}
+              >
+                <ListItemText primary="Flood Prediction" />
+              </ListItemButton>
             </List>
           </Collapse>
 
           {/* Other List Items */}
-
-          <ListItemButton onClick={() => {setOpenDrawer(false), navigate("/flood-prediction")}}>
-            <ListItemText primary="Flood Prediction" />
-          </ListItemButton>
-          <ListItemButton onClick={() => {setOpenDrawer(false), navigate("/login")}}>
+          {isLoggedIn ? (
+            <>
+            <ListItemButton
+              onClick={() => {
+                setOpenDrawer(false), navigate("/edit-profile");
+              }}
+            >
+              <ListItemText primary="Edit Profile" />
+            </ListItemButton>
+            <ListItemButton
+              onClick={() => {
+                setOpenDrawer(false), handleLogout();
+              }}
+            >
+              <ListItemText primary="Logout" />
+            </ListItemButton>
+            </>
+          ) : (<ListItemButton
+            onClick={() => {
+              setOpenDrawer(false), navigate("/login");
+            }}
+          >
             <ListItemText primary="Login" />
-          </ListItemButton>
-
+          </ListItemButton>)}
         </List>
       </Drawer>
 
