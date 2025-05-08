@@ -63,7 +63,7 @@ export default function EventCard({ event, refreshEvents }) {
             </Typography>
           ) : (
             <Typography variant="body2">
-              <LocationOn fontSize="small" /> {event.venue_name}, {event.city}, {event.state}
+              <LocationOn fontSize="small" /> {event.venue_name}, {event.district}, {event.state}
             </Typography>
           )}
           <Typography variant="body2">
