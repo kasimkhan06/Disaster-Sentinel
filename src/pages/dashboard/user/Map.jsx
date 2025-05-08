@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -73,6 +74,7 @@ const Map = ({
   isMobile,
 }) => {
   const mapRef = useRef(null);
+  const navigate = useNavigate();
 
   // useEffect(() => {
   //   if (mapRef.current) {
@@ -112,7 +114,7 @@ const Map = ({
   const getDisasterIcon = (disaster, isMobile) => {
     const eventType = disaster.eventtype?.toUpperCase();
     const alertLevel = disaster.alertlevel?.toLowerCase();
-    
+
     // Set icon sizes based on device type
     const iconSize = isMobile ? [24, 24] : [32, 32];
     const iconAnchor = isMobile ? [12, 12] : [16, 16];
@@ -151,13 +153,13 @@ const Map = ({
       defaultIcon.options.popupAnchor = popupAnchor;
     }
     return defaultIcon;
-};
+  };
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <MapContainer
         center={[20, 0]}
-        zoom={isMobile ? 1 : 2} 
+        zoom={isMobile ? 1 : 2}
         style={{
           height: "100%",
           width: "100%",
@@ -259,23 +261,34 @@ const Map = ({
                 <p style={{ margin: "2px 0", fontSize: "13px" }}>
                   Date: {disaster.pubDate}
                 </p>
-                {disaster.link && (
-                  <a
-                    href={disaster.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "inline-block",
-                      marginTop: "6px",
-                      fontSize: "13px",
-                      color: "#1976d2",
-                      textDecoration: "none",
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    View Details
-                  </a>
-                )}
+                <button
+                  style={{
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    marginTop: "6px",
+                    fontSize: "13px",
+                    color: "#1976d2",
+                    textDecoration: "none",
+                    cursor: "pointer",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(
+                      `/disaster/${disaster.eventid}/${disaster.eventtype}`,
+                      {
+                        state: {
+                          eventType: disaster.eventtype,
+                          title: disaster.title,
+                          date: disaster.pubDate,
+                          link: disaster.link,
+                        },
+                      }
+                    );
+                  }}
+                >
+                  View Details
+                </button>
               </div>
             </Popup>
           </Marker>
