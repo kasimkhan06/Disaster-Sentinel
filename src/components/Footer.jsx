@@ -1,86 +1,67 @@
-import React from 'react';
-import { Box, Container, Link, Typography } from '@mui/material';
-import { Facebook, Twitter, Instagram, LinkedIn } from '@mui/icons-material';
+import React from "react";
+import { Box, Container, Link, Typography, List, ListItem, ListItemText } from "@mui/material";
+import { Facebook, Twitter, Instagram, LinkedIn } from "@mui/icons-material";
 import Grid from "@mui/material/Grid2";
 
 const Footer = () => {
-    console.log("Footer is rendering!");
+  console.log("Footer is rendering!");
   return (
     <Box
       component="footer"
       sx={{
-        backgroundColor: 'transparent',
-        color: 'black',
-        py: 6,
-        mt: 'auto',
+        backgroundColor: "transparent",
+        color: "black", 
+        py: {sm: 3, xs: 3, md: 4},
+        mt: "auto",
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={1} sx={{ width: '60%',margin: '0 auto' }}>
-          <Grid size={{ xs: 6, sm: 6, md: 4, lg: 4 }} sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" gutterBottom>
-              Flood Prediction System
-            </Typography>
-            <Typography variant="body2">
-              An advanced flood prediction platform leveraging machine learning to enhance disaster preparedness and response.
-            </Typography>
-          </Grid>
-          <Grid size={{ xs: 6, sm: 6, md: 4, lg: 4 }}  sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" gutterBottom>
-              Quick Links
-            </Typography>
-            <Box>
-              <Link href="/" color="inherit" underline="hover" display="block" mb={1}>
-                Home
+        <Grid container spacing={{ xs: 2, md: 15 }} sx={{ width: {xs:"100%", md:"75%"}, margin: "0 auto" }}>
+          <Grid
+            size={{ xs: 12, sm: 12, md: 4, lg: 12 }}
+            sx={{ textAlign: "center" }}
+          >
+            <Box display="flex" flexDirection={"row"} justifyContent="center" mb={2} sx={{ fontSize: {xs: "0.8rem", sm: "0.8rem", md: "1rem"},}}>
+              <Link
+                href="/current-location"
+                color="inherit"
+                underline="hover"
+                display="block"
+                sx={{
+                    px: { xs: 1, sm: 1, md: 2 }  // Corrected responsive padding syntax
+                  }}
+              >
+                 Location Information
               </Link>
-              <Link href="/flood-prediction" color="inherit" underline="hover" display="block" mb={1}>
-                Flood Prediction
+              <Link
+                href="/MissingPersonPortal" 
+                color="inherit"
+                underline="hover"
+                display="block"
+                sx={{
+                    px: { xs: 1, sm: 1, md: 2 }  // Corrected responsive padding syntax
+                  }}
+              >
+                Report Missing Person
               </Link>
-              <Link href="/current-location" color="inherit" underline="hover" display="block" mb={1}>
-                Current Location
-              </Link>
-              <Link href="/dosdontspage" color="inherit" underline="hover" display="block" mb={1}>
-                Safety Tips
+              <Link
+                href="/Agencies"
+                color="inherit"
+                underline="hover"
+                display="block"
+                sx={{
+                    px: { xs: 1, sm: 1, md: 2 }  // Corrected responsive padding syntax
+                  }}
+              >
+                Agency Information
               </Link>
             </Box>
           </Grid>
-          <Grid size={{ xs: 6, sm: 6, md: 4, lg: 4 }} sx={{ textAlign: 'center' }} >
-            <Typography variant="h6" gutterBottom>
-              Made By:
-            </Typography>
-            {/* <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-              <Link href="#" color="inherit">
-                <Facebook />
-              </Link>
-              <Link href="#" color="inherit">
-                <Twitter />
-              </Link>
-              <Link href="#" color="inherit">
-                <Instagram />
-              </Link>
-              <Link href="#" color="inherit">
-                <LinkedIn />
-              </Link>
-            </Box> */}
-            {/*get 2 names on one line*/}
-            <Typography variant="body2" gutterBottom>
-              Kasim Khan, Pranavi Sawant,
-            </Typography>
-            <Typography variant="body2" gutterBottom>
-            Sachi Kamat, Saish Shirodkar, 
-            </Typography>
-            <Typography variant="body2">
-            Sparsh Kamat
-            </Typography>
-            <Typography variant="body2" mt={2}>
-              Email: contact@floodpredict.com
-            </Typography>
-            
-          </Grid>
         </Grid>
-        <Box mt={3} pt={1} borderTop="1px solid rgba(255, 255, 255, 0.1)">
+        <Box mt={0} pt={1} borderTop="1px solid rgba(255, 255, 255, 0.1)">
           <Typography variant="body2" align="center">
-            © {new Date().getFullYear()} Flood Prediction System. All rights reserved.
+            © {new Date().getFullYear()} Flood Prediction System. All rights
+            reserved.
           </Typography>
         </Box>
       </Container>

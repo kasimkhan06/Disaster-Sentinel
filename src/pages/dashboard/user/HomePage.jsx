@@ -66,10 +66,9 @@ function HomePage() {
     }, {});
 
     // Get top 5 disasters per type and flatten the array
-    return Object.values(disastersByType).flatMap((disasters) =>
-      disasters.slice(0, 5)
-    );
-  }, [recentDisasters]);
+    const maxPerType = isMobileOrTablet ? 4 : 5;
+  return Object.values(disastersByType).flatMap(disasters => disasters.slice(0, maxPerType));
+}, [recentDisasters, isMobileOrTablet]);
 
   // Fetch recent disasters from API
   useEffect(() => {

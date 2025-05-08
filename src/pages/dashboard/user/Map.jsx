@@ -32,7 +32,7 @@ const FitBounds = ({ markers }) => {
   useEffect(() => {
     if (markers.length > 0) {
       const bounds = L.latLngBounds(markers);
-      map.fitBounds(bounds, { padding: [50, 50] });
+      map.fitBounds(bounds, { padding: [10, 10] });
     }
   }, [markers, map]);
 
@@ -70,23 +70,24 @@ const Map = ({
   onMarkerClick,
   selectedDisaster,
   highlightedDisaster,
+  isMobile,
 }) => {
   const mapRef = useRef(null);
 
-  useEffect(() => {
-    if (mapRef.current) {
-      // Remove the default zoom control if it exists
-      mapRef.current._zoomControl?.remove();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (mapRef.current) {
+  //     // Remove the default zoom control if it exists
+  //     mapRef.current._zoomControl?.remove();
+  //   }
+  // }, []);
 
-  if (!disasters || disasters.length === 0) {
-    return (
-      <p style={{ padding: "16px", margin: "16px", textAlign: "center" }}>
-        No disaster data available.
-      </p>
-    );
-  }
+  // if (!disasters || disasters.length === 0) {
+  //   return (
+  //     <p style={{ padding: "16px", margin: "16px", textAlign: "center" }}>
+  //       No disaster data available.
+  //     </p>
+  //   );
+  // }
 
   // Filter out disasters without coordinates
   const validDisasters = disasters.filter(
@@ -108,9 +109,14 @@ const Map = ({
   ]);
 
   // Function to get appropriate icon based on disaster type and alert level
-  const getDisasterIcon = (disaster) => {
+  const getDisasterIcon = (disaster, isMobile) => {
     const eventType = disaster.eventtype?.toUpperCase();
     const alertLevel = disaster.alertlevel?.toLowerCase();
+    
+    // Set icon sizes based on device type
+    const iconSize = isMobile ? [24, 24] : [32, 32];
+    const iconAnchor = isMobile ? [12, 12] : [16, 16];
+    const popupAnchor = isMobile ? [0, -12] : [0, -16];
 
     // If we have both eventType and alertLevel, use the dynamic GDACS icon
     if (eventType && alertLevel) {
@@ -118,40 +124,59 @@ const Map = ({
         iconUrl: `https://www.gdacs.org/Images/gdacs_icons/alerts/${
           alertLevel.charAt(0).toUpperCase() + alertLevel.slice(1)
         }/${eventType}.png`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16],
+        iconSize,
+        iconAnchor,
+        popupAnchor,
       });
     }
 
     // Fallback to colored markers based on disaster type if no alert level
     const type = disaster.eventtype?.toLowerCase();
     if (type && disasterIcons[type]) {
-      return disasterIcons[type];
+      // Clone the existing icon and adjust its size for mobile
+      const icon = L.icon(disasterIcons[type].options);
+      if (isMobile) {
+        icon.options.iconSize = iconSize;
+        icon.options.iconAnchor = iconAnchor;
+        icon.options.popupAnchor = popupAnchor;
+      }
+      return icon;
     }
 
     // Default marker if no specific icon found
-    return disasterIcons.default;
-  };
+    const defaultIcon = L.icon(disasterIcons.default.options);
+    if (isMobile) {
+      defaultIcon.options.iconSize = iconSize;
+      defaultIcon.options.iconAnchor = iconAnchor;
+      defaultIcon.options.popupAnchor = popupAnchor;
+    }
+    return defaultIcon;
+};
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <MapContainer
         center={[20, 0]}
-        zoom={1}
+        zoom={isMobile ? 1 : 2} 
         style={{
           height: "100%",
           width: "100%",
           filter:
             "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
-            
         }}
-        zoomControl={false} 
+        zoomControl={false}
         ref={mapRef}
+        worldCopyJump={true} // Allows horizontal wrapping
+        // maxBounds={[
+        //   [-90, -180],
+        //   [90, 180],
+        // ]} // Limits vertical panning
+        // maxBoundsViscosity={1.0}
       >
         <TileLayer
           attribution=""
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          noWrap={false}
         />
 
         {/* Add custom zoom control at bottom-left */}
@@ -185,7 +210,7 @@ const Map = ({
               parseFloat(disaster.latitude),
               parseFloat(disaster.longitude),
             ]}
-            icon={getDisasterIcon(disaster)}
+            icon={getDisasterIcon(disaster, isMobile)}
             eventHandlers={{
               click: (e) => {
                 // Stop the event from propagating to the map
@@ -214,7 +239,12 @@ const Map = ({
                   }}
                 ></div>
               )}
-            <Popup closeOnClick={true} autoPan={true} autoPanPadding={[20, 20]} sx={{ zIndex: "1000 !important" }}>
+            <Popup
+              closeOnClick={true}
+              autoPan={true}
+              autoPanPadding={[20, 20]}
+              sx={{ zIndex: "1000 !important" }}
+            >
               <div
                 style={{ padding: "8px" }}
                 onClick={(e) => e.stopPropagation()}
@@ -257,7 +287,7 @@ const Map = ({
 
       {/* Add CSS for the pulse animation */}
       <style>
-  {`
+        {`
     @keyframes pulse {
       0% {
         transform: translate(-50%, -50%) scale(0.8);
@@ -279,7 +309,7 @@ const Map = ({
       z-index: 1000;
     }
   `}
-</style>
+      </style>
     </div>
   );
 };
