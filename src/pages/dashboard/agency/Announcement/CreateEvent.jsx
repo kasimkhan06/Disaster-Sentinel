@@ -91,7 +91,7 @@ export default function EventFormWithStepper() {
     meeting_id: "",
     venue_name: "",
     address: "",
-    city: "",
+    district: "",
     state: "",
     attendees: "",
     reg_type: "",
@@ -148,7 +148,7 @@ export default function EventFormWithStepper() {
       data.append("meeting_id", formData.meeting_id);
       data.append("venue_name", formData.venue_name);
       data.append("address", formData.address);
-      data.append("city", formData.city);
+      data.append("district", formData.district);
       data.append("state", formData.state);
       data.append("attendees", formData.attendees);
       data.append("reg_type", formData.reg_type);
@@ -253,7 +253,7 @@ export default function EventFormWithStepper() {
         else {
         if (!formData.venue_name?.trim()) newErrors.venue_name = "Venue name is required";
         if (!formData.address?.trim()) newErrors.address = "Address is required";
-        if (!formData.city?.trim()) newErrors.city = "City is required";
+        if (!formData.district?.trim()) newErrors.district = "District is required";
         if (!formData.state?.trim()) newErrors.state = "State is required";
       }
     }
@@ -553,20 +553,20 @@ export default function EventFormWithStepper() {
                         </Grid>
 
                         <Grid container spacing={3} sx={{ marginTop: "10px" }}>
-                          {/* City & State */}
+                          {/* District & State */}
                           <Grid item xs={12} md={6}>
                             <TextField
                               fullWidth
                               label={
                                 <span>
-                                  City <span style={{ color: 'red' }}>*</span>
+                                  District <span style={{ color: 'red' }}>*</span>
                                 </span>
                               }
                               variant="standard"
-                              value={formData.city}
-                              onChange={(e) => updateFormState({ ...formData, city: e.target.value })}
-                              error={!!errors.city}
-                              helperText={errors.city} 
+                              value={formData.district}
+                              onChange={(e) => updateFormState({ ...formData, district: e.target.value })}
+                              error={!!errors.district}
+                              helperText={errors.district} 
                               sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
@@ -791,7 +791,7 @@ export default function EventFormWithStepper() {
                           <>
                             <Typography variant="h7"><strong>Venue Name:</strong> {formData.venue_name}</Typography><br/><br/>
                             <Typography variant="h7"><strong>Venue Address:</strong> {formData.address}</Typography><br/><br/>
-                            <Typography variant="h7"><strong>City:</strong> {formData.city}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>district:</strong> {formData.district}</Typography><br/><br/>
                             <Typography variant="h7"><strong>State:</strong> {formData.state}</Typography><br/><br/>
                           </>
                         )}

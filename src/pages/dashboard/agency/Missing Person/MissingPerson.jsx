@@ -30,7 +30,7 @@ function MissingPerson() {
     const fetchMissingPersons = async () => {
       try {
         const res = await fetch(
-          "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/reports/missing-persons/"
+          "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/missing-persons/"
         );
         const data = await res.json();
         setMissingPersons(data);
@@ -69,7 +69,7 @@ function MissingPerson() {
       <Container maxWidth="xl">
         <Grid container spacing={3}>
           {/* Marquee */}
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <Card elevation={2} sx={{ backgroundColor: "#E8F1F5", p: 1 }}>
               <Marquee speed={50} gradient={false}>
                 {marqueePersons.map((person) => (
@@ -90,7 +90,7 @@ function MissingPerson() {
                 ))}
               </Marquee>
             </Card>
-          </Grid>
+          </Grid> */}
 
           {/* Map and Sidebar */}
           <Grid item xs={12} md={8}>

@@ -50,7 +50,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
     });
   };
 
-  const [isUpdating, setIsUpdating] = useState(false); // 🆕 new state for updating loader
+  const [isUpdating, setIsUpdating] = useState(false); 
 
   const handleSubmit = async (e, id) => {
     e.preventDefault();
