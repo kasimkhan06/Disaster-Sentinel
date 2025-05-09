@@ -5,7 +5,7 @@ import { useState, useEffect, startTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
 
 // MUI Components
 import {
@@ -22,7 +22,7 @@ import {
   StepLabel,
   Typography,
   Switch,
-  FormControlLabel, 
+  FormControlLabel,
   Paper,
   Container,
   FormLabel,
@@ -33,13 +33,10 @@ import {
   TextareaAutosize,
   Divider,
 } from "@mui/material";
-import { 
-  Add, 
-  Delete 
+import {
+  Add,
+  Delete
 } from "@mui/icons-material";
-
-// Custom Components
-import MaxHeightTextarea from "../../../../components/TextArea";
 
 // Styles & Assets
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
@@ -59,9 +56,9 @@ const disasterTags = [
 ];
 
 export default function EventFormWithStepper() {
-  const { control } = useForm(); 
+  const { control } = useForm();
   const [activeStep, setActiveStep] = useState(0);
-  const [isOnline, setIsOnline] = useState(false);
+  const [isOnline, setIsOnline] = useState("offline");
   const [selectedTags, setSelectedTags] = useState([]);
   const [timeline_items, setTimelineItems] = useState([
     { time: "", activity: "" },
@@ -70,6 +67,8 @@ export default function EventFormWithStepper() {
   const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const formatTime = (time) => (time.length === 5 ? time + ":00" : time);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -101,11 +100,41 @@ export default function EventFormWithStepper() {
     location_type: "offline",
   });
 
+  useEffect(() => {
+    if (location.state?.eventData) {
+      setFormData({
+        name: location.state.eventData.name || "",
+        event_type: location.state.eventData.event_type || "",
+        date: location.state.eventData.date || "",
+        start_time: location.state.eventData.start_time || "",
+        platform: location.state.eventData.platform || "",
+        meeting_link: location.state.eventData.meeting_link || "",
+        meeting_id: location.state.eventData.meeting_id || "",
+        venue_name: location.state.eventData.venue_name || "",
+        address: location.state.eventData.address || "",
+        district: location.state.eventData.district || "",
+        state: location.state.eventData.state || "",
+        attendees: location.state.eventData.attendees || "",
+        reg_type: location.state.eventData.reg_type || "",
+        description: location.state.eventData.description || "",
+      });
+      const location_type = location.state.eventData.location_type || "offline";
+      const existingTags = location.state.eventData.tags || [];
+      const timeline_items = location.state.eventData.timeline_items || [];
+      setIsOnline(location_type);
+      updateFormState({ location_type: location_type });
+      setSelectedTags(existingTags);
+      setTimelineItems(timeline_items);
+    }
+  }, [location.state]);
+
   const updateFormState = (newState) => {
     setFormData((prevState) => ({ ...prevState, ...newState }));
   };
 
-  const formatTime = (time) => (time.length === 5 ? time + ":00" : time);
+  const handleChange = (field) => (event) => {
+    updateFormState({ [field]: event.target.value });
+  };
 
   const handleUpdateItem = (index, field, value) => {
     setTimelineItems((prevItems) =>
@@ -114,73 +143,84 @@ export default function EventFormWithStepper() {
       )
     );
   };
-  
+
   const handleRemoveItem = (index) => {
     setTimelineItems((prevItems) => prevItems.filter((_, i) => i !== index));
-  };  
+  };
 
   const handleAddItem = () => {
     setTimelineItems((prevItems) => [...prevItems, { time: "", activity: "" }]);
   };
 
   const handleTagClick = (tag, onChange) => {
+    let updatedTags;
     if (selectedTags.includes(tag)) {
-      const newTags = selectedTags.filter(t => t !== tag);
-      setSelectedTags(newTags);
-      onChange(newTags);
-    } else if (selectedTags.length < 5) {
-      const newTags = [...selectedTags, tag];
-      setSelectedTags(newTags);
-      onChange(newTags);
+      updatedTags = selectedTags.filter((t) => t !== tag);
+    } else if (selectedTags.length < 5) { // Limit to 5 tags
+      updatedTags = [...selectedTags, tag];
+    } else {
+      alert("Maximum 5 tags allowed");
+      return;
     }
+
+    setSelectedTags(updatedTags);
+    onChange(updatedTags); // Update the form state
+  };
+
+  const createFormData = () => {
+    const data = new FormData();
+    data.append("user_id", user?.user_id ? parseInt(user.user_id, 10) : null);
+    data.append("name", formData.name);
+    data.append("date", formData.date);
+    data.append("start_time", formData.start_time);
+    data.append("event_type", formData.event_type);
+    data.append("platform", formData.platform || "");
+    data.append("meeting_link", formData.meeting_link);
+    data.append("meeting_id", formData.meeting_id);
+    data.append("venue_name", formData.venue_name);
+    data.append("address", formData.address);
+    data.append("district", formData.district);
+    data.append("state", formData.state);
+    data.append("attendees", formData.attendees);
+    data.append("reg_type", formData.reg_type);
+    data.append("tags", JSON.stringify(selectedTags));
+    data.append("timeline_items", JSON.stringify(timeline_items));
+    data.append("description", formData.description);
+    data.append("location_type", formData.location_type);
+    return data;
   };
 
   const handleSubmit = async () => {
     try {
-      const data = new FormData();
-      data.append("user_id", user?.user_id ? parseInt(user.user_id, 10) : null);
-      data.append("name", formData.name);
-      data.append("date", formData.date);
-      data.append("start_time", formData.start_time);
-      data.append("event_type", formData.event_type);
-      data.append("platform", formData.platform || "");
-      data.append("meeting_link", formData.meeting_link);
-      data.append("meeting_id", formData.meeting_id);
-      data.append("venue_name", formData.venue_name);
-      data.append("address", formData.address);
-      data.append("district", formData.district);
-      data.append("state", formData.state);
-      data.append("attendees", formData.attendees);
-      data.append("reg_type", formData.reg_type);
-      data.append("tags", JSON.stringify(selectedTags));
-      data.append("timeline_items", JSON.stringify(timeline_items));
-      data.append("description", formData.description);
-      data.append("location_type", formData.location_type);
-  
-      for (let pair of data.entries()) {
-        console.log(pair[0] + ": " + pair[1]);
-      }
-  
-      setActiveStep((prevStep) => prevStep + 1);
-      setErrors({});
-  
-      const response = await axios.post(
-        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/",
-        data,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-  
-      console.log("Event Created Successfully:", response.data);
+      // Determine API method and endpoint
+      const isEditMode = Boolean(location.state?.eventData);
+      const method = isEditMode ? "put" : "post";
+      const endpoint = isEditMode
+        ? `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${location.state.eventData.id}/`
+        : "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/";
+
+      // Create FormData
+      const data = createFormData();
+      // for (let pair of data.entries()) {
+      //   console.log(pair[0] + ": " + pair[1]);
+      // }
+
+      // Make API call
+      const response = await axios[method](endpoint, data, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      alert(isEditMode ? "Event updated successfully!" : "Event created successfully!");
+      console.log("Success:", response.data);
       navigate("/event-listing");
     } catch (error) {
-      console.error("Event Creation Failed:", error.response?.data || error);
+      console.error("Event save/update failed:", error.response?.data || error);
+      alert("An error occurred. Please try again.");
     }
-  };  
+  };
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
@@ -196,21 +236,20 @@ export default function EventFormWithStepper() {
       zoom: /^\d{9,11}$/,
       google: /^[a-z]{3}-[a-z]{4}-[a-z]{3}$/i,
       webex: /^\d{9,10}$/,
-      microsoft: /.*/, 
+      microsoft: /.*/,
     };
-  
+
     const platformKey = platform.toLowerCase().split(" ")[0];
     const regex = patterns[platformKey];
-  
+
     if (!regex) return false;
-  
+
     return regex.test(id.trim());
   };
 
-  const validateForm = () => 
-  {
+  const validateForm = () => {
     let newErrors = {};
-    if(activeStep === 0){
+    if (activeStep === 0) {
       if (!formData.name?.trim()) newErrors.name = "Event name is required";
       if (!formData.date?.trim()) newErrors.date = "Date is required";
       if (!formData.start_time?.trim()) newErrors.start_time = "Start time is required";
@@ -229,28 +268,28 @@ export default function EventFormWithStepper() {
             microsoft: "teams.microsoft.com",
             webex: "webex.com",
           };
-            try {
-              const url = new URL(formData.meeting_link.trim());
-              const host = url.hostname.toLowerCase();
-              const expectedDomain = platformDomainMap[formData.platform.toLowerCase().split(" ")[0]];
-              if (!expectedDomain) {
-                newErrors.platform = "Unknown platform selected";
-              } else if (!host.includes(expectedDomain)) {
-                newErrors.meeting_link = `The meeting link must be a valid ${formData.platform} URL`;
-              }
-            } catch (error) {
-              const platformKey = formData.platform.toLowerCase().split(" ")[0];
-              const exampleDomain = platformDomainMap[platformKey];
-              newErrors.meeting_link = `Please enter a valid URL (e.g., https://${exampleDomain}/...)`;
+          try {
+            const url = new URL(formData.meeting_link.trim());
+            const host = url.hostname.toLowerCase();
+            const expectedDomain = platformDomainMap[formData.platform.toLowerCase().split(" ")[0]];
+            if (!expectedDomain) {
+              newErrors.platform = "Unknown platform selected";
+            } else if (!host.includes(expectedDomain)) {
+              newErrors.meeting_link = `The meeting link must be a valid ${formData.platform} URL`;
             }
-          }  
+          } catch (error) {
+            const platformKey = formData.platform.toLowerCase().split(" ")[0];
+            const exampleDomain = platformDomainMap[platformKey];
+            newErrors.meeting_link = `Please enter a valid URL (e.g., https://${exampleDomain}/...)`;
+          }
+        }
         if (!formData.meeting_id?.trim()) newErrors.meeting_id = "Meeting ID is required";
         else if (!validateMeetingID(formData.meeting_id, formData.platform)) {
           newErrors.meeting_id = "Invalid meeting ID format for " + formData.platform;
         }
-          
-        } 
-        else {
+
+      }
+      else {
         if (!formData.venue_name?.trim()) newErrors.venue_name = "Venue name is required";
         if (!formData.address?.trim()) newErrors.address = "Address is required";
         if (!formData.district?.trim()) newErrors.district = "District is required";
@@ -258,7 +297,7 @@ export default function EventFormWithStepper() {
       }
     }
 
-    else if(activeStep === 2){
+    else if (activeStep === 2) {
       if (!formData.reg_type.trim()) newErrors.reg_type = "Registration type is required";
       if (selectedTags.length === 0) newErrors.tags = "At least one tag is required";
     }
@@ -272,10 +311,10 @@ export default function EventFormWithStepper() {
   };
 
   return (
-    <Box 
+    <Box
       sx={{
         position: "absolute",
-        width: "100%", 
+        width: "100%",
         top: 0,
         left: 0,
         right: 0,
@@ -290,9 +329,9 @@ export default function EventFormWithStepper() {
         backgroundRepeat: "repeat-y",
         margin: 0,
         padding: 0,
-        zIndex: 0, 
+        zIndex: 0,
       }}>
-      <Box sx={{ mt: 15, mb: 4, marginX:"auto", width: "70%", display:"flex", alignContent:"center", flexDirection:"column", }}>
+      <Box sx={{ mt: 15, mb: 4, marginX: "auto", width: "70%", display: "flex", alignContent: "center", flexDirection: "column", }}>
         {/* Stepper Component */}
         <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
           {steps.map((label, index) => (
@@ -306,9 +345,6 @@ export default function EventFormWithStepper() {
         {activeStep === steps.length ? (
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="h6">All steps completed - Event Created!</Typography>
-            <Button onClick={() => setActiveStep(0)} variant="contained" sx={{ mt: 2 }}>
-              Create Another Event
-            </Button>
           </Box>
         ) : (
           <>
@@ -338,7 +374,7 @@ export default function EventFormWithStepper() {
                           sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
                         />
                       </Grid>
-                
+
                       {/* Event Type */}
                       <Grid item xs={12} md={6}>
                         <FormControl
@@ -364,7 +400,7 @@ export default function EventFormWithStepper() {
                         </FormControl>
                       </Grid>
                     </Grid>
-                
+
                     {/* Date & Time */}
                     <Grid container spacing={3} sx={{ marginTop: "20px" }}>
                       <Grid item xs={12} sm={6} md={3}>
@@ -384,7 +420,7 @@ export default function EventFormWithStepper() {
                           sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
                         />
                       </Grid>
-                
+
                       <Grid item xs={12} sm={6} md={3}>
                         <TextField
                           fullWidth
@@ -404,7 +440,7 @@ export default function EventFormWithStepper() {
                       </Grid>
                     </Grid>
                   </Card>
-                </Grid>              
+                </Grid>
               )}
 
               {/* Location Step */}
@@ -412,13 +448,13 @@ export default function EventFormWithStepper() {
                 <Grid item xs={12} sx={{ marginTop: "20px" }}>
                   <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
                     <Container maxWidth="md" sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 4 }}>
-                      <Paper 
-                        elevation={3} 
-                        sx={{ 
-                          width: "100%", 
-                          maxWidth: 600, 
-                          p: 3, 
-                          borderRadius: 3, 
+                      <Paper
+                        elevation={3}
+                        sx={{
+                          width: "100%",
+                          maxWidth: 600,
+                          p: 3,
+                          borderRadius: 3,
                           bgcolor: "background.paper",
                           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)"
                         }}
@@ -431,13 +467,13 @@ export default function EventFormWithStepper() {
                             <FormControlLabel
                               control={
                                 <Switch
-                                  checked={isOnline === "online"} 
+                                  checked={isOnline === "online"}
                                   color="primary"
                                   onChange={(event) => {
                                     const checked = event.target.checked;
-                                    const newLocation_type = checked ? "online" : "offline";
-                                    updateFormState({ location_type: newLocation_type });
-                                    setIsOnline(newLocation_type);
+                                    const newLocationType = checked ? "online" : "offline";
+                                    updateFormState({ location_type: newLocationType });
+                                    setIsOnline(newLocationType);
                                   }}
                                 />
                               }
@@ -458,7 +494,7 @@ export default function EventFormWithStepper() {
                               <InputLabel sx={{ fontSize: "0.9rem", width: { xs: "100%", sm: "95%" } }}>
                                 Platform <span style={{ color: "red" }}>*</span>
                               </InputLabel>
-                              <Select 
+                              <Select
                                 value={formData.platform}
                                 onChange={(e) => updateFormState({ ...formData, platform: e.target.value })}
                               >
@@ -485,8 +521,8 @@ export default function EventFormWithStepper() {
                               value={formData.meeting_link}
                               onChange={(e) => updateFormState({ ...formData, meeting_link: e.target.value })}
                               error={!!errors.meeting_link}
-                              helperText={errors.meeting_link} 
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              helperText={errors.meeting_link}
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -504,8 +540,8 @@ export default function EventFormWithStepper() {
                             value={formData.meeting_id}
                             onChange={(e) => updateFormState({ ...formData, meeting_id: e.target.value })}
                             error={!!errors.meeting_id}
-                            helperText={errors.meeting_id} 
-                            sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                            helperText={errors.meeting_id}
+                            sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
                             InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                           />
                         </Grid>
@@ -526,12 +562,12 @@ export default function EventFormWithStepper() {
                               value={formData.venue_name}
                               onChange={(e) => updateFormState({ ...formData, venue_name: e.target.value })}
                               error={!!errors.venue_name}
-                              helperText={errors.venue_name} 
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              helperText={errors.venue_name}
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
-                    
+
                           {/* Venue Address */}
                           <Grid item xs={12} md={6}>
                             <TextField
@@ -546,7 +582,7 @@ export default function EventFormWithStepper() {
                               onChange={(e) => updateFormState({ ...formData, address: e.target.value })}
                               error={!!errors.address}
                               helperText={errors.address}
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -566,8 +602,8 @@ export default function EventFormWithStepper() {
                               value={formData.district}
                               onChange={(e) => updateFormState({ ...formData, district: e.target.value })}
                               error={!!errors.district}
-                              helperText={errors.district} 
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              helperText={errors.district}
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -584,8 +620,8 @@ export default function EventFormWithStepper() {
                               value={formData.state}
                               onChange={(e) => updateFormState({ ...formData, state: e.target.value })}
                               error={!!errors.state}
-                              helperText={errors.state} 
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} 
+                              helperText={errors.state}
+                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -607,16 +643,16 @@ export default function EventFormWithStepper() {
                         value={formData.description}
                         onChange={(e) => updateFormState({ description: e.target.value })}
                         style={{
-                            width: '97%',
-                            resize: 'none',
-                            padding: '8px 12px',
-                            fontSize: '0.9rem',
-                            lineHeight: 1.5,
-                            borderRadius: '8px',
-                            border: '1px solid #ccc',
-                            color: '#1C2025',
-                            backgroundColor: '#fff',
-                            outline: 'none',
+                          width: '97%',
+                          resize: 'none',
+                          padding: '8px 12px',
+                          fontSize: '0.9rem',
+                          lineHeight: 1.5,
+                          borderRadius: '8px',
+                          border: '1px solid #ccc',
+                          color: '#1C2025',
+                          backgroundColor: '#fff',
+                          outline: 'none',
                         }}
                       />
                     </Grid>
@@ -630,25 +666,25 @@ export default function EventFormWithStepper() {
                           variant="standard"
                           value={formData.attendees}
                           onChange={(e) => updateFormState({ ...formData, attendees: e.target.value })}
-                          sx = {{width: {xs:"100%", sm: "90%"}, marginX: "20px"}} 
+                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
                           InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                         />
                       </Grid>
 
                       <Grid item xs={12} md={6}>
-                        <FormControl fullWidth variant="standard" sx={{ width: {xs:"100%", sm: "90%"}, marginX: "20px" }} error={!!errors.eventType}>
-                          <InputLabel sx={{ fontSize: '0.9rem', width: {xs:"100%", sm: "90%"} }}>
+                        <FormControl fullWidth variant="standard" sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} error={!!errors.eventType}>
+                          <InputLabel sx={{ fontSize: '0.9rem', width: { xs: "100%", sm: "90%" } }}>
                             Registration Type <span style={{ color: 'red' }}>*</span>
                           </InputLabel>
-                            <Select 
+                          <Select
                             value={formData.reg_type}
                             onChange={(e) => setFormData({ ...formData, reg_type: e.target.value })}>
                             {regTypes.map((type) => (
                               <MenuItem key={type} value={type}>
                                 {type}
-                                </MenuItem>
+                              </MenuItem>
                             ))}
-                            </Select>
+                          </Select>
                           {errors.reg_type && <FormHelperText>{errors.reg_type}</FormHelperText>}
                         </FormControl>
                       </Grid>
@@ -661,10 +697,13 @@ export default function EventFormWithStepper() {
                           control={control}
                           render={({ field: { onChange } }) => (
                             <FormControl fullWidth variant="standard" error={!!errors.tags}>
-                              <FormLabel sx={{ width: {xs:"100%", sm: "90%"}, marginBottom: "10px" }}>
+                              <FormLabel sx={{ width: { xs: "100%", sm: "90%" }, marginBottom: "10px" }}>
                                 Tags (Max 5 tags) <span style={{ color: 'red' }}>*</span>
                               </FormLabel>
-                              <Paper elevation={1} sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2, width: {xs:"100%", sm: "96%"} }}>
+                              <Paper
+                                elevation={1}
+                                sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2, width: { xs: "100%", sm: "96%" } }}
+                              >
                                 <Box display="flex" flexWrap="wrap" gap={1}>
                                   {disasterTags.map((tag) => (
                                     <Chip
@@ -675,10 +714,10 @@ export default function EventFormWithStepper() {
                                       onClick={() => handleTagClick(tag, onChange)}
                                       sx={{ cursor: "pointer" }}
                                     />
-                                    ))}
+                                  ))}
                                 </Box>
                               </Paper>
-                          {errors.tags && <FormHelperText>{errors.tags}</FormHelperText>}
+                              {errors.tags && <FormHelperText>{errors.tags}</FormHelperText>}
                             </FormControl>
                           )}
                         />
@@ -698,8 +737,8 @@ export default function EventFormWithStepper() {
                     <Typography variant="body2" color="text.secondary" mb={3}>
                       Add key activities to your event schedule
                     </Typography>
-              
-                    <Box display="flex" flexDirection="column" gap={2}> 
+
+                    <Box display="flex" flexDirection="column" gap={2}>
                       {timeline_items.map((item, index) => (
                         <Paper
                           key={index}
@@ -716,11 +755,11 @@ export default function EventFormWithStepper() {
                                 type="time"
                                 value={item.time}
                                 onChange={(e) => handleUpdateItem(index, "time", e.target.value)}
-                                InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                                sx = {{width: {xs:"80%", sm: "75%"}}}
-                                />
+                                InputLabelProps={{ shrink: true, style: { fontSize: '1.2rem' } }}
+                                sx={{ width: { xs: "80%", sm: "75%" } }}
+                              />
                             </Grid>
-              
+
                             <Grid item xs={12} md={6}>
                               <Typography variant="body1" fontWeight={600} color="text.primary">
                                 Activity Description
@@ -730,9 +769,9 @@ export default function EventFormWithStepper() {
                                 placeholder="Enter activity description"
                                 value={item.activity}
                                 onChange={(e) => handleUpdateItem(index, "activity", e.target.value)}
-                                />
+                              />
                             </Grid>
-              
+
                             <Grid item xs={12} md={1} display="flex" justifyContent="center" alignItems="center">
                               {timeline_items.length > 1 && (
                                 <IconButton color="error" onClick={() => handleRemoveItem(index)}>
@@ -744,7 +783,7 @@ export default function EventFormWithStepper() {
                         </Paper>
                       ))}
                     </Box>
-              
+
                     <Box display="flex" justifyContent="start" mt={3}>
                       <Button
                         variant="contained"
@@ -756,7 +795,7 @@ export default function EventFormWithStepper() {
                           color: "white",
                           "&:hover": { bgcolor: "primary.dark" },
                         }}
-                        >
+                      >
                         Add Activity
                       </Button>
                     </Box>
@@ -772,52 +811,53 @@ export default function EventFormWithStepper() {
                       Review Your Information
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
-                
+
                     <Grid container spacing={1}>
                       {/* First Column */}
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="h7"><strong>Event Name:</strong> {formData.name}</Typography><br/><br/>
-                        <Typography variant="h7"><strong>Date:</strong> {formData.date}</Typography><br/><br/>
-                        <Typography variant="h7"><strong>Time:</strong> {formData.start_time}</Typography><br/><br/>
-                        <Typography variant="h7"><strong>Event Type:</strong> {formData.event_type}</Typography><br/><br/>
-                
+                        <Typography variant="h7"><strong>Event Name:</strong> {formData.name}</Typography><br /><br />
+                        <Typography variant="h7"><strong>Date:</strong> {formData.date}</Typography><br /><br />
+                        <Typography variant="h7"><strong>Time:</strong> {formData.start_time}</Typography><br /><br />
+                        <Typography variant="h7"><strong>Event Type:</strong> {formData.event_type}</Typography><br /><br />
+
                         {isOnline ? (
                           <>
-                            <Typography variant="h7"><strong>Platform:</strong> {formData.platform}</Typography><br/><br/>
-                            <Typography variant="h7"><strong>Meeting Link:</strong> {formData.meeting_link}</Typography><br/><br/>
-                            <Typography variant="h7"><strong>Meeting ID:</strong> {formData.meeting_id}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>Platform:</strong> {formData.platform}</Typography><br /><br />
+                            <Typography variant="h7"><strong>Meeting Link:</strong> {formData.meeting_link}</Typography><br /><br />
+                            <Typography variant="h7"><strong>Meeting ID:</strong> {formData.meeting_id}</Typography><br /><br />
                           </>
                         ) : (
                           <>
-                            <Typography variant="h7"><strong>Venue Name:</strong> {formData.venue_name}</Typography><br/><br/>
-                            <Typography variant="h7"><strong>Venue Address:</strong> {formData.address}</Typography><br/><br/>
-                            <Typography variant="h7"><strong>district:</strong> {formData.district}</Typography><br/><br/>
-                            <Typography variant="h7"><strong>State:</strong> {formData.state}</Typography><br/><br/>
+                            <Typography variant="h7"><strong>Venue Name:</strong> {formData.venue_name}</Typography><br /><br />
+                            <Typography variant="h7"><strong>Venue Address:</strong> {formData.address}</Typography><br /><br />
+                            <Typography variant="h7"><strong>district:</strong> {formData.district}</Typography><br /><br />
+                            <Typography variant="h7"><strong>State:</strong> {formData.state}</Typography><br /><br />
                           </>
                         )}
                       </Grid>
-                
+
                       {/* Second Column */}
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="h7"><strong>Registration Type:</strong> {formData.reg_type}</Typography><br/><br/>
+                        <Typography variant="h7"><strong>Registration Type:</strong> {formData.reg_type}</Typography><br /><br />
                         <Typography variant="h7">
                           <strong>Maximum Attendees:</strong>{" "}
-                          {formData.attendees?.trim() ? formData.attendees : "Not Entered"}
-                        </Typography><br/><br/>
-                
+                          {formData.attendees ? String(formData.attendees).trim() : "Not Entered"}
+                        </Typography>
+                        <br /><br />
+
                         {selectedTags.length > 0 && (
                           <Typography variant="h7"><strong>Tags:</strong> {selectedTags.join(", ")}</Typography>
                         )}
-                        <br/><br/>
-                
+                        <br /><br />
+
                         {timeline_items.length > 0 && (
                           <Typography variant="h7">
                             <strong>Timeline:</strong>{" "}
                             {timeline_items.map(item => `${item.time} - ${item.activity}`).join(", ")}
                           </Typography>
                         )}
-                        <br/><br/>
-                
+                        <br /><br />
+
                         <Typography variant="h7" sx={{ whiteSpace: 'pre-wrap' }}>
                           <strong>Description:</strong>{" "}
                           {formData.description?.trim() ? formData.description : "Not Entered"}
@@ -825,33 +865,32 @@ export default function EventFormWithStepper() {
                       </Grid>
                     </Grid>
                   </Card>
-                </Grid>              
+                </Grid>
               )}
             </Grid>
 
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-              Back
-            </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
+              <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
+                Back
+              </Button>
+              <Box sx={{ flex: "1 1 auto" }} />
               {activeStep === steps.length - 1 ? (
                 <Button variant="contained" onClick={handleSubmit} sx={{ mr: 1 }}>
-                Submit
+                  Submit
                 </Button>
               ) : (
-                <Button 
-                variant="contained"
-                onClick={() => 
-                {
-                  const isValid = validateForm();
-                  console.log("Validation Result:", isValid);
-                  if (isValid) {
-                    handleNext(); 
-                  }
-                }} 
-                sx={{ mr: 1 }}
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    const isValid = validateForm();
+                    console.log("Validation Result:", isValid);
+                    if (isValid) {
+                      handleNext();
+                    }
+                  }}
+                  sx={{ mr: 1 }}
                 >
-                Next
+                  Next
                 </Button>
               )}
             </Box>
