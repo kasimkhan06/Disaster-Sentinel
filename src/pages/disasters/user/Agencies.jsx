@@ -35,6 +35,7 @@ import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import useAgencyData from "../../../hooks/useAgencyData";
 import { getCurrentLocationState } from "../../../utils/locationUtils";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import Footer from "../../../components/Footer";
 
 const Agencies = () => {
   const { existingAgencies, addedAgencies, states, loading, error } =
@@ -145,54 +146,6 @@ const Agencies = () => {
     setOpenDialog(false);
   };
 
-  const handleOpenVolunteerDialog = () => {
-    setOpenVolunteerDialog(true);
-    setOpenDialog(false);
-  };
-
-  const handleCloseVolunteerDialog = () => {
-    setOpenVolunteerDialog(false);
-    setVolunteerMessage("");
-    setSubmitError(null);
-    setSubmitSuccess(false);
-  };
-
-  const handleVolunteerSubmit = async () => {
-    if (!volunteerMessage.trim()) {
-      setSubmitError("Please enter a message");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const response = await fetch(
-        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/volunteer-interests/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            agency_id: selectedAgency.id,
-            message: volunteerMessage,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to submit volunteer interest");
-      }
-
-      setSubmitSuccess(true);
-      setVolunteerMessage("");
-    } catch (err) {
-      setSubmitError(err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
   const updateAgencySuggestions = (inputValue, stateFilter) => {
     let filtered = allAgencies;
 
@@ -261,11 +214,10 @@ const Agencies = () => {
           p:2,
           mb:0.5,
           fontSize: {
-            xs: "1.3rem",
-            sm: "1.3rem",
-            md: "1.4rem",
-            lg: "1.45rem",
-            xl: "1.45rem",
+            xs: "1rem",
+            sm: "1.2rem",
+            md: isBelow ? "1.2rem" : "1.4rem",
+            lg: isBelow ? "1.2rem" : "1.4rem",
           },
           fontWeight: "bold",
           textTransform: "uppercase",
@@ -304,8 +256,8 @@ const Agencies = () => {
         >
           <Box
             sx={{
-              width: { xs: "100%", sm: "75%", md: "100%" },
-              paddingLeft: 0,
+              width: { xs: "100%", sm: "100%", md: "100%" },
+              paddingLeft: {xs:2, sm:2, md:0},
               mb: 2,
               textAlign: "left",
               position: "relative",
@@ -404,6 +356,7 @@ const Agencies = () => {
               width: { xs: "100%", sm: "75%", md: "100%" },
               paddingLeft: 0,
               mb: 2,
+              paddingRight: {xs:2, sm:2, md:0},
               textAlign: "left",
               position: "relative",
             }}
@@ -486,10 +439,10 @@ const Agencies = () => {
 
         {/* Clear Filters Button */}
         <Grid
-          size={{ xs: 6, sm: 6, md: 4, lg: 2 }} // Adjusted size
+          size={{ xs: 12, sm: 12, md: 4, lg: 2 }} // Adjusted size
           sx={{
             display: "flex",
-            justifyContent: "left",
+            justifyContent: {xs: "center", sm: "center", md: "left"},
             alignItems: "stretch",
           }}
         >
@@ -504,7 +457,7 @@ const Agencies = () => {
               (selectedState === "All States" && !agencyNameFilter) || loading
             }
             sx={{
-              height: { md: 53.69 },
+              height: { xs: 30, sm: 30, md: 53.69 },
               paddingY: "9px",
               mb: 2,
               display: "flex",
@@ -513,6 +466,7 @@ const Agencies = () => {
                 backgroundColor: "transparent",
               },
               width: { xs: "50%", sm: "40%", md: "60%", lg: "100%" },
+               fontSize: {xs: "0.775rem", sm: "0.775rem", md: "0.875rem"},
             }}
           >
             Clear Filters
@@ -575,7 +529,7 @@ const Agencies = () => {
                       fontWeight: "600",
                       backgroundColor: theme.palette.grey[50],
                       borderBottom: `1px solid ${theme.palette.divider}`,
-                      width: "70%", // Agency Name column takes 70% width
+                      width: {xs:"60%", sm:"65%", md:"70%"}, // Agency Name column takes 70% width
                     }}
                   >
                     Agency Name
@@ -586,6 +540,7 @@ const Agencies = () => {
                       backgroundColor: theme.palette.grey[50],
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       width: "30%", // Location column takes 30% width
+                      pl:{xs:1, sm:1, md:2},
                     }}
                   >
                     Location
@@ -613,6 +568,8 @@ const Agencies = () => {
                       <TableCell
                         sx={{
                           borderBottom: `1px solid ${theme.palette.divider}`,
+                          pl:2,
+                          pr: 0,
                         }}
                       >
                         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -624,7 +581,7 @@ const Agencies = () => {
                               backgroundColor: agency?.isAddedAgency
                                 ? theme.palette.success.light
                                 : theme.palette.success.light,
-                              fontSize: "0.8rem",
+                              fontSize: {xs: "0.6rem", sm: "0.6rem", md: "0.8rem"},
                             }}
                           >
                             {agency?.isAddedAgency ? (
@@ -637,7 +594,7 @@ const Agencies = () => {
                             <Typography
                               variant="body1"
                               fontWeight="500"
-                              sx={{ fontSize: "0.875rem" }}
+                              sx={{ fontSize: {xs: "0.775rem", sm: "0.775rem", md: "0.875rem"} }}
                             >
                               {agency?.name ||
                                 agency?.agency_name ||
@@ -654,12 +611,13 @@ const Agencies = () => {
                       <TableCell
                         sx={{
                           borderBottom: `1px solid ${theme.palette.divider}`,
+                          pl:{xs:1, sm:1, md:2},
                         }}
                       >
                         <Box>
                           <Typography
                             variant="body1"
-                            sx={{ fontSize: "0.875rem" }}
+                            sx={{ fontSize: {xs: "0.775rem", sm: "0.775rem", md: "0.875rem"} }}
                           >
                             {agency?.city ||
                               agency?.district ||
@@ -735,27 +693,27 @@ const Agencies = () => {
       >
         {selectedAgency && (
           <>
-            <DialogTitle id="agency-details-dialog">
+            <DialogTitle id="agency-details-dialog" sx={{ fontSize: {xs: "0.9rem", sm: "0.97rem", md: "1.1rem"}, fontWeight: "bold" }}>
               {selectedAgency.name}
             </DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                <Typography variant="subtitle1" gutterBottom>
+            <DialogContent >
+              <DialogContentText >
+                <Typography variant="subtitle1" gutterBottom sx={{ fontSize: {xs: "0.8rem", sm: "0.8rem", md: "0.9rem"} }}>
                   <strong>Location:</strong> {selectedAgency.city},{" "}
                   {selectedAgency.state}
                 </Typography>
                 {selectedAgency.address && (
-                  <Typography variant="body1" gutterBottom>
+                  <Typography variant="body1" gutterBottom sx={{ fontSize: {xs: "0.8rem", sm: "0.8rem", md: "0.9rem"} }}>
                     <strong>Address:</strong> {selectedAgency.address}
                   </Typography>
                 )}
                 {selectedAgency.telephone && (
-                  <Typography variant="body1" gutterBottom>
+                  <Typography variant="body1" gutterBottom sx={{ fontSize: {xs: "0.8rem", sm: "0.8rem", md: "0.9rem"} }}>
                     <strong>Phone:</strong> {selectedAgency.telephone}
                   </Typography>
                 )}
                 {selectedAgency.website && (
-                  <Typography variant="body1" gutterBottom>
+                  <Typography variant="body1" gutterBottom sx={{ fontSize: {xs: "0.8rem", sm: "0.8rem", md: "0.9rem"} }}>
                     <strong>Website:</strong>{" "}
                     <a
                       href={selectedAgency.website}
@@ -769,9 +727,6 @@ const Agencies = () => {
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleOpenVolunteerDialog} color="primary">
-                Be a Volunteer
-              </Button>
               <Button onClick={handleCloseDialog} color="primary">
                 Close
               </Button>
@@ -780,73 +735,7 @@ const Agencies = () => {
         )}
       </Dialog>
 
-      <Dialog
-        open={openVolunteerDialog}
-        onClose={handleCloseVolunteerDialog}
-        aria-labelledby="volunteer-dialog"
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle id="volunteer-dialog">
-          Volunteer Interest for {selectedAgency?.name}
-        </DialogTitle>
-        <DialogContent>
-          {submitSuccess ? (
-            <Typography color="primary" gutterBottom>
-              Your volunteer interest has been submitted successfully!
-            </Typography>
-          ) : (
-            <>
-              <DialogContentText gutterBottom>
-                Please write a message to the agency about your interest in
-                volunteering:
-              </DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="volunteer-message"
-                label="Your Message"
-                type="text"
-                fullWidth
-                variant="outlined"
-                multiline
-                rows={4}
-                value={volunteerMessage}
-                onChange={(e) => setVolunteerMessage(e.target.value)}
-                error={!!submitError}
-                helperText={submitError}
-              />
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          {submitSuccess ? (
-            <Button onClick={handleCloseVolunteerDialog} color="primary">
-              Close
-            </Button>
-          ) : (
-            <>
-              <Button onClick={handleCloseVolunteerDialog} color="secondary">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleVolunteerSubmit}
-                color="primary"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <CircularProgress size={24} />
-                    <Typography sx={{ ml: 1 }}>Submitting...</Typography>
-                  </>
-                ) : (
-                  "Submit"
-                )}
-              </Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
+      <Footer />
     </Box>
   );
 };

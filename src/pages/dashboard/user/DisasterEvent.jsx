@@ -237,13 +237,12 @@ const DisasterEvent = () => {
                   <Typography
                     variant="h6"
                     sx={{
-                      mb: 2,
-                      pt: 2,
+                      p:2,
                       display: "flex",
                       alignItems: "center",
                     }}
                   >
-                    <Info sx={{ mr: 1 }} /> Event Summary
+                    Event Summary
                   </Typography>
 
                   <Grid container spacing={1}>

@@ -125,7 +125,9 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
 
               <ListItemButton
                 sx={{ pl: 4 }}
-                onClick={() => setOpenDrawer(false)}
+                onClick={() => {
+                  setOpenDrawer(false), navigate("/agencies");
+                }}
               >
                 <ListItemText primary="Agency Information" />
               </ListItemButton>
