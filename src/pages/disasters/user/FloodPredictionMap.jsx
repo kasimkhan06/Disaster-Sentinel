@@ -70,7 +70,7 @@ const FloodPredictionMap = ({
         // Then apply mobile-specific adjustment
         if (isMobile) {
           // Calculate pixel offset (25% of map height)
-          const offsetPixels = map.getSize().y * 0.1;
+          const offsetPixels = map.getSize().y * 0.15;
           
           // Convert pixel offset to geographic coordinates
           const point = map.project(map.getCenter());
