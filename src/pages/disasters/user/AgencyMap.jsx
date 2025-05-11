@@ -72,7 +72,7 @@ const userIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-const AgencyMap = ({ agency }) => {
+const AgencyMap = ({ agency, isMobile }) => {
   const [userPosition, setUserPosition] = useState(null);
   const [inputAddress, setInputAddress] = useState("");
   const [distance, setDistance] = useState(null);
@@ -476,14 +476,14 @@ const AgencyMap = ({ agency }) => {
   };
 
   return (
-    <Box sx={{ width: "100%", height: "100%" }}>
+    <Box sx={{ width: "100%", height: "100%" , backgroundColor: "white"}}>
       {/* Map Container */}
       <Box
         sx={{
           position: "relative",
           width: "100%",
           height: "400px",
-          borderRadius: "12px",
+          borderRadius: isMobile ? "0px" : "12px",
           overflow: "hidden",
           mb: 2,
         }}
@@ -531,28 +531,32 @@ const AgencyMap = ({ agency }) => {
             />
           )}
         </MapContainer>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            pointerEvents: "none",
-            background: `
+        {/* Fading Overlay on All Sides */}
+        
+        {!isMobile && (
+  <Box
+    sx={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      pointerEvents: "none",
+      background: `
         linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
         linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
         linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
         linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%)
       `,
-            zIndex: 2,
-          }}
-        />
+      zIndex: 2,
+    }}
+  />
+)}
       </Box>
 
       {/* Location Search Controls */}
-      <Grid container spacing={1} alignItems="center">
-        <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
+      <Grid container spacing={0} alignItems="center">
+        <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
           <Paper
             // elevation={3}
             sx={{
@@ -565,8 +569,8 @@ const AgencyMap = ({ agency }) => {
             }}
           >
             <Grid container spacing={2} alignItems="center">
-              <Grid size={{ xs: 11, sm: 10, md: 10, lg: 12 }}>
-                <Box sx={{ position: "relative" }}>
+              <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{  px:2  }}>
+                <Box sx={{ position: "relative", }}>
                   <TextField
                     fullWidth
                     label="Enter location"
@@ -678,7 +682,7 @@ const AgencyMap = ({ agency }) => {
                   )}
                 </Box>
               </Grid>
-              <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
+              <Grid size={{ xs: 6, sm: 10, md: 10, lg: 6 }} sx={{  pl:2  }}>
                 <FormControl fullWidth>
                   <Select
                     value={profile}
@@ -720,7 +724,7 @@ const AgencyMap = ({ agency }) => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
+              <Grid size={{ xs: 6 , sm: 10, md: 10, lg: 6 }} sx={{  pr:2  }}>
                 <Button
                   fullWidth
                   // variant="contained"
@@ -776,7 +780,7 @@ const AgencyMap = ({ agency }) => {
             </Grid>
           </Paper>
         </Grid>
-        <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
+        <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
           {" "}
           {/* Added order: -1 to move to top */}
           {/* Route Information - Only shown when route is calculated */}
@@ -785,28 +789,24 @@ const AgencyMap = ({ agency }) => {
               sx={{
                 py: 0,
                 px: 2,
-                borderLeft: "2px solid #eee",
+                borderLeft: isMobile ? "none" : "1px solid #ccc",
                 borderRadius: 0,
                 boxShadow: "none",
                 alignSelf: "flex-start",
-                width: "100%",
+                // width: "100%",
+                mb: isMobile ? 3 : 0,
               }}
             >
               <Box
                 display="flex"
                 justifyContent="space-between"
-                alignItems="flex-start"
+                // alignItems="flex-start"
               >
-                <Box>
+                <Box sx={{ marginX: 2 }}>
                   <Typography
                     variant="body1"
                     sx={{
-                      fontSize: {
-                        xs: "0.7rem",
-                        sm: "0.7rem",
-                        md: "0.8rem",
-                        lg: "0.9rem",
-                      },
+                      fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"}
                     }}
                   >
                     Distance to {agency.agency_name}:{" "}
@@ -820,12 +820,7 @@ const AgencyMap = ({ agency }) => {
                         variant="body1"
                         sx={{
                           mt: 1,
-                          fontSize: {
-                            xs: "0.7rem",
-                            sm: "0.7rem",
-                            md: "0.8rem",
-                            lg: "0.9rem",
-                          },
+                          fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"}
                         }}
                       >
                         Estimated travel time:{" "}
@@ -847,8 +842,8 @@ const AgencyMap = ({ agency }) => {
                               color: "text.secondary",
                               display: "block", // Changed to block to force new line
                               fontSize: {
-                                xs: "0.6rem",
-                                sm: "0.6rem",
+                                xs: "0.68rem",
+                                sm: "0.68rem",
                                 md: "0.7rem",
                                 lg: "0.8rem",
                               },

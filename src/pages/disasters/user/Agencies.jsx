@@ -214,7 +214,7 @@ const Agencies = () => {
           p:2,
           mb:0.5,
           fontSize: {
-            xs: "1rem",
+            xs: "1.2rem",
             sm: "1.2rem",
             md: isBelow ? "1.2rem" : "1.4rem",
             lg: isBelow ? "1.2rem" : "1.4rem",
@@ -376,7 +376,7 @@ const Agencies = () => {
                 <TextField
                   {...params}
                   variant="outlined"
-                  placeholder="Type to search agencies..."
+                  placeholder= {isMobile? "Agency name" : "Type to search agencies..."}
                   InputLabelProps={{
                     shrink: false,
                     style: { display: "none" },
@@ -594,7 +594,7 @@ const Agencies = () => {
                             <Typography
                               variant="body1"
                               fontWeight="500"
-                              sx={{ fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"} }}
+                              sx={{ fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"} }}
                             >
                               {agency?.name ||
                                 agency?.agency_name ||
@@ -617,7 +617,7 @@ const Agencies = () => {
                         <Box>
                           <Typography
                             variant="body1"
-                            sx={{ fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"} }}
+                            sx={{ fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"} }}
                           >
                             {agency?.city ||
                               agency?.district ||

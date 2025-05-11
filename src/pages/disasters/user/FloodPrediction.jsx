@@ -208,7 +208,7 @@ const FloodPrediction = () => {
           p:2,
           mb:0.5,
           fontSize: {
-            xs: "1rem",
+            xs: "1.2rem",
             sm: "1.2rem",
             md: isBelow ? "1.2rem" : "1.4rem",
             lg: isBelow ? "1.2rem" : "1.4rem",
