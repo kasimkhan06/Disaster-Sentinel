@@ -14,78 +14,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// Custom icons for different reliability levels
-const safeIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [20, 35],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [39, 39],
-});
-
-const cautionIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [20, 35],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [39, 39],
-});
-
-const currentLocationIcon = new L.Icon({
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-// Fit map to all markers
-const FitBounds = ({ markers }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (markers.length > 0) {
-      const bounds = L.latLngBounds(markers);
-      
-      // Calculate the ideal padding based on map size
-      const padding = [20, 20]; // Padding in pixels [top/bottom, left/right]
-      
-      // Fit bounds with padding and max zoom constraint
-      map.fitBounds(bounds, { 
-        padding: padding,
-        maxZoom: 12 // Set a maximum zoom level to prevent over-zooming
-      });
-      
-      // If the map is still too zoomed in after fitting bounds
-      if (map.getZoom() > 12) {
-        map.setZoom(12);
-      }
-    }
-  }, [markers, map]);
-
-  return null;
-};
-
-const ChangeView = ({ center, zoom }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      const constrainedZoom = Math.min(zoom || 12, 12); // Don't exceed zoom 12
-      map.setView(center, constrainedZoom);
-    }
-  }, [center, zoom, map]);
-  return null;
-};
-
 const FloodPredictionMap = ({
   stations,
   selectedLocation,
@@ -94,6 +22,7 @@ const FloodPredictionMap = ({
   onLocationFocused,
   showNoStationsMessage,
   currentLocationState,
+  isMobile,
 }) => {
   const [mapCenter, setMapCenter] = useState([0, 0]);
   const [zoomLevel, setZoomLevel] = useState(3); // Start with a lower zoom level
@@ -101,6 +30,96 @@ const FloodPredictionMap = ({
   const [noStationsPopup, setNoStationsPopup] = useState(null);
   const navigate = useNavigate();
   const currentLocationMarkerRef = useRef(null);
+
+  const safeIcon = new L.Icon({
+    iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+    iconSize: isMobile? [14, 24] : [20, 35],
+    iconAnchor: isMobile? [10, 39] : [12, 41],
+    popupAnchor: isMobile? [0, -28] : [1, -34],
+    shadowSize: isMobile? [0, 0] : [30, 30],
+  });
+  
+  const cautionIcon = new L.Icon({
+    iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: isMobile? [14, 24] : [20, 35],
+      iconAnchor: isMobile? [10, 39] : [12, 41],
+      popupAnchor: isMobile? [0, -28] : [1, -34],
+      shadowSize: isMobile? [0, 0] : [30, 30],
+  });
+
+  //fit all markers in the map view
+  const FitBounds = ({ markers, isMobile }) => {
+    const map = useMap();
+  
+    useEffect(() => {
+      if (markers.length > 0) {
+        const bounds = L.latLngBounds(markers);
+        
+        // First fit bounds without padding to get tight view
+        map.fitBounds(bounds, { 
+          padding: [20, 20], // Base padding
+          maxZoom: 12
+        });
+  
+        // Then apply mobile-specific adjustment
+        if (isMobile) {
+          // Calculate pixel offset (25% of map height)
+          const offsetPixels = map.getSize().y * 0.1;
+          
+          // Convert pixel offset to geographic coordinates
+          const point = map.project(map.getCenter());
+          const newPoint = point.add([0, -offsetPixels]);
+          const newCenter = map.unproject(newPoint);
+          
+          // Set new view with adjusted center
+          map.setView(newCenter, map.getZoom(), { animate: false });
+        }
+      }
+    }, [markers, map, isMobile]);
+  
+    return null;
+  };
+
+  const ChangeView = ({ center, zoom, isMobile }) => {
+    const map = useMap();
+    useEffect(() => {
+      if (center) {
+        const constrainedZoom = Math.min(zoom || 12, 12);
+        
+        // For mobile, pan the view slightly down after setting it
+        map.setView(center, constrainedZoom);
+        
+        if (isMobile) {
+          // Pan down by ~10% of the map height
+          const offset = map.getSize().y * 0.5;
+          map.panBy([0, -offset], { animate: false });
+        }
+      }
+    }, [center, zoom, map, isMobile]);
+  
+    return null;
+  };
+  
+  const currentLocationIcon = new L.Icon({
+    iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+    // iconSize: [25, 41],
+    // iconAnchor: [12, 41],
+    // popupAnchor: [1, -34],
+    // shadowSize: [41, 41],
+    iconSize: isMobile? [14, 24] : [20, 35],
+    iconAnchor: isMobile? [10, 39] : [12, 41],
+    popupAnchor: isMobile? [0, -28] : [1, -34],
+    shadowSize: isMobile? [0, 0] : [30, 30],
+  });
 
   // Extract marker positions from stations
   const markerPositions = stations.map((station) => [
@@ -170,7 +189,15 @@ const FloodPredictionMap = ({
       width: "100%",
       height: "100%",
       // borderRadius: "12px",
-      position: 'relative',
+      // position: 'relative',
+      padding: 0,
+    margin: 0,
+    // Ensure the container takes full viewport width on mobile
+    ...(isMobile && {
+      position: "fixed",
+      left: 0,
+      right: 0
+    })
     }}
   >
     <MapContainer
@@ -199,7 +226,7 @@ const FloodPredictionMap = ({
           minZoom={5} // Only show labels when zoomed in to level 10 or higher
         />
 
-        <ChangeView center={mapCenter} zoom={zoomLevel} />
+<ChangeView center={mapCenter} zoom={zoomLevel} isMobile={isMobile} />
 
         {stations.map((station, index) => (
           <Marker
@@ -246,7 +273,7 @@ const FloodPredictionMap = ({
           </Marker>
         )}
 
-        <FitBounds markers={markerPositions} />
+<FitBounds markers={markerPositions} isMobile={isMobile} />
       </MapContainer>
 
       {/* Gradient overlay */}

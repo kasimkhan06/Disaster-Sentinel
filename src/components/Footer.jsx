@@ -2,9 +2,33 @@ import React from "react";
 import { Box, Container, Link, Typography, List, ListItem, ListItemText } from "@mui/material";
 import { Facebook, Twitter, Instagram, LinkedIn } from "@mui/icons-material";
 import Grid from "@mui/material/Grid2";
+import { useLocation } from "react-router-dom";
 
 const Footer = () => {
   console.log("Footer is rendering!");
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const links = [
+    { 
+      path: "/current-location", 
+      label: "Location Information",
+      alternateLabel: "Home",
+      alternatePath: "/"
+    },
+    { 
+      path: "/missingPersonPortal", 
+      label: "Report Missing Person",
+      alternateLabel: "Home",
+      alternatePath: "/"
+    },
+    { 
+      path: "/agencies", 
+      label: "Agency Information",
+      alternateLabel: "Home",
+      alternatePath: "/"
+    }
+  ];
+
   return (
     <Box
       component="footer"
@@ -22,39 +46,20 @@ const Footer = () => {
             sx={{ textAlign: "center" }}
           >
             <Box display="flex" flexDirection={"row"} justifyContent="center" mb={2} sx={{ fontSize: {xs: "0.8rem", sm: "0.8rem", md: "1rem"},}}>
-              <Link
-                href="/current-location"
-                color="inherit"
-                underline="hover"
-                display="block"
-                sx={{
-                    px: { xs: 1, sm: 1, md: 2 }  // Corrected responsive padding syntax
+            {links.map((link) => (
+                <Link
+                  key={link.path}
+                  href={currentPath == link.path ? link.alternatePath : link.path}
+                  color="inherit"
+                  underline="hover"
+                  display="block"
+                  sx={{
+                    px: { xs: 1, sm: 1, md: 2 }
                   }}
-              >
-                 Location Information
-              </Link>
-              <Link
-                href="/MissingPersonPortal" 
-                color="inherit"
-                underline="hover"
-                display="block"
-                sx={{
-                    px: { xs: 1, sm: 1, md: 2 }  // Corrected responsive padding syntax
-                  }}
-              >
-                Report Missing Person
-              </Link>
-              <Link
-                href="/Agencies"
-                color="inherit"
-                underline="hover"
-                display="block"
-                sx={{
-                    px: { xs: 1, sm: 1, md: 2 }  // Corrected responsive padding syntax
-                  }}
-              >
-                Agency Information
-              </Link>
+                >
+                  {currentPath === link.path ? link.alternateLabel : link.label}
+                </Link>
+              ))}
             </Box>
           </Grid>
         </Grid>
