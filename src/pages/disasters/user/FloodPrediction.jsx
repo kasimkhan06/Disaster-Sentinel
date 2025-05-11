@@ -199,8 +199,8 @@ const FloodPrediction = () => {
         overflow: "hidden",
       }}
     >
-      <Box sx={{position: "relative",
-            zIndex: 1,backgroundColor: "rgba(255, 255, 255, 0.93)",   backdropFilter: "blur(2px)",}}>
+    <Box sx={{position: {xs:"relative", sm:"relative",md:"static"},
+            zIndex: 1,backgroundColor: isMobileOrTablet? "rgba(255, 255, 255, 0.93)" : "transparent",   backdropFilter: isMobileOrTablet? "blur(2px)": "none",}}>
         <Typography
           align="center"
           sx={{
@@ -315,7 +315,7 @@ const FloodPrediction = () => {
                       },
                       "& .MuiInputBase-input": {
                         fontSize: {
-                          xs: "0.7rem",
+                          xs: "0.8rem",
                           sm: "0.8rem",
                           md: isBelow ? "0.9rem" : "1rem",
                           lg: isBelow ? "0.9rem" : "1rem",
@@ -387,7 +387,7 @@ const FloodPrediction = () => {
                       },
                       "& .MuiInputBase-input": {
                         fontSize: {
-                          xs: "0.7rem",
+                          xs: "0.8rem",
                           sm: "0.8rem",
                           md: isBelow ? "0.9rem" : "1rem",
                           lg: isBelow ? "0.9rem" : "1rem",
@@ -428,7 +428,7 @@ const FloodPrediction = () => {
                   backgroundColor: "transparent",
                 },
                 width: { xs: "50%", sm: "40%", md: "60%", lg: "100%" },
-                fontSize: {xs: "0.775rem", sm: "0.775rem", md: "0.875rem"},
+                fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"},
                 fontWeight: {xs: 700, sm: 700, md: 500},
               }}
             >
@@ -443,7 +443,7 @@ const FloodPrediction = () => {
       <Box
         sx={{
           flex: 1,
-          position: "absolute",
+          position: {xs:"absolute", sm:"absolute", md:"relative"},
           marginX: "auto",
           alignSelf: "center",
           mx:{xs: 0, sm: 0, md: 3},

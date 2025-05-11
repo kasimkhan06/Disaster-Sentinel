@@ -322,7 +322,7 @@ const Agencies = () => {
                     },
                     "& .MuiInputBase-input": {
                       fontSize: {
-                        xs: "0.7rem",
+                        xs: "0.8rem",
                         sm: "0.8rem",
                         md: isBelow ? "0.9rem" : "1rem",
                         lg: isBelow ? "0.9rem" : "1rem",
@@ -407,7 +407,7 @@ const Agencies = () => {
                     },
                     "& .MuiInputBase-input": {
                       fontSize: {
-                        xs: "0.7rem",
+                        xs: "0.8rem",
                         sm: "0.8rem",
                         md: isBelow ? "0.9rem" : "1rem",
                         lg: isBelow ? "0.9rem" : "1rem",
@@ -466,7 +466,7 @@ const Agencies = () => {
                 backgroundColor: "transparent",
               },
               width: { xs: "50%", sm: "40%", md: "60%", lg: "100%" },
-               fontSize: {xs: "0.775rem", sm: "0.775rem", md: "0.875rem"},
+               fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"},
             }}
           >
             Clear Filters
@@ -594,7 +594,7 @@ const Agencies = () => {
                             <Typography
                               variant="body1"
                               fontWeight="500"
-                              sx={{ fontSize: {xs: "0.775rem", sm: "0.775rem", md: "0.875rem"} }}
+                              sx={{ fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"} }}
                             >
                               {agency?.name ||
                                 agency?.agency_name ||
@@ -617,7 +617,7 @@ const Agencies = () => {
                         <Box>
                           <Typography
                             variant="body1"
-                            sx={{ fontSize: {xs: "0.775rem", sm: "0.775rem", md: "0.875rem"} }}
+                            sx={{ fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"} }}
                           >
                             {agency?.city ||
                               agency?.district ||
