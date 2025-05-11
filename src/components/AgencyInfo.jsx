@@ -44,11 +44,11 @@ return (
                 onChange={(e) => updateFormState({...formData, agency_name: e.target.value})}
                 error={!!errors.agency_name}
                 helperText={errors.agency_name}
-                sx = {{width: {xs:"100%", sm: "95%"}, marginX: "20px"}} 
+                sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}} 
                 InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
             />
         </Grid>
-        <Grid item xs={6} sx={{ marginTop: "14px" }}>
+        <Grid item xs={12} md={6} sx={{ marginTop: "14px" }}>
             <TextField
                 fullWidth
                 variant="standard"
@@ -64,23 +64,18 @@ return (
                 error={!!errors.date_of_establishment}
                 helperText={errors.date_of_establishment}
                 InputLabelProps={{shrink: true, style: { fontSize: '1.2rem' } }}
-                sx = {{width: {xs:"100%", sm: "90%"}, marginX: "20px"}}
+                sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}}
             />
         </Grid>
-        <Grid item xs={6} sx={{ marginTop: "10px" }}>
+        <Grid item xs={12} md={6} sx={{ marginTop: "10px" }}>
             {agencyTypeValue !== "Other" ? (
                 <>
                 <InputLabel sx={{ fontSize: '0.9rem', width: { xs: "100%", sm: "90%" }, marginX: "10px" }}>
                     Agency Type <span style={{ color: "red" }}>*</span>
                 </InputLabel>
-                <FormControl fullWidth variant="outlined" sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}>
+                <FormControl fullWidth variant="outlined" sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}}>
                     <Select
                     variant="standard"
-                    label={
-                        <span>
-                          Contact Number #1 <span style={{ color: 'red' }}>*</span>
-                        </span>
-                    }
                     value={agencyTypeValue}
                     onChange={handleAgencyTypeChange}
                     >
@@ -111,12 +106,12 @@ return (
                     error={!!errors.agency_type}
                     helperText={errors.agency_type}
                     InputLabelProps={{ style: { fontSize: '0.9rem' } }}
-                    sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px", marginTop: "2px" }}   
+                    sx={{ width: { xs: "95%", sm: "95%" }, marginX: {xs: "10px", md: "20px"}, marginTop: "2px" }}   
                 />
                 </>
             )}
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
             <TextField
                 fullWidth
                 label={
@@ -131,10 +126,10 @@ return (
                 error={!!errors.contact1}
                 helperText={errors.contact1}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "20px" }}
+                sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}}
             />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
             <TextField
                 fullWidth
                 label="Contact Number #2"
@@ -144,10 +139,10 @@ return (
                 onChange={(e) => updateFormState({...formData, ccontact2: e.target.value})}
                 helperText={errors.contact2}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "10px" }}
+                sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}}
             />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
             <TextField
                 fullWidth
                 label={
@@ -162,10 +157,10 @@ return (
                 error={!!errors.website}
                 helperText={errors.website}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "20px" }}
+                sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}}
             />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
             <TextField
                 fullWidth
                 label='Number Of Volunteers'
@@ -175,10 +170,10 @@ return (
                 value={formData.volunteers}
                 onChange={(e) => updateFormState({...formData, volunteers: e.target.value})}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "10px" }}
+                sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}}
             />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
             <StateDistrictDropdown 
                 formData={formData}
                 selectedState={selectedState} 
@@ -188,7 +183,7 @@ return (
                 setSelectedDistrict={setSelectedDistrict}
             />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
             <TextField
                 fullWidth
                 label={
@@ -203,7 +198,7 @@ return (
                 error={!!errors.address}
                 helperText={errors.address}
                 InputLabelProps={{ style: { fontSize: '0.9rem'} }}
-                sx={{ width: {xs:"100%", sm: "90%"}, marginX: "10px" }}
+                sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}}
             />
         </Grid>
     </Grid>

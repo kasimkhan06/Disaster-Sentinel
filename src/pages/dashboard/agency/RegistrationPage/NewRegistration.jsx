@@ -3,19 +3,20 @@ import React, { useState, useEffect } from "react";
 
 // MUI Components
 import {
-    Typography,
-    Container,
-    CssBaseline,
-    Box,
-    Button,
-    Card,
-    Stepper,
-    Step,
-    StepLabel,
-    Grid,
-    TextareaAutosize as Textarea,
+  Typography,
+  Container,
+  CssBaseline,
+  Box,
+  Button,
+  Card,
+  Stepper,
+  Step,
+  StepLabel,
+  Grid,
+  TextareaAutosize as Textarea,
 } from "@mui/material";
 import TextareaAutosize from "@mui/material/TextareaAutosize";
+import { useMediaQuery } from "@mui/material";
 
 // Custom Components
 import AgencyInfo from "../../../../components/AgencyInfo";
@@ -98,6 +99,11 @@ const RegistrationForm = ({ setSuccess }) => {
   const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const isTablet = useMediaQuery("(min-width:600px) and (max-width:900px)");
+  const isDesktop = useMediaQuery("(min-width:900px)");
+  const isLargeDesktop = useMediaQuery("(min-width:1200px)");
 
   const navigate = useNavigate();
 
@@ -202,10 +208,11 @@ const RegistrationForm = ({ setSuccess }) => {
   };
 
   return (
-    <Box 
+    <Box
       sx={{
-        position: "absolute",
-        width: "100%", 
+        position: "fixed",
+        width: "100vw",
+        height: "100vh",
         top: 0,
         left: 0,
         right: 0,
@@ -217,49 +224,67 @@ const RegistrationForm = ({ setSuccess }) => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        backgroundRepeat: "repeat-y",
+        backgroundRepeat: "no-repeat",
         margin: 0,
         padding: 0,
-        zIndex: 0, // Only needed if you have other elements with zIndex
-      }}>
-      <Box sx={{ mt: 15, mb: 4, marginX:"auto", width: "70%", display:"flex", alignContent:"center", flexDirection:"column", }}>
-      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+        zIndex: -1,
+      }}
+    >
+      <Box sx={{ mt: { xs: 15, md: 15 }, mb: { xs: 2, md: 4 }, mx: "auto", width: { xs: "90%", md: "70%" }, display: "flex", flexDirection: "column" }}>
+        <Stepper activeStep={activeStep} sx={{ mb: { xs: 2, md: 4 } }}>
+          {isMobile ? (
+            <Step 
+              key={steps[activeStep]}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+                width: "100%"
+              }}
+            >
+              <StepLabel>
+                {steps[activeStep]}
+              </StepLabel>
+            </Step>
+          ) : (
+            steps.map((label, index) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))
+          )}
+        </Stepper>
 
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        {activeStep === 0 && (
-          <Grid item xs={12} sx={{ marginTop: "10px" }}>
-            <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
-              <AgencyInfo
-                formData={formData} 
-                errors={errors}  
-                agencyTypeValue={agencyTypeValue} 
-                selectedState={selectedState} 
-                selectedDistrict={selectedDistrict}
-                updateFormState={updateFormState} 
-                setFormData={setFormData}
-                handleAgencyTypeChange={handleAgencyTypeChange} 
-                setSelectedState={setSelectedState}
-                setSelectedDistrict={setSelectedDistrict}
-              />
-            </Card>
-          </Grid>
-        )}
+        <Grid container spacing={3} sx={{ mb: { xs: 2, md: 3 } }}>
+          {activeStep === 0 && (
+            <Grid item xs={12} sx={{ marginTop: "10px" }}>
+              <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
+                <AgencyInfo
+                  formData={formData}
+                  errors={errors}
+                  agencyTypeValue={agencyTypeValue}
+                  selectedState={selectedState}
+                  selectedDistrict={selectedDistrict}
+                  updateFormState={updateFormState}
+                  setFormData={setFormData}
+                  handleAgencyTypeChange={handleAgencyTypeChange}
+                  setSelectedState={setSelectedState}
+                  setSelectedDistrict={setSelectedDistrict}
+                />
+              </Card>
+            </Grid>
+          )}
 
-        {activeStep === 1 && (
-          <Grid item xs={12}>
-            <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
-              <TextareaAutosize
-                minRows={4}
-                placeholder="Give a detailed description about the agency"
-                value={formData.description}
-                onChange={(e) => updateFormState({ description: e.target.value })}
-                style={{
+          {activeStep === 1 && (
+            <Grid item xs={12}>
+              <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
+                <TextareaAutosize
+                  minRows={4}
+                  placeholder="Give a detailed description about the agency"
+                  value={formData.description}
+                  onChange={(e) => updateFormState({ description: e.target.value })}
+                  style={{
                     width: '100%',
                     resize: 'none',
                     padding: '8px 12px',
@@ -270,83 +295,96 @@ const RegistrationForm = ({ setSuccess }) => {
                     color: '#1C2025',
                     backgroundColor: '#fff',
                     outline: 'none',
-                }}
-              />
+                  }}
+                />
                 {errors.description && <Typography color="error">{errors.description}</Typography>}
-                <Typography 
-                variant="body2" 
-                gutterBottom 
-                sx={{ mt: 1, color: "grey", textAlign: "justify", fontSize: "0.6rem", lineHeight: "1.5", fontStyle: "italic" }}
+                <Typography
+                  variant="body2"
+                  gutterBottom
+                  sx={{ mt: 1, color: "grey", textAlign: "justify", fontSize: "0.6rem", lineHeight: "1.5", fontStyle: "italic" }}
                 >
-                Please ensure that the agency description includes the following key points:<br />
-                1. The heading must begin with three hashtags (<strong>###</strong>).<br />
-                2. Bullet points must be enclosed within asterisks (<strong>*</strong>).<br />
-                <br />
-                <strong>The description should cover:</strong><br />
-                1. <strong>Core Activities:</strong> Explain the Agency's primary focus areas, such as <em>education, healthcare, disaster relief, livelihood support, or environmental conservation</em>.<br />
-                2. <strong>Major Initiatives & Projects:</strong> Mention any <em>flagship programs, partnerships, or government collaborations</em> that have significantly impacted society.<br />
-                3. <strong>Disaster & Humanitarian Response:</strong> Highlight their <em>role during natural disasters, pandemics, or crises</em>, specifying the type of aid provided (<em>food, shelter, medical assistance, financial support, etc.</em>).<br />
-                4. <strong>Community Impact:</strong> Discuss how the Agency has <em>positively influenced individuals, families, or larger communities</em>, citing any measurable improvements in quality of life.
+                  Please ensure that the agency description includes the following key points:<br />
+                  1. The heading must begin with three hashtags (<strong>###</strong>).<br />
+                  2. Bullet points must be enclosed within asterisks (<strong>*</strong>).<br />
+                  <br />
+                  <strong>The description should cover:</strong><br />
+                  1. <strong>Core Activities:</strong> Explain the Agency's primary focus areas, such as <em>education, healthcare, disaster relief, livelihood support, or environmental conservation</em>.<br />
+                  2. <strong>Major Initiatives & Projects:</strong> Mention any <em>flagship programs, partnerships, or government collaborations</em> that have significantly impacted society.<br />
+                  3. <strong>Disaster & Humanitarian Response:</strong> Highlight their <em>role during natural disasters, pandemics, or crises</em>, specifying the type of aid provided (<em>food, shelter, medical assistance, financial support, etc.</em>).<br />
+                  4. <strong>Community Impact:</strong> Discuss how the Agency has <em>positively influenced individuals, families, or larger communities</em>, citing any measurable improvements in quality of life.
                 </Typography>
-            </Card>
-          </Grid>
-        )}
-
-        {activeStep === 2 && (
-          <Grid item xs={12}>
-            <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
-              <Typography variant="h6" sx={{ textAlign: "start", mb: 1, color: "black" }}>
-                Upload Images
-              </Typography>
-              <Typography 
-                variant="body2" 
-                gutterBottom 
-                sx={{ color: "grey", textAlign: "justify", fontSize: "0.6rem", lineHeight: "1.5", fontStyle: "italic" }}
-              >
-                Please upload images that showcase the agency's activities, volunteers, and any other relevant aspects.
-                <br />
-                <strong>Note:</strong><br />
-                1. First image will be used as the <strong>BANNER</strong> for the agency.<br />
-                2. Second image will be used as the <strong>PROFILE PICTURE</strong> for the agency.<br />
-                3. The images should be clear and of high quality to ensure they are suitable for display on the website.<br />
-                </Typography>
-              <ImageUpload images={images} setImages={setImages} />
-              {errors.images && <Typography color="error">{errors.images}</Typography>}
-            </Card>
-          </Grid>
-        )}
-
-        {activeStep === 3 && (
-          <Grid container justifyContent="center" sx={{ marginTop: "20px" }}>
-            <Grid item xs={12} sm={10} md={8} lg={8}>
-              <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
-                <MapLeaflet markers={markers} setMarkers={setMarkers} />
-                {errors.location && (
-                  <Typography color="error" textAlign="center" mt={2}>
-                    {errors.location}
-                  </Typography>
-                )}
               </Card>
             </Grid>
-          </Grid>        
-        )}
-      </Grid>
+          )}
 
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Button disabled={activeStep === 0} onClick={handleBack}>
-          Back
-        </Button>
-        {activeStep === steps.length - 1 ? (
-          <Button variant="contained" onClick={handleSubmit}>
-            Submit
+          {activeStep === 2 && (
+            <Grid item xs={12}>
+              <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
+                <Typography variant="h6" sx={{ textAlign: "start", mb: 1, color: "black" }}>
+                  Upload Images
+                </Typography>
+                <Typography
+                  variant="body2"
+                  gutterBottom
+                  sx={{ color: "grey", textAlign: "justify", fontSize: "0.6rem", lineHeight: "1.5", fontStyle: "italic" }}
+                >
+                  Please upload images that showcase the agency's activities, volunteers, and any other relevant aspects.
+                  <br />
+                  <strong>Note:</strong><br />
+                  1. First image will be used as the <strong>BANNER</strong> for the agency.<br />
+                  2. Second image will be used as the <strong>PROFILE PICTURE</strong> for the agency.<br />
+                  3. The images should be clear and of high quality to ensure they are suitable for display on the website.<br />
+                </Typography>
+                <ImageUpload images={images} setImages={setImages} />
+                {errors.images && <Typography color="error">{errors.images}</Typography>}
+              </Card>
+            </Grid>
+          )}
+
+          {activeStep === 3 && (
+            <Grid container justifyContent="center" sx={{ marginTop: "20px" }}>
+              <Grid item xs={12} sm={10} md={8} lg={8}>
+                <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
+                  <MapLeaflet markers={markers} setMarkers={setMarkers} />
+                  {errors.location && (
+                    <Typography color="error" textAlign="center" mt={2}>
+                      {errors.location}
+                    </Typography>
+                  )}
+                </Card>
+              </Grid>
+            </Grid>
+          )}
+        </Grid>
+
+        {/* Navigation Buttons */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: { xs: 2, md: 3 } }}>
+          <Button
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            sx={{ fontSize: { xs: "0.8rem", md: "1rem" } }}
+          >
+            Back
           </Button>
-        ) : (
-          <Button variant="contained" onClick={handleNext}>
-            Next
-          </Button>
-        )}
+          {activeStep === steps.length - 1 ? (
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              sx={{ fontSize: { xs: "0.8rem", md: "1rem" } }}
+            >
+              Submit
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              sx={{ fontSize: { xs: "0.8rem", md: "1rem" } }}
+            >
+              Next
+            </Button>
+          )}
+        </Box>
       </Box>
-    </Box>
     </Box>
   );
 };

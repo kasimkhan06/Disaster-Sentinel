@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useMediaQuery } from "@mui/material";
 
 // MUI Components
 import {
@@ -51,8 +52,7 @@ const platforms = ["Zoom", "Google Meet", "Microsoft Teams", "Webex"];
 const regTypes = ["Free", "Paid"];
 const disasterTags = [
   "Disaster Preparedness", "Emergency Response", "Risk Assessment", "Flood Management",
-  "Earthquake Preparedness", "Evacuation Planning", "Climate Resilience", "Crisis Communication",
-  "Search and Rescue", "Humanitarian Aid"
+  "Earthquake Preparedness", "Evacuation Planning", "Climate Resilience", "Humanitarian Aid"
 ];
 
 export default function EventFormWithStepper() {
@@ -69,6 +69,8 @@ export default function EventFormWithStepper() {
   const navigate = useNavigate();
   const location = useLocation();
   const formatTime = (time) => (time.length === 5 ? time + ":00" : time);
+  const isMobile = useMediaQuery("(max-width:600px)");
+
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -313,8 +315,9 @@ export default function EventFormWithStepper() {
   return (
     <Box
       sx={{
-        position: "absolute",
-        width: "100%",
+        position: "fixed",
+        width: "100vw",
+        height: "100vh",
         top: 0,
         left: 0,
         right: 0,
@@ -326,19 +329,36 @@ export default function EventFormWithStepper() {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        backgroundRepeat: "repeat-y",
+        backgroundRepeat: "no-repeat",
         margin: 0,
         padding: 0,
         zIndex: 0,
       }}>
-      <Box sx={{ mt: 15, mb: 4, marginX: "auto", width: "70%", display: "flex", alignContent: "center", flexDirection: "column", }}>
+      <Box sx={{ mt: { xs: 15, md: 15 }, mb: { xs: 2, md: 4 }, mx: "auto", width: { xs: "90%", md: "70%" }, display: "flex", flexDirection: "column" }}>
         {/* Stepper Component */}
-        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-          {steps.map((label, index) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
+        <Stepper activeStep={activeStep} sx={{ mb: { xs: 2, md: 4 } }}>
+          {isMobile ? (
+            <Step
+              key={steps[activeStep]}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+                width: "100%"
+              }}
+            >
+              <StepLabel>
+                {steps[activeStep]}
+              </StepLabel>
             </Step>
-          ))}
+          ) : (
+            steps.map((label, index) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))
+          )}
         </Stepper>
 
         {/* Step Content */}
@@ -348,12 +368,12 @@ export default function EventFormWithStepper() {
           </Box>
         ) : (
           <>
-            <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid container spacing={3} sx={{ mb: { xs: 2, md: 3 } }}>
 
               {/* Basic Info Step */}
               {activeStep === 0 && (
                 <Grid item xs={12} sx={{ marginTop: "20px" }}>
-                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                  <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
                     {/* Event Name & Event Type */}
                     <Grid container spacing={3}>
                       {/* Event Name */}
@@ -371,7 +391,8 @@ export default function EventFormWithStepper() {
                           error={!!errors.name}
                           helperText={errors.name}
                           InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                          sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
+
                         />
                       </Grid>
 
@@ -381,7 +402,8 @@ export default function EventFormWithStepper() {
                           fullWidth
                           variant="standard"
                           error={!!errors.event_type}
-                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                          sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
+
                         >
                           <InputLabel sx={{ fontSize: '0.9rem' }}>
                             Event Type <span style={{ color: "red" }}>*</span>
@@ -403,7 +425,7 @@ export default function EventFormWithStepper() {
 
                     {/* Date & Time */}
                     <Grid container spacing={3} sx={{ marginTop: "20px" }}>
-                      <Grid item xs={12} sm={6} md={3}>
+                      <Grid item xs={12} sm={6} md={6}>
                         <TextField
                           fullWidth
                           type="date"
@@ -417,11 +439,12 @@ export default function EventFormWithStepper() {
                           error={!!errors.date}
                           helperText={errors.date}
                           InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
-                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                          sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "5px", md: "20px" } }}
+
                         />
                       </Grid>
 
-                      <Grid item xs={12} sm={6} md={3}>
+                      <Grid item xs={12} sm={6} md={6}>
                         <TextField
                           fullWidth
                           type="time"
@@ -435,7 +458,8 @@ export default function EventFormWithStepper() {
                           error={!!errors.start_time}
                           helperText={errors.start_time}
                           InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
-                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "10px" }}
+                          sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "5px", md: "20px" } }}
+
                         />
                       </Grid>
                     </Grid>
@@ -490,7 +514,7 @@ export default function EventFormWithStepper() {
                         <Grid container spacing={3} sx={{ marginTop: "10px" }}>
                           {/* Event Platform */}
                           <Grid item xs={12} md={6}>
-                            <FormControl fullWidth variant="standard" sx={{ width: { xs: "100%", sm: "92%" }, marginX: "20px" }} error={!!errors.platform}>
+                            <FormControl fullWidth variant="standard" sx={{ width: { xs: "100%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }} error={!!errors.platform}>
                               <InputLabel sx={{ fontSize: "0.9rem", width: { xs: "100%", sm: "95%" } }}>
                                 Platform <span style={{ color: "red" }}>*</span>
                               </InputLabel>
@@ -522,7 +546,7 @@ export default function EventFormWithStepper() {
                               onChange={(e) => updateFormState({ ...formData, meeting_link: e.target.value })}
                               error={!!errors.meeting_link}
                               helperText={errors.meeting_link}
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
+                              sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -541,7 +565,7 @@ export default function EventFormWithStepper() {
                             onChange={(e) => updateFormState({ ...formData, meeting_id: e.target.value })}
                             error={!!errors.meeting_id}
                             helperText={errors.meeting_id}
-                            sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
+                            sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
                             InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                           />
                         </Grid>
@@ -563,7 +587,7 @@ export default function EventFormWithStepper() {
                               onChange={(e) => updateFormState({ ...formData, venue_name: e.target.value })}
                               error={!!errors.venue_name}
                               helperText={errors.venue_name}
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
+                              sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -582,7 +606,7 @@ export default function EventFormWithStepper() {
                               onChange={(e) => updateFormState({ ...formData, address: e.target.value })}
                               error={!!errors.address}
                               helperText={errors.address}
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
+                              sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -603,7 +627,7 @@ export default function EventFormWithStepper() {
                               onChange={(e) => updateFormState({ ...formData, district: e.target.value })}
                               error={!!errors.district}
                               helperText={errors.district}
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
+                              sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -621,7 +645,7 @@ export default function EventFormWithStepper() {
                               onChange={(e) => updateFormState({ ...formData, state: e.target.value })}
                               error={!!errors.state}
                               helperText={errors.state}
-                              sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
+                              sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
                               InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                             />
                           </Grid>
@@ -635,7 +659,7 @@ export default function EventFormWithStepper() {
               {/* Details Step */}
               {activeStep === 2 && (
                 <Grid item xs={12} sx={{ marginTop: "20px" }}>
-                  <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
+                  <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
                     <Grid item xs={12} md={12} sx={{ marginTop: "5px", marginX: "20px" }}>
                       <TextareaAutosize
                         minRows={4}
@@ -666,13 +690,13 @@ export default function EventFormWithStepper() {
                           variant="standard"
                           value={formData.attendees}
                           onChange={(e) => updateFormState({ ...formData, attendees: e.target.value })}
-                          sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }}
+                          sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
                           InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                         />
                       </Grid>
 
                       <Grid item xs={12} md={6}>
-                        <FormControl fullWidth variant="standard" sx={{ width: { xs: "100%", sm: "90%" }, marginX: "20px" }} error={!!errors.eventType}>
+                        <FormControl fullWidth variant="standard" sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }} error={!!errors.eventType}>
                           <InputLabel sx={{ fontSize: '0.9rem', width: { xs: "100%", sm: "90%" } }}>
                             Registration Type <span style={{ color: 'red' }}>*</span>
                           </InputLabel>
@@ -690,8 +714,8 @@ export default function EventFormWithStepper() {
                       </Grid>
                     </Grid>
 
-                    <Grid container spacing={3} sx={{ marginTop: "25px" }}>
-                      <Grid item xs={12} md={12} sx={{ marginX: "20px" }}>
+                    <Grid container spacing={3} sx={{ marginTop: "15px" }}>
+                      <Grid item xs={12} md={12} sx={{ marginX: "10px" }}>
                         <Controller
                           name="tags"
                           control={control}
@@ -702,7 +726,7 @@ export default function EventFormWithStepper() {
                               </FormLabel>
                               <Paper
                                 elevation={1}
-                                sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2, width: { xs: "100%", sm: "96%" } }}
+                                sx={{ p: 2, backgroundColor: "grey.50", borderRadius: 2, width: { xs: "90%", sm: "96%" } }}
                               >
                                 <Box display="flex" flexWrap="wrap" gap={1}>
                                   {disasterTags.map((tag) => (
@@ -730,8 +754,21 @@ export default function EventFormWithStepper() {
               {/* Timeline Step */}
               {activeStep === 3 && (
                 <>
-                  <Box sx={{ px: { xs: 2, md: 4 }, py: 3, maxWidth: "1000px", minWidth: "600px", mx: "auto", mt: 5, mb: 2, borderRadius: 3, boxShadow: 3, bgcolor: "background.paper" }}>
-                    <Typography variant="h6" fontWeight="600" color="text.primary" mb={2}>
+                  <Box
+                    sx={{
+                      px: { xs: 2, md: 4 },
+                      py: { xs: 2, md: 3 },
+                      width: "85%",
+                      maxWidth: { xs: "100%", md: "1000px" },
+                      marginLeft: "auto",
+                      mt: { xs: 5, md: 5 },
+                      mb: 2,
+                      borderRadius: 3,
+                      boxShadow: 3,
+                      bgcolor: "background.paper",
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="600" color="text.primary" mb={2} sx={{ fontSize: { xs: "1.2rem", md: "1.5rem" } }}>
                       Event Timeline
                     </Typography>
                     <Typography variant="body2" color="text.secondary" mb={3}>
@@ -743,11 +780,17 @@ export default function EventFormWithStepper() {
                         <Paper
                           key={index}
                           elevation={2}
-                          sx={{ p: 3, borderRadius: 2, border: "1px solid", borderColor: "grey.500", bgcolor: "background.paper" }}
+                          sx={{
+                            p: { xs: 2, md: 3 },
+                            borderRadius: 2,
+                            border: "1px solid",
+                            borderColor: "grey.500",
+                            bgcolor: "background.paper",
+                          }}
                         >
-                          <Grid container spacing={3} alignItems="center">
-                            <Grid item xs={6} md={6}>
-                              <Typography variant="body1" fontWeight={600} color="text.primary">
+                          <Grid container spacing={2} alignItems="center">
+                            <Grid item xs={12} sm={6} md={5}>
+                              <Typography variant="body1" fontWeight={600} color="text.primary" mb={1}>
                                 Time
                               </Typography>
                               <TextField
@@ -755,13 +798,13 @@ export default function EventFormWithStepper() {
                                 type="time"
                                 value={item.time}
                                 onChange={(e) => handleUpdateItem(index, "time", e.target.value)}
-                                InputLabelProps={{ shrink: true, style: { fontSize: '1.2rem' } }}
-                                sx={{ width: { xs: "80%", sm: "75%" } }}
+                                InputLabelProps={{ shrink: true }}
+                                sx={{ width: "100%" }}
                               />
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
-                              <Typography variant="body1" fontWeight={600} color="text.primary">
+                            <Grid item xs={12} sm={6} md={6}>
+                              <Typography variant="body1" fontWeight={600} color="text.primary" mb={1}>
                                 Activity Description
                               </Typography>
                               <TextField
@@ -769,10 +812,11 @@ export default function EventFormWithStepper() {
                                 placeholder="Enter activity description"
                                 value={item.activity}
                                 onChange={(e) => handleUpdateItem(index, "activity", e.target.value)}
+                                sx={{ width: "100%" }}
                               />
                             </Grid>
 
-                            <Grid item xs={12} md={1} display="flex" justifyContent="center" alignItems="center">
+                            <Grid item xs={12} sm={1} display="flex" justifyContent="center" alignItems="center">
                               {timeline_items.length > 1 && (
                                 <IconButton color="error" onClick={() => handleRemoveItem(index)}>
                                   <Delete />
@@ -784,7 +828,7 @@ export default function EventFormWithStepper() {
                       ))}
                     </Box>
 
-                    <Box display="flex" justifyContent="start" mt={3}>
+                    <Box display="flex" justifyContent={{ xs: "center", md: "start" }} mt={3}>
                       <Button
                         variant="contained"
                         startIcon={<Add />}
@@ -794,6 +838,8 @@ export default function EventFormWithStepper() {
                           bgcolor: "primary.main",
                           color: "white",
                           "&:hover": { bgcolor: "primary.dark" },
+                          fontSize: { xs: "0.8rem", md: "1rem" },
+                          px: { xs: 2, md: 3 },
                         }}
                       >
                         Add Activity

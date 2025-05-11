@@ -2,24 +2,24 @@
 import React, { useState, useEffect } from "react";
 
 // MUI Components
-import { 
-  Typography, 
-  Box, 
-  Grid, 
-  Button, 
-  Modal, 
-  TextField, 
-  IconButton, 
-  TextareaAutosize as Textarea, 
+import {
+  Typography,
+  Box,
+  Grid,
+  Button,
+  Modal,
+  TextField,
+  IconButton,
+  TextareaAutosize as Textarea,
   CircularProgress
 } from "@mui/material";
 
 import {
-  Person, 
-  CalendarToday, 
+  Person,
+  CalendarToday,
   LocationOn,
-  Visibility, 
-  Phone, 
+  Visibility,
+  Phone,
   Edit,
 } from "@mui/icons-material";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -50,15 +50,15 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
     });
   };
 
-  const [isUpdating, setIsUpdating] = useState(false); 
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleSubmit = async (e, id) => {
     e.preventDefault();
     console.log("Submitting:", formData);
-  
+
     try {
       setIsUpdating(true);
-  
+
       const Data = new FormData();
       if (mode === "description") {
         Data.append("description", formData.description);
@@ -68,15 +68,15 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
         Data.append("website", formData.website);
         Data.append("address", formData.address);
       }
-  
+
       const response = await axios.patch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${id}/`,
         Data,
         { withCredentials: true }
       );
-  
+
       console.log("Updation Success:", response.data);
-  
+
       fetchAgencyDetails(id);
       handleClose();
     } catch (error) {
@@ -84,7 +84,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
     } finally {
       setIsUpdating(false);
     }
-  };  
+  };
 
   const renderFields = () => {
     if (mode === "basicDetails") {
@@ -220,7 +220,7 @@ function Profile() {
   const [isLogin, setIsLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agency, setAgency] = useState(null);
-  const [editMode, setEditMode] = useState(""); 
+  const [editMode, setEditMode] = useState("");
   const [initialData, setInitialData] = useState({});
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -277,12 +277,18 @@ function Profile() {
   if (isLoading || !agency) return <Typography>Loading...</Typography>;
 
   return (
-    <Box sx={{ width: "100%", backgroundColor: "#f0f2f5", minHeight: "100vh", pb: 8 }}>
+    <Box
+      sx={{
+        width: "100%",
+        backgroundColor: "#f0f2f5",
+        pb: { xs: 2, md: 8 },
+      }}
+    >
       {/* Banner */}
       <Box
         sx={{
           width: "100%",
-          height: 260,
+          height: { xs: 180, md: 260 },
           backgroundImage: `url(https://res.cloudinary.com/doxgltggk/${agency.images?.[0]?.image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -294,7 +300,7 @@ function Profile() {
         sx={{
           position: "relative",
           width: "100%",
-          minHeight: "100vh",
+          minHeight: "100vh", 
           background: `
             linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
             url(${worldMapBackground})
@@ -308,10 +314,10 @@ function Profile() {
         {/* Profile Card */}
         <Box
           sx={{
-            maxWidth: "1000px",
+            maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
             mx: "auto",
-            mt: -5,
-            p: 3,
+            mt: { xs: -3, md: -5 },
+            p: { xs: 2, md: 3, lg: 5 },
             backgroundColor: "white",
             borderRadius: 3,
             boxShadow: 3,
@@ -330,6 +336,8 @@ function Profile() {
                   color: "black",
                   textTransform: "uppercase",
                   letterSpacing: 1.5,
+                  fontSize: { xs: "1.2rem", md: "1.5rem" },
+                  textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)",
                 }}
               >
                 {agency.agency_name}
@@ -339,8 +347,8 @@ function Profile() {
                 src={agency.images?.[0]?.image ? `https://res.cloudinary.com/doxgltggk/${agency.images[1].image}` : "/assets/logo_image.webp"}
                 alt="Profile"
                 sx={{
-                  width: 180,
-                  height: 180,
+                  width: { xs: 120, md: 180 },
+                  height: { xs: 120, md: 180 },
                   borderRadius: "10px",
                   border: "2px solid #ccc",
                   objectFit: "cover",
@@ -349,57 +357,57 @@ function Profile() {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column", gap: 5, textAlign: "left", alignItems: "center", justifyContent: "center" }}>
+            <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, md: 5 }, textAlign: "left", alignItems: "center", justifyContent: "center" }}>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                 {[
-                { 
-                  label: "Name", 
-                  value: agency.agency_name, 
-                  icon: <Person fontSize="small" /> 
-                },
-                { 
-                  label: "Founded", 
-                  value: agency.date_of_establishment, 
-                  icon: <CalendarToday fontSize="small" /> 
-                },
-                {
+                  {
+                    label: "Name",
+                    value: agency.agency_name,
+                    icon: <Person fontSize="small" />
+                  },
+                  {
+                    label: "Founded",
+                    value: agency.date_of_establishment,
+                    icon: <CalendarToday fontSize="small" />
+                  },
+                  {
                     label: "Address",
                     value: `${agency.address}, ${agency.district}, ${agency.state}`,
                     icon: <LocationOn fontSize="small" />
-                },
-                { 
-                  label: "Contact", 
-                  value: agency.contact2 
-                    ? `${agency.contact1}, ${agency.contact2}` 
-                    : agency.contact1,
-                  icon: <Phone fontSize="small" /> 
-                },
-                {
-                  label: "Website",
-                  value: agency.website
-                    ? agency.website
-                    : "No website available",
-                  icon: <LanguageIcon fontSize="small" />
-                },              
-                { 
-                  label: "Volunteers", 
-                  value: agency.volunteers, 
-                  icon: <Visibility fontSize="small" /> 
-                },
+                  },
+                  {
+                    label: "Contact",
+                    value: agency.contact2
+                      ? `${agency.contact1}, ${agency.contact2}`
+                      : agency.contact1,
+                    icon: <Phone fontSize="small" />
+                  },
+                  {
+                    label: "Website",
+                    value: agency.website
+                      ? agency.website
+                      : "No website available",
+                    icon: <LanguageIcon fontSize="small" />
+                  },
+                  {
+                    label: "Volunteers",
+                    value: agency.volunteers,
+                    icon: <Visibility fontSize="small" />
+                  },
                 ].map((item, index) => (
-                <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                  {item.icon}
-                  <Typography sx={{ ml: 1, fontWeight: 600, minWidth: 120 }}>
-                  {item.label}:
-                  </Typography>
-                  <Typography sx={{ ml: 1, color: "text.secondary", wordBreak: "break-word" }}>
-                  {item.value}
-                  </Typography>
-                </Box>
+                  <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                    {item.icon}
+                    <Typography sx={{ ml: 1, fontWeight: 600, minWidth: 100, fontSize: { xs: "0.9rem", md: "1rem" } }}>
+                      {item.label}:
+                    </Typography>
+                    <Typography sx={{ ml: 1, color: "text.secondary", wordBreak: "break-word", fontSize: { xs: "0.8rem", md: "1rem" } }}>
+                      {item.value}
+                    </Typography>
+                  </Box>
                 ))}
               </Box>
             </Grid>
-            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}>  
+            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}>
               <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <Button
                   variant="outlined"
@@ -430,22 +438,22 @@ function Profile() {
         <Grid item xs={12}>
           <Box
             sx={{
-              maxWidth: "1000px",
+              maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
               mx: "auto",
-              mt: 4,
-              p: 3,
+              mt: 2,
+              p: { xs: 2, md: 3, lg: 5 },
               backgroundColor: "white",
               borderRadius: 3,
-              boxShadow: 2,
+              boxShadow: 3,
             }}
           >
             {/* <Typography variant="h6" fontWeight={600} mb={2}>
               Description
             </Typography> */}
-            <Typography sx={{ color: "text.secondary", whiteSpace: "pre-line" }}>
+            <Typography sx={{ color: "text.secondary", whiteSpace: "pre-line", fontSize: { xs: "0.8rem", md: "1rem" } }}>
               {agency.description || "No description available."}
             </Typography>
-            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}> 
+            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}>
               <Button
                 variant="outlined"
                 size="small"
@@ -470,17 +478,17 @@ function Profile() {
           </Box>
         </Grid>
 
-        <Grid item xs={12}> 
+        <Grid item xs={12}>
           {/* Images Section */}
           <Box
             sx={{
-              maxWidth: "1000px",
+              maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
               mx: "auto",
-              mt: 4,
-              p: 3,
+              mt: 2,
+              p: { xs: 2, md: 3, lg: 5 },
               backgroundColor: "white",
               borderRadius: 3,
-              boxShadow: 2,
+              boxShadow: 3,
             }}
           >
             {/* <Typography variant="h6" fontWeight={600} mb={2}>
@@ -489,27 +497,15 @@ function Profile() {
             <Box sx={{ my: 2 }}>
               <Carousel
                 responsive={{
-                  desktop: {
-                    breakpoint: { max: 3000, min: 1024 },
-                    items: 4,
-                  },
-                  tablet: {
-                    breakpoint: { max: 1024, min: 600 },
-                    items: 2,
-                  },
-                  mobile: {
-                    breakpoint: { max: 600, min: 0 },
-                    items: 1,
-                  },
+                  desktop: { breakpoint: { max: 3000, min: 1024 }, items: 4 },
+                  tablet: { breakpoint: { max: 1024, min: 600 }, items: 2 },
+                  mobile: { breakpoint: { max: 600, min: 0 }, items: 1 },
                 }}
                 ssr={true}
                 infinite={true}
                 autoPlay={true}
                 autoPlaySpeed={2000}
                 arrows={true}
-                containerClass="carousel-container"
-                additionalTransfrom={0}
-                style={{ padding: "0 20px" }}
               >
                 {agency.images?.map((imgObj, index) => (
                   <Box
@@ -519,7 +515,7 @@ function Profile() {
                     alt={`Agency Image ${index}`}
                     sx={{
                       width: "100%",
-                      height: 180,
+                      height: { xs: 120, md: 180 },
                       borderRadius: 2,
                       border: "1px solid #ccc",
                       boxShadow: 1,
@@ -533,7 +529,7 @@ function Profile() {
                 ))}
               </Carousel>
             </Box>
-            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}> 
+            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}>
               <Button
                 variant="outlined"
                 size="small"
@@ -550,7 +546,7 @@ function Profile() {
                     color: "white",
                   },
                 }}
-                // onClick={handleOpenImages}
+              // onClick={handleOpenImages}
               >
                 Edit
               </Button>
