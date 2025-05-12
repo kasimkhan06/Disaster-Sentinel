@@ -65,7 +65,7 @@ const MissingPersonForm = ({
           try {
             // Replace with your actual API call
             const response = await fetch(
-              "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/disasters/"
+              "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/disasters/title_state"
             );
             const data = await response.json();
             console.log("Fetched recent disasters:", data);
@@ -92,8 +92,7 @@ const MissingPersonForm = ({
         // Filter disasters by state and country
         const filtered = recentDisasters.filter(
             (disaster) =>
-                disaster.state?.toLowerCase() === MPState.toLowerCase() &&
-                disaster.country === "India"
+                disaster.state?.toLowerCase() === MPState.toLowerCase()
         );
     
         // Map event types to readable disaster types

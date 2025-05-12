@@ -20,7 +20,7 @@ import FloodPrediction from "./pages/disasters/user/FloodPrediction";
 import Agencies from "./pages/disasters/user/Agencies";
 import AgencyProfile from "./pages/disasters/user/AgencyProfile";
 import Verification from "./pages/authentication/verification";
-import DosDontsPage from "./pages/training/dosdonts";
+import UserAnnouncementsPage from "./pages/training/userannouncements";
 import MissingPersonPortal from "./pages/missingperson/portal";
 import StatusTracking from "./pages/missingperson/status";
 import UpdateDetails from "./pages/authentication/updateDetails";
@@ -52,7 +52,7 @@ const App = () => {
         <Route path="/verification" element={<Verification />} />
         <Route path="/current-location" element={<CurrentLocation />} />
         <Route path="/disaster-details/:id" element={<DisasterInfo />} />
-        <Route path="/dosdontspage" element={<DosDontsPage />} />
+        <Route path="/announcements" element={<UserAnnouncementsPage />} />
         <Route path="/MissingPersonPortal" element={<MissingPersonPortal />} />
         <Route path="/statustracking" element={<StatusTracking />} />
         <Route path="/flood-prediction" element={<FloodPrediction />} />
