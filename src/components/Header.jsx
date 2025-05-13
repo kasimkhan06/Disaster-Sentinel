@@ -107,151 +107,151 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   return (
     <>
       <AppBar
-  sx={{
-    bgcolor: "#fafafa",
-    color: "black",
-    boxShadow: "0px 1px 7px #bdbdbd",
-  }}
-  elevation={2}
->
-  <Toolbar>
-    {/* Left-aligned content */}
-    <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
-      <img src={logo} alt="Logo" style={{ height: "70px" }} />
-      <Typography
         sx={{
-          fontSize: "1.2rem",
-          paddingLeft: "10px",
-          fontFamily: "DM Serif Text, serif",
-          cursor: "pointer",
+          bgcolor: "#fafafa",
+          color: "black",
+          boxShadow: "0px 1px 7px #bdbdbd",
         }}
-        onClick={() => handleNavigation("/home")}
+        elevation={2}
       >
-        DISASTER SENTINAL
-      </Typography>
-      {!isMatch && (
-        <Tabs
-  textColor="inherit"
-  value={value}
-  onChange={(e, value) => setValue(value)}
-  TabIndicatorProps={{
-    sx: { backgroundColor: "#bdbdbd" },
-  }}
-  sx={{ 
-    ml: 4,
-    '& .MuiTab-root': {
-      minWidth: 'auto', // Allow tabs to size naturally
-      width: 'auto',   // Prevent forced width
-      padding: '6px 16px', // Consistent padding with account button
-      '&:focus': {
-        outline: 'none',
-      }
-    }
-  }}
->
-  <Tab label="Home" component={Link} to="/home" />
-  <Tab
-    label="Services"
-    aria-controls="services-menu"
-    onClick={handleOpenMenu}
-  />
-</Tabs>
-      )}
-    </Box>
-    
-    {/* Right-aligned content */}
-    {isMatch ? (
-      <DrawerComp isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
-    ) : (
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {isLoggedIn ? (
-          <>
-            <Button
-  id="account-button"
-  aria-controls="account-menu"
-  aria-haspopup="true"
-  onClick={handleAccountMenuOpen}
-  disableRipple
-  sx={{
-    color: "black",
-    textTransform: "none",
-    padding: "6px 16px",
-    gap: 1,
-    minWidth: 130,
-    width: "auto",
-    transition: 'none', // <-- Add this
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    '&:focus': {
-      outline: 'none',
-      transform: 'none',
-    },
-    '&:active': {
-      transform: 'none',
-    },
-    '&.Mui-focusVisible': {
-      boxShadow: 'none',
-      backgroundColor: 'transparent',
-    }
-  }}
-  
->
-  <AccountCircle />
-  <Typography variant="body1">Account</Typography>
-</Button>
-            <Menu
-              id="account-menu"
-              anchorEl={accountAnchorEl}
-              open={Boolean(accountAnchorEl)}
-              onClose={handleAccountMenuClose}
-              keepMounted
-              disableScrollLock
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
+        <Toolbar>
+          {/* Left-aligned content */}
+          <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
+            <img src={logo} alt="Logo" style={{ height: "70px" }} />
+            <Typography
               sx={{
-                minWidth: "200px",
-                marginTop: "15px",
-                "& .MuiMenu-paper": {
-                  overflow: "visible",
-                  transform: 'none !important',
-                },
+                fontSize: "1.2rem",
+                paddingLeft: "10px",
+                fontFamily: "DM Serif Text, serif",
+                cursor: "pointer",
               }}
+              onClick={() => handleNavigation("/home")}
             >
-              <MenuItem onClick={() => {
-                handleAccountMenuClose();
-                handleNavigation("/updatedetails")
-              }}>
-                Edit Profile
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Menu>
-          </>
-        ) : (
-          <Button
-            onClick={() => handleNavigation("/login")}
-            sx={{
-              borderColor: "#bdbdbd",
-              color: "black",
-              backgroundColor: "#fafafa",
-              "&:hover": {
-                backgroundColor: "#e0e0e0",
-              },
-            }}
-          >
-            Login
-          </Button>
-        )}
-      </Box>
-    )}
-  </Toolbar>
-</AppBar>
+              DISASTER SENTINAL
+            </Typography>
+            {!isMatch && (
+              <Tabs
+                textColor="inherit"
+                value={value}
+                onChange={(e, value) => setValue(value)}
+                TabIndicatorProps={{
+                  sx: { backgroundColor: "#bdbdbd" },
+                }}
+                sx={{
+                  ml: 4,
+                  '& .MuiTab-root': {
+                    minWidth: 'auto', // Allow tabs to size naturally
+                    width: 'auto',   // Prevent forced width
+                    padding: '6px 16px', // Consistent padding with account button
+                    '&:focus': {
+                      outline: 'none',
+                    }
+                  }
+                }}
+              >
+                <Tab label="Home" component={Link} to="/home" />
+                <Tab
+                  label="Services"
+                  aria-controls="services-menu"
+                  onClick={handleOpenMenu}
+                />
+              </Tabs>
+            )}
+          </Box>
+
+          {/* Right-aligned content */}
+          {isMatch ? (
+            <DrawerComp isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {isLoggedIn ? (
+                <>
+                  <Button
+                    id="account-button"
+                    aria-controls="account-menu"
+                    aria-haspopup="true"
+                    onClick={handleAccountMenuOpen}
+                    disableRipple
+                    sx={{
+                      color: "black",
+                      textTransform: "none",
+                      padding: "6px 16px",
+                      gap: 1,
+                      minWidth: 130,
+                      width: "auto",
+                      transition: 'none', // <-- Add this
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                      '&:focus': {
+                        outline: 'none',
+                        transform: 'none',
+                      },
+                      '&:active': {
+                        transform: 'none',
+                      },
+                      '&.Mui-focusVisible': {
+                        boxShadow: 'none',
+                        backgroundColor: 'transparent',
+                      }
+                    }}
+
+                  >
+                    <AccountCircle />
+                    <Typography variant="body1">Account</Typography>
+                  </Button>
+                  <Menu
+                    id="account-menu"
+                    anchorEl={accountAnchorEl}
+                    open={Boolean(accountAnchorEl)}
+                    onClose={handleAccountMenuClose}
+                    keepMounted
+                    disableScrollLock
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    sx={{
+                      minWidth: "200px",
+                      marginTop: "15px",
+                      "& .MuiMenu-paper": {
+                        overflow: "visible",
+                        transform: 'none !important',
+                      },
+                    }}
+                  >
+                    <MenuItem onClick={() => {
+                      handleAccountMenuClose();
+                      handleNavigation("/updatedetails")
+                    }}>
+                      Edit Profile
+                    </MenuItem>
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <Button
+                  onClick={() => handleNavigation("/login")}
+                  sx={{
+                    borderColor: "#bdbdbd",
+                    color: "black",
+                    backgroundColor: "#fafafa",
+                    "&:hover": {
+                      backgroundColor: "#e0e0e0",
+                    },
+                  }}
+                >
+                  Login
+                </Button>
+              )}
+            </Box>
+          )}
+        </Toolbar>
+      </AppBar>
 
       {/* Main Services Menu */}
       <Menu
