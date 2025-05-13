@@ -9,6 +9,7 @@ const Verification = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  const [resendMessage, setResendMessage] = useState(""); // State for resend OTP message
 
   // Get the email passed via navigate()
   const location = useLocation();
@@ -20,28 +21,24 @@ const Verification = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("Submitting OTP...");
-
     if (!otp.trim()) {
-      console.log("Error: OTP is empty");
       setError("OTP is required");
       return;
     }
 
-    console.log("OTP entered:", otp);
-    const cleanedEmail = email.trim(); // Trim the email to remove extra spaces
-    console.log("Email being sent:", cleanedEmail); // Log the cleaned email
-
-    console.log("Request Payload:", { email: cleanedEmail, otp: otp });
+    // Check if email is available and is a string before trimming
+    if (!email || typeof email !== 'string') {
+      setError("Email address is not available. Cannot verify OTP.");
+      console.error("OTP Verification Failed: Email is undefined or not a string.");
+      return;
+    }
 
     try {
       const response = await axios.post(
         "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/verify-otp/",
-        { email: cleanedEmail, otp: otp },
+        { email: email.trim(), otp: otp }, // Now safe to call trim()
         {
           withCredentials: true,
-
-          //log the credentials
           headers: {
             "Content-Type": "application/json",
           },
@@ -51,7 +48,34 @@ const Verification = () => {
       navigate("/login");
     } catch (err) {
       console.error("OTP Verification Failed:", err.response?.data || err);
-      setError("frontent Invalid OTP or session expired");
+      setError("Invalid OTP or session expired");
+    }
+  };
+
+  const resendOtp = async () => {
+    // Check if email is available and is a string before trimming
+    if (!email || typeof email !== 'string') {
+      setResendMessage("Email address is not available. Cannot resend OTP.");
+      console.error("Resend OTP Failed: Email is undefined or not a string.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/resend-otp/",
+        { email: email.trim() }, // Now safe to call trim()
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Resend OTP Success:", response.data);
+      setResendMessage("A new OTP has been sent to your email.");
+    } catch (err) {
+      console.error("Resend OTP Failed:", err.response?.data || err);
+      setResendMessage("Failed to resend OTP. Please try again later.");
     }
   };
 
@@ -65,6 +89,15 @@ const Verification = () => {
       document.body.style.margin = ""; // Restore original margin on unmount
     };
   }, []);
+
+  // Optional: You could also add a check here to see if email exists on mount
+  // and guide the user if it doesn't, though this might be a UI change.
+  // useEffect(() => {
+  //   if (!email) {
+  //     setError("No email address found. Please return to the previous page and try again.");
+  //     // Potentially disable inputs or redirect
+  //   }
+  // }, [email]);
 
   return (
     <Box
@@ -84,12 +117,11 @@ const Verification = () => {
         backgroundRepeat: "repeat-y",
         margin: 0,
         padding: 0,
-        zIndex: 0, // Only needed if you have other elements with zIndex
+        zIndex: 0,
       }}
     >
       <Box
         sx={{
-          // background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
           minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
@@ -102,7 +134,6 @@ const Verification = () => {
         <Box
           sx={{
             width: { xs: "90%", sm: "50%", md: "40%" },
-            // height: "auto",
             minHeight: "60vh",
             backgroundColor: "#fff",
             paddingTop: "10px",
@@ -119,7 +150,7 @@ const Verification = () => {
           </Typography>
 
           <Typography variant="body1" gutterBottom>
-            We have sent an email to <strong>{email}</strong>. <br />
+            We have sent an email to <strong>{email || "your email address"}</strong> <br /> {/* Fallback for display */}
             Please verify your email!
           </Typography>
 
@@ -139,6 +170,15 @@ const Verification = () => {
               error={!!error}
               helperText={error}
               sx={{ width: "40%", marginBottom: 1 }}
+              inputProps={{
+                inputMode: "numeric", // Ensures numeric keyboard on mobile devices
+                pattern: "[0-9]*", // Restricts input to numbers
+              }}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault(); // Prevent non-numeric characters
+                }
+              }}
             />
             <Button
               variant="contained"
@@ -149,6 +189,7 @@ const Verification = () => {
                 backgroundColor: "#4F646F",
               }}
               onClick={handleSubmit}
+              disabled={!email} // Optionally disable button if email is not present
             >
               Submit
             </Button>
@@ -157,8 +198,15 @@ const Verification = () => {
           <Box mt={3}>
             <Typography variant="body2">
               Still can’t find the email? <br />
-              <Link href="#">Resend OTP</Link>
+              <Button variant="text" onClick={resendOtp} disabled={!email}> {/* Optionally disable button */}
+                Resend OTP
+              </Button>
             </Typography>
+            {resendMessage && (
+              <Typography variant="body2" color="textSecondary" mt={1}>
+                {resendMessage}
+              </Typography>
+            )}
           </Box>
 
           <Box mt={2}>
