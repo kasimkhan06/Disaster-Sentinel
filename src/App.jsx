@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import CurrentLocation from "./pages/disasters/user/CurrentLocation";
 import HomePage from "./pages/dashboard/user/HomePage";
+import DisasterEvent from "./pages/dashboard/user/DisasterEvent";
 import DisasterInfo from "./pages/disasters/user/DisasterInfo";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import Login from "./pages/authentication/login";
 import Register from "./pages/authentication/register";
 import HeaderAgency from "./components/HeaderAgency";
@@ -25,6 +27,7 @@ import MissingPersonPortal from "./pages/missingperson/portal";
 import StatusTracking from "./pages/missingperson/status";
 import UpdateDetails from "./pages/authentication/updateDetails";
 import Profile from "./pages/dashboard/agency/Profile/Profile";
+import { Box } from "@mui/material";
 
 const App = () => {
   const [userRole, setUserRole] = useState(null);
@@ -44,6 +47,7 @@ const App = () => {
     <>
       {userRole === "agency" ? <HeaderAgency /> : <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
 
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
@@ -58,6 +62,7 @@ const App = () => {
         <Route path="/flood-prediction" element={<FloodPrediction />} />
         <Route path="/agencies" element={<Agencies />} />
         <Route path="/agency/:id" element={<AgencyProfile />} />
+        <Route path="/disaster/:eventId/:eventType?" element={<DisasterEvent />} />
         <Route path="/registration-form" element={<NewRegistration />} />
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
         <Route path="/missing-person" element={<MissingPerson />} />
