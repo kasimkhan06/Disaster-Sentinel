@@ -2,12 +2,13 @@ import React from "react";
 import { Box, Container, Link, Typography, List, ListItem, ListItemText } from "@mui/material";
 import { Facebook, Twitter, Instagram, LinkedIn } from "@mui/icons-material";
 import Grid from "@mui/material/Grid2";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Footer = () => {
   console.log("Footer is rendering!");
   const location = useLocation();
   const currentPath = location.pathname;
+  const navigate = useNavigate();
   const links = [
     { 
       path: "/current-location", 
@@ -29,6 +30,10 @@ const Footer = () => {
     }
   ];
 
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
     <Box
       component="footer"
@@ -46,15 +51,20 @@ const Footer = () => {
             sx={{ textAlign: "center" }}
           >
             <Box display="flex" flexDirection={"row"} justifyContent="center" mb={2} sx={{ fontSize: {xs: "0.8rem", sm: "0.8rem", md: "1rem"},}}>
-            {links.map((link) => (
+              {links.map((link) => (
                 <Link
                   key={link.path}
-                  href={currentPath == link.path ? link.alternatePath : link.path}
+                  component="button" // Treat as button to prevent href behavior
                   color="inherit"
                   underline="hover"
                   display="block"
+                  onClick={() => handleNavigation(currentPath === link.path ? link.alternatePath : link.path)}
                   sx={{
-                    px: { xs: 1, sm: 1, md: 2 }
+                    px: { xs: 1, sm: 1, md: 2 },
+                    cursor: "pointer",
+                    background: "none",
+                    border: "none",
+                    font: "inherit"
                   }}
                 >
                   {currentPath === link.path ? link.alternateLabel : link.label}
