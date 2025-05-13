@@ -36,6 +36,7 @@ const DisasterInfo = () => {
   const [summaryTitle, setSummaryTitle] = useState("");
   const [filteredSummary, setFilteredSummary] = useState("");
   const readArticleRef = useRef(null);
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   let loadingSummary = true;
   let loadingImages = true;
 
@@ -159,8 +160,11 @@ const DisasterInfo = () => {
               align="center"
               sx={{
                 mt: 10,
-                ml: { xs: 2, sm: 4, md: 4 },
-                fontSize: { xs: "1.5rem", sm: "1.7rem", md: "1.8rem" },
+                fontSize: { xs: "1.3rem",
+                  sm: "1.3rem",
+                  md: "1.4rem",
+                  lg: "1.45rem",
+                  xl: "1.45rem", },
                 fontWeight: "bold",
                 textTransform: "uppercase",
               }}
@@ -171,7 +175,6 @@ const DisasterInfo = () => {
               align="center"
               sx={{
                 mt: 1,
-                ml: { xs: 2, sm: 4, md: 5 },
                 fontSize: { xs: "0.7rem", sm: "0.7rem", md: "1rem" },
                 fontWeight: "400",
                 fontStyle: "italic",
@@ -183,7 +186,7 @@ const DisasterInfo = () => {
         )}
       </Box>
 
-      <Grid container spacing={1} sx={{ m: 0, width: "75%", marginX: "auto", marginTop: 1 }}>
+      <Grid container spacing={1} sx={{ m: 0, width: "75%", marginX: "auto", marginTop: 0.5 }}>
         {/* First Grid - Disaster Info */}
         <Grid size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{ 
           backgroundColor: "#fff", 
@@ -280,7 +283,7 @@ const DisasterInfo = () => {
                               },
                             }}
                           >
-                            {item.label === "Date" ? `${disaster.month}, ${item.value}` : item.value}
+                            {item.label === "Date" ? `${monthNames[disaster.month - 1] || disaster.month}, ${item.value}` : item.value}
                           </Typography>
                         </Box>
                       </Grid>

@@ -37,6 +37,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import { debounce } from "lodash";
+import { margin, padding } from "@mui/system";
 
 // Set default marker icon options
 // delete L.Icon.Default.prototype._getIconUrl;
@@ -71,7 +72,7 @@ const userIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-const AgencyMap = ({ agency }) => {
+const AgencyMap = ({ agency, isMobile }) => {
   const [userPosition, setUserPosition] = useState(null);
   const [inputAddress, setInputAddress] = useState("");
   const [distance, setDistance] = useState(null);
@@ -439,15 +440,25 @@ const AgencyMap = ({ agency }) => {
   };
 
   const getProfileIcon = () => {
+    const iconStyle = {
+      fontSize: {
+        xs: "0.8rem", // Extra small screens
+        sm: "0.9rem", // Small screens
+        md: "1.1rem", // Medium screens
+      },
+      alignSelf: "center",
+      paddingBottom: "0.2rem",
+    };
+
     switch (profile) {
       case "driving-traffic":
-        return <DirectionsCar />;
+        return <DirectionsCar sx={iconStyle} />;
       case "walking":
-        return <DirectionsWalk />;
+        return <DirectionsWalk sx={iconStyle} />;
       case "cycling":
-        return <DirectionsBike />;
+        return <DirectionsBike sx={iconStyle} />;
       default:
-        return <DirectionsCar />;
+        return <DirectionsCar sx={iconStyle} />;
     }
   };
 
@@ -465,14 +476,14 @@ const AgencyMap = ({ agency }) => {
   };
 
   return (
-    <Box sx={{ width: "100%", height: "100%" }}>
+    <Box sx={{ width: "100%", height: "100%" , backgroundColor: "white"}}>
       {/* Map Container */}
       <Box
         sx={{
           position: "relative",
           width: "100%",
           height: "400px",
-          borderRadius: "12px",
+          borderRadius: isMobile ? "0px" : "12px",
           overflow: "hidden",
           mb: 2,
         }}
@@ -520,33 +531,37 @@ const AgencyMap = ({ agency }) => {
             />
           )}
         </MapContainer>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            pointerEvents: "none",
-            background: `
+        {/* Fading Overlay on All Sides */}
+        
+        {!isMobile && (
+  <Box
+    sx={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      pointerEvents: "none",
+      background: `
         linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
         linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
         linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
         linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%)
       `,
-            zIndex: 2,
-          }}
-        />
+      zIndex: 2,
+    }}
+  />
+)}
       </Box>
 
       {/* Location Search Controls */}
-      <Grid container spacing={2} alignItems="center">
-        <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
+      <Grid container spacing={0} alignItems="center">
+        <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
           <Paper
             // elevation={3}
             sx={{
               p: 2,
-              mb: 2,
+              mb: 0,
               // borderRadius: 2,
               // backgroundColor: "background.paper",
               border: "none",
@@ -554,11 +569,11 @@ const AgencyMap = ({ agency }) => {
             }}
           >
             <Grid container spacing={2} alignItems="center">
-              <Grid size={{ xs: 11, sm: 10, md: 10, lg: 12 }}>
-                <Box sx={{ position: "relative" }}>
+              <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{  px:2  }}>
+                <Box sx={{ position: "relative", }}>
                   <TextField
                     fullWidth
-                    label="Enter your location in India"
+                    label="Enter location"
                     variant="outlined"
                     value={inputAddress}
                     onChange={(e) => {
@@ -613,6 +628,12 @@ const AgencyMap = ({ agency }) => {
                           outline: "none",
                         },
                       },
+                      fontSize: {
+                        xs: "0.7rem",
+                        sm: "0.7rem",
+                        md: "0.8rem",
+                        lg: "0.9rem",
+                      },
                     }}
                   />
                   {showSuggestions && suggestions.length > 0 && (
@@ -642,7 +663,15 @@ const AgencyMap = ({ agency }) => {
                               suggestion.coordinates[0],
                             ]);
                           }}
-                          sx={{ py: 1 }}
+                          sx={{
+                            py: 1,
+                            fontSize: {
+                              xs: "0.7rem",
+                              sm: "0.7rem",
+                              md: "0.8rem",
+                              lg: "0.9rem",
+                            },
+                          }}
                         >
                           <Typography variant="body2">
                             {suggestion.name}
@@ -653,7 +682,7 @@ const AgencyMap = ({ agency }) => {
                   )}
                 </Box>
               </Grid>
-              <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
+              <Grid size={{ xs: 6, sm: 10, md: 10, lg: 6 }} sx={{  pl:2  }}>
                 <FormControl fullWidth>
                   <Select
                     value={profile}
@@ -681,6 +710,12 @@ const AgencyMap = ({ agency }) => {
                       "& .MuiSelect-icon": {
                         color: "rgba(0, 0, 0, 0.54)", // Match Material-UI default
                       },
+                      fontSize: {
+                        xs: "0.7rem",
+                        sm: "0.7rem",
+                        md: "0.8rem",
+                        lg: "0.9rem",
+                      },
                     }}
                   >
                     <MenuItem value="driving-traffic">Driving</MenuItem>
@@ -689,16 +724,34 @@ const AgencyMap = ({ agency }) => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
+              <Grid size={{ xs: 6 , sm: 10, md: 10, lg: 6 }} sx={{  pr:2  }}>
                 <Button
                   fullWidth
-                  variant="contained"
+                  // variant="contained"
                   color="primary"
                   onClick={handleSearchLocation}
                   disabled={loading || !inputAddress.trim()}
                   startIcon={
-                    loading ? <CircularProgress size={20} /> : getProfileIcon()
+                    loading ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        {getProfileIcon()}
+                      </Box>
+                    )
                   }
+                  sx={{
+                    textTransform: "uppercase",
+                    fontSize: {
+                      xs: "0.7rem",
+                      sm: "0.7rem",
+                      md: "0.8rem",
+                      lg: "0.75rem",
+                    },
+                    "&:hover": {
+                      backgroundColor: "transparent",
+                    },
+                  }}
                 >
                   {loading ? "Calculating..." : "Find Route"}
                 </Button>
@@ -708,7 +761,16 @@ const AgencyMap = ({ agency }) => {
                   {error && !distance && (
                     <Typography
                       color="error"
-                      sx={{ mt: 0, textAlign: "center" }}
+                      sx={{
+                        mt: 0,
+                        textAlign: "center",
+                        fontSize: {
+                          xs: "0.7rem",
+                          sm: "0.7rem",
+                          md: "0.8rem",
+                          lg: "0.75rem",
+                        },
+                      }}
                     >
                       {error}
                     </Typography>
@@ -718,7 +780,7 @@ const AgencyMap = ({ agency }) => {
             </Grid>
           </Paper>
         </Grid>
-        <Grid size={{ xs: 11, sm: 10, md: 10, lg: 6 }}>
+        <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
           {" "}
           {/* Added order: -1 to move to top */}
           {/* Route Information - Only shown when route is calculated */}
@@ -727,20 +789,26 @@ const AgencyMap = ({ agency }) => {
               sx={{
                 py: 0,
                 px: 2,
-                borderLeft: "2px solid #eee",
+                borderLeft: isMobile ? "none" : "1px solid #ccc",
                 borderRadius: 0,
                 boxShadow: "none",
                 alignSelf: "flex-start",
-                width: "100%",
+                // width: "100%",
+                mb: isMobile ? 3 : 0,
               }}
             >
               <Box
                 display="flex"
                 justifyContent="space-between"
-                alignItems="flex-start"
+                // alignItems="flex-start"
               >
-                <Box>
-                  <Typography variant="body1">
+                <Box sx={{ marginX: 2 }}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"}
+                    }}
+                  >
                     Distance to {agency.agency_name}:{" "}
                     <Typography component="span" fontWeight="bold">
                       {distance} km
@@ -748,7 +816,13 @@ const AgencyMap = ({ agency }) => {
                   </Typography>
                   {duration ? (
                     <Box>
-                      <Typography variant="body1" sx={{ mt: 1 }}>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          mt: 1,
+                          fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"}
+                        }}
+                      >
                         Estimated travel time:{" "}
                         <Typography component="span" fontWeight="bold">
                           {duration >= 60
@@ -767,6 +841,12 @@ const AgencyMap = ({ agency }) => {
                               fontStyle: "italic",
                               color: "text.secondary",
                               display: "block", // Changed to block to force new line
+                              fontSize: {
+                                xs: "0.68rem",
+                                sm: "0.68rem",
+                                md: "0.7rem",
+                                lg: "0.8rem",
+                              },
                             }}
                           >
                             (Live traffic data not available for this route)

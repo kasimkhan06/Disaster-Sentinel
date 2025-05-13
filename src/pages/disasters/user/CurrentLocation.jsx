@@ -67,6 +67,7 @@ function CurrentLocation() {
       items: 2,
     },
   };
+
   const navigate = useNavigate();
   const [selectedLocation, setSelectedLocation] = useState("");
   const [weather, setWeather] = useState(null);
@@ -149,9 +150,9 @@ function CurrentLocation() {
     selectedDisasterType === "all"
       ? chartData
       : chartData.map((entry) => ({
-        year: entry.year,
-        [selectedDisasterType]: entry[selectedDisasterType],
-      }));
+          year: entry.year,
+          [selectedDisasterType]: entry[selectedDisasterType],
+        }));
 
   console.log("chartData:", chartData);
   console.log("disasterStats:", disasterStats);
@@ -242,13 +243,20 @@ function CurrentLocation() {
       >
         <Container maxWidth={false} sx={{ width: "100%" }}>
           <div
-            style={{ display: "flex", justifyContent: "center", marginTop: "100px" }}>
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "100px",
+            }}
+          >
             <Autocomplete
               freeSolo
               id="location-input"
               disableClearable
               options={loadingOptions ? ["Loading..."] : locations}
-              onChange={(event, newValue) => setSelectedLocation(newValue || "")}
+              onChange={(event, newValue) =>
+                setSelectedLocation(newValue || "")
+              }
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -302,18 +310,28 @@ function CurrentLocation() {
                       },
                     },
                     width: { xs: "300px", md: "400px" },
-
                   }}
                 />
               )}
-
             />
           </div>
           {selectedLocation ? (
             <>
-              <Box sx={{ borderRadius: 2, boxShadow: 3, height: "100%", backgroundColor: "white", mb: 1 }}>
-                <Grid container spacing={1} sx={{ m: 0, width: "100", marginTop: 2, paddingTop: 1 }}>
-                  <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }} >
+              <Box
+                sx={{
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  height: "100%",
+                  backgroundColor: "white",
+                  mb: 1,
+                }}
+              >
+                <Grid
+                  container
+                  spacing={1}
+                  sx={{ m: 0, width: "100", marginTop: 2, paddingTop: 1 }}
+                >
+                  <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }}>
                     <div
                       style={{
                         margin: "10px",
@@ -441,7 +459,12 @@ function CurrentLocation() {
                                   </Box>
                                   <Typography
                                     sx={{
-                                      fontSize: { xs: 14, sm: 14, md: 16, lg: 22 },
+                                      fontSize: {
+                                        xs: 14,
+                                        sm: 14,
+                                        md: 16,
+                                        lg: 22,
+                                      },
                                       fontWeight: "500",
                                       mt: 1,
                                       // pl: 2,
@@ -587,28 +610,30 @@ function CurrentLocation() {
                             <Tooltip />
                             <Legend />
                             {selectedDisasterType === "all" ? (
-                              [...allDisasterTypes].map((disasterType, index) => {
-                                // Define a fixed set of colors for consistency
-                                const colors = [
-                                  "#8884d8",
-                                  "#82ca9d",
-                                  "#ffc658",
-                                  "#ff7300",
-                                  "#a4de6c",
-                                  "#d0ed57",
-                                ];
-                                const color = colors[index % colors.length]; // Cycle through colors if there are more disaster types than colors
-                                return (
-                                  <Line
-                                    key={disasterType}
-                                    type="monotone"
-                                    dataKey={disasterType}
-                                    stroke={color}
-                                    strokeWidth={2}
-                                    dot={false}
-                                  />
-                                );
-                              })
+                              [...allDisasterTypes].map(
+                                (disasterType, index) => {
+                                  // Define a fixed set of colors for consistency
+                                  const colors = [
+                                    "#8884d8",
+                                    "#82ca9d",
+                                    "#ffc658",
+                                    "#ff7300",
+                                    "#a4de6c",
+                                    "#d0ed57",
+                                  ];
+                                  const color = colors[index % colors.length]; // Cycle through colors if there are more disaster types than colors
+                                  return (
+                                    <Line
+                                      key={disasterType}
+                                      type="monotone"
+                                      dataKey={disasterType}
+                                      stroke={color}
+                                      strokeWidth={2}
+                                      dot={false}
+                                    />
+                                  );
+                                }
+                              )
                             ) : (
                               <Line
                                 type="monotone"
@@ -646,7 +671,6 @@ function CurrentLocation() {
                       pb: 3,
                       pt: 3,
                       pl: { xs: 0, md: 1 },
-
                     }}
                     marginX="auto"
                   >
@@ -659,19 +683,31 @@ function CurrentLocation() {
                         position: "relative", // Ensure the Box is a positioning context
                       }}
                     >
-                      <CurrentLocationMap filteredDisasters={filteredDisasters} />
+                      <CurrentLocationMap
+                        filteredDisasters={filteredDisasters}
+                      />
                     </Box>
                   </Grid>
                 </Grid>
               </Box>
 
-              <Box sx={{ borderRadius: 2, boxShadow: 3, height: "100%", backgroundColor: "white", mb: 4 }}>
+              <Box
+                sx={{
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  height: "100%",
+                  backgroundColor: "white",
+                  mb: 4,
+                }}
+              >
                 <div
                   style={{
                     margin: "10px",
                     // backgroundColor: "white",
                     padding: "0px",
-                    borderRadius: 2, boxShadow: 3, height: "100%"
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    height: "100%",
                   }}
                 >
                   <Typography
@@ -816,7 +852,9 @@ function CurrentLocation() {
                         <Autocomplete
                           options={[
                             ...new Set(
-                              allDisasters.map((disaster) => disaster.disaster_type)
+                              allDisasters.map(
+                                (disaster) => disaster.disaster_type
+                              )
                             ),
                           ]}
                           value={filters.disasterType}
@@ -936,7 +974,10 @@ function CurrentLocation() {
                   </Typography>
 
                   {loading ? (
-                    <Typography align="center" sx={{ fontSize: "1.5rem", mt: 4 }}>
+                    <Typography
+                      align="center"
+                      sx={{ fontSize: "1.5rem", mt: 4 }}
+                    >
                       Loading...
                     </Typography>
                   ) : locallyFilteredDisasters.length > 0 ? (
@@ -990,14 +1031,16 @@ function CurrentLocation() {
                       </div>
                     )
                   ) : (
-                    <Typography align="center" sx={{ fontSize: "1.2rem", mt: 4, paddingBottom: 17, }}>
+                    <Typography
+                      align="center"
+                      sx={{ fontSize: "1.2rem", mt: 4, paddingBottom: 17 }}
+                    >
                       No disaster information available.
                     </Typography>
                   )}
                 </div>
               </Box>
               {/* </Box> */}
-
             </>
           ) : (
             // <Typography align="center" sx={{ mt: 4 }}>
@@ -1005,14 +1048,15 @@ function CurrentLocation() {
             // </Typography>
             <Box
               sx={{
-                width: "50%",
+                width: {xs: "100%", sm: "90%", md: "50%", lg: "50%"},
                 margin: "0 auto",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
                 mt: 4,
-                p: 3,
+                p: 0,
+                // mx: 2,
                 // backgroundColor: "#E8F1F5", // Light background color
                 borderRadius: 2,
                 // boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Subtle shadow
@@ -1027,7 +1071,16 @@ function CurrentLocation() {
               <Typography
                 align="center"
                 sx={{
-                  fontSize: "1.5rem",
+                  fontSize: {
+                    xs: "1.1rem",
+                    sm: "1.1rem",
+                    md: isBelow
+                      ? "1.3rem"
+                      : "1.3rem",
+                    lg: isBelow
+                      ? "1.4rem"
+                      : "1.4rem",
+                  },
                   fontWeight: "600",
                   color: "#2c3e50", // Darker text color
                   mb: 2,
@@ -1038,7 +1091,16 @@ function CurrentLocation() {
               <Typography
                 align="center"
                 sx={{
-                  fontSize: "1.2rem",
+                  fontSize: {
+                    xs: "0.85rem",
+                    sm: "0.85rem",
+                    md: isBelow
+                      ? "0.95rem"
+                      : "0.95rem",
+                    lg: isBelow
+                      ? "0.95rem"
+                      : "1rem",
+                  },
                   color: "#34495e", // Slightly lighter text color
                   fontStyle: "italic",
                 }}
@@ -1055,7 +1117,12 @@ function CurrentLocation() {
                     margin: 0,
                   },
                   "& li": {
-                    fontSize: "1rem",
+                    fontSize: {
+                      xs: "0.8rem",
+                      sm: "0.8rem",
+                      md: isBelow ? "0.85rem" : "0.9rem",
+                      lg: isBelow ? "0.9rem" : "0.95rem",
+                    },
                     color: "#7f8c8d", // Lighter text color for list items
                     mb: 1,
                     display: "flex",
@@ -1067,7 +1134,10 @@ function CurrentLocation() {
               >
                 <ul>
                   <li>
-                    <ThermostatIcon fontSize="small" sx={{ color: "#ffea99" }} />
+                    <ThermostatIcon
+                      fontSize="small"
+                      sx={{ color: "#ffea99" }}
+                    />
                     Current Weather Conditions
                   </li>
                   <li>
@@ -1087,7 +1157,16 @@ function CurrentLocation() {
               <Typography
                 align="center"
                 sx={{
-                  fontSize: "1rem",
+                  fontSize: {
+                    xs: "0.8rem",
+                    sm: "0.8rem",
+                    md: isBelow
+                      ? "0.85rem"
+                      : "0.9rem",
+                    lg: isBelow
+                      ? "0.9rem"
+                      : "0.95rem",
+                  },
                   color: "#7f8c8d", // Lighter text color for subtext
                   mt: 2,
                 }}
@@ -1098,7 +1177,16 @@ function CurrentLocation() {
               <Typography
                 align="center"
                 sx={{
-                  fontSize: "0.8rem",
+                  fontSize: {
+                    xs: "0.7rem",
+                    sm: "0.7rem",
+                    md: isBelow
+                      ? "0.8rem"
+                      : "0.85rem",
+                    lg: isBelow
+                      ? "0.8rem"
+                      : "0.85rem",
+                  },
                   color: "#95a5a6", // Even lighter text color for disclaimer
                   mt: 2,
                   fontStyle: "italic",
