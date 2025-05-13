@@ -12,7 +12,7 @@ const MissingPersonPortal = () => {
         name: "", age: "", gender: "", description: "", identificationMarks: "",
         lastSeen: null, lastSeenPlace: "", state: "", district: "",
         contactInfo: "", additionalInfo: "",
-        disasterType: "", // Will store the CODE ('EQ', 'FL' etc.)
+        disasterType: "", 
         idCard: null, photo: null,
     });
 
