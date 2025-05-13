@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import Grid from "@mui/material/Grid2"; // MUI Grid v2
 import { Container, Typography, Box, Alert, Card, CircularProgress } from "@mui/material";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-
-// Import components
 import MissingPersonForm from '../missingperson/form'; // Adjust path
 import InteractiveMap from '../../components/InteractiveMap';   // Adjust path
 
@@ -89,12 +87,12 @@ const MissingPersonPortal = () => {
 
         const fileNameStr = file.name.toLowerCase();
         const fileExtension = fileNameStr.split(".").pop();
-        const allowedTypes = ["jpeg", "jpg"];
+        const allowedTypes = ["jpeg"];
         const maxSizeInBytes = 5 * 1024 * 1024;
 
         let fileIsValid = true;
         if (!allowedTypes.includes(fileExtension)) {
-            newValidationErrors[fieldName] = "Invalid file type! Only JPEG or JPG allowed.";
+            newValidationErrors[fieldName] = "Invalid file type! Only JPEG allowed.";
             fileIsValid = false;
         } else if (file.size > maxSizeInBytes) {
             newValidationErrors[fieldName] = `File too large! Max size is 5MB.`;
@@ -181,7 +179,7 @@ const MissingPersonPortal = () => {
         if (errors.idCard && !validationErrors.idCard) validationErrors.idCard = errors.idCard;
         if (!captchaToken) validationErrors.captcha = "Please complete the reCAPTCHA verification.";
 
-        // --- Get Reporter ID (remains the same as previous correct version) ---
+        // --- Get Reporter ID ---
         let reporterId = null;
         try {
             const userDataString = localStorage.getItem('user');
@@ -233,7 +231,7 @@ const MissingPersonPortal = () => {
         // Use the correct key 'disasterType' and send the CODE stored in formData.disasterType
         if (formData.disasterType) apiFormData.append('disasterType', formData.disasterType);
         // Use the correct key 'contactinfo'
-        apiFormData.append('contactinfo', formData.contactInfo);
+        apiFormData.append('contactInfo', formData.contactInfo);
         if (formData.additionalInfo) apiFormData.append('additionalInfo', formData.additionalInfo);
         if (formData.idCard) apiFormData.append('idCard', formData.idCard, formData.idCard.name);
         if (formData.photo) apiFormData.append('photo', formData.photo, formData.photo.name);
