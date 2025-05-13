@@ -127,7 +127,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
               }}
               onClick={() => handleNavigation("/home")}
             >
-              DISASTER SENTINEL
+              DISASTER SENTINAL
             </Typography>
             {!isMatch && (
               <Tabs
@@ -139,14 +139,14 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                 }}
                 sx={{
                   ml: 4,
-                  "& .MuiTab-root": {
-                    minWidth: "auto", // Allow tabs to size naturally
-                    width: "auto", // Prevent forced width
-                    padding: "6px 16px", // Consistent padding with account button
-                    "&:focus": {
-                      outline: "none",
-                    },
-                  },
+                  '& .MuiTab-root': {
+                    minWidth: 'auto', // Allow tabs to size naturally
+                    width: 'auto',   // Prevent forced width
+                    padding: '6px 16px', // Consistent padding with account button
+                    '&:focus': {
+                      outline: 'none',
+                    }
+                  }
                 }}
               >
                 <Tab label="Home" component={Link} to="/home" />
@@ -161,9 +161,9 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 
           {/* Right-aligned content */}
           {isMatch ? (
-            <DrawerComp isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+            <DrawerComp isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
           ) : (
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {isLoggedIn ? (
                 <>
                   <Button
@@ -171,7 +171,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                     aria-controls="account-menu"
                     aria-haspopup="true"
                     onClick={handleAccountMenuOpen}
-                    // disableRipple
+                    disableRipple
                     sx={{
                       color: "black",
                       textTransform: "none",
@@ -179,22 +179,23 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                       gap: 1,
                       minWidth: 130,
                       width: "auto",
-                      transition: "none", // <-- Add this
-                      "&:hover": {
-                        backgroundColor: "transparent",
+                      transition: 'none', // <-- Add this
+                      '&:hover': {
+                        backgroundColor: 'transparent',
                       },
-                      "&:focus": {
-                        outline: "none",
-                        transform: "none",
+                      '&:focus': {
+                        outline: 'none',
+                        transform: 'none',
                       },
-                      "&:active": {
-                        transform: "none",
+                      '&:active': {
+                        transform: 'none',
                       },
-                      "&.Mui-focusVisible": {
-                        boxShadow: "none",
-                        backgroundColor: "transparent",
-                      },
+                      '&.Mui-focusVisible': {
+                        boxShadow: 'none',
+                        backgroundColor: 'transparent',
+                      }
                     }}
+
                   >
                     <AccountCircle />
                     <Typography variant="body1">Account</Typography>
@@ -219,16 +220,14 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                       marginTop: "15px",
                       "& .MuiMenu-paper": {
                         overflow: "visible",
-                        transform: "none !important",
+                        transform: 'none !important',
                       },
                     }}
                   >
-                    <MenuItem
-                      onClick={() => {
-                        handleAccountMenuClose();
-                        handleNavigation("/edit-profile");
-                      }}
-                    >
+                    <MenuItem onClick={() => {
+                      handleAccountMenuClose();
+                      handleNavigation("/updatedetails")
+                    }}>
                       Edit Profile
                     </MenuItem>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>

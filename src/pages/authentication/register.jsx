@@ -21,7 +21,7 @@ import {
   Lock,
   Business,
   LocationOn,
-  LocationCity,  
+  LocationCity,
 } from "@mui/icons-material";
 import axios from "axios";
 import * as XLSX from "xlsx"; // Import xlsx
@@ -80,33 +80,33 @@ const Register = () => {
                   tempStateDistricts[state] = [];
                 }
                 if (!tempStateDistricts[state].includes(district)) {
-                   tempStateDistricts[state].push(district);
+                  tempStateDistricts[state].push(district);
                 }
               }
             });
-             // Sort states alphabetically
-             const sortedStates = Object.keys(tempStateDistricts).sort();
-             const sortedStateDistricts = {};
-             sortedStates.forEach(state => {
-                // Sort districts within each state alphabetically (This ensures districts are sorted)
-                sortedStateDistricts[state] = tempStateDistricts[state].sort();
-             });
+            // Sort states alphabetically
+            const sortedStates = Object.keys(tempStateDistricts).sort();
+            const sortedStateDistricts = {};
+            sortedStates.forEach(state => {
+              // Sort districts within each state alphabetically (This ensures districts are sorted)
+              sortedStateDistricts[state] = tempStateDistricts[state].sort();
+            });
 
             setStateDistricts(sortedStateDistricts);
           } catch (parseError) {
-             console.error("Error parsing Excel data:", parseError);
-             setStatusMessage({type: 'error', text: 'Error processing state/district data.'});
+            console.error("Error parsing Excel data:", parseError);
+            setStatusMessage({ type: 'error', text: 'Error processing state/district data.' });
           }
         };
         reader.onerror = (error) => {
-            console.error("FileReader error:", error);
-            setStatusMessage({type: 'error', text: 'Error reading state/district file.'});
+          console.error("FileReader error:", error);
+          setStatusMessage({ type: 'error', text: 'Error reading state/district file.' });
         }
 
         reader.readAsArrayBuffer(blob);
       } catch (error) {
         console.error("Error fetching the Excel file:", error);
-        setStatusMessage({type: 'error', text: 'Could not load state/district data.'});
+        setStatusMessage({ type: 'error', text: 'Could not load state/district data.' });
       }
     };
 
@@ -120,7 +120,7 @@ const Register = () => {
     setFormData({ ...formData, [name]: value });
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
     if (name !== 'state' && name !== 'district') {
-        setStatusMessage({ type: "", text: "" });
+      setStatusMessage({ type: "", text: "" });
     }
   };
 
@@ -141,7 +141,7 @@ const Register = () => {
     setSelectedDistrict(newDistrict);
     setFormData({ ...formData, district: newDistrict });
     setErrors((prevErrors) => ({ ...prevErrors, district: "" }));
-     setStatusMessage({ type: "", text: "" });
+    setStatusMessage({ type: "", text: "" });
   };
 
   const validateForm = () => {
@@ -188,7 +188,7 @@ const Register = () => {
 
       } catch (error) {
         // --- Error handling logic (same as before) ---
-         console.error("Registration Failed Full Error:", error);
+        console.error("Registration Failed Full Error:", error);
         console.log("Error Response Object:", error.response);
         console.log("Error Response Data:", error.response?.data);
         const errorData = error.response?.data;
@@ -197,27 +197,27 @@ const Register = () => {
           if (errorData.email && Array.isArray(errorData.email) && errorData.email.length > 0) {
             errorMessage = errorData.email[0].toLowerCase().includes("already exists") ? "This Email ID already exists. Please use a different email or login." : `Email: ${errorData.email[0]}`;
           } else if (errorData.detail) {
-             errorMessage = errorData.detail.toLowerCase().includes("email already exists") ? "This Email ID already exists. Please use a different email or login." : errorData.detail;
+            errorMessage = errorData.detail.toLowerCase().includes("email already exists") ? "This Email ID already exists. Please use a different email or login." : errorData.detail;
           } else if (errorData.message) {
             errorMessage = errorData.message.toLowerCase().includes("email already exists") ? "This Email ID already exists. Please use a different email or login." : errorData.message;
           } else if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
             if (errorData.state && Array.isArray(errorData.state) && errorData.state.length > 0) {
-                errorMessage = `State: ${errorData.state[0]}`;
+              errorMessage = `State: ${errorData.state[0]}`;
             } else if (errorData.district && Array.isArray(errorData.district) && errorData.district.length > 0) {
-                errorMessage = `District: ${errorData.district[0]}`;
+              errorMessage = `District: ${errorData.district[0]}`;
             } else {
-                const firstKey = Object.keys(errorData)[0];
-                if (Array.isArray(errorData[firstKey]) && errorData[firstKey].length > 0) {
-                    errorMessage = `${firstKey.charAt(0).toUpperCase() + firstKey.slice(1)}: ${errorData[firstKey][0]}`;
-                } else if (typeof errorData[firstKey] === 'string') {
-                    errorMessage = `${firstKey.charAt(0).toUpperCase() + firstKey.slice(1)}: ${errorData[firstKey]}`;
-                }
+              const firstKey = Object.keys(errorData)[0];
+              if (Array.isArray(errorData[firstKey]) && errorData[firstKey].length > 0) {
+                errorMessage = `${firstKey.charAt(0).toUpperCase() + firstKey.slice(1)}: ${errorData[firstKey][0]}`;
+              } else if (typeof errorData[firstKey] === 'string') {
+                errorMessage = `${firstKey.charAt(0).toUpperCase() + firstKey.slice(1)}: ${errorData[firstKey]}`;
+              }
             }
           }
         } else if (error.request) {
-            errorMessage = "No response from server. Please check your network connection.";
+          errorMessage = "No response from server. Please check your network connection.";
         } else {
-            errorMessage = "An unexpected error occurred. Please try again.";
+          errorMessage = "An unexpected error occurred. Please try again.";
         }
         setStatusMessage({ type: "error", text: errorMessage });
         // --- End Error Handling ---
@@ -240,22 +240,20 @@ const Register = () => {
   // --- Component Render ---
   return (
     <Box // Outer container
-      sx={{ 
-        position: "absolute", top: 0, left: 0, right: 0, minHeight: "100vh",
-        overflowY: "scroll", width: "100vw",
+      sx={{
+        position: "fixed", top: -50, left: 0, right: 0, minHeight: "100vh",
         background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)), url(${worldMapBackground})`,
         backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
-        backgroundRepeat: "repeat-y", margin: 0, padding: 0, zIndex: 0,
       }}
     >
       <Box // Centering container
-        sx={{ 
+        sx={{
           minHeight: "100vh", display: "flex", justifyContent: "center",
           alignItems: "center", padding: 0, margin: 0, overflow: "hidden", marginTop: "80px"
         }}
       >
         <Box // Form container
-          sx={{ 
+          sx={{
             width: { xs: "90%", sm: "70%", md: "40%", lg: "35%" },
             maxWidth: "600px", padding: { xs: 2, sm: 3, md: 4 }, paddingTop: "25px", paddingBottom: "25px",
             backgroundColor: "#ffffff", borderRadius: 2, boxShadow: 3,
@@ -301,18 +299,18 @@ const Register = () => {
 
             {/* State */}
             <Grid item xs={12} sm={6}>
-              <Box sx={{ display: "flex", alignItems: "center", width: "100%", mt:1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", width: "100%", mt: 1 }}>
                 <LocationOn sx={{ mt: 2, mr: 1, color: "gray" }} />
-                  <Autocomplete
-                      options={Object.keys(stateDistricts)}
-                      value={selectedState}
-                      onChange={handleStateChange}
-                      isOptionEqualToValue={(option, value) => option === value || value === ""}
-                      renderInput={(params) => (
-                          <TextField {...params} label="State" variant="standard" error={!!errors.state} />
-                      )}
-                      size="small" sx={{ width: "85%" }} />
-                  {errors.state && <Typography color="error" variant="caption" display="block" textAlign="left">{errors.state}</Typography>}
+                <Autocomplete
+                  options={Object.keys(stateDistricts)}
+                  value={selectedState}
+                  onChange={handleStateChange}
+                  isOptionEqualToValue={(option, value) => option === value || value === ""}
+                  renderInput={(params) => (
+                    <TextField {...params} label="State" variant="standard" error={!!errors.state} />
+                  )}
+                  size="small" sx={{ width: "85%" }} />
+                {errors.state && <Typography color="error" variant="caption" display="block" textAlign="left">{errors.state}</Typography>}
               </Box>
             </Grid>
 
@@ -321,21 +319,21 @@ const Register = () => {
               <Box sx={{ display: "flex", alignItems: "center", width: "100%", mt: 1 }}>
                 <LocationOn sx={{ mt: 2, mr: 1, color: "gray" }} />
                 <Autocomplete
-                    options={districts} // Options are dynamically set based on selected state
-                    value={selectedDistrict}
-                    onChange={handleDistrictChange}
-                    isOptionEqualToValue={(option, value) => option === value || value === ""}
-                    // Disable if no state is selected OR if the districts array is empty (e.g., data loading)
-                    disabled={!selectedState || districts.length === 0}
-                    renderInput={(params) => (
-                        <TextField {...params} label="District" variant="standard" error={!!errors.district} />
-                    )}
-                    size="small" sx={{ width: "85%" }} />
+                  options={districts} // Options are dynamically set based on selected state
+                  value={selectedDistrict}
+                  onChange={handleDistrictChange}
+                  isOptionEqualToValue={(option, value) => option === value || value === ""}
+                  // Disable if no state is selected OR if the districts array is empty (e.g., data loading)
+                  disabled={!selectedState || districts.length === 0}
+                  renderInput={(params) => (
+                    <TextField {...params} label="District" variant="standard" error={!!errors.district} />
+                  )}
+                  size="small" sx={{ width: "85%" }} />
                 {errors.district && <Typography color="error" variant="caption" display="block" textAlign="left">{errors.district}</Typography>}
               </Box>
             </Grid>
 
-             {/* Email */}
+            {/* Email */}
             <Grid item xs={12}>
               <Box sx={{ display: "flex", flexDirection: "column", width: "100%", mt: 1 }}>
                 <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
@@ -344,7 +342,7 @@ const Register = () => {
                     error={!!errors.email} helperText={errors.email} size="small"
                     sx={{ width: "92%" }} InputLabelProps={{ sx: { fontSize: "0.9rem" } }} />
                 </Box>
-                <Typography variant="caption" color="textSecondary" display="block" sx={{textAlign: 'left', ml: 4.5}}>
+                <Typography variant="caption" color="textSecondary" display="block" sx={{ textAlign: 'left', ml: 4.5 }}>
                   Verification email will be sent.
                 </Typography>
               </Box>

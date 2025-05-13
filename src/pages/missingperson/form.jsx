@@ -95,24 +95,9 @@ const MissingPersonForm = ({
                 disaster.state?.toLowerCase() === MPState.toLowerCase()
         );
     
-        // Map event types to readable disaster types
-        const eventTypeMap = {
-            EQ: "Earthquakes",
-            FL: "Floods",
-            WF: "Wildfires",
-            TC: "Cyclones",
-            VO: "Volcanoes",
-            DR: "Droughts",
-        };
+        console.log("Mapped Disasters:", filtered);
     
-        // Map filtered disasters to enriched objects with proper event_type mapping
-        const mappedDisasters = filtered.map((disaster) => ({
-            disaster_type: eventTypeMap[disaster.eventtype] || disaster.eventtype,
-        }));
-    
-        console.log("Mapped Disasters:", mappedDisasters);
-    
-        setFilteredDisasters(mappedDisasters);
+        setFilteredDisasters(filtered);
     }, [selectedState, formData?.state]);    
 
      // Handle Enter key press in the location field to trigger search
@@ -239,8 +224,8 @@ const MissingPersonForm = ({
                                 >
                                     {filteredDisasters.length > 0 ? (
                                         filteredDisasters.map((disaster, index) => (
-                                            <MenuItem key={index} value={disaster.disaster_type}>
-                                                {disaster.disaster_type}
+                                            <MenuItem key={index} value={disaster.title}>
+                                                {disaster.title}
                                             </MenuItem>
                                         ))
                                     ) : (
