@@ -180,7 +180,7 @@ function CurrentLocation() {
           boxShadow: isMobileOrTablet ? 0 : "2px 2px 2px #93A6AD",
           // boxShadow: "2px 2px 2px rgb(195, 210, 216)",
           "&:hover": {
-            boxShadow: 4,
+            boxShadow: isMobileOrTablet ? 0 : 4,
             transform: "scale(1.0)",
           },
           width: "100%", // Ensures responsiveness
@@ -1359,7 +1359,7 @@ function CurrentLocation() {
 
 The xs part takes up when screen is extra small, Similarly small, medium and large classes as well, based on their respective screen size definition in CSS. */}
           </Container>
-          {selectedLocation ? <Footer /> : <Footer sx={{ mt: 0 }} />}
+          <Footer />
         </Box>
       </Box>
     </>
