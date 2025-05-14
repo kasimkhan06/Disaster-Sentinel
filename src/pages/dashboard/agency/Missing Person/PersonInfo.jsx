@@ -202,7 +202,7 @@ function PersonInfo() {
                     item
                     xs={12}
                     sm={6}
-                    md={5}
+                    md={12}
                     lg={4}
                     sx={{
                         display: "flex",
@@ -218,18 +218,31 @@ function PersonInfo() {
                         src={person.person_photo ? `https://res.cloudinary.com/doxgltggk/${person.person_photo}` : "/assets/person.png"}
                         alt="Profile"
                         sx={{
-                            width: { xs: "100%", sm: "80%", md: "70%", lg: "60%" },
-                            maxWidth: 300,
+                            width: { xs: "100%", sm: "70%", md: "65%", lg: "90%" },
+                            maxWidth: {md: 300, lg: 500},
                             height: "auto",
                             borderRadius: "10px",
                             border: "3px solid black",
                             objectFit: "cover",
-                            marginBottom: { xs: 2, sm: 3, md: 4 },
+                            mx: "auto",
+                            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
                         }}
                     />
                 </Grid>
-
-                <Grid item xs={12} sm={6} md={7} lg={8}>
+                <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={7}
+                    lg={8}
+                    sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center", 
+                        mx: "auto",
+                        maxWidth: { xs: "100%", md: "80%" }, 
+                    }}>
                     <Card
                         sx={{
                             p: { xs: 2, md: 3 },
@@ -249,24 +262,24 @@ function PersonInfo() {
                                 { label: "Identification Mark", value: person.identification_marks, icon: <Visibility sx={{ color: "#FBC02D" }} /> },
                                 { label: "Description", value: person.description, icon: <Description sx={{ color: "#757575" }} /> },
                             ].map((item, index) => (
-                            <Box
-                                key={index}
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    py: 1,
-                                    borderBottom: "1px solid #ddd",
-                                    gap: 1,
-                                }}
-                            >
-                                {item.icon}
-                                <Typography sx={{ fontWeight: 500, fontSize: { xs: "0.9rem", md: "1rem" } }}>
-                                    {item.label}:
-                                </Typography>
-                                <Typography sx={{ ml: 1, fontSize: { xs: "0.85rem", md: "1rem" } }}>
-                                    {item.value}
-                                </Typography>
-                            </Box>
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        py: 1,
+                                        borderBottom: "1px solid #ddd",
+                                        gap: 1,
+                                    }}
+                                >
+                                    {item.icon}
+                                    <Typography sx={{ fontWeight: 500, fontSize: { xs: "0.9rem", md: "1rem" } }}>
+                                        {item.label}:
+                                    </Typography>
+                                    <Typography sx={{ ml: 1, fontSize: { xs: "0.85rem", md: "1rem" } }}>
+                                        {item.value}
+                                    </Typography>
+                                </Box>
                             ))}
                         </CardContent>
                     </Card>

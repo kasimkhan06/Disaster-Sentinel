@@ -214,11 +214,6 @@ export default function EventListing() {
           </div>
         )}
       </div>
-        <div className="footer" style={{ marginTop: "20px", textAlign: "center" }}>
-          <Typography variant="body2" color="text.secondary">
-            &copy; {new Date().getFullYear()} Disaster Sentinel. All rights reserved.
-          </Typography>
-        </div>
     </div>
   );
 }
