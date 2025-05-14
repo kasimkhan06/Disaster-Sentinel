@@ -8,13 +8,94 @@ import {
   CircularProgress,
   Grid,
   Box,
-  useMediaQuery,
   Button,
   Snackbar,
-  Alert
+  Alert,
+  Card,
+  CardContent,
+  Chip
 } from "@mui/material";
-import EventCard from "../../components/EventCard.jsx";
+import {
+  CalendarToday,
+  LocationOn,
+  Videocam,
+  Send
+  // Edit, // Removed as no longer needed
+  // Delete // Removed as no longer needed
+} from "@mui/icons-material";
+// import { useNavigate } from "react-router-dom"; // Not used
+// import axios from "axios"; // Not used
+
+// Assuming this CSS file contains the styles you provided for .event-card, .tags-container etc.
 import "../../../public/css/EventListing.css";
+
+// Internal component for displaying event cards
+// hideActions prop removed as Edit/Delete buttons are completely removed
+function EventDisplayCard({ event, customActions }) {
+
+  const getTagsBadge = () => {
+    if (!event.tags || event.tags.length === 0) return null;
+    return (
+      <div className="tags-container">
+        {event.tags.map((tag, index) => (
+          <Chip key={index} label={tag} size="small" className="event-tag" />
+        ))}
+      </div>
+    );
+  };
+
+  const getImage = () => {
+    if (event.event_type === "Seminar" || event.event_type === "Conference" || event.event_type === "Networking") {
+      return "/assets/Event Images/seminar.jpg";
+    } else if (event.event_type === "Workshop") {
+      return "/assets/Event Images/workshop.jpg";
+    } else {
+      // Default image or for other types like "Online Meeting"
+      return "/assets/Event Images/onlineMeeting.webp";
+    }
+  };
+
+  return (
+    <Card className="event-card">
+      <img src={getImage()} alt={event.event_type || "Event"} className="event-img" />
+      <CardContent className="event-content">
+        <Typography variant="h6" className="event-title">
+          {event.name}
+        </Typography>
+
+        <div className="event-details">
+          <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+            <CalendarToday fontSize="small" sx={{ mr: 0.5 }} /> {event.date}
+          </Typography>
+          {event.location_type === "online" ? (
+            <>
+              <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
+                <Videocam fontSize="small" sx={{ mr: 0.5 }} /> Online ({event.platform})
+              </Typography>
+              <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5, wordBreak: 'break-all' }}>
+                <Send fontSize="small" sx={{ mr: 0.5 }} /> {event.meeting_link}
+              </Typography>
+            </>
+          ) : (
+            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
+              <LocationOn fontSize="small" sx={{ mr: 0.5 }} /> {event.venue_name}, {event.district}, {event.state}
+            </Typography>
+          )}
+          {getTagsBadge()}
+        </div>
+
+        {/* Edit and Delete buttons and their container (event-actions) have been completely removed */}
+
+        {customActions && (
+          <div style={{ marginTop: 'auto' }}> {/* Pushes custom actions to the bottom */}
+            {customActions}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function UserAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState(null);
@@ -24,16 +105,18 @@ export default function UserAnnouncementsPage() {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   const [registeringEventId, setRegisteringEventId] = useState(null);
 
-  // Fetch user profile to get location
   const fetchUserProfile = async () => {
     try {
-      // In a real app, you would get the user ID from authentication context
-      const userId = localStorage.getItem('userId'); // Example - adjust based on your auth
-      if (!userId) return;
-      
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        console.warn("User ID not found for fetching profile.");
+        setUserLocation(null);
+        return;
+      }
       const response = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${userId}/`
       );
+      if (!response.ok) throw new Error(`Failed to fetch user profile: ${response.status}`);
       const data = await response.json();
       setUserLocation({
         state: data.state,
@@ -41,23 +124,23 @@ export default function UserAnnouncementsPage() {
       });
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      setUserLocation(null);
     }
   };
 
-  // Function to fetch announcements
   const fetchAnnouncements = async () => {
     setIsLoading(true);
     try {
       const response = await fetch("https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/");
+      if (!response.ok) throw new Error(`Failed to fetch announcements: ${response.status}`);
       const data = await response.json();
       const currentDate = new Date();
-      
-      // Filter out past events
+      currentDate.setHours(0, 0, 0, 0);
+
       const validAnnouncements = data.filter(announcement => {
         const announcementDate = new Date(announcement.date);
         return announcementDate >= currentDate;
       });
-      
       setAnnouncements(validAnnouncements);
     } catch (error) {
       console.error("Error fetching announcements:", error);
@@ -67,52 +150,44 @@ export default function UserAnnouncementsPage() {
     }
   };
 
-  // Function to register for an event
   const handleRegister = async (eventId) => {
     setRegisteringEventId(eventId);
     try {
-      // First get the current event to check capacity
       const eventResponse = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${eventId}/`
       );
+      if (!eventResponse.ok) throw new Error(`Failed to fetch event details: ${eventResponse.status}`);
       const eventData = await eventResponse.json();
-      
-      // Check if event has capacity (assuming attendees_count and max_capacity fields)
+
       if (eventData.attendees_count >= eventData.max_capacity) {
         setSnackbar({ open: true, message: "This event is already full", severity: "warning" });
         return;
       }
-      
-      // Update the event to increment attendees_count
+
       const updateResponse = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${eventId}/`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            attendees_count: eventData.attendees_count + 1
-          })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ attendees_count: eventData.attendees_count + 1 })
         }
       );
-      
+
       if (updateResponse.ok) {
         setSnackbar({ open: true, message: "Successfully registered for the event", severity: "success" });
-        // Refresh the announcements to show updated count
         fetchAnnouncements();
       } else {
-        throw new Error("Failed to register");
+        const errorData = await updateResponse.json().catch(() => ({ detail: "Failed to register" }));
+        throw new Error(errorData.detail || "Failed to register");
       }
     } catch (error) {
       console.error("Error registering for event:", error);
-      setSnackbar({ open: true, message: "Failed to register for event", severity: "error" });
+      setSnackbar({ open: true, message: error.message || "Failed to register for event", severity: "error" });
     } finally {
       setRegisteringEventId(null);
     }
   };
 
-  // Fetch data when component mounts
   useEffect(() => {
     fetchUserProfile();
     fetchAnnouncements();
@@ -120,10 +195,8 @@ export default function UserAnnouncementsPage() {
 
   const sortedAnnouncements = () => {
     if (!announcements) return [];
-
     let announcements_copy = [...announcements];
 
-    // Sorting logic
     if (sort === "newest") {
       announcements_copy.sort((a, b) => new Date(b.date) - new Date(a.date));
     } else if (sort === "oldest") {
@@ -134,95 +207,80 @@ export default function UserAnnouncementsPage() {
       announcements_copy.sort((a, b) => b.name.localeCompare(a.name));
     }
 
-    // Filter announcements based on location
     return announcements_copy.filter(announcement => {
-      // Online events are visible to everyone
       if (announcement.location_type === "online") return true;
-      
-      // Offline events only if user location matches
-      if (!userLocation || !userLocation.state) return false;
-      
-      return announcement.state === userLocation.state && 
-             (!announcement.city || announcement.city === userLocation.city);
+      if (!userLocation || !userLocation.state) {
+        return false;
+      }
+      return announcement.state === userLocation.state &&
+             (!announcement.city || announcement.city === "" || announcement.city === userLocation.city);
     });
   };
 
-  const handleCloseSnackbar = () => {
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
     setSnackbar({ ...snackbar, open: false });
   };
 
   return (
     <div className="background-image">
       <div className="container">
-        <div className="header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <Box sx={{ flexGrow: 1, justifyItems: "center", marginX: "auto" }}>
-            <Typography variant="h4" sx={{ fontSize: { xs: "1.5rem", md: "2rem" }, textAlign: "center" }}>
-              Announcements
-            </Typography>
-          </Box>
-        </div>
-        <div className="controls" style={{ display: "flex", justifyContent: "flex-end", gap: "15px", marginBottom: "20px" }}>
-          <Box
-            sx={{
-              paddingLeft: 3,
-              mb: 3,
-              textAlign: "left",
-              boxShadow: "2px 2px 2px #E8F1F5",
-              position: "relative",
-              width: { xs: "200px", md: "150px" },
-            }}
-          >
+        <Box className="header" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+          <Typography variant="h4" sx={{ flexGrow: 1, textAlign: "center", fontSize: { xs: "1.5rem", md: "2rem" } }}>
+            Announcements
+          </Typography>
+        </Box>
+        <Box className="controls" sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mb: 3 }}>
+          <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative" }}>
             <InputLabel
+                id="sort-by-label"
+                sx={{
+                    position: "absolute", top: -10, left: 8,
+                    backgroundColor: "white",
+                    padding: "0 4px", fontSize: "0.75rem", color: "text.secondary"
+                }}
+            >
+                Sort By
+            </InputLabel>
+            <Select
+              labelId="sort-by-label"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
               sx={{
-                position: "absolute",
-                top: -5,
-                left: 16,
-                backgroundColor: "background.paper",
-                padding: "0 2px",
-                fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.75rem" },
-                color: "text.secondary",
-                fontStyle: "italic",
+                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                "& .MuiSelect-select": { padding: "10px 14px" },
+                fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
               }}
             >
-              Sort By
-            </InputLabel>
-            <FormControl fullWidth>
-              <Select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                  "& .MuiSelect-select": { padding: "9px 32px 4px 12px" },
-                  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" },
-                }}
-              >
-                <MenuItem value="newest">Newest First</MenuItem>
-                <MenuItem value="oldest">Oldest First</MenuItem>
-                <MenuItem value="nameAZ">Name A-Z</MenuItem>
-                <MenuItem value="nameZA">Name Z-A</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-        </div>
+              <MenuItem value="newest">Newest First</MenuItem>
+              <MenuItem value="oldest">Oldest First</MenuItem>
+              <MenuItem value="nameAZ">Name A-Z</MenuItem>
+              <MenuItem value="nameZA">Name Z-A</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
         {isLoading ? (
-          <div className="loading-events" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "50vh" }}>
-            <CircularProgress size={50} sx={{ color: "#4F646F", marginBottom: "10px" }} />
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "50vh" }}>
+            <CircularProgress size={50} sx={{ color: "#4F646F", mb: 2 }} />
             <Typography>Loading announcements...</Typography>
-          </div>
+          </Box>
         ) : sortedAnnouncements().length === 0 ? (
-          <div className="no-events" style={{ textAlign: "center", marginTop: "50px" }}>
+          <Box sx={{ textAlign: "center", mt: 5 }}>
             <Typography variant="h6">No announcements available at the moment.</Typography>
-          </div>
+            <Typography variant="body1" sx={{mt: 1}}>Please check back later or adjust your location settings if applicable.</Typography>
+          </Box>
         ) : (
           <Grid container spacing={3}>
             {sortedAnnouncements().map((announcement) => (
               <Grid item xs={12} sm={6} md={4} key={announcement.id}>
-                <EventCard 
+                <EventDisplayCard
                   event={announcement}
-                  hideActions // Prop to hide edit/delete buttons in EventCard
+                  // hideActions prop removed as it's no longer used by EventDisplayCard
                   customActions={
-                    <Box sx={{ mt: 2 }}>
+                    <Box sx={{ mt: 2, textAlign: 'center' }}>
                       {announcement.attendees_count >= announcement.max_capacity ? (
                         <Typography color="error" variant="body2">
                           Event slots filled
@@ -234,9 +292,10 @@ export default function UserAnnouncementsPage() {
                           size="small"
                           disabled={registeringEventId === announcement.id}
                           onClick={() => handleRegister(announcement.id)}
+                          sx={{ minWidth: '100px' }}
                         >
                           {registeringEventId === announcement.id ? (
-                            <CircularProgress size={24} />
+                            <CircularProgress size={24} color="inherit" />
                           ) : (
                             "Register"
                           )}
@@ -253,19 +312,19 @@ export default function UserAnnouncementsPage() {
           </Grid>
         )}
       </div>
-      <div className="footer" style={{ marginTop: "20px", textAlign: "center", paddingBottom: "20px" }}>
+      <Box className="footer" sx={{ mt: 4, textAlign: "center", pb: 3 }}>
         <Typography variant="body2" color="text.secondary">
           &copy; {new Date().getFullYear()} Disaster Sentinel. All rights reserved.
         </Typography>
-      </div>
-      
+      </Box>
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
