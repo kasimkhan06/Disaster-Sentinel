@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import osm from "../../../../components/osm-providers";
 import { useNavigate } from "react-router-dom";
+import { use } from "react";
 
 // Custom Leaflet icon
 const myIcon = new L.Icon({
@@ -13,33 +14,35 @@ const myIcon = new L.Icon({
   shadowUrl: "https://unpkg.com/leaflet@1.6/dist/images/marker-shadow.png"
 });
 
-const MissingPersonMap = ({ name, missingDate, locations, selectedPerson }) => {
+const MissingPersonMap = ({ persons, selectedPerson }) => {
   const [center, setCenter] = useState({ lat: 15.4909, lng: 73.8278 });
   const [markers, setMarkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const markerRefs = useRef([]);
-  const mapRef = useRef(null); 
-  const navigate = useNavigate(); 
+  const mapRef = useRef(null);
+  const navigate = useNavigate();
+  const [missing_Date, setMissingDate] = useState(null);
+  const [missing_Time, setMissingTime] = useState(null);
 
   useEffect(() => {
     const fetchLocation = async () => {
       markerRefs.current = [];
       try {
         setLoading(true);
-        if (!locations.length) return;
+        if (!persons.length) return;
 
         const locationMap = new Map();
 
         // Fetch all geocode results in parallel
-        const locationPromises = locations.map(loc =>
-          fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${loc}`)
+        const locationPromises = persons.map((person) =>
+          fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${person.last_seen_location}`)
             .then(res => res.json())
         );
         const locationResults = await Promise.all(locationPromises);
 
         locationResults.forEach((data, i) => {
           if (!data || data.length === 0) {
-            console.error(`Location not found: ${locations[i]}`);
+            console.error(`Location not found: ${persons[i].last_seen_location}`);
             return;
           }
 
@@ -49,14 +52,21 @@ const MissingPersonMap = ({ name, missingDate, locations, selectedPerson }) => {
           if (!locationMap.has(key)) {
             locationMap.set(key, {
               position: [parseFloat(lat), parseFloat(lon)],
-              locationName: locations[i],
+              locationName: persons[i].last_seen_location,
               persons: [],
             });
           }
 
           locationMap.get(key).persons.push({
-            name: name[i],
-            missingDate: missingDate[i],
+            id: persons[i].id,
+            name: persons[i].full_name,
+            missingDate: persons[i].created_at,
+            gender: persons[i].gender,
+            age: persons[i].age,
+            lastSeenLocation: persons[i].last_seen_location,
+            description: persons[i].description,
+            person_photo: persons[i].person_photo,
+            identification_marks: persons[i].identification_marks,
           });
         });
 
@@ -77,17 +87,16 @@ const MissingPersonMap = ({ name, missingDate, locations, selectedPerson }) => {
     };
 
     fetchLocation();
-  }, [locations, name, missingDate]);
+  }, [persons]);
 
   useEffect(() => {
     if (selectedPerson && markers.length > 0) {
       const markerEntry = markers.find((marker) =>
-        marker.persons.some((p) => p.name === selectedPerson.name)
+        marker.persons.some((p) => p.name === selectedPerson.full_name)
       );
 
       if (markerEntry) {
         const index = markers.indexOf(markerEntry);
-
         const tryOpenPopup = () => {
           const markerRef = markerRefs.current[index];
           if (markerRef && markerRef.openPopup) {
@@ -96,10 +105,9 @@ const MissingPersonMap = ({ name, missingDate, locations, selectedPerson }) => {
               mapRef.current.flyTo(markerEntry.position, 13);
             }
           } else {
-            setTimeout(tryOpenPopup, 100); // Retry until marker is ready
+            setTimeout(tryOpenPopup, 100);
           }
         };
-
         tryOpenPopup();
       }
     }
@@ -157,44 +165,50 @@ const MissingPersonMap = ({ name, missingDate, locations, selectedPerson }) => {
                 borderBottom: "2px solid #007bff",
                 paddingBottom: "5px"
               }}>
-                {marker.locationName}
+                {marker.locationName.split(",").slice(0, 2).join(", ")}
               </div>
 
-              {marker.persons.map((person, i) => (
-                <div
-                  key={i}
-                  style={{
-                    marginBottom: "10px",
-                    borderBottom: "1px solid #ccc",
-                    paddingBottom: "8px",
-                  }}
-                >
-                  <span style={{ color: "#d32f2f", fontSize: "16px", fontWeight: 600 }}>
-                    {person.name}
-                  </span>
-                  <br />
-                  <span style={{ color: "#555", fontSize: "14px" }}>
-                    Missing date: {person.missingDate}
-                  </span>
-                  <br />
-                  <span
-                    onClick={() =>
-                      navigate(`/person-details/${person.id}`, {
-                        state: { person },
-                      })
-                    }
+              {marker.persons.map((person, i) => {
+                const dateObj = new Date(person.missingDate);
+                const date = isNaN(dateObj.getTime()) ? "Unknown" : dateObj.toISOString().split("T")[0];
+                const time = isNaN(dateObj.getTime()) ? "Unknown" : dateObj.toTimeString().split(" ")[0];
+                return (
+                  <div
+                    key={i}
                     style={{
-                      color: "#1976d2",
-                      cursor: "pointer",
-                      fontSize: "10px",
-                      marginTop: "4px",
-                      display: "inline-block",
+                      marginBottom: "10px",
+                      borderBottom: "1px solid #ccc",
+                      paddingBottom: "8px",
                     }}
                   >
-                    View Details
-                  </span>
-                </div>
-              ))}
+                    <span style={{ color: "#d32f2f", fontSize: "16px", fontWeight: 600 }}>
+                      {person.name}
+                    </span>
+                    <br />
+                    <span style={{ color: "#555", fontSize: "14px" }}>
+                      Date: {date} <br />
+                      Time: {time}
+                    </span>
+                    <br />
+                    <span
+                      onClick={() =>
+                        navigate(`/person-details/${person.id}`, {
+                          state: { person },
+                        })
+                      }
+                      style={{
+                        color: "#1976d2",
+                        cursor: "pointer",
+                        fontSize: "10px",
+                        marginTop: "4px",
+                        display: "inline-block",
+                      }}
+                    >
+                      View Details
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </Popup>
         </Marker>
