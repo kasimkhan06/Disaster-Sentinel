@@ -56,7 +56,7 @@ const Register = () => {
     const fetchExcelFile = async () => {
       try {
         // Assuming the file is in the public folder
-        const response = await fetch("/District_Masters.xlsx");
+        const response = await fetch("/assets/District_Masters.xlsx");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
