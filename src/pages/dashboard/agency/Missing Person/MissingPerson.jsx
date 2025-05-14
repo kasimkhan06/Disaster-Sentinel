@@ -33,7 +33,41 @@ function MissingPerson() {
           "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/missing-persons/"
         );
         const data = await res.json();
-        setMissingPersons(data);
+        console.log("Missing persons data:", data);
+
+        // Fetch detailed data for each person in parallel
+        const personDetailsPromises = data.map(async (person) => {
+          try {
+            const response = await fetch(
+              `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/missing-persons/${person.id}/`
+            );
+            const personData = await response.json();
+            console.log(`Details for person ID ${person.id}:`, personData);
+            return { 
+              ...person, 
+              person_photo: personData.person_photo || "", 
+              description: personData.description || "", 
+              identification_marks: personData.identification_marks || "",
+              identity_card_image: personData.identity_card_image || "",
+            }; 
+          } catch (err) {
+            console.error(`Failed to fetch details for person ID ${person.id}:`, err);
+            return { 
+              ...person, 
+              person_photo: "", 
+              description: "", 
+              identification_marks: "", 
+              identity_card_image: "" 
+            };
+          }
+        });
+
+        // Wait for all the details to be fetched
+        const personsWithDetails = await Promise.all(personDetailsPromises);
+
+        // Update the state with the enriched data
+        setMissingPersons(personsWithDetails);
+        console.log("Enriched missing persons data:", personsWithDetails);
       } catch (err) {
         console.error("Failed to fetch missing persons:", err);
       } finally {
@@ -44,6 +78,14 @@ function MissingPerson() {
     fetchMissingPersons();
   }, []);
 
+  const getMissingDate = (dateString) => {
+    const dateObj = new Date(dateString);
+    const date = dateObj.toISOString().split("T")[0];
+    const time = dateObj.toTimeString().split(" ")[0];
+
+    return { date, time };
+  };
+
   const topPersonsByType = useMemo(() => {
     const grouped = missingPersons.reduce((acc, person) => {
       acc[person.eventtype] = acc[person.eventtype] || [];
@@ -53,8 +95,6 @@ function MissingPerson() {
 
     return Object.values(grouped).flatMap((group) => group.slice(0, 5));
   }, [missingPersons]);
-
-  const marqueePersons = missingPersons.slice(0, 3);
 
   return (
     <Box
@@ -68,33 +108,9 @@ function MissingPerson() {
     >
       <Container maxWidth="xl">
         <Grid container spacing={3}>
-          {/* Marquee */}
-          {/* <Grid item xs={12}>
-            <Card elevation={2} sx={{ backgroundColor: "#E8F1F5", p: 1 }}>
-              <Marquee speed={50} gradient={false}>
-                {marqueePersons.map((person) => (
-                  <Box
-                    key={person.id}
-                    onClick={() => setSelectedPerson(person)}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      mx: 3,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <Typography fontWeight="bold" sx={{ whiteSpace: "nowrap" }}>
-                      • {person.name} - {person.missingDate} - {person.location}
-                    </Typography>
-                  </Box>
-                ))}
-              </Marquee>
-            </Card>
-          </Grid> */}
-
           {/* Map and Sidebar */}
-          <Grid item xs={12} md={8}>
-            <Card elevation={3}>
+          <Grid item xs={12} md={12} lg={8} sx={{ height: "100%" }}>
+            <Card elevation={3} sx={{ height: "100%" }}>
               <CardContent sx={{ p: 0 }}>
                 <Box sx={{ height: 500 }} ref={mapContainerRef}>
                   {loading ? (
@@ -108,9 +124,7 @@ function MissingPerson() {
                     </Box>
                   ) : (
                     <MissingPersonMap
-                      name={missingPersons.map((p) => p.name)}
-                      missingDate={missingPersons.map((p) => p.missingDate)}
-                      locations={missingPersons.map((p) => p.location)}
+                      persons={missingPersons}
                       selectedPerson={selectedPerson}
                     />
                   )}
@@ -120,7 +134,7 @@ function MissingPerson() {
           </Grid>
 
           {/* Person Cards */}
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={12} lg={4} sx={{ height: "100%" }}>
             <Card elevation={3} sx={{ height: 500, overflowY: "auto" }}>
               <CardContent>
                 {loading ? (
@@ -148,8 +162,8 @@ function MissingPerson() {
                         >
                           <Box
                             component="img"
-                            src={person.img}
-                            alt={person.name}
+                            src={person.person_photo ? `https://res.cloudinary.com/doxgltggk/${person.person_photo}` : "/assets/person.png"}
+                            alt={person.full_name}
                             sx={{
                               width: 60,
                               height: 60,
@@ -160,12 +174,12 @@ function MissingPerson() {
                             }}
                           />
                           <Box>
-                            <Typography fontWeight="bold">{person.name}</Typography>
+                            <Typography fontWeight="bold">{person.full_name}</Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Missing: {person.missingDate}
+                              Missing: {getMissingDate(person.created_at).date} at {getMissingDate(person.created_at).time}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Location: {person.location}
+                              Location: {person.last_seen_location.split(",").slice(0, 2).join(", ")}
                             </Typography>
                           </Box>
                         </Card>

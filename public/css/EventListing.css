@@ -25,6 +25,23 @@
   position: relative;
 }
 
+/* Responsive styles */
+@media (max-width: 1024px) { /* Tablet */
+  .container {
+    padding: 1.5rem;
+    max-width: 900px;
+    margin-top: 100px;
+  }
+}
+
+@media (max-width: 768px) { /* Mobile */
+  .container {
+    padding: 1rem;
+    max-width: 100%;
+    margin-top: 60px;
+  }
+}
+
 .event-card {
   display: flex;
   flex-direction: column;

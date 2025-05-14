@@ -17,7 +17,7 @@ const StateDistrictDropdown = ({
   useEffect(() => {
     const fetchExcelFile = async () => {
       try {
-        const response = await fetch("/District_Masters.xlsx"); // Ensure this path is correct relative to your public folder
+        const response = await fetch("/assets/District_Masters.xlsx"); // Ensure this path is correct relative to your public folder
         const blob = await response.blob();
         const reader = new FileReader();
 

@@ -176,7 +176,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 
           {/* Tabs or Drawer for Mobile */}
           {isMatch ? (
-            <DrawerComp />
+            <DrawerComp isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {isLoggedIn ? (
