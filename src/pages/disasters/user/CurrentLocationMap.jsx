@@ -29,7 +29,7 @@ const FitBounds = ({ markers }) => {
   return null;
 };
 
-const CurrentLocationMap = ({ filteredDisasters }) => {
+const CurrentLocationMap = ({ filteredDisasters , isMobile }) => {
   if (!filteredDisasters || filteredDisasters.length === 0) {
     return <p style={{ padding: "16px", margin: "16px", textAlign: "center" }}>Location data not available.</p>;
   }
@@ -72,7 +72,7 @@ const CurrentLocationMap = ({ filteredDisasters }) => {
         position: "relative",
         width: "100%",
         height: "400px",
-        borderRadius: "12px",
+        borderRadius: isMobile ? 0 : 2,
         overflow: "hidden",
       }}
     >
@@ -103,6 +103,7 @@ const CurrentLocationMap = ({ filteredDisasters }) => {
         ))}
         <FitBounds markers={markerPositions} />
       </MapContainer>
+      {!isMobile && (
       <div
         style={{
           position: "absolute",
@@ -120,6 +121,7 @@ const CurrentLocationMap = ({ filteredDisasters }) => {
           zIndex: 2, // Ensure the overlay is above the map
         }}
       />
+      )}
     </div>
   );
 };

@@ -10,6 +10,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import Container from "@mui/material/Container";
@@ -27,6 +30,7 @@ import ThermostatIcon from "@mui/icons-material/Thermostat";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import AirIcon from "@mui/icons-material/Air";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   LineChart,
   Line,
@@ -43,6 +47,7 @@ import MapIcon from "@mui/icons-material/Map";
 import WarningIcon from "@mui/icons-material/Warning";
 import { PiX } from "react-icons/pi";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import Footer from "../../../components/Footer";
 
 function CurrentLocation() {
   const theme = useTheme();
@@ -241,7 +246,20 @@ function CurrentLocation() {
           zIndex: 0, // Only needed if you have other elements with zIndex
         }}
       >
-        <Container maxWidth={false} sx={{ width: "100%" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+          }}
+        >
+        <Container maxWidth={false}
+            sx={{
+              width: "100%",
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+            }}>
           <div
             style={{
               display: "flex",
@@ -267,7 +285,7 @@ function CurrentLocation() {
                       type: "search",
                       style: {
                         // width: "400px", // Set width to half
-                        fontSize: '16px',
+                        fontSize: "16px",
                       },
                     },
                   }}
@@ -304,11 +322,10 @@ function CurrentLocation() {
                     },
                     "&::placeholder": {
                       fontSize: {
-                        xs: "16px !important" ,
+                        xs: "16px !important",
                         sm: "1rem !important",
                         md: isBelow ? "1.1rem !important" : "1.2rem !important",
                         lg: isBelow ? "1.1rem !important" : "1.2rem !important",
-                        
                       },
                     },
                     width: { xs: "300px", md: "400px" },
@@ -326,6 +343,7 @@ function CurrentLocation() {
                   height: "100%",
                   backgroundColor: "white",
                   mb: 1,
+                  mt: 2,
                 }}
               >
                 <Grid
@@ -347,12 +365,13 @@ function CurrentLocation() {
                           mt: 2,
                           mb: 4,
                           fontSize: {
-                            xs: "1rem",
-                            sm: "1.2rem",
-                            md: isBelow ? "1.2rem" : "1.4rem",
-                            lg: isBelow ? "1.2rem" : "1.4rem",
+                            xs: "0.9rem",
+                            sm: "1rem",
+                            md: isBelow ? "1rem" : "1.2rem",
+                            lg: isBelow ? "1rem" : "1.2rem",
                           },
-                          fontWeight: "500",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
                         }}
                       >
                         Current Weather Conditions
@@ -448,7 +467,7 @@ function CurrentLocation() {
                                       variant="caption"
                                       sx={{
                                         fontSize: {
-                                          xs: "0.7rem",
+                                          xs: "0.8rem",
                                           sm: "0.8rem",
                                           md: isBelow ? "0.9rem" : "1rem",
                                           lg: isBelow ? "0.9rem" : "1rem",
@@ -462,10 +481,10 @@ function CurrentLocation() {
                                   <Typography
                                     sx={{
                                       fontSize: {
-                                        xs: 14,
-                                        sm: 14,
-                                        md: 16,
-                                        lg: 22,
+                                        xs: 15,
+                                        sm: 15,
+                                        md: 17,
+                                        lg: isBelow ? 17.5 : 19,
                                       },
                                       fontWeight: "500",
                                       mt: 1,
@@ -522,12 +541,13 @@ function CurrentLocation() {
                         align="center"
                         sx={{
                           fontSize: {
-                            xs: "1rem",
-                            sm: "1.2rem",
-                            md: isBelow ? "1.2rem" : "1.4rem",
-                            lg: isBelow ? "1.2rem" : "1.4rem",
+                            xs: "0.9rem",
+                            sm: "1rem",
+                            md: isBelow ? "1rem" : "1.1rem",
+                            lg: isBelow ? "1rem" : "1.1rem",
                           },
-                          fontWeight: "500",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
                           mt: 2,
                           mb: 4,
                           paddingLeft: { xs: "0px", md: "0px", lg: "10px" },
@@ -540,7 +560,7 @@ function CurrentLocation() {
                       {/* Dropdown for disaster types */}
                       <Box
                         sx={{
-                          paddingLeft: 3,
+                          paddingLeft: { xs: 0, md: 3 },
                           // paddingRight: { xs: 3, md: 3, lg: 0 },
                           mb: 3,
                           textAlign: "left",
@@ -664,32 +684,127 @@ function CurrentLocation() {
                       )}
                     </div>
                   </Grid>
-                  <Grid
-                    container
-                    justifyContent="center"
-                    size={{ xs: 11, sm: 10, md: 10, lg: 5 }}
-                    sx={{
-                      pr: { xs: 0, md: 3 },
-                      pb: 3,
-                      pt: 3,
-                      pl: { xs: 0, md: 1 },
-                    }}
-                    marginX="auto"
-                  >
-                    <Box
-                      sx={{
-                        width: "100%",
-                        height: "400px",
-                        borderRadius: "12px",
-                        overflow: "hidden",
-                        position: "relative", // Ensure the Box is a positioning context
-                      }}
+                  {isMobileOrTablet ? (
+                    <Grid
+                      container
+                      justifyContent="center"
+                      size={{ xs: 12, sm: 12, md: 10, lg: 5 }}
+                      pb={3}
+                      width="100%"
+                      margin= "10px"
+                      // marginX="auto"
                     >
-                      <CurrentLocationMap
-                        filteredDisasters={filteredDisasters}
-                      />
-                    </Box>
-                  </Grid>
+                      <Accordion
+                        defaultExpanded={false}
+                        sx={{
+                          mb: 1,
+                          boxShadow: "none",
+                          backgroundColor: "rgba(255, 255, 255, 0.67)",
+                          transition: "none",
+                          "&.Mui-expanded": {
+                            margin: "0",
+                            minHeight: "48px",
+                          },
+                          "&:before": {
+                            display: "none",
+                          },
+                          width: "100%",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          sx={{
+                            backgroundColor: "rgb(255, 255, 255)",
+                            minHeight: "48px !important",
+                            "&.Mui-expanded": {
+                              minHeight: "48px !important",
+                            },
+                            "& .MuiAccordionSummary-content": {
+                              margin: "12px 0",
+                              "&.Mui-expanded": {
+                                margin: "12px 0",
+                              },
+                            },
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                              fontSize: {
+                                xs: "0.9rem",
+                                sm: "1rem",
+                                md: isBelow ? "1rem" : "1.2rem",
+                                lg: isBelow ? "1rem" : "1.2rem",
+                              },
+                              alignContent: "center",
+                              marginX: "auto",
+                            }}
+                          >
+                            PAST DISASTERS ON MAP
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails
+                          sx={{
+                            p: 0,
+                            width: "100%",
+                            backgroundColor: "rgb(255, 255, 255)",
+                          }}
+                        >
+                          {/* Map */}
+                          {/* <Grid
+                            container
+                            justifyContent="center"
+                            size={{ xs: 12 }}
+                            marginX="auto"
+                          > */}
+                          <Box
+                            sx={{
+                              width: "100%",
+                              height: "400px",
+                              borderRadius: isMobileOrTablet ? 0 : 2,
+                              overflow: "hidden",
+                              position: "relative", // Ensure the Box is a positioning context
+                            }}
+                          >
+                            <CurrentLocationMap
+                              filteredDisasters={filteredDisasters}
+                              isMobile={isMobileOrTablet}
+                            />
+                          </Box>
+                          {/* </Grid> */}
+                        </AccordionDetails>
+                      </Accordion>
+                    </Grid>
+                  ) : (
+                    <Grid
+                      container
+                      justifyContent="center"
+                      size={{ xs: 12, sm: 10, md: 10, lg: 5 }}
+                      sx={{
+                        pr: { xs: 0, md: 3 },
+                        pb: 3,
+                        pt: 3,
+                        pl: { xs: 0, md: 1 },
+                      }}
+                      marginX="auto"
+                    >
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: "400px",
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          position: "relative", // Ensure the Box is a positioning context
+                        }}
+                      >
+                        <CurrentLocationMap
+                          filteredDisasters={filteredDisasters}
+                        />
+                      </Box>
+                    </Grid>
+                  )}
                 </Grid>
               </Box>
 
@@ -719,12 +834,13 @@ function CurrentLocation() {
                       mb: 0,
                       pt: 2,
                       fontSize: {
-                        xs: "1rem",
-                        sm: "1.2rem",
-                        md: isBelow ? "1.2rem" : "1.4rem",
-                        lg: isBelow ? "1.2rem" : "1.4rem",
+                        xs: "0.9rem",
+                        sm: "1rem",
+                        md: isBelow ? "1rem" : "1.2rem",
+                        lg: isBelow ? "1rem" : "1.2rem",
                       },
-                      fontWeight: "500",
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
                     }}
                   >
                     Disasters
@@ -814,9 +930,9 @@ function CurrentLocation() {
                                 "& .MuiInputLabel-root": {
                                   fontSize: {
                                     xs: "0.8rem",
-                                    sm: "0.9rem",
-                                    md: isBelow ? "1rem" : "1.1rem",
-                                    lg: isBelow ? "1rem" : "1.1rem",
+                                    sm: "0.8rem",
+                                    md: isBelow ? "0.9rem" : "1rem",
+                                    lg: isBelow ? "0.9rem" : "1rem",
                                   }, // Reduced font size
                                 },
                                 width: "100%",
@@ -879,9 +995,9 @@ function CurrentLocation() {
                                 "& .MuiInputLabel-root": {
                                   fontSize: {
                                     xs: "0.8rem",
-                                    sm: "0.9rem",
-                                    md: isBelow ? "1rem" : "1.1rem",
-                                    lg: isBelow ? "1rem" : "1.1rem",
+                                    sm: "0.8rem",
+                                    md: isBelow ? "0.9rem" : "1rem",
+                                    lg: isBelow ? "0.9rem" : "1rem",
                                   }, // Reduced font size
                                 },
                                 width: "100%",
@@ -922,6 +1038,7 @@ function CurrentLocation() {
                           "&:hover": {
                             backgroundColor: "white", // Prevent color change on hover
                           },
+                          fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"},
                         }}
                       >
                         Apply Filters
@@ -951,6 +1068,7 @@ function CurrentLocation() {
                           "&:hover": {
                             backgroundColor: "white",
                           },
+                          fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"},
                         }}
                       >
                         Clear Filters
@@ -1050,7 +1168,7 @@ function CurrentLocation() {
             // </Typography>
             <Box
               sx={{
-                width: {xs: "100%", sm: "90%", md: "50%", lg: "50%"},
+                width: { xs: "100%", sm: "90%", md: "50%", lg: "50%" },
                 margin: "0 auto",
                 display: "flex",
                 flexDirection: "column",
@@ -1076,12 +1194,8 @@ function CurrentLocation() {
                   fontSize: {
                     xs: "1.1rem",
                     sm: "1.1rem",
-                    md: isBelow
-                      ? "1.3rem"
-                      : "1.3rem",
-                    lg: isBelow
-                      ? "1.4rem"
-                      : "1.4rem",
+                    md: isBelow ? "1.3rem" : "1.3rem",
+                    lg: isBelow ? "1.4rem" : "1.4rem",
                   },
                   fontWeight: "600",
                   color: "#2c3e50", // Darker text color
@@ -1096,12 +1210,8 @@ function CurrentLocation() {
                   fontSize: {
                     xs: "0.85rem",
                     sm: "0.85rem",
-                    md: isBelow
-                      ? "0.95rem"
-                      : "0.95rem",
-                    lg: isBelow
-                      ? "0.95rem"
-                      : "1rem",
+                    md: isBelow ? "0.95rem" : "0.95rem",
+                    lg: isBelow ? "0.95rem" : "1rem",
                   },
                   color: "#34495e", // Slightly lighter text color
                   fontStyle: "italic",
@@ -1162,12 +1272,8 @@ function CurrentLocation() {
                   fontSize: {
                     xs: "0.8rem",
                     sm: "0.8rem",
-                    md: isBelow
-                      ? "0.85rem"
-                      : "0.9rem",
-                    lg: isBelow
-                      ? "0.9rem"
-                      : "0.95rem",
+                    md: isBelow ? "0.85rem" : "0.9rem",
+                    lg: isBelow ? "0.9rem" : "0.95rem",
                   },
                   color: "#7f8c8d", // Lighter text color for subtext
                   mt: 2,
@@ -1182,12 +1288,8 @@ function CurrentLocation() {
                   fontSize: {
                     xs: "0.7rem",
                     sm: "0.7rem",
-                    md: isBelow
-                      ? "0.8rem"
-                      : "0.85rem",
-                    lg: isBelow
-                      ? "0.8rem"
-                      : "0.85rem",
+                    md: isBelow ? "0.8rem" : "0.85rem",
+                    lg: isBelow ? "0.8rem" : "0.85rem",
                   },
                   color: "#95a5a6", // Even lighter text color for disclaimer
                   mt: 2,
@@ -1203,6 +1305,12 @@ function CurrentLocation() {
 
 The xs part takes up when screen is extra small, Similarly small, medium and large classes as well, based on their respective screen size definition in CSS. */}
         </Container>
+        {selectedLocation ? (
+            <Footer />
+          ) : (
+            <Footer sx={{ mt: 0 }} />
+          )}
+        </Box>
       </Box>
     </>
   );

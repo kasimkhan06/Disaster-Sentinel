@@ -49,7 +49,7 @@ const AgencyProfile = () => {
   const isBelow = useMediaQuery("(max-width:1470px)");
   const theme = useTheme();
   const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm"));
-  const [expandedAccordion, setExpandedAccordion] = useState('info');
+  const [expandedAccordion, setExpandedAccordion] = useState("info");
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -155,8 +155,8 @@ const AgencyProfile = () => {
   // Mobile view components
   const MobileAgencyInfo = () => (
     <Accordion
-      expanded={expandedAccordion === 'info'}
-      onChange={handleAccordionChange('info')}
+      expanded={expandedAccordion === "info"}
+      onChange={handleAccordionChange("info")}
       sx={{
         mb: 1,
         boxShadow: "none",
@@ -180,24 +180,30 @@ const AgencyProfile = () => {
             minHeight: "48px !important",
           },
           "& .MuiAccordionSummary-content": {
-                                  margin: "12px 0",
-                                  "&.Mui-expanded": {
-                                    margin: "12px 0",
-                                  },
-                                },
+            margin: "12px 0",
+            "&.Mui-expanded": {
+              margin: "12px 0",
+            },
+          },
         }}
       >
-        <Typography sx={{ fontWeight: "bold",
-                                  color: "rgba(84, 91, 100, 0.87)",
-                                  textTransform: "uppercase",
-                                  fontSize: "0.85rem", }}>
+        <Typography
+          sx={{
+            fontWeight: "bold",
+            color: "rgba(84, 91, 100, 0.87)",
+            textTransform: "uppercase",
+            fontSize: "0.85rem",
+          }}
+        >
           Agency Information
         </Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ p: 0, backgroundColor: "rgb(255, 255, 255)" }}>
         <CardContent sx={{ p: 1 }}>
           {images.length > 0 && (
-            <Box sx={{ width: "100%", mb: 2, borderRadius: 2, overflow: "hidden" }}>
+            <Box
+              sx={{ width: "100%", mb: 2, borderRadius: 2, overflow: "hidden" }}
+            >
               <CardMedia
                 component="img"
                 image={images[0].url}
@@ -209,7 +215,9 @@ const AgencyProfile = () => {
           {[
             {
               label: "Established",
-              value: new Date(agency.date_of_establishment).toLocaleDateString(),
+              value: new Date(
+                agency.date_of_establishment
+              ).toLocaleDateString(),
               icon: <CalendarToday sx={{ color: "#AEC6CF" }} />,
             },
             {
@@ -253,15 +261,25 @@ const AgencyProfile = () => {
               >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   {item.icon}
-                  <Typography sx={{ marginLeft: 1, fontSize: "0.79rem", fontWeight: 500 }}>
+                  <Typography
+                    sx={{ marginLeft: 1, fontSize: "0.79rem", fontWeight: 500 }}
+                  >
                     {item.label}:
                   </Typography>
                   {item.isLink ? (
                     <Link
-                      href={item.value.startsWith("http") ? item.value : `https://${item.value}`}
+                      href={
+                        item.value.startsWith("http")
+                          ? item.value
+                          : `https://${item.value}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
-                      sx={{ marginLeft: 1, fontSize: "0.79rem", color: "#2196F3" }}
+                      sx={{
+                        marginLeft: 1,
+                        fontSize: "0.79rem",
+                        color: "#2196F3",
+                      }}
                     >
                       {item.value.replace(/^https?:\/\//, "")}
                     </Link>
@@ -269,16 +287,27 @@ const AgencyProfile = () => {
                     <Typography
                       variant="body1"
                       onClick={() => {
-                        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-                        if (window.confirm(`Do you want to call ${item.value}?`)) {
+                        const isMobile = /Mobi|Android/i.test(
+                          navigator.userAgent
+                        );
+                        if (
+                          window.confirm(`Do you want to call ${item.value}?`)
+                        ) {
                           if (isMobile) {
                             window.location.href = `tel:${item.value}`;
                           } else {
-                            alert(`Please use your phone to call ${item.value}`);
+                            alert(
+                              `Please use your phone to call ${item.value}`
+                            );
                           }
                         }
                       }}
-                      sx={{ marginLeft: 1, fontSize: "0.79rem", color: "#4CAF50", cursor: "pointer" }}
+                      sx={{
+                        marginLeft: 1,
+                        fontSize: "0.79rem",
+                        color: "#4CAF50",
+                        cursor: "pointer",
+                      }}
                     >
                       {item.value}
                     </Typography>
@@ -292,69 +321,78 @@ const AgencyProfile = () => {
             ))}
           {/* Volunteer Button */}
           <Button
-                fullWidth
-                onClick={handleVolunteerClick}
-                sx={{
-                  mt: 2,
-                  textTransform: "uppercase",
-                  fontSize: "0.8rem",
-                  fontWeight: 500,
-                  py: 1.5,
-                }}
-              >
-                WANT TO BE A VOLUNTEER?
-              </Button>
+            fullWidth
+            onClick={handleVolunteerClick}
+            sx={{
+              mt: 2,
+              textTransform: "uppercase",
+              fontSize: "0.8rem",
+              fontWeight: 500,
+              py: 1.5,
+            }}
+          >
+            WANT TO BE A VOLUNTEER?
+          </Button>
 
-              {/* Volunteer Dialog */}
-              {volunteer && !submitSuccess && (
-                <Card sx={{ mt: 2, px: {xs:3, sm:3, md:2} , borderRadius: 0, boxShadow: 0 }}>
-                  <Typography sx={{ fontSize: "0.8rem", textAlign: "center", mb: 1 }}>
-                    Please write a message to the agency:
-                  </Typography>
-                  <TextField
-                    id="volunteer-message"
-                    label="Your Message"
-                    type="text"
-                    fullWidth
-                    multiline
-                    rows={isMobileOrTablet ? 2 : 3}
-                    value={volunteerMessage}
-                    onChange={(e) => setVolunteerMessage(e.target.value)}
-                    error={!!submitError}
-                    helperText={submitError}
-                    sx={{ mb: 2 }}
-                  />
-                  <Box sx={{ display: "flex", justifyContent: "center" }}>
-                    <Button
-                      onClick={handleCloseVolunteer}
-                      color="secondary"
-                      sx={{   fontSize: "0.8rem"  }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleVolunteerSubmit}
-                      color="primary"
-                      disabled={isSubmitting}
-                      sx={{  fontSize: "0.8rem" }}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <CircularProgress size={20} />
-                          <Typography sx={{ ml: 1 }}>Submitting...</Typography>
-                        </>
-                      ) : (
-                        "Submit"
-                      )}
-                    </Button>
-                  </Box>
-                </Card>
-              )}
-              {submitSuccess && !volunteer && (
-                <Typography align="center" sx={{ mt: 2 }}>
-                  Thank you for your request.
-                </Typography>
-              )}
+          {/* Volunteer Dialog */}
+          {volunteer && !submitSuccess && (
+            <Card
+              sx={{
+                mt: 2,
+                px: { xs: 3, sm: 3, md: 2 },
+                borderRadius: 0,
+                boxShadow: 0,
+              }}
+            >
+              <Typography
+                sx={{ fontSize: "0.8rem", textAlign: "center", mb: 1 }}
+              >
+                Please write a message to the agency:
+              </Typography>
+              <TextField
+                id="volunteer-message"
+                label="Your Message"
+                type="text"
+                fullWidth
+                multiline
+                rows={isMobileOrTablet ? 2 : 3}
+                value={volunteerMessage}
+                onChange={(e) => setVolunteerMessage(e.target.value)}
+                error={!!submitError}
+                helperText={submitError}
+                sx={{ mb: 2 }}
+              />
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <Button
+                  onClick={handleCloseVolunteer}
+                  color="secondary"
+                  sx={{ fontSize: "0.8rem" }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleVolunteerSubmit}
+                  color="primary"
+                  disabled={isSubmitting}
+                  sx={{ fontSize: "0.8rem" }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <CircularProgress size={20} />
+                      <Typography sx={{ ml: 1 }}>Submitting...</Typography>
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
+                </Button>
+              </Box>
+            </Card>
+          )}
+          {submitSuccess && !volunteer && (
+            <Typography align="center" sx={{ mt: 2 }}>
+              Thank you for your request.
+            </Typography>
+          )}
         </CardContent>
       </AccordionDetails>
     </Accordion>
@@ -362,8 +400,8 @@ const AgencyProfile = () => {
 
   const MobileDescription = () => (
     <Accordion
-      expanded={expandedAccordion === 'description'}
-      onChange={handleAccordionChange('description')}
+      expanded={expandedAccordion === "description"}
+      onChange={handleAccordionChange("description")}
       sx={{
         mb: 1,
         boxShadow: "none",
@@ -387,20 +425,31 @@ const AgencyProfile = () => {
             minHeight: "48px !important",
           },
           "& .MuiAccordionSummary-content": {
-                                  margin: "12px 0",
-                                  "&.Mui-expanded": {
-                                    margin: "12px 0",
-                                  },
-                                },
+            margin: "12px 0",
+            "&.Mui-expanded": {
+              margin: "12px 0",
+            },
+          },
         }}
       >
-        <Typography sx={{ fontWeight: "bold",
-                                  color: "rgba(84, 91, 100, 0.87)",
-                                  textTransform: "uppercase",
-                                  fontSize: "0.85rem", }}>About Us</Typography>
+        <Typography
+          sx={{
+            fontWeight: "bold",
+            color: "rgba(84, 91, 100, 0.87)",
+            textTransform: "uppercase",
+            fontSize: "0.85rem",
+          }}
+        >
+          About Us
+        </Typography>
       </AccordionSummary>
-      <AccordionDetails sx={{ px: 2, pt:0, pb:2, backgroundColor: "rgb(255, 255, 255)" }}>
-        <Typography component="div" sx={{ fontSize: "0.78rem", textAlign: "justify" }}>
+      <AccordionDetails
+        sx={{ px: 2, pt: 0, pb: 2, backgroundColor: "rgb(255, 255, 255)" }}
+      >
+        <Typography
+          component="div"
+          sx={{ fontSize: "0.78rem", textAlign: "justify" }}
+        >
           <ReactMarkdown>{agency.description}</ReactMarkdown>
         </Typography>
       </AccordionDetails>
@@ -409,8 +458,8 @@ const AgencyProfile = () => {
 
   const MobileMapSection = () => (
     <Accordion
-      expanded={expandedAccordion === 'map'}
-      onChange={handleAccordionChange('map')}
+      expanded={expandedAccordion === "map"}
+      onChange={handleAccordionChange("map")}
       sx={{
         mb: 1,
         boxShadow: "none",
@@ -434,21 +483,27 @@ const AgencyProfile = () => {
             minHeight: "48px !important",
           },
           "& .MuiAccordionSummary-content": {
-                                  margin: "12px 0",
-                                  "&.Mui-expanded": {
-                                    margin: "12px 0",
-                                  },
-                                },
+            margin: "12px 0",
+            "&.Mui-expanded": {
+              margin: "12px 0",
+            },
+          },
         }}
       >
-        <Typography sx={{ fontWeight: "bold",
-                                  color: "rgba(84, 91, 100, 0.87)",
-                                  textTransform: "uppercase",
-                                  fontSize: "0.85rem", }}>Find Route</Typography>
+        <Typography
+          sx={{
+            fontWeight: "bold",
+            color: "rgba(84, 91, 100, 0.87)",
+            textTransform: "uppercase",
+            fontSize: "0.85rem",
+          }}
+        >
+          Find Route
+        </Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ p: 0, backgroundColor: "rgb(255, 255, 255)" }}>
         {agency.lat && agency.lng && (
-          <Box sx={{  width: "100%" }}>
+          <Box sx={{ width: "100%" }}>
             <AgencyMap agency={agency} isMobile={isMobileOrTablet} />
           </Box>
         )}
@@ -458,8 +513,8 @@ const AgencyProfile = () => {
 
   const MobileGallery = () => (
     <Accordion
-      expanded={expandedAccordion === 'gallery'}
-      onChange={handleAccordionChange('gallery')}
+      expanded={expandedAccordion === "gallery"}
+      onChange={handleAccordionChange("gallery")}
       sx={{
         mb: 1,
         boxShadow: "none",
@@ -483,27 +538,45 @@ const AgencyProfile = () => {
             minHeight: "48px !important",
           },
           "& .MuiAccordionSummary-content": {
-                                  margin: "12px 0",
-                                  "&.Mui-expanded": {
-                                    margin: "12px 0",
-                                  },
-                                },
+            margin: "12px 0",
+            "&.Mui-expanded": {
+              margin: "12px 0",
+            },
+          },
         }}
       >
-        <Typography sx={{fontWeight: "bold",
-                                  color: "rgba(84, 91, 100, 0.87)",
-                                  textTransform: "uppercase",
-                                  fontSize: "0.85rem", }}>Gallery</Typography>
+        <Typography
+          sx={{
+            fontWeight: "bold",
+            color: "rgba(84, 91, 100, 0.87)",
+            textTransform: "uppercase",
+            fontSize: "0.85rem",
+          }}
+        >
+          Gallery
+        </Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ p: 1, backgroundColor: "rgb(255, 255, 255)" }}>
         {loadingImages ? (
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 1,
+            }}
+          >
             {[1, 2, 3, 4].map((item) => (
               <Skeleton key={item} variant="rectangular" height={120} />
             ))}
           </Box>
         ) : images.length > 1 ? (
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 1,
+            }}
+          >
             {images.slice(1).map((imgObj, index) => (
               <Card key={imgObj.id || index}>
                 <CardMedia
@@ -554,8 +627,18 @@ const AgencyProfile = () => {
       <Box sx={{ p: 2 }}>
         {loading ? (
           <>
-            <Skeleton variant="text" width="60%" height={60} sx={{ mx: "auto", mt: 10 }} />
-            <Skeleton variant="text" width="40%" height={30} sx={{ mx: "auto", mt: 1 }} />
+            <Skeleton
+              variant="text"
+              width="60%"
+              height={60}
+              sx={{ mx: "auto", mt: 10 }}
+            />
+            <Skeleton
+              variant="text"
+              width="40%"
+              height={30}
+              sx={{ mx: "auto", mt: 1 }}
+            />
           </>
         ) : (
           <>
@@ -605,13 +688,20 @@ const AgencyProfile = () => {
               <MobileDescription />
               <MobileMapSection />
               <MobileGallery />
-              
-              
             </>
           )}
         </Box>
       ) : (
-        <Grid container spacing={1} sx={{ m: 0, width: {xs:"100%", sm:"100%", md:"75%"}, marginX: "auto", marginTop: 1 }}>
+        <Grid
+          container
+          spacing={1}
+          sx={{
+            m: 0,
+            width: { xs: "100%", sm: "100%", md: "75%" },
+            marginX: "auto",
+            marginTop: 1,
+          }}
+        >
           {/* Desktop view remains the same */}
           <Grid
             size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
@@ -632,7 +722,12 @@ const AgencyProfile = () => {
                 <Skeleton variant="rectangular" width="100%" height={400} />
                 <Box sx={{ mt: 2 }}>
                   {[1, 2, 3, 4, 5, 6].map((item) => (
-                    <Skeleton key={item} variant="text" width="100%" height={40} />
+                    <Skeleton
+                      key={item}
+                      variant="text"
+                      width="100%"
+                      height={40}
+                    />
                   ))}
                 </Box>
               </>
@@ -680,8 +775,8 @@ const AgencyProfile = () => {
                         <Card
                           sx={{
                             px: { xs: "8px", sm: "8px", md: "16px" },
-                            pt:1,
-                            pb:0,
+                            pt: 1,
+                            pb: 0,
                             boxShadow: "none",
                             border: "none",
                           }}
@@ -695,7 +790,9 @@ const AgencyProfile = () => {
                                 value: new Date(
                                   agency.date_of_establishment
                                 ).toLocaleDateString(),
-                                icon: <CalendarToday sx={{ color: "#AEC6CF" }} />,
+                                icon: (
+                                  <CalendarToday sx={{ color: "#AEC6CF" }} />
+                                ),
                               },
                               {
                                 label: "Primary Contact",
@@ -738,7 +835,10 @@ const AgencyProfile = () => {
                                   }}
                                 >
                                   <Box
-                                    sx={{ display: "flex", alignItems: "center" }}
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
                                   >
                                     {item.icon}
                                     <Typography
@@ -855,7 +955,12 @@ const AgencyProfile = () => {
                               backgroundColor: "transparent",
                             },
                             textTransform: "uppercase",
-                            fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.9rem", xl: "1rem" },
+                            fontSize: {
+                              xs: "0.7rem",
+                              sm: "0.8rem",
+                              md: "0.9rem",
+                              xl: "1rem",
+                            },
                             fontWeight: 500,
                             padding: 1,
                           }}
@@ -977,7 +1082,10 @@ const AgencyProfile = () => {
                             </Grid>
                           )}
                           {submitSuccess && !volunteer && (
-                            <Typography> Thank you for your request.</Typography>
+                            <Typography>
+                              {" "}
+                              Thank you for your request.
+                            </Typography>
                           )}
                         </Box>
                       </Grid>
@@ -1028,8 +1136,7 @@ const AgencyProfile = () => {
                 mx: { xs: "17px", sm: "17px", md: "32px" },
                 mt: 2,
               }}
-            >
-            </Box>
+            ></Box>
             <Box
               sx={{
                 mt: 0,
@@ -1070,8 +1177,7 @@ const AgencyProfile = () => {
                   mb: 3,
                   mx: { xs: "17px", sm: "17px", md: "32px" },
                 }}
-              >
-              </Box>
+              ></Box>
               {loadingImages ? (
                 <Box
                   sx={{
