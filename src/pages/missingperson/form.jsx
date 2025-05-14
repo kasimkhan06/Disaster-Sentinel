@@ -1,4 +1,6 @@
 import React from 'react';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Grid from "@mui/material/Grid2";
 import {
     TextField,
@@ -52,6 +54,52 @@ const MissingPersonForm = ({
     searchMapLocation, // Function to trigger map search from portal
     isSearchingLocation // Loading state for the search button
 }) => {
+
+    const [recentDisasters, setRecentDisasters] = useState([]);
+    const [loading, setLoading] = useState(true); 
+    const [filteredDisasters, setFilteredDisasters] = useState([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchRecentDisasters = async () => {
+          try {
+            // Replace with your actual API call
+            const response = await fetch(
+              "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/disasters/"
+            );
+            const data = await response.json();
+            console.log("Fetched recent disasters:", data);
+            setRecentDisasters(data);
+            setLoading(false);
+          } catch (error) {
+            console.error("Error fetching recent disasters:", error);
+            setLoading(false);
+          }
+        };
+    
+        fetchRecentDisasters();
+      }, []);
+
+      useEffect(() => {
+        const MPState = selectedState?.state || formData?.state;
+        console.log("Selected State:", MPState);
+    
+        if (!MPState) {
+            setFilteredDisasters([]); // Clear list if no valid state
+            return;
+        }
+    
+        // Filter disasters by state and country
+        const filtered = recentDisasters.filter(
+            (disaster) =>
+                disaster.state?.toLowerCase() === MPState.toLowerCase() &&
+                disaster.country === "India"
+        );
+    
+        console.log("Mapped Disasters:", filtered);
+    
+        setFilteredDisasters(filtered);
+    }, [selectedState, formData?.state]);    
 
      // Handle Enter key press in the location field to trigger search
     const handleLocationKeyPress = (event) => {
@@ -158,20 +206,31 @@ const MissingPersonForm = ({
                     </Grid>
                     <Grid size={12} sx={{ height: '16px' }} /> {/* Spacer */}
 
-                    {/* Disaster Type Field */}
-                     <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid size={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <FormControl fullWidth required error={!!errors.disasterType}>
                                 <InputLabel sx={{ fontSize: "0.9rem" }} id="disaster-type-label">Disaster Type</InputLabel>
-                                <Select labelId="disaster-type-label" label="Disaster Type*" name="disasterType" value={formData.disasterType} onChange={handleInputChange} sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" }, width: "100%", '& .MuiSelect-select': { paddingTop: '10px', paddingBottom: '10px' }, }}>
-                                    <MenuItem value="Cyclones">Cyclones</MenuItem>
-                                    <MenuItem value="Earthquakes">Earthquakes</MenuItem>
-                                    <MenuItem value="Tsunamis">Tsunamis</MenuItem>
-                                    <MenuItem value="Floods">Floods</MenuItem>
-                                    <MenuItem value="Landslides">Landslides</MenuItem>
-                                    <MenuItem value="Fire">Fire</MenuItem>
-                                    <MenuItem value="Heatwave">Heatwave</MenuItem>
-                                    <MenuItem value="Other">Other</MenuItem>
+                                <Select
+                                    labelId="disaster-type-label"
+                                    label="Disaster Type*"
+                                    name="disasterType"
+                                    value={formData.disasterType}
+                                    onChange={handleInputChange}
+                                    sx={{
+                                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                                        width: "100%",
+                                        '& .MuiSelect-select': { paddingTop: '10px', paddingBottom: '10px' },
+                                    }}
+                                >
+                                    {filteredDisasters.length > 0 ? (
+                                        filteredDisasters.map((disaster, index) => (
+                                            <MenuItem key={index} value={disaster.title}>
+                                                {disaster.title}
+                                            </MenuItem>
+                                        ))
+                                    ) : (
+                                        <MenuItem value="" disabled>No active disasters in selected region</MenuItem>
+                                    )}
                                 </Select>
                                 {errors.disasterType && <FormHelperText>{errors.disasterType}</FormHelperText>}
                             </FormControl>

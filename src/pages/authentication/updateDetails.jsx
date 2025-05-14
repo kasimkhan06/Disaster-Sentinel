@@ -9,28 +9,115 @@ import {
   Container,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import CircularProgress from "@mui/material/CircularProgress";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import LocationOn from "@mui/icons-material/LocationOn";
+import Autocomplete from "@mui/material/Autocomplete";
+import * as XLSX from "xlsx";
 
 const UpdateDetails = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     contact: "",
-    address: "",
+    state: "",
+    district: "",
   });
 
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+  const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState(null);
+  const [selectedState, setSelectedState] = useState("");
+  const [districts, setDistricts] = useState([]);
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [stateDistricts, setStateDistricts] = useState("");
+
+  // Fetch user data from localStorage
+  // Set initial selectedState and selectedDistrict after stateDistricts are loaded
+useEffect(() => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    setUser(parsedUser);
+    setUserId(parsedUser.user_id);
+    setFormData({
+      fullName: parsedUser.full_name || "",
+      email: parsedUser.email || "",
+      contact: parsedUser.contact || "",
+      state: parsedUser.state || "",
+      district: parsedUser.district || "",
+    });
+
+    // Ensure selectedState and selectedDistrict are set after stateDistricts is loaded
+    if (parsedUser.state && parsedUser.district) {
+      setSelectedState(parsedUser.state);
+      setSelectedDistrict(parsedUser.district);
+    }
+  }
+}, [stateDistricts]); // Add stateDistricts as a dependency
 
   useEffect(() => {
-    // Fetch user details from localStorage or API and populate the form
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
-      setFormData({
-        fullName: user.full_name || "",
-        email: user.email || "",
-        contact: user.contact || "",
-        address: user.address || "",
-      });
-    }
+    const fetchExcelFile = async () => {
+      try {
+        // Assuming the file is in the public folder
+        const response = await fetch("/District_Masters.xlsx");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const blob = await response.blob();
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            const tempStateDistricts = {};
+            jsonData.forEach((row) => {
+              const state = row["State Name"]?.trim();
+              const district = row["District Name"]?.trim();
+              if (state && district) {
+                if (!tempStateDistricts[state]) {
+                  tempStateDistricts[state] = [];
+                }
+                if (!tempStateDistricts[state].includes(district)) {
+                  tempStateDistricts[state].push(district);
+                }
+              }
+            });
+            // Sort states alphabetically
+            const sortedStates = Object.keys(tempStateDistricts).sort();
+            const sortedStateDistricts = {};
+            sortedStates.forEach(state => {
+              // Sort districts within each state alphabetically (This ensures districts are sorted)
+              sortedStateDistricts[state] = tempStateDistricts[state].sort();
+            });
+
+            setStateDistricts(sortedStateDistricts);
+          } catch (parseError) {
+            console.error("Error parsing Excel data:", parseError);
+            setStatusMessage({ type: 'error', text: 'Error processing state/district data.' });
+          }
+        };
+        reader.onerror = (error) => {
+          console.error("FileReader error:", error);
+          setStatusMessage({ type: 'error', text: 'Error reading state/district file.' });
+        }
+
+        reader.readAsArrayBuffer(blob);
+      } catch (error) {
+        console.error("Error fetching the Excel file:", error);
+        setStatusMessage({ type: 'error', text: 'Could not load state/district data.' });
+      }
+    };
+
+    fetchExcelFile();
   }, []);
 
   const handleChange = (e) => {
@@ -38,34 +125,78 @@ const UpdateDetails = () => {
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
+  const handleStateChange = (event, newValue) => {
+    const newState = newValue || formData.state;
+    setSelectedState(newState);
+    setDistricts(newState ? stateDistricts[newState] || [] : []);
+    setSelectedDistrict("");
+    setFormData({ ...formData, state: newState, district: "" });
+  };
+
+  const handleDistrictChange = (event, newValue) => {
+    const newDistrict = newValue || formData.district;
+    setSelectedDistrict(newDistrict);
+    setFormData({ ...formData, district: newDistrict });
+  };
+
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.contact.trim()) newErrors.contact = "Contact is required";
-    if (!formData.address.trim()) newErrors.address = "Address is required";
+    if (!formData.state.trim()) newErrors.state = "State is required";
+    if (!formData.district.trim()) newErrors.district = "District is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e, id) => {
     if (validateForm()) {
-      console.log("Updated Details:", formData);
-      alert("Details updated successfully!");
-      // Save updated details to localStorage or send to API
-      localStorage.setItem("user", JSON.stringify(formData));
+      e.preventDefault();
+      console.log("Submitting:", formData);
+      try {
+        setIsUpdating(true);
+        const Data = new FormData();
+        Data.append("fullName", formData.fullName);
+        Data.append("email", formData.email);
+        Data.append("contact", formData.contact);
+        Data.append("state", formData.state);
+        Data.append("district", formData.district);
+
+        const response = await axios.patch(
+          `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${id}/profile/`,
+          Data,
+          { withCredentials: true }
+        );
+
+        console.log("Updation Success:", response.data);
+        alert("Details updated successfully!");
+        localStorage.setItem("user", JSON.stringify(formData));
+        navigate("/home");
+
+      } catch (error) {
+        console.error("Updation Failed:", error.response?.data || error);
+      } finally {
+        setIsUpdating(false);
+      }
     }
   };
 
   return (
     <Box
       sx={{
-        background: "linear-gradient(to bottom, #647E8B, #D2DFF8)",
+        position: "fixed",
+        top: 40,
+        left: 0,
+        right: 0,
         minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 4,
+        background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)), url(${worldMapBackground})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        paddingTop: "60px",
       }}
     >
       <Container
@@ -100,7 +231,7 @@ const UpdateDetails = () => {
               label="Full Name"
               variant="standard"
               name="fullName"
-              value={formData.fullName}
+              value={formData.fullName || ""}
               onChange={handleChange}
               error={!!errors.fullName}
               helperText={errors.fullName}
@@ -113,7 +244,7 @@ const UpdateDetails = () => {
               label="Email"
               variant="standard"
               name="email"
-              value={formData.email}
+              value={formData.email || ""}
               onChange={handleChange}
               error={!!errors.email}
               helperText={errors.email}
@@ -126,7 +257,7 @@ const UpdateDetails = () => {
               label="Contact"
               variant="standard"
               name="contact"
-              value={formData.contact}
+              value={formData.contact || ""}
               onChange={handleChange}
               error={!!errors.contact}
               helperText={errors.contact}
@@ -134,35 +265,66 @@ const UpdateDetails = () => {
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Address"
-              variant="standard"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              error={!!errors.address}
-              helperText={errors.address}
-              InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
-            />
+            <Box sx={{ display: "flex", alignItems: "center", width: "100%", mt: 1 }}>
+              <Autocomplete
+                options={Object.keys(stateDistricts)}
+                value={selectedState || ""}
+                onChange={handleStateChange}
+                isOptionEqualToValue={(option, value) => option === value || value === ""}
+                renderInput={(params) => (
+                  <TextField {...params} label="State" variant="standard" error={!!errors.state} />
+                )}
+                size="small" sx={{ width: "100%" }} />
+              {errors.state && <Typography color="error" variant="caption" display="block" textAlign="left">{errors.state}</Typography>}
+            </Box>
+          </Grid>
+
+          {/* District */}
+          <Grid item xs={12}>
+            <Box sx={{ display: "flex", alignItems: "center", width: "100%", mt: 1 }}>
+              <Autocomplete
+                options={districts} // Options are dynamically set based on selected state
+                value={selectedDistrict || ""}
+                onChange={handleDistrictChange}
+                isOptionEqualToValue={(option, value) => option === value || value === ""}
+                disabled={!selectedState || districts.length === 0}
+                renderInput={(params) => (
+                  <TextField {...params} label="District" variant="standard" error={!!errors.district} />
+                )}
+                size="small" sx={{ width: "100%" }} />
+              {errors.district && <Typography color="error" variant="caption" display="block" textAlign="left">{errors.district}</Typography>}
+            </Box>
           </Grid>
         </Grid>
 
-        <Box textAlign="center" mt={4}>
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              textTransform: "uppercase",
-              backgroundColor: "#4F646F",
-              padding: "10px 20px",
-              fontSize: "14px",
-            }}
-            onClick={handleSubmit}
-          >
-            Update
-          </Button>
-        </Box>
+        <form onSubmit={(e) => handleSubmit(e, userId)}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            {isUpdating ? (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CircularProgress size={24} sx={{ color: "#4caf50" }} />
+                <Typography variant="body2" sx={{ ml: 1 }}>
+                  Updating...
+                </Typography>
+              </Box>
+            ) : (
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                sx={{
+                  backgroundColor: "#4F646F",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "#3e545b",
+                  },
+                }}
+                disabled={isUpdating}
+              >
+                Update
+              </Button>
+            )}
+          </Box>
+        </form>
       </Container>
     </Box>
   );

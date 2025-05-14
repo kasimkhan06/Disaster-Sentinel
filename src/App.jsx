@@ -45,7 +45,7 @@ const App = () => {
 
   return (
     <>
-      {userRole === "agency" ? <HeaderAgency /> : <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+      {userRole === "agency" ? <HeaderAgency isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/> : <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
 
 
       <Routes>

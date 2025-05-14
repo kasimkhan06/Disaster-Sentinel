@@ -20,13 +20,15 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import { EventFormProvider } from "../hooks/useEventForm";
 import DrawerComp from "./DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 import logo from "./logo.png";
 
-const Header = () => {
+const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [anchorElAnnouncement, setAnchorElAnnouncement] = useState(null);
   const [anchorElProfile, setAnchorElProfile] = useState(null);
+  const [openAnnouncement, setOpenAnnouncement] = useState(false);
+  const [anchorElAnnouncement, setAnchorElAnnouncement] = useState(null);
 
   const theme = useTheme();
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -34,42 +36,82 @@ const Header = () => {
 
   const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
-  const [openAnnouncement, setOpenAnnouncement] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
+    const handleStorageChange = () => {
+      const user = localStorage.getItem("user");
+      setIsLoggedIn(!!user);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    handleStorageChange();
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      setUser(parsedData);
       setIsLogin(true);
     }
   }, []);
 
   // Services Menu Handlers
-  const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
-  const handleCloseMenu = () => setAnchorEl(null);
+  const handleOpenMenu = (e) => {
+    setAnchorEl(e.currentTarget);
+    setOpenAnnouncement(false);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setOpenAnnouncement(false);
+  };
 
   // Announcement Submenu Handlers
   const handleOpenAnnouncementMenu = (e) => setAnchorElAnnouncement(e.currentTarget);
   const handleCloseAnnouncementMenu = () => setAnchorElAnnouncement(null);
 
   // Profile Menu Handlers
-  const handleOpenProfileMenu = (e) => setAnchorElProfile(e.currentTarget);
-  const handleCloseProfileMenu = () => setAnchorElProfile(null);
+  const handleProfileMenuOpen = (e) => setAnchorElProfile(e.currentTarget);
+  const handleProfileMenuClose = () => setAnchorElProfile(null);
 
   const handleNavigation = (path) => {
     navigate(path);
-    handleCloseMenu();
-    handleCloseAnnouncementMenu();
-    handleCloseProfileMenu();
+    setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    setIsLogin(false);
-    handleCloseProfileMenu();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(
+        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/logout/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      console.log("Logout response:", data);
+
+      if (response.ok) {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        setIsLoggedIn(false);
+        handleProfileMenuClose();
+        navigate("/home");
+      } else {
+        console.error("Logout failed:", data.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const handleAnnouncementClick = (e) => {
@@ -78,61 +120,131 @@ const Header = () => {
   };
 
   return (
-    <AppBar
-      sx={{ bgcolor: "#fafafa", color: "black", boxShadow: "0px 1px 7px #bdbdbd" }}
-      elevation={2}
-    >
-      <Toolbar>
-        {/* Logo & Title */}
-        <Box display="flex" alignItems="center">
-          <img src={logo} alt="Logo" style={{ height: "70px" }} />
-          <Typography
-            sx={{ fontSize: "1.2rem", paddingLeft: "10px", fontFamily: "DM Serif Text, serif", cursor: "pointer" }}
-            onClick={() => handleNavigation("/home")}
-          >
-            DISASTER SENTINEL
-          </Typography>
-        </Box>
-
-        {/* Tabs or Drawer for Mobile */}
-        {isMatch ? (
-          <DrawerComp />
-        ) : (
-          <>
-            <Tabs
-              textColor="inherit"
-              value={value}
-              onChange={(e, value) => setValue(value)}
-              TabIndicatorProps={{ sx: { backgroundColor: "#bdbdbd" } }}
+    <>
+      <AppBar
+        sx={{
+          bgcolor: "#fafafa",
+          color: "black",
+          boxShadow: "0px 1px 7px #bdbdbd"
+        }}
+        elevation={2}
+      >
+        <Toolbar>
+          {/* Logo & Title */}
+          <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
+            <img src={logo} alt="Logo" style={{ height: "70px" }} />
+            <Typography
+              sx={{
+                fontSize: "1.2rem",
+                paddingLeft: "10px",
+                fontFamily: "DM Serif Text, serif",
+                cursor: "pointer",
+              }}
+              onClick={() => handleNavigation("/home")}
             >
-              <Tab label="Home" component={Link} to="/agency-dashboard" />
-              <Tab label="Services" onClick={handleOpenMenu} />
-            </Tabs>
+              DISASTER SENTINAL
+            </Typography>
+            {!isMatch && (
+              <Tabs
+                textColor="inherit"
+                value={value}
+                onChange={(e, value) => setValue(value)}
+                TabIndicatorProps={{
+                  sx: { backgroundColor: "#bdbdbd" },
+                }}
+                sx={{
+                  ml: 4,
+                  '& .MuiTab-root': {
+                    minWidth: 'auto', // Allow tabs to size naturally
+                    width: 'auto',   // Prevent forced width
+                    padding: '6px 16px', // Consistent padding with account button
+                    '&:focus': {
+                      outline: 'none',
+                    }
+                  }
+                }}
+              >
+                <Tab label="Home" component={Link} to="/home" />
+                <Tab
+                  label="Services"
+                  aria-controls="services-menu"
+                  onClick={handleOpenMenu}
+                />
+              </Tabs>
+            )}
+          </Box>
 
-            {/* Profile / Login Section - Always Rightmost */}
-            <Box sx={{ marginLeft: "auto" }}>
-              {user ? (
+          {/* Tabs or Drawer for Mobile */}
+          {isMatch ? (
+            <DrawerComp />
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {isLoggedIn ? (
                 <>
-                  <Button onClick={handleOpenProfileMenu} sx={{ color: "black" }}>
-                    <Avatar sx={{ bgcolor: "#3f51b5", marginRight: 1 }}>
-                      {user.full_name ? user.full_name[0].toUpperCase() : "U"}
-                    </Avatar>
-                    {user.full_name}
-                  </Button>
+                  <Button
+                    id="account-button"
+                    aria-controls="account-menu"
+                    aria-haspopup="true"
+                    onClick={handleProfileMenuOpen}
+                    disableRipple
+                    sx={{
+                      color: "black",
+                      textTransform: "none",
+                      padding: "6px 16px",
+                      gap: 1,
+                      minWidth: 130,
+                      width: "auto",
+                      transition: 'none', // <-- Add this
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                      '&:focus': {
+                        outline: 'none',
+                        transform: 'none',
+                      },
+                      '&:active': {
+                        transform: 'none',
+                      },
+                      '&.Mui-focusVisible': {
+                        boxShadow: 'none',
+                        backgroundColor: 'transparent',
+                      }
+                    }}
 
-                  {/* Profile Dropdown */}
+                  >
+                    <AccountCircle />
+                    <Typography variant="body1">Account</Typography>
+                  </Button>
                   <Menu
+                    id="account-menu"
                     anchorEl={anchorElProfile}
                     open={Boolean(anchorElProfile)}
-                    onClose={handleCloseProfileMenu}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    onClose={handleProfileMenuClose}
+                    keepMounted
+                    disableScrollLock
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
                     sx={{
-                      minWidth: "160px", // Adjust the minimum width of the menu to ensure enough space
-                      marginTop: "10px", // Space between the menu and the "Services" tab
+                      minWidth: "200px",
+                      marginTop: "15px",
+                      "& .MuiMenu-paper": {
+                        overflow: "visible",
+                        transform: 'none !important',
+                      },
                     }}
                   >
-                    <MenuItem onClick={() => handleNavigation(`/agency-profile/${user.user_id}`)}>Profile</MenuItem>
+                    <MenuItem onClick={() => {
+                      handleProfileMenuClose();
+                      handleNavigation(`/agency-profile/${user.user_id}`);
+                    }}>
+                      Profile
+                    </MenuItem>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   </Menu>
                 </>
@@ -143,21 +255,26 @@ const Header = () => {
                     borderColor: "#bdbdbd",
                     color: "black",
                     backgroundColor: "#fafafa",
+                    "&:hover": {
+                      backgroundColor: "#e0e0e0",
+                    },
                   }}
                 >
                   Login
                 </Button>
               )}
             </Box>
-          </>
-        )}
-      </Toolbar>
+          )}
+        </Toolbar>
+      </AppBar>
 
       <Menu
-        id="menu"
+        id="services-menu"
         onClose={handleCloseMenu}
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
+        keepMounted
+        disableScrollLock
         anchorOrigin={{
           vertical: "bottom", // Position the menu below the Services tab
           horizontal: "center", // Align it at the center horizontally
@@ -167,8 +284,11 @@ const Header = () => {
           horizontal: "center", // Align the menu items to the center horizontally
         }}
         sx={{
-          minWidth: "160px", // Adjust the minimum width of the menu to ensure enough space
-          marginTop: "10px", // Space between the menu and the "Services" tab
+          minWidth: "200px",
+          marginTop: "10px",
+          "& .MuiMenu-paper": {
+            overflow: "visible",
+          },
         }}
       >
         <MenuItem
@@ -199,7 +319,7 @@ const Header = () => {
           </Box>
         </Collapse>
       </Menu>
-    </AppBar>
+    </>
   );
 };
 
