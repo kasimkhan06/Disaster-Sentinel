@@ -267,6 +267,7 @@ function CurrentLocation() {
                       type: "search",
                       style: {
                         // width: "400px", // Set width to half
+                        fontSize: '16px',
                       },
                     },
                   }}
@@ -295,18 +296,19 @@ function CurrentLocation() {
                     },
                     "& .MuiInputBase-input": {
                       fontSize: {
-                        xs: "0.7rem",
-                        sm: "0.8rem",
-                        md: isBelow ? "0.9rem" : "1rem",
-                        lg: isBelow ? "0.9rem" : "1rem",
+                        xs: "16px !important",
+                        sm: "1rem  !important",
+                        md: isBelow ? "0.9rem !important" : "1rem !important",
+                        lg: isBelow ? "0.9rem !important" : "1rem !important",
                       },
                     },
                     "&::placeholder": {
                       fontSize: {
-                        xs: "0.9rem",
-                        sm: "1rem",
-                        md: isBelow ? "1.1rem" : "1.2rem",
-                        lg: isBelow ? "1.1rem" : "1.2rem",
+                        xs: "16px !important" ,
+                        sm: "1rem !important",
+                        md: isBelow ? "1.1rem !important" : "1.2rem !important",
+                        lg: isBelow ? "1.1rem !important" : "1.2rem !important",
+                        
                       },
                     },
                     width: { xs: "300px", md: "400px" },
