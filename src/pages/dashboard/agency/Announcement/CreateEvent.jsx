@@ -315,13 +315,12 @@ export default function EventFormWithStepper() {
   return (
     <Box
       sx={{
-        position: "fixed",
+        position: "relative",
         width: "100vw",
-        height: "100vh",
+        minHeight: "100vh", 
         top: 0,
         left: 0,
         right: 0,
-        minHeight: "100vh",
         background: `
       linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
       url(${worldMapBackground})
@@ -329,12 +328,24 @@ export default function EventFormWithStepper() {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        backgroundRepeat: "no-repeat",
+        backgroundRepeat: "repeat-y",
         margin: 0,
         padding: 0,
         zIndex: 0,
-      }}>
-      <Box sx={{ mt: { xs: 15, md: 15 }, mb: { xs: 2, md: 4 }, mx: "auto", width: { xs: "90%", md: "70%" }, display: "flex", flexDirection: "column" }}>
+        overflow: "auto", 
+      }}
+    >
+      <Box
+        sx={{
+          mt: { xs: 15, md: 15 },
+          mb: { xs: 2, md: 4 },
+          mx: "auto",
+          width: { xs: "80%", md: "70%" },
+          display: "flex",
+          flexDirection: "column",
+          overflowY: "auto", 
+        }}
+      >
         {/* Stepper Component */}
         <Stepper activeStep={activeStep} sx={{ mb: { xs: 2, md: 4 } }}>
           {isMobile ? (
