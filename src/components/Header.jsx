@@ -127,7 +127,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
               }}
               onClick={() => handleNavigation("/home")}
             >
-              DISASTER SENTINAL
+              DISASTER SENTINEL
             </Typography>
             {!isMatch && (
               <Tabs
