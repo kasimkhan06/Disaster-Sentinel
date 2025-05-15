@@ -20,17 +20,11 @@ import {
   LocationOn,
   Videocam,
   Send
-  // Edit, // Removed as no longer needed
-  // Delete // Removed as no longer needed
 } from "@mui/icons-material";
-// import { useNavigate } from "react-router-dom"; // Not used
-// import axios from "axios"; // Not used
 
-// Assuming this CSS file contains the styles you provided for .event-card, .tags-container etc.
-import "../../../public/css/EventListing.css";
+import "../../../public/css/EventListing.css"; // Ensure this path is correct
 
 // Internal component for displaying event cards
-// hideActions prop removed as Edit/Delete buttons are completely removed
 function EventDisplayCard({ event, customActions }) {
 
   const getTagsBadge = () => {
@@ -46,11 +40,10 @@ function EventDisplayCard({ event, customActions }) {
 
   const getImage = () => {
     if (event.event_type === "Seminar" || event.event_type === "Conference" || event.event_type === "Networking") {
-      return "/assets/Event Images/seminar.jpg";
+      return "/assets/Event Images/seminar.jpg"; // Ensure these paths are correct
     } else if (event.event_type === "Workshop") {
       return "/assets/Event Images/workshop.jpg";
     } else {
-      // Default image or for other types like "Online Meeting"
       return "/assets/Event Images/onlineMeeting.webp";
     }
   };
@@ -84,10 +77,8 @@ function EventDisplayCard({ event, customActions }) {
           {getTagsBadge()}
         </div>
 
-        {/* Edit and Delete buttons and their container (event-actions) have been completely removed */}
-
         {customActions && (
-          <div style={{ marginTop: 'auto' }}> {/* Pushes custom actions to the bottom */}
+          <div style={{ marginTop: 'auto' }}>
             {customActions}
           </div>
         )}
@@ -102,28 +93,51 @@ export default function UserAnnouncementsPage() {
   const [sort, setSort] = useState("newest");
   const [isLoading, setIsLoading] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [registeredEventIds, setRegisteredEventIds] = useState(new Set());
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   const [registeringEventId, setRegisteringEventId] = useState(null);
 
-  const fetchUserProfile = async () => {
+  const fetchUserRegistrations = async (userId) => {
+    console.log("[UserAnnouncementsPage] Attempting to fetch registrations for user ID:", userId);
     try {
-      const userId = localStorage.getItem('userId');
-      if (!userId) {
-        console.warn("User ID not found for fetching profile.");
+        // Replace with actual API call: e.g., const response = await fetch(`/api/users/${userId}/registered-events/`);
+        console.log("[UserAnnouncementsPage] fetchUserRegistrations needs a real API endpoint to get events user is registered for.");
+        // Example: setRegisteredEventIds(new Set([1, 3])); // For testing
+    } catch (error) {
+        console.error("[UserAnnouncementsPage] Error fetching user registrations:", error);
+        setSnackbar({ open: true, message: "Could not load your registration status for events.", severity: "warning" });
+    }
+  };
+
+  const loadCurrentUserData = async () => {
+    try {
+      const userString = localStorage.getItem('user');
+      if (!userString) {
+        console.warn("[UserAnnouncementsPage] User data string not found in localStorage. User-specific features will be limited.");
+        setCurrentUser(null);
         setUserLocation(null);
         return;
       }
-      const response = await fetch(
-        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${userId}/`
-      );
-      if (!response.ok) throw new Error(`Failed to fetch user profile: ${response.status}`);
-      const data = await response.json();
-      setUserLocation({
-        state: data.state,
-        city: data.city
-      });
+      const userDataFromStorage = JSON.parse(userString);
+      if (userDataFromStorage && userDataFromStorage.user_id && userDataFromStorage.state && userDataFromStorage.district) {
+        const CUser = {
+          id: userDataFromStorage.user_id,
+          state: userDataFromStorage.state,
+          district: userDataFromStorage.district,
+        };
+        console.log("[UserAnnouncementsPage] User data loaded from localStorage:", CUser);
+        setCurrentUser(CUser);
+        setUserLocation({ state: CUser.state, district: CUser.district });
+        // fetchUserRegistrations(CUser.id); // Call when API is ready
+      } else {
+        console.warn("[UserAnnouncementsPage] Parsed user data from localStorage is missing user_id, state, or district.", userDataFromStorage);
+        setCurrentUser(null);
+        setUserLocation(null);
+      }
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.error("[UserAnnouncementsPage] Error processing user data from localStorage:", error);
+      setCurrentUser(null);
       setUserLocation(null);
     }
   };
@@ -138,8 +152,7 @@ export default function UserAnnouncementsPage() {
       currentDate.setHours(0, 0, 0, 0);
 
       const validAnnouncements = data.filter(announcement => {
-        const announcementDate = new Date(announcement.date);
-        return announcementDate >= currentDate;
+        return announcement.date && new Date(announcement.date) >= currentDate;
       });
       setAnnouncements(validAnnouncements);
     } catch (error) {
@@ -151,6 +164,10 @@ export default function UserAnnouncementsPage() {
   };
 
   const handleRegister = async (eventId) => {
+    if (!currentUser || !currentUser.id) {
+        setSnackbar({ open: true, message: "You must be logged in to register.", severity: "error" });
+        return;
+    }
     setRegisteringEventId(eventId);
     try {
       const eventResponse = await fetch(
@@ -159,8 +176,11 @@ export default function UserAnnouncementsPage() {
       if (!eventResponse.ok) throw new Error(`Failed to fetch event details: ${eventResponse.status}`);
       const eventData = await eventResponse.json();
 
-      if (eventData.attendees_count >= eventData.max_capacity) {
-        setSnackbar({ open: true, message: "This event is already full", severity: "warning" });
+      const currentAttendees = eventData.attendees_count || 0;
+      const maxCapacity = eventData.max_capacity;
+
+      if (typeof maxCapacity === 'number' && currentAttendees >= maxCapacity) {
+        setSnackbar({ open: true, message: "This event is already full.", severity: "warning" });
         return;
       }
 
@@ -169,29 +189,43 @@ export default function UserAnnouncementsPage() {
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ attendees_count: eventData.attendees_count + 1 })
+          body: JSON.stringify({ attendees_count: currentAttendees + 1 })
         }
       );
+      
+      // If user-specific registration is implemented on backend:
+      // const userSpecificRegResponse = await fetch('/api/register-user-for-event', { ... });
 
-      if (updateResponse.ok) {
-        setSnackbar({ open: true, message: "Successfully registered for the event", severity: "success" });
+      if (updateResponse.ok) { // && userSpecificRegResponse.ok)
+        setSnackbar({ open: true, message: "Successfully registered for the event!", severity: "success" });
         fetchAnnouncements();
+        // setRegisteredEventIds(prev => new Set(prev).add(eventId)); // Update UI if tracking registrations
       } else {
-        const errorData = await updateResponse.json().catch(() => ({ detail: "Failed to register" }));
-        throw new Error(errorData.detail || "Failed to register");
+        const errorData = await updateResponse.json().catch(() => ({ detail: "Failed to update registration count" }));
+        throw new Error(errorData.detail || "Failed to update registration count");
       }
     } catch (error) {
       console.error("Error registering for event:", error);
-      setSnackbar({ open: true, message: error.message || "Failed to register for event", severity: "error" });
+      setSnackbar({ open: true, message: error.message || "Failed to register for event.", severity: "error" });
     } finally {
       setRegisteringEventId(null);
     }
   };
 
   useEffect(() => {
-    fetchUserProfile();
-    fetchAnnouncements();
+    async function loadInitialData() {
+      await loadCurrentUserData();
+      fetchAnnouncements();
+    }
+    loadInitialData();
   }, []);
+
+  useEffect(() => {
+    if (currentUser && currentUser.id) {
+      // fetchUserRegistrations(currentUser.id); // UNCOMMENT AND IMPLEMENT when your API is ready
+    }
+  }, [currentUser]);
+
 
   const sortedAnnouncements = () => {
     if (!announcements) return [];
@@ -208,12 +242,29 @@ export default function UserAnnouncementsPage() {
     }
 
     return announcements_copy.filter(announcement => {
-      if (announcement.location_type === "online") return true;
-      if (!userLocation || !userLocation.state) {
+      if (announcement.location_type && announcement.location_type.toLowerCase() === "online") {
+        return true;
+      }
+      if (!userLocation || !userLocation.state || !userLocation.district) {
         return false;
       }
-      return announcement.state === userLocation.state &&
-             (!announcement.city || announcement.city === "" || announcement.city === userLocation.city);
+      if (!announcement.state) {
+        return false;
+      }
+      const userState = userLocation.state.toUpperCase();
+      const userDistrict = userLocation.district.toUpperCase();
+      const eventState = announcement.state.toUpperCase();
+      const eventDistrict = announcement.district ? announcement.district.trim().toUpperCase() : "";
+
+      if (eventState !== userState) {
+        return false;
+      }
+      if (eventDistrict !== "") { 
+        if (eventDistrict !== userDistrict) {
+          return false;
+        }
+      }
+      return true;
     });
   };
 
@@ -233,19 +284,23 @@ export default function UserAnnouncementsPage() {
           </Typography>
         </Box>
         <Box className="controls" sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mb: 3 }}>
+          {/* ACCESSIBILITY FIXES APPLIED HERE */}
           <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative" }}>
             <InputLabel
-                id="sort-by-label"
-                sx={{
-                    position: "absolute", top: -10, left: 8,
-                    backgroundColor: "white",
-                    padding: "0 4px", fontSize: "0.75rem", color: "text.secondary"
-                }}
+              htmlFor="sort-select-input" // Points to Select's id
+              id="sort-select-label"    // Id for this label
+              sx={{
+                position: "absolute", top: -10, left: 8,
+                backgroundColor: "white",
+                padding: "0 4px", fontSize: "0.75rem", color: "text.secondary"
+              }}
             >
-                Sort By
+              Sort By
             </InputLabel>
             <Select
-              labelId="sort-by-label"
+              labelId="sort-select-label" // Refers to InputLabel's id
+              id="sort-select-input"     // Unique id for the Select
+              name="sortCriteria"          // Name for the Select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
               sx={{
@@ -270,45 +325,66 @@ export default function UserAnnouncementsPage() {
         ) : sortedAnnouncements().length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 5 }}>
             <Typography variant="h6">No announcements available at the moment.</Typography>
-            <Typography variant="body1" sx={{mt: 1}}>Please check back later or adjust your location settings if applicable.</Typography>
+            <Typography variant="body1" sx={{mt: 1}}>
+              { !userLocation || !userLocation.state || !userLocation.district
+                ? "Please ensure your profile location (state and district) is set to see relevant offline events, or check back later."
+                : `No events currently match your location (State: ${userLocation.state}, District: ${userLocation.district}) or selected filters. Please check back later.`
+              }
+            </Typography>
           </Box>
         ) : (
           <Grid container spacing={3}>
-            {sortedAnnouncements().map((announcement) => (
-              <Grid item xs={12} sm={6} md={4} key={announcement.id}>
-                <EventDisplayCard
-                  event={announcement}
-                  // hideActions prop removed as it's no longer used by EventDisplayCard
-                  customActions={
-                    <Box sx={{ mt: 2, textAlign: 'center' }}>
-                      {announcement.attendees_count >= announcement.max_capacity ? (
-                        <Typography color="error" variant="body2">
-                          Event slots filled
-                        </Typography>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          size="small"
-                          disabled={registeringEventId === announcement.id}
-                          onClick={() => handleRegister(announcement.id)}
-                          sx={{ minWidth: '100px' }}
-                        >
-                          {registeringEventId === announcement.id ? (
-                            <CircularProgress size={24} color="inherit" />
-                          ) : (
-                            "Register"
-                          )}
-                        </Button>
-                      )}
-                      <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                        {announcement.attendees_count}/{announcement.max_capacity} slots filled
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </Grid>
-            ))}
+            {sortedAnnouncements().map((announcement) => {
+              const currentAttendees = Number(announcement.attendees_count) || 0;
+              const maxCapacity = Number(announcement.max_capacity);
+              const isFull = typeof maxCapacity === 'number' && !isNaN(maxCapacity) && currentAttendees >= maxCapacity;
+              
+              // const isAlreadyRegistered = currentUser && registeredEventIds.has(announcement.id); // UNCOMMENT WHEN READY
+
+              return (
+                <Grid item xs={12} sm={6} md={4} key={announcement.id}>
+                  <EventDisplayCard
+                    event={announcement}
+                    customActions={
+                      <Box sx={{ mt: 2, textAlign: 'center' }}>
+                        {/*
+                        // UNCOMMENT AND USE THIS BLOCK WHEN isAlreadyRegistered IS IMPLEMENTED
+                        isAlreadyRegistered ? (
+                          <>
+                            <Button variant="contained" size="small" disabled sx={{ minWidth: '100px', backgroundColor: 'success.main', color: 'white', '&:disabled': { backgroundColor: 'success.light', color: 'rgba(0, 0, 0, 0.7)'} }}>
+                              Registered
+                            </Button>
+                            <Typography variant="caption" display="block" sx={{ mt: 1, color: 'success.main' }}>
+                              You have already registered for this event.
+                            </Typography>
+                          </>
+                        ) : */
+                        isFull ? (
+                          <Typography color="text.secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                            Slots Filled
+                          </Typography>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            disabled={registeringEventId === announcement.id}
+                            onClick={() => handleRegister(announcement.id)}
+                            sx={{ minWidth: '100px' }}
+                          >
+                            {registeringEventId === announcement.id ? (
+                              <CircularProgress size={24} color="inherit" />
+                            ) : (
+                              "Register"
+                            )}
+                          </Button>
+                        )}
+                      </Box>
+                    }
+                  />
+                </Grid>
+              );
+            })}
           </Grid>
         )}
       </div>

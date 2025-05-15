@@ -59,6 +59,8 @@ const Login = ({ setIsLoggedIn }) => {
             email: data.email,
             role: data.role,
             full_name: data.full_name,
+            state: data.state,
+            district: data.district,
             permissions: data.permissions // <<< Log the permissions array
           });
 

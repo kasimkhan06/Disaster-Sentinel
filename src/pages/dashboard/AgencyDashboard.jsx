@@ -22,7 +22,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle, // Added Dialog components
+  DialogTitle,
 } from "@mui/material";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg"; // Make sure this path is correct
 
@@ -37,7 +37,6 @@ const permissionsList = [
 ];
 
 const style = {
-  // Modal style from reference
   position: "absolute",
   top: "50%",
   left: "50%",
@@ -48,6 +47,8 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
+
+const ROWS_PER_PAGE = 3; // Max rows to display per page
 
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api";
@@ -65,17 +66,19 @@ export default function AgencyDashboard() {
   const [openModal, setOpenModal] = useState(false);
   const [currentVolunteer, setCurrentVolunteer] = useState(null);
 
-  const [loading, setLoading] = useState(false); // General loading for search
+  const [loading, setLoading] = useState(false);
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [loadingVolunteers, setLoadingVolunteers] = useState(false);
-  const [loadingAction, setLoadingAction] = useState(false); // Loading state for modal actions
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // State for delete confirmation dialog
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
   const [requestToDelete, setRequestToDelete] = useState(null);
+
+  const [requestsPage, setRequestsPage] = useState(1);
+  const [volunteersPage, setVolunteersPage] = useState(1);
 
   useEffect(() => {
     let idToUse = localStorage.getItem("agency_id");
@@ -90,7 +93,6 @@ export default function AgencyDashboard() {
             userObject.user_id
           ) {
             idToUse = userObject.user_id.toString();
-            // localStorage.setItem('agency_id', idToUse);
           }
         } catch (e) {
           console.error(
@@ -131,6 +133,7 @@ export default function AgencyDashboard() {
       }
       const data = await response.json();
       setVolunteers(data);
+      setVolunteersPage(1);
     } catch (apiError) {
       console.error("Failed to fetch agency volunteers:", apiError);
       setError(`Failed to fetch agency volunteers: ${apiError.message}`);
@@ -154,7 +157,8 @@ export default function AgencyDashboard() {
           errorData.detail || `HTTP error! status: ${response.status}`
         );
       }
-      const data = await response.json();
+      let data = await response.json();
+      data.sort((a, b) => b.id - a.id);
       const formattedRequests = data
         .map((req) => ({
           id: req.id,
@@ -167,6 +171,7 @@ export default function AgencyDashboard() {
         }))
         .filter((req) => !req.is_accepted);
       setRequests(formattedRequests);
+      setRequestsPage(1);
     } catch (apiError) {
       console.error("Failed to fetch volunteer requests:", apiError);
       setError(`Failed to fetch volunteer requests: ${apiError.message}`);
@@ -181,19 +186,65 @@ export default function AgencyDashboard() {
       fetchRequests();
       fetchAgencyVolunteers();
     }
-  }, [agencyId]);
+  }, [agencyId, error]);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setLoading(true);
     clearMessages();
-    setTimeout(() => {
-      setSearchResult({
-        id: Date.now(),
-        full_name: `Searched User ${searchEmail.split("@")[0] || "Test"}`,
-        email: searchEmail || "test@example.com",
-      });
+    setSearchResult(null);
+
+    if (!searchEmail.trim()) {
+      setError("Please enter an email to search.");
       setLoading(false);
-    }, 1000);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/users/search/?email=${encodeURIComponent(searchEmail)}`
+      ); // [cite: 5]
+
+      if (response.ok) {
+        // [cite: 6]
+        const userData = await response.json();
+        if (userData && userData.email === searchEmail) {
+          setSearchResult({
+            id: userData.id,
+            full_name: userData["full name"] || "N/A", // [cite: 7]
+            email: userData.email, // [cite: 7]
+            // role: userData.role, // Role is available from API [cite: 7]
+          });
+        } else {
+          setError(`No volunteer found with the email: ${searchEmail}.`);
+        }
+      } else if (response.status === 404) {
+        // [cite: 9]
+        const errorData = await response.json().catch(() => null);
+        setError(
+          errorData?.error ||
+            `No volunteer found with the email: ${searchEmail}.`
+        ); // [cite: 10]
+      } else if (response.status === 400) {
+        // [cite: 8]
+        const errorData = await response.json().catch(() => null);
+        setError(
+          errorData?.error ||
+            "Search input is invalid. Please check the email entered."
+        );
+      } else {
+        const errorData = await response
+          .json()
+          .catch(() => ({ detail: "Failed to search for volunteer." }));
+        throw new Error(
+          errorData.detail || `HTTP error! status: ${response.status}`
+        );
+      }
+    } catch (apiError) {
+      console.error("Failed to search volunteer:", apiError);
+      setError(`Failed to search: ${apiError.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAcceptRequest = (user) => {
@@ -211,17 +262,15 @@ export default function AgencyDashboard() {
     );
   };
 
-  // Function to initiate the delete process by opening the confirmation dialog
   const initiateDeleteRequest = (requestData) => {
     if (!requestData || !requestData.id || !requestData.volunteer_user_id) {
       setError("Cannot delete: Invalid request data provided.");
       return;
     }
-    setRequestToDelete(requestData); // Store the request to be deleted
-    setConfirmDeleteDialogOpen(true); // Open the confirmation dialog
+    setRequestToDelete(requestData);
+    setConfirmDeleteDialogOpen(true);
   };
 
-  // Function that performs the actual deletion after confirmation
   const executeDeleteRequest = async () => {
     if (!requestToDelete) return;
 
@@ -246,7 +295,7 @@ export default function AgencyDashboard() {
         setRequests((prevRequests) =>
           prevRequests.filter((req) => req.id !== interestIdToDelete)
         );
-        setOpenModal(false); // Close the main modal as well
+        setOpenModal(false);
         setCurrentVolunteer(null);
       } else if (response.status === 404) {
         throw new Error(
@@ -263,8 +312,8 @@ export default function AgencyDashboard() {
       setError(`Error deleting request: ${apiError.message}`);
     } finally {
       setLoadingAction(false);
-      setConfirmDeleteDialogOpen(false); // Close the confirmation dialog
-      setRequestToDelete(null); // Clear the request to delete
+      setConfirmDeleteDialogOpen(false);
+      setRequestToDelete(null);
     }
   };
 
@@ -410,16 +459,42 @@ export default function AgencyDashboard() {
     }
   };
 
+  const handleRequestsPageChange = (event, value) => {
+    setRequestsPage(value);
+  };
+
+  const handleVolunteersPageChange = (event, value) => {
+    setVolunteersPage(value);
+  };
+
+  // Calculate items for current page - Requests
+  const currentRequests = requests.slice(
+    (requestsPage - 1) * ROWS_PER_PAGE,
+    requestsPage * ROWS_PER_PAGE
+  );
+  const requestsPageCount = Math.ceil(requests.length / ROWS_PER_PAGE);
+
+  // Calculate items for current page - Volunteers
+  const currentVolunteers = volunteers.slice(
+    (volunteersPage - 1) * ROWS_PER_PAGE,
+    volunteersPage * ROWS_PER_PAGE
+  );
+  const volunteersPageCount = Math.ceil(volunteers.length / ROWS_PER_PAGE);
+
   return (
     <Box
       sx={{
-        position: "absolute", minHeight: "100vh",
+        position: "absolute",
+        minHeight: "100vh",
         background: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${worldMapBackground})`,
-        backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed", backgroundRepeat: "repeat-y",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "repeat-y",
         overflowX: "hidden",
         overflowY: "hidden",
-        // marginTop:"65px", 
-        display: 'flex', flexDirection: 'column',
+        display: "flex",
+        flexDirection: "column",
         p: { xs: 1, sm: 2, md: 3 },
         top: 0,
         left: 0,
@@ -428,55 +503,45 @@ export default function AgencyDashboard() {
         zIndex: 0,
       }}
     >
-      {/* --- Start Fix for Alert Layout Shift --- */}
-      {/* Outer Box acts as a placeholder to reserve space */}
-      <Box sx={{ 
-          minHeight: '60px', // Adjust height as needed based on your Alert size + margins
-          width: '100%',     // Ensure it takes full width
-          // Keep sticky positioning container if needed, but apply to this Box
-          position: 'sticky', 
-          top: '65px', // Adjust based on your header height
+      <Box
+        sx={{
+          minHeight: "60px",
+          width: "100%",
+          position: "sticky",
+          top: "70px",
           zIndex: 1200,
-          // Add bottom margin here instead of on the Alert itself
-          mb: (error || successMessage) ? 2 : 0, // Add margin only when alert is visible
-          // Hide placeholder box visually if no message (optional, if minHeight is enough)
-          // visibility: (error || successMessage) ? 'visible' : 'hidden' // Alternative approach
-         }}>
-        
-        {/* Render Error Alert if error exists */}
+          mb: error || successMessage ? 2 : 0,
+        }}
+      >
         {error && (
-          <Alert 
-            severity="error" 
-            onClose={() => setError('')} 
-            // sx props for styling, no margin needed here if set on container
-            sx={{ width: '100%', whiteSpace: 'pre-wrap' }} 
+          <Alert
+            severity="error"
+            onClose={() => setError("")}
+            sx={{ width: "100%", whiteSpace: "pre-wrap" }}
           >
             {error}
           </Alert>
         )}
-
-        {/* Render Success Alert if successMessage exists AND there is no error */}
         {successMessage && !error && (
-          <Alert 
-            severity="success" 
-            onClose={() => setSuccessMessage('')} 
-            sx={{ width: '100%' }} // sx props for styling
+          <Alert
+            severity="success"
+            onClose={() => setSuccessMessage("")}
+            sx={{ width: "100%" }}
           >
             {successMessage}
           </Alert>
         )}
       </Box>
-      {/* --- End Fix for Alert Layout Shift --- */}
 
       <Box
         sx={{
           display: { xs: "block", md: "flex" },
-          minHeight: "calc(100vh - 80px)",
+          minHeight: "calc(100vh - 150px)",
         }}
       >
         <Box
           sx={{
-            width: { xs: "100%", md: 300 },
+            width: { xs: "100%", md: 300 }, // Sidebar width
             bgcolor: "#f9f9f9",
             mb: { xs: 2, md: 0 },
             mr: { md: 2 },
@@ -488,122 +553,229 @@ export default function AgencyDashboard() {
         </Box>
 
         <Box sx={{ flexGrow: 1 }}>
-          {/* Search Section */}
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6">Search Volunteer</Typography>
+          {/* Parent Box for Search and Requests - horizontal layout */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              gap: 2,
+              mb: 3,
+            }}
+          >
+            {/* Search Section */}
             <Box
               sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                gap: 2,
-                mt: 1,
-                alignItems: { xs: "stretch", sm: "center" },
+                width: { xs: "100%", md: "40%" },
+                mb: { xs: 3, md: 0 },
               }}
             >
-              <TextField
-                placeholder="Search by Email"
-                value={searchEmail}
-                onChange={(e) => setSearchEmail(e.target.value)}
+              <Typography variant="h6">Search Volunteer</Typography>
+              <Box
                 sx={{
-                  borderBottom: "2px solid #eee",
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: "white",
-                    "& fieldset": { borderColor: "transparent" },
-                    "&:hover fieldset": { borderColor: "transparent" },
-                    "&.Mui-focused fieldset": { borderColor: "transparent" },
-                  },
-                  width: { xs: "100%", md: "300px" },
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: 2,
+                  mt: 1,
+                  alignItems: { xs: "stretch", sm: "center" },
                 }}
-              />
-              <Button disableRipple onClick={handleSearch} disabled={loading}>
-                Search
-              </Button>
-            </Box>
-            {loading ? (
-              <CircularProgress sx={{ mt: 2 }} />
-            ) : (
-              searchResult && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography>Name: {searchResult.full_name}</Typography>
-                  <Typography>Email: {searchResult.email}</Typography>
-                  <Button
-                    disableRipple
-                    sx={{ mt: 1 }}
-                    onClick={() => handleAcceptRequest(searchResult)}
-                  >
-                    Add Volunteer
-                  </Button>
-                </Box>
-              )
-            )}
-          </Box>
-
-          {/* Requests Section */}
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6">Volunteer Requests</Typography>
-            {loadingRequests ? (
-              <CircularProgress sx={{ mt: 1 }} />
-            ) : requests.length === 0 ? (
-              <Typography sx={{ mt: 1, fontStyle: "italic" }}>
-                No pending requests.
-              </Typography>
-            ) : (
-              <TableContainer
-                component={Paper}
-                sx={{ maxHeight: 300, overflowX: "auto" }}
               >
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell
-                        sx={{ display: { xs: "none", sm: "table-cell" } }}
-                      >
-                        Contact
-                      </TableCell>
-                      <TableCell
-                        sx={{ display: { xs: "none", md: "table-cell" } }}
-                      >
-                        Note
-                      </TableCell>
-                      <TableCell>Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {requests.map((req) => (
-                      <TableRow key={req.id}>
-                        <TableCell>{req.volunteer_name}</TableCell>
-                        <TableCell>{req.volunteer_email}</TableCell>
+                <TextField
+                  placeholder="Search by Email"
+                  value={searchEmail}
+                  onChange={(e) => setSearchEmail(e.target.value)}
+                  sx={{
+                    borderBottom: "2px solid #eee",
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      "& fieldset": { borderColor: "transparent" },
+                      "&:hover fieldset": { borderColor: "transparent" },
+                      "&.Mui-focused fieldset": { borderColor: "transparent" },
+                    },
+                    width: { xs: "100%", sm: "250px" }, // Adjusted for flex layout
+                    flexGrow: { sm: 0 }, // Allow textfield to grow
+                  }}
+                />
+                <Button
+                  disableRipple
+                  onClick={handleSearch}
+                  disabled={loading}
+                  sx={{ flexShrink: 0 }}
+                >
+                  Search
+                </Button>
+              </Box>
+              {loading ? (
+                <CircularProgress sx={{ mt: 2 }} />
+              ) : (
+                searchResult && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography>Name: {searchResult.full_name}</Typography>
+                    <Typography>Email: {searchResult.email}</Typography>
+                    <Button
+                      disableRipple
+                      sx={{ mt: 1 }}
+                      onClick={() => handleAcceptRequest(searchResult)}
+                    >
+                      Add Volunteer
+                    </Button>
+                  </Box>
+                )
+              )}
+            </Box>
+
+            {/* Requests Section */}
+            <Box
+              sx={{
+                width: { xs: "100%", md: "80%" },
+              }}
+            >
+              <Typography variant="h6">Volunteer Requests</Typography>
+              {loadingRequests ? (
+                <CircularProgress sx={{ mt: 1 }} />
+              ) : requests.length === 0 ? (
+                <Typography sx={{ mt: 1, fontStyle: "italic" }}>
+                  No pending requests.
+                </Typography>
+              ) : (
+                <TableContainer
+                  component={Paper}
+                  sx={{
+                    maxHeight: 350, // Adjusted height for side-by-side layout
+                    overflow: "auto", // Changed to auto for both axes if needed
+                    width: "100%",
+                  }}
+                >
+                  <Table stickyHeader size="small">
+                    <TableHead>
+                      <TableRow>
                         <TableCell
-                          sx={{ display: { xs: "none", sm: "table-cell" } }}
+                          sx={{
+                            width: "20%",
+                            padding: "6px 10px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
                         >
-                          {req.volunteer_contact}
+                          Name
                         </TableCell>
                         <TableCell
-                          sx={{ display: { xs: "none", md: "table-cell" } }}
+                          sx={{
+                            width: "30%",
+                            padding: "6px 10px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
                         >
-                          {req.message}
+                          Email
                         </TableCell>
-                        <TableCell>
-                          <Button
-                            disableRipple
-                            onClick={() => handleAcceptRequest(req)}
-                          >
-                            Accept
-                          </Button>
+                        <TableCell
+                          sx={{
+                            width: "20%",
+                            display: { xs: "none", sm: "table-cell" },
+                            padding: "6px 10px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Contact
+                        </TableCell>
+                        {/* Note column might be too much for this layout, consider removing or further reducing width/hiding on smaller of 'md' screens */}
+                        <TableCell
+                          sx={{
+                            width: "20%",
+                            display: { xs: "none", md: "table-cell" }, // Display on md if space allows
+                            padding: "6px 10px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Note
+                        </TableCell>
+                        <TableCell sx={{ width: "auto", padding: "6px 10px" }}>
+                          Action
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-            {requests.length > 0 && <Pagination count={1} sx={{ mt: 1 }} />}
+                    </TableHead>
+                    <TableBody>
+                      {requests.map((req) => (
+                        <TableRow key={req.id} sx={{ height: "48px" }}>
+                          <TableCell
+                            sx={{
+                              padding: "6px 10px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {req.volunteer_name}
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              padding: "6px 10px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {req.volunteer_email}
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              display: { xs: "none", sm: "table-cell" },
+                              padding: "6px 10px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {req.volunteer_contact}
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              display: { xs: "none", md: "table-cell" },
+                              padding: "6px 10px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {req.message}
+                          </TableCell>
+                          <TableCell sx={{ padding: "6px 10px" }}>
+                            <Button
+                              disableRipple
+                              size="small"
+                              onClick={() => handleAcceptRequest(req)}
+                            >
+                              Accept
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+              {requests.length > 1 && (
+                  <Pagination
+                    count={requestsPageCount}
+                    page={requestsPage}
+                    onChange={handleRequestsPageChange}
+                    sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+                    color="primary"
+                  />
+                )}
+            </Box>
           </Box>
 
           {/* Manage Existing Volunteers Section */}
-          <Box>
+          <Box sx={{ width: "100%" }}>
+            {" "}
+            {/* This Box already takes 100% width */}
             <Typography variant="h6">Manage Existing Permissions</Typography>
             {loadingVolunteers ? (
               <CircularProgress sx={{ mt: 1 }} />
@@ -612,46 +784,86 @@ export default function AgencyDashboard() {
                 No agency volunteers found.
               </Typography>
             ) : (
-              <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
-                <Table>
+              <TableContainer
+                component={Paper}
+                sx={{ overflowX: "auto", mt: 1 /* Added margin top */ }}
+              >
+                {/* Applied size="small" and specific padding/height for cells/rows */}
+                <Table size="small">
                   <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
+                    <TableRow
+                      sx={{ height: "52px" /* Adjusted header row height */ }}
+                    >
+                      <TableCell
+                        sx={{
+                          padding: "6px 10px",
+                          minWidth:
+                            "100px" /* Ensure name column has enough space */,
+                        }}
+                      >
+                        Name
+                      </TableCell>
                       {permissionsList.map((perm) => (
-                        <TableCell key={perm}>
+                        <TableCell
+                          key={perm}
+                          sx={{
+                            padding: "6px 7px", // Reduced padding for permission columns
+                            textAlign: "center", // Center permission headers
+                            minWidth: "95px", // Give permission columns a min width
+                          }}
+                        >
                           {perm.replace(/_/g, " ")}
                         </TableCell>
                       ))}
-                      <TableCell>Save</TableCell>
+                      <TableCell
+                        sx={{ padding: "6px 10px", textAlign: "center" }}
+                      >
+                        Save
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {volunteers.map((vol) => (
-                      <TableRow key={vol.member.id}>
-                        <TableCell>{vol.member.full_name}</TableCell>
+                      <TableRow
+                        key={vol.member.id}
+                        sx={{ height: "48px" /* Consistent row height */ }}
+                      >
+                        <TableCell sx={{ padding: "6px 10px" }}>
+                          {vol.member.full_name}
+                        </TableCell>
                         {permissionsList.map((perm) => (
-                          <TableCell key={perm}>
+                          <TableCell
+                            key={perm}
+                            sx={{
+                              padding: "0px 8px", // Minimal vertical padding, adjusted horizontal for checkbox
+                              textAlign: "center",
+                            }}
+                          >
                             <Checkbox
                               checked={!!vol[perm]}
                               onChange={(e) => {
                                 setVolunteers((prevVols) =>
-                                  prevVols.map((v) =>
-                                    v.member.id === vol.member.id
-                                      ? { ...v, [perm]: e.target.checked }
-                                      : v
+                                  prevVols.map((v_orig) => // Iterate over original list
+                                      v_orig.member.id === vol.member.id // Compare with item from current page
+                                        ? { ...v_orig, [perm]: e.target.checked }
+                                        : v_orig
                                   )
                                 );
                               }}
+                              sx={{ padding: "4px" }} // Control padding around the checkbox itself
                             />
                           </TableCell>
                         ))}
-                        <TableCell>
+                        <TableCell
+                          sx={{ padding: "6px 10px", textAlign: "center" }}
+                        >
                           <Button
                             disableRipple
+                            size="small" // Made button smaller
                             onClick={() => {
                               const volunteerToSave = volunteers.find(
-                                (v) => v.member.id === vol.member.id
-                              );
+                                  (v_orig) => v_orig.member.id === vol.member.id
+                                );
                               if (volunteerToSave) {
                                 handleSavePermissions(
                                   vol.member.id,
@@ -670,7 +882,15 @@ export default function AgencyDashboard() {
                 </Table>
               </TableContainer>
             )}
-            {volunteers.length > 0 && <Pagination count={1} sx={{ mt: 1 }} />}
+            {volunteersPageCount > 1 && (
+                  <Pagination
+                    count={volunteersPageCount}
+                    page={volunteersPage}
+                    onChange={handleVolunteersPageChange}
+                    sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+                    color="primary"
+                  />
+                )}
           </Box>
 
           {/* Permission Processing Modal */}
@@ -714,7 +934,6 @@ export default function AgencyDashboard() {
                   />
                 ))}
               </FormGroup>
-              {/* Action buttons */}
               <Box
                 sx={{
                   mt: 2,
@@ -723,12 +942,10 @@ export default function AgencyDashboard() {
                   gap: 1,
                 }}
               >
-                {/* Delete Button - Conditionally rendered */}
                 {currentVolunteer && currentVolunteer.volunteer_user_id && (
                   <Button
                     variant="outlined"
                     color="error"
-                    // Changed onClick to initiate delete confirmation
                     onClick={() => initiateDeleteRequest(currentVolunteer)}
                     disabled={loadingAction}
                     size="small"
