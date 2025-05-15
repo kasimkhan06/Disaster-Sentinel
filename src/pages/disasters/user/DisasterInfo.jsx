@@ -248,9 +248,8 @@ const DisasterInfo = () => {
             size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
             sx={{
               backgroundColor: "#fff",
-              borderRadius: "2px 2px 0 0",
               padding: { xs: 0, sm: 0, md: 2 },
-              mx: { xs: 2, sm: 2, md: 3 },
+              mx: { xs: 0, sm: 0, md: 3 },
               width: { xs: "100%", sm: "100%", md: "75%" },
               // paddingTop: { xs: 1, sm: 0, md: 0 },
               // paddingBottom: { xs: 1, sm: 0, md: 0 },
@@ -341,13 +340,8 @@ const DisasterInfo = () => {
                             <Typography
                               sx={{
                                 marginLeft: 1,
-                                fontSize: {
-                                  xs: "0.7rem",
-                                  sm: "0.7rem",
-                                  md: "0.8rem",
-                                  lg: "1rem",
-                                },
-                                fontWeight: 500,
+                                fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"} ,
+                                fontWeight: "bold",
                               }}
                             >
                               {item.label}:
@@ -356,12 +350,7 @@ const DisasterInfo = () => {
                               variant="body1"
                               sx={{
                                 marginLeft: 1,
-                                fontSize: {
-                                  xs: "0.7rem",
-                                  sm: "0.7rem",
-                                  md: "0.8rem",
-                                  lg: "1rem",
-                                },
+                                fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"},
                               }}
                             >
                               {item.label === "Date"
@@ -395,7 +384,7 @@ const DisasterInfo = () => {
           </Grid>
           <Grid
             size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
-            sx={{ mx: { xs: 2, sm: 2, md: 3 } }}
+            sx={{ mx: { xs: 0, sm: 0, md: 3 } }}
           >
             <Accordion
             key="summary"
@@ -457,7 +446,7 @@ const DisasterInfo = () => {
                   sx={{
                     borderBottom: "2px solid #eee",
                     mx: { xs: "17px", sm: "17px", md: "32px" },
-                    mt: 2,
+                    // mt: 2,
                   }}
                 >
                   <Typography
@@ -524,7 +513,7 @@ const DisasterInfo = () => {
           </Grid>
           <Grid
             size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
-            sx={{ mx: { xs: 2, sm: 2, md: 3 } }}
+            sx={{ mx: { xs: 0, sm: 0, md: 3 } }}
           >
             <Accordion
             key="images"

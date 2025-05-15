@@ -155,13 +155,15 @@ const AgencyProfile = () => {
   // Mobile view components
   const MobileAgencyInfo = () => (
     <Accordion
+    key="info-accordion" 
       expanded={expandedAccordion === "info"}
       onChange={handleAccordionChange("info")}
       sx={{
-        mb: 1,
+        mb: 0 ,
         boxShadow: "none",
         backgroundColor: "rgba(255, 255, 255, 0.67)",
         transition: "none",
+        // transition: "none",
         "&.Mui-expanded": {
           margin: "0",
           minHeight: "48px",
@@ -177,6 +179,7 @@ const AgencyProfile = () => {
           backgroundColor: "rgb(255, 255, 255)",
           minHeight: "48px !important",
           "&.Mui-expanded": {
+            margin: "0",
             minHeight: "48px !important",
           },
           "& .MuiAccordionSummary-content": {
@@ -333,7 +336,7 @@ const AgencyProfile = () => {
           >
             WANT TO BE A VOLUNTEER?
           </Button>
-
+            
           {/* Volunteer Dialog */}
           {volunteer && !submitSuccess && (
             <Card
@@ -361,6 +364,10 @@ const AgencyProfile = () => {
                 error={!!submitError}
                 helperText={submitError}
                 sx={{ mb: 2 }}
+                inputProps={{
+                  // This helps maintain focus
+                  onFocus: (e) => e.target.focus(),
+                }}
               />
               <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <Button
@@ -403,7 +410,7 @@ const AgencyProfile = () => {
       expanded={expandedAccordion === "description"}
       onChange={handleAccordionChange("description")}
       sx={{
-        mb: 1,
+        mb: 0,
         boxShadow: "none",
         backgroundColor: "rgba(255, 255, 255, 0.67)",
         transition: "none",
@@ -461,7 +468,7 @@ const AgencyProfile = () => {
       expanded={expandedAccordion === "map"}
       onChange={handleAccordionChange("map")}
       sx={{
-        mb: 1,
+        mb: 0,
         boxShadow: "none",
         backgroundColor: "rgba(255, 255, 255, 0.67)",
         transition: "none",
@@ -516,7 +523,7 @@ const AgencyProfile = () => {
       expanded={expandedAccordion === "gallery"}
       onChange={handleAccordionChange("gallery")}
       sx={{
-        mb: 1,
+        mb: 0,
         boxShadow: "none",
         backgroundColor: "rgba(255, 255, 255, 0.67)",
         transition: "none",
@@ -674,7 +681,16 @@ const AgencyProfile = () => {
       </Box>
 
       {isMobileOrTablet ? (
-        <Box sx={{ p: 2 }}>
+        <Grid
+        container
+        spacing={1}
+        sx={{
+          m: 2,
+          width: { xs: "100%", sm: "100%", md: "75%" },
+          marginX: "auto",
+          marginTop: 1,
+        }}
+      >
           {loading ? (
             <Box>
               <Skeleton variant="rectangular" height={200} sx={{ mb: 2 }} />
@@ -684,13 +700,17 @@ const AgencyProfile = () => {
             </Box>
           ) : (
             <>
-              <MobileAgencyInfo />
-              <MobileDescription />
-              <MobileMapSection />
-              <MobileGallery />
+            <Grid
+            size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{mx:2}}> <MobileAgencyInfo /></Grid>
+            <Grid
+            size={{ xs: 12, sm: 12, md: 6, lg: 12 }}  sx={{mx:2}}> <MobileDescription /></Grid>
+            <Grid
+            size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{mx:2}}> <MobileMapSection /></Grid>
+            <Grid
+            size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{mx:2}}> <MobileGallery /></Grid>
             </>
           )}
-        </Box>
+        </Grid>
       ) : (
         <Grid
           container

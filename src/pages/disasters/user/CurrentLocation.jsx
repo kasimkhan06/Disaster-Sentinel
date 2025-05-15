@@ -170,7 +170,7 @@ function CurrentLocation() {
         width: isMobileOrTablet ? "100%" : "auto",
       }}
       key={index}
-    >
+    > 
       <Card
         onClick={() => navigate(`/disaster-details/${disaster.id}`)}
         sx={{
