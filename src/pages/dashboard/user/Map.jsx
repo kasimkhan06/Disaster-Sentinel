@@ -258,10 +258,12 @@ const Map = ({
                   Type:{" "}
                   {disasterTypeMap[disaster.eventtype] || disaster.eventtype}
                 </p>
-                <p style={{ margin: "2px 0", fontSize: "13px" }}>
-                  Date: {disaster.pubDate}
-                </p>
-                <button
+                {disaster.pubDate && (
+                  <p style={{ margin: "2px 0", fontSize: "13px" }}>
+                    Date: {disaster.pubDate}
+                  </p>
+                )}
+                {/* <button
                   style={{
                     background: "none",
                     border: "none",
@@ -288,7 +290,7 @@ const Map = ({
                   }}
                 >
                   View Details
-                </button>
+                </button> */}
               </div>
             </Popup>
           </Marker>
