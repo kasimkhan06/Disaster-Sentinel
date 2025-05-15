@@ -1,234 +1,402 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Container,
-  Card,
-  Typography,
-  TextField,
-  Button,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Box,
-  Avatar,
-  Autocomplete
+    Container, Card, Typography, TextField, Button, Box, Avatar,
+    Autocomplete, CircularProgress, Alert
 } from "@mui/material";
-import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+// Ensure this path is correct for your project structure
+import worldMapBackground from "../../../public/assets/background_image/world-map-background.jpg"; 
 
-const mockData = [
-  {
-    id: "12345",
-    name: "John Doe",
-    age : 30,
-    gender : "Male",
-    status: "Under Investigation",
-    disasterType: "Floods",
-    contactInfo: "9876543210",
-    additionalInfo: "",
-    lastSeen: "Mumbai, India",
-    photo: "https://randomuser.me/api/portraits/men/1.jpg"
-  },
-  {
-    id: "67890",
-    name: "Jane Smith",
-    age : 28,
-    gender : "Female",
-    status: "Found",
-    disasterType: "Earthquake",
-    contactInfo: "8765432109",
-    additionalInfo: "",
-    lastSeen: "Delhi, India",
-    photo: "https://randomuser.me/api/portraits/men/1.jpg"
-  }
-];
+const API_BASE_URL = "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api";
+
+// Helper function to map API data to component state structure
+const mapApiResponseToSelectedPerson = (apiData) => {
+    console.log("mapApiResponseToSelectedPerson: Input API Data:", JSON.parse(JSON.stringify(apiData))); // Deep copy for logging
+    if (!apiData) {
+        console.log("mapApiResponseToSelectedPerson: No API data, returning null.");
+        return null;
+    }
+    let currentStatus = "Under Investigation";
+    // Use the additional_info passed in, which should now be correct after the fix in updateReportInfo
+    let displayAdditionalInfo = apiData.additional_info || ""; 
+    let isMarkedFound = false;
+
+    // This check is now more reliable because dataForMapping in updateReportInfo ensures
+    // apiData.additional_info has the correct value from the payload.
+    if (typeof apiData.additional_info === 'string' && apiData.additional_info.startsWith("[FOUND]")) {
+        currentStatus = "Found";
+        isMarkedFound = true;
+        console.log("mapApiResponseToSelectedPerson: Status derived as 'Found'. additional_info:", apiData.additional_info);
+    } else {
+        console.log("mapApiResponseToSelectedPerson: Status derived as 'Under Investigation'. additional_info:", apiData.additional_info);
+    }
+    
+    const mapped = {
+        id: apiData.id, name: apiData.full_name || "N/A", age: apiData.age || "N/A",
+        gender: apiData.gender || "N/A", status: currentStatus, disasterType: apiData.disaster_type || "N/A",
+        contactInfo: apiData.reporter_contact_info || "N/A", 
+        additionalInfo: apiData.additional_info || "", // This will be the value from dataForMapping
+        displayAdditionalInfo: displayAdditionalInfo, 
+        lastSeen: apiData.last_seen_location || "N/A",
+        photo: apiData.person_photo || null, isMarkedFound: isMarkedFound, description: apiData.description || "N/A",
+    };
+    console.log("mapApiResponseToSelectedPerson: Mapped Data Output:", mapped);
+    return mapped;
+};
 
 const StatusTracking = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPerson, setSelectedPerson] = useState(null);
-  const [editedInfo, setEditedInfo] = useState({});
-  const [data, setData] = useState(mockData);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authLoading, setAuthLoading] = useState(true);
 
-  const handleSearch = (newValue) => {
-    if (!newValue) return;
+    const [selectedPerson, setSelectedPerson] = useState(null);
+    const [editedInfo, setEditedInfo] = useState({ additionalInfo: "" });
+    const [reportList, setReportList] = useState([]);
+    const [loadingList, setLoadingList] = useState(false);
+    const [loadingDetails, setLoadingDetails] = useState(false);
+    const [loadingUpdate, setLoadingUpdate] = useState(false);
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
-    // Extract ID from the format "Name (ID)"
-    const idMatch = newValue.match(/\(([^)]+)\)$/);
-    const idFromText = idMatch ? idMatch[1] : newValue;
+    useEffect(() => {
+        let userFromStorage = null;
+        let authenticated = false;
+        try {
+            const storedUserDetails = localStorage.getItem('user');
+            if (storedUserDetails) {
+                userFromStorage = JSON.parse(storedUserDetails);
+                if (userFromStorage && userFromStorage.email) {
+                    authenticated = true;
+                } else {
+                    localStorage.removeItem('user');
+                }
+            }
+        } catch (parseError) {
+            console.error("Error parsing user details from localStorage:", parseError);
+            localStorage.removeItem('user');
+        }
+        setCurrentUser(userFromStorage);
+        setIsAuthenticated(authenticated);
+        setAuthLoading(false);
+    }, []);
 
-    const foundPerson = data.find(
-      (person) =>
-        person.id === idFromText ||
-        person.name.toLowerCase() === newValue.toLowerCase()
-    );
+    const currentReporterEmail = currentUser ? currentUser.email : null;
 
-    if (foundPerson) {
-      setSelectedPerson(foundPerson);
-      setEditedInfo({ additionalInfo: foundPerson.additionalInfo });
-    } else {
-      setSelectedPerson(null);
+    useEffect(() => {
+        if (!authLoading && isAuthenticated && currentReporterEmail) {
+            const fetchReportList = async () => {
+                setLoadingList(true);
+                setError('');
+                try {
+                    const response = await fetch(`${API_BASE_URL}/missing-persons/`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}, Text: ${await response.text()}`);
+                    }
+                    let rawData = await response.json();
+                    let processedData = rawData.filter(person => 
+                        person.reporter_email && typeof person.reporter_email === 'string' &&
+                        person.reporter_email.toLowerCase() === currentReporterEmail.toLowerCase()
+                    );
+                    const options = processedData.map(person => ({
+                        label: `${person.full_name} (ID: ${person.id})`,
+                        id: person.id
+                    }));
+                    setReportList(options);
+                } catch (err) {
+                    console.error("Error fetching report list:", err);
+                    setError(`Failed to load report list: ${err.message}.`);
+                } finally {
+                    setLoadingList(false);
+                }
+            };
+            fetchReportList();
+        } else if (!authLoading && !isAuthenticated) {
+            setReportList([]);
+        }
+    }, [currentReporterEmail, isAuthenticated, authLoading]);
+
+    const handleSearch = async (selectedOption) => {
+        if (!selectedOption || !selectedOption.id) {
+            setSelectedPerson(null); setError(''); setSuccessMessage(''); return;
+        }
+        const personId = selectedOption.id;
+        setLoadingDetails(true); setSelectedPerson(null); setError(''); setSuccessMessage('');
+        try {
+            const response = await fetch(`${API_BASE_URL}/missing-persons/${personId}/`);
+            if (!response.ok) {
+                if (response.status === 404) throw new Error(`Report with ID ${personId} not found.`);
+                throw new Error(`HTTP error! status: ${response.status}, Text: ${await response.text()}`);
+            }
+            const detailedData = await response.json();
+            const mappedData = mapApiResponseToSelectedPerson(detailedData);
+            setSelectedPerson(mappedData);
+            setEditedInfo({ additionalInfo: mappedData?.additionalInfo || "" });
+        } catch (err) {
+            console.error("Error fetching person details:", err); setError(`Failed to load details: ${err.message}`); setSelectedPerson(null);
+        } finally { setLoadingDetails(false); }
+    };
+
+    const handleEditChange = (e) => {
+        setEditedInfo({ ...editedInfo, [e.target.name]: e.target.value });
+    };
+
+    const updateReportInfo = async (reportId, payload) => {
+        if (!reportId) {
+            console.error("updateReportInfo: reportId is missing.");
+            return;
+        }
+        console.log(`updateReportInfo: Attempting to update report ID: ${reportId} with payload:`, JSON.parse(JSON.stringify(payload)));
+        setLoadingUpdate(true); 
+        setError(''); 
+        setSuccessMessage('');
+        
+        const formData = new FormData();
+        for (const key in payload) {
+            if (payload.hasOwnProperty(key)) {
+                formData.append(key, payload[key]);
+            }
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/missing-persons/${reportId}/`, {
+                method: 'PATCH', 
+                body: formData,
+            });
+
+            console.log("updateReportInfo: Raw API Response Status:", response.status);
+            const responseContentType = response.headers.get("content-type");
+            console.log("updateReportInfo: Raw API Response Content-Type Header:", responseContentType);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("updateReportInfo: API Error Response Text:", errorText);
+                let errorData;
+                try {
+                    if (responseContentType && responseContentType.includes("application/json")) {
+                        errorData = JSON.parse(errorText);
+                    } else {
+                         errorData = { detail: errorText || `HTTP error ${response.status}. Server returned non-JSON error.` };
+                    }
+                } catch (e) {
+                    errorData = { detail: errorText || `HTTP error ${response.status}. Failed to parse error response.` };
+                }
+                const errorDetail = errorData.detail || JSON.stringify(errorData);
+                throw new Error(errorDetail);
+            }
+
+            let updatedDataFromServer;
+            if (responseContentType && responseContentType.includes("application/json")) {
+                 updatedDataFromServer = await response.json();
+            } else {
+                const responseText = await response.text();
+                console.warn("updateReportInfo: API response was OK but not 'application/json'. Response Text:", responseText);
+                if(responseText){
+                    try {
+                        updatedDataFromServer = JSON.parse(responseText);
+                    } catch (e) {
+                         console.error("updateReportInfo: Could not parse non-JSON OK response.");
+                    }
+                }
+                if (!updatedDataFromServer && (response.status === 200 || response.status === 204)) {
+                     console.log("updateReportInfo: Received OK/No Content but no JSON body. Re-fetching details for consistency.");
+                     const refetchResponse = await fetch(`${API_BASE_URL}/missing-persons/${reportId}/`);
+                     if(refetchResponse.ok) {
+                         updatedDataFromServer = await refetchResponse.json();
+                     } else {
+                         console.error("Failed to re-fetch report details after update. Proceeding with optimistic update using current state as base.");
+                         updatedDataFromServer = { ...selectedPerson }; 
+                     }
+                }
+            }
+            console.log("updateReportInfo: API Response JSON (updatedDataFromServer):", JSON.parse(JSON.stringify(updatedDataFromServer)));
+
+            // ***** KEY FIX REFINED *****
+            let dataForMapping;
+            if (updatedDataFromServer) {
+                dataForMapping = { ...updatedDataFromServer };
+                if (payload.hasOwnProperty('additional_info')) {
+                    console.log("updateReportInfo: Overriding/setting additional_info in dataForMapping with payload's value:", payload.additional_info);
+                    dataForMapping.additional_info = payload.additional_info;
+                }
+            } else {
+                console.warn("updateReportInfo: No data in server response body and re-fetch failed. Optimistically using payload for UI update.");
+                dataForMapping = { ...selectedPerson, ...payload }; 
+                 if (payload.hasOwnProperty('additional_info')) { 
+                    dataForMapping.additional_info = payload.additional_info;
+                }
+            }
+            // ***** END KEY FIX REFINED *****
+            console.log("updateReportInfo: Data being sent to mapApiResponseToSelectedPerson:", JSON.parse(JSON.stringify(dataForMapping)));
+
+            const mappedData = mapApiResponseToSelectedPerson(dataForMapping);
+            setSelectedPerson(mappedData);
+            setEditedInfo({ additionalInfo: mappedData?.additionalInfo || "" }); 
+            
+            console.log("updateReportInfo: selectedPerson state updated to:", JSON.parse(JSON.stringify(mappedData)));
+            setSuccessMessage("Report updated successfully!");
+
+        } catch (err) {
+            console.error("updateReportInfo: Error during report update:", err);
+            setError(`Update failed: ${err.message}`);
+        } finally {
+            setLoadingUpdate(false);
+        }
+    };
+
+    const handleSaveChanges = () => {
+        if (!selectedPerson) return;
+        console.log("handleSaveChanges: Current editedInfo.additionalInfo:", editedInfo.additionalInfo);
+        updateReportInfo(selectedPerson.id, { additional_info: editedInfo.additionalInfo });
+    };
+
+    const handleMarkFound = () => {
+        if (!selectedPerson || selectedPerson.isMarkedFound) return; 
+        const currentInfoForFound = selectedPerson.additionalInfo || ""; 
+        
+        const baseInfo = typeof currentInfoForFound === 'string' && currentInfoForFound.startsWith("[FOUND]")
+            ? currentInfoForFound.substring(7).trim()
+            : currentInfoForFound;
+        const newAdditionalInfo = `[FOUND] ${baseInfo}`.trim(); 
+        
+        console.log("handleMarkFound: Marking as found. Base info:", baseInfo, "New additional_info:", newAdditionalInfo);
+        updateReportInfo(selectedPerson.id, { additional_info: newAdditionalInfo });
+    };
+
+    if (authLoading) {
+        return (
+            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 64px)', pt: 8 }}>
+                <CircularProgress />
+            </Container>
+        );
     }
-  };
 
-  const handleEditChange = (e) => {
-    setEditedInfo({ ...editedInfo, [e.target.name]: e.target.value });
-  };
+    if (!isAuthenticated) {
+        return (
+            <Container sx={{ pt: 8, textAlign: 'center' }}>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    Login is compulsory to view this page. Please log in.
+                </Alert>
+            </Container>
+        );
+    }
+    
+    return (
+        <Box
+            sx={{
+                minHeight: "calc(100vh - 64px)",
+                background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)), url(${worldMapBackground})`,
+                backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
+                paddingTop: 0, boxSizing: 'border-box',
+            }}
+        >
+            <Container maxWidth="md" sx={{ mt: { xs: 2, sm: 4 }, pb: 4, pt: { xs:2, sm:4 } }}>
+                {error && <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2, position: 'sticky', top: '70px', zIndex: 1000 }}>{error}</Alert>}
+                {successMessage && <Alert severity="success" onClose={() => setSuccessMessage('')} sx={{ mb: 2, position: 'sticky', top: '70px', zIndex: 1000 }}>{successMessage}</Alert>}
 
-  const handleSaveChanges = () => {
-    const updatedData = data.map((person) =>
-      person.id === selectedPerson.id
-        ? { ...person, additionalInfo: editedInfo.additionalInfo }
-        : person
+                <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+                    <Autocomplete
+                        id="person-search-input"
+                        options={reportList}
+                        getOptionLabel={(option) => option.label || ""}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
+                        loading={loadingList}
+                        value={reportList.find(p => p.id === selectedPerson?.id) || null}
+                        onChange={(event, newValue) => handleSearch(newValue)}
+                        sx={{ width: { xs: '90%', sm: 500, md: 600 } }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                placeholder="Search Your Reported Missing Persons"
+                                InputProps={{
+                                    ...params.InputProps,
+                                    endAdornment: (
+                                        <>
+                                            {loadingList ? <CircularProgress color="inherit" size={20} /> : null}
+                                            {params.InputProps.endAdornment}
+                                        </>
+                                    ),
+                                }}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        backgroundColor: "white", borderRadius: '8px', boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.05)",
+                                        "& fieldset": { borderColor: "transparent" },
+                                        "&:hover fieldset": { borderColor: "rgba(0, 0, 0, 0.1)" },
+                                        "&.Mui-focused fieldset": { borderColor: "primary.main", borderWidth: '1px' },
+                                    },
+                                }}
+                            />
+                        )}
+                    />
+                </Box>
+
+                {loadingDetails && <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />}
+
+                {!loadingDetails && selectedPerson && (
+                    <Card sx={{
+                        maxWidth: 600, mx: "auto", p: 3, mt: 0, borderRadius: 2,
+                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    }}>
+                        <Typography variant="h6" align="center" gutterBottom>
+                            Missing Person Details (ID: {selectedPerson.id})
+                        </Typography>
+                        <Box sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', mt: 2, gap: { xs: 2, sm: 3 } }}>
+                            <Avatar src={selectedPerson.photo || undefined} alt={selectedPerson.name} sx={{ width: 100, height: 100, alignSelf: 'center', border: '2px solid lightgray' }} />
+                            <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, flexGrow: 1 }}>
+                                <Typography variant="body1"><strong>Name:</strong> {selectedPerson.name}</Typography>
+                                <Typography variant="body1"><strong>Age:</strong> {selectedPerson.age}</Typography>
+                                <Typography variant="body1"><strong>Gender:</strong> {selectedPerson.gender}</Typography>
+                                <Typography variant="body1"><strong>Disaster Context:</strong> {selectedPerson.disasterType}</Typography>
+                                <Typography variant="body1"><strong>Last Seen:</strong> {selectedPerson.lastSeen}</Typography>
+                                <Typography variant="body1"><strong>Reporter Contact:</strong> {selectedPerson.contactInfo}</Typography>
+                                <Typography variant="body1"><strong>Description:</strong> {selectedPerson.description}</Typography>
+                                <Typography variant="body1" sx={{ wordBreak: 'break-word' }}><strong>Additional Info:</strong> {selectedPerson.additionalInfo}</Typography>
+                            </Box>
+                        </Box>
+                        <Box sx={{ mt: 3 }}>
+                            <Typography variant="h6" sx={{mb: 1, fontWeight: 'bold'}}>Status:
+                                <Box component="span" sx={{ color: selectedPerson.status === "Found" ? "green" : "orange", ml:1 }}>
+                                     {selectedPerson.status}
+                                </Box>
+                            </Typography>
+                            <TextField 
+                                fullWidth 
+                                variant="outlined" 
+                                margin="normal" 
+                                label="Update Additional Information" 
+                                name="additionalInfo" 
+                                multiline 
+                                rows={3} 
+                                value={editedInfo.additionalInfo} 
+                                onChange={handleEditChange} 
+                                InputLabelProps={{ shrink: true }} 
+                                disabled={loadingUpdate} 
+                            />
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: 'center', mt: 3, flexWrap: 'wrap', gap: 1 }}>
+                            <Button variant="contained" color="primary" onClick={handleSaveChanges} disabled={loadingUpdate || selectedPerson.isMarkedFound}>
+                                {loadingUpdate ? <CircularProgress size={24} color="inherit" /> : "Save Changes"}
+                            </Button>
+                            {!selectedPerson.isMarkedFound && (
+                                <Button variant="contained" color="success" onClick={handleMarkFound} disabled={loadingUpdate}>
+                                    {loadingUpdate ? <CircularProgress size={24} color="inherit" /> : "Mark as Found"}
+                                </Button>
+                            )}
+                            {selectedPerson.isMarkedFound && (<Typography variant="body2" color="success.main" sx={{fontWeight: 'bold'}}>This person has been marked as found.</Typography>)}
+                        </Box>
+                    </Card>
+                )}
+                {!loadingDetails && !selectedPerson && !error && reportList.length > 0 && !loadingList && (
+                    <Typography variant="h6" align="center" sx={{ mt: 4, color: 'text.secondary' }}>
+                        Select a person from the list to see details.
+                    </Typography>
+                )}
+                {!loadingDetails && !selectedPerson && !error && reportList.length === 0 && !loadingList && (
+                    <Typography variant="h6" align="center" sx={{ mt: 4, color: 'text.secondary' }}>
+                        No reports found for your account. You can report a missing person if needed.
+                    </Typography>
+                )}
+            </Container>
+        </Box>
     );
-    setData(updatedData);
-    setSelectedPerson({ ...selectedPerson, additionalInfo: editedInfo.additionalInfo });
-  };
-
-  const handleMarkFound = () => {
-    const updatedData = data.map((person) =>
-      person.id === selectedPerson.id ? { ...person, status: "Found" } : person
-    );
-    setData(updatedData);
-    setSelectedPerson({ ...selectedPerson, status: "Found" });
-  };
-
-  return (
-    <Box 
-    sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            minHeight: "100vh",
-            background: `
-          linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
-          url(${worldMapBackground})
-        `,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundAttachment: "fixed",
-            backgroundRepeat: "repeat-y",
-            margin: 0,
-            padding: 0,
-            zIndex: 0, // Only needed if you have other elements with zIndex
-          }}
-    >
-    <Container maxWidth="md" sx={{ mt: 8, pb: 4 }}>
-      <div style={{ display: "flex", justifyContent: "center", marginTop: "100px" }}>
-        <Autocomplete
-          freeSolo
-          id="person-search-input"
-          disableClearable
-          options={data.map(person => `${person.name} (${person.id})`)}
-          onChange={(event, newValue) => {
-            setSearchTerm(newValue);
-            handleSearch(newValue);
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              placeholder="Search by Name or ID"
-              slotProps={{
-                input: {
-                  ...params.InputProps,
-                  type: "search",
-                },
-              }}
-              sx={{
-                borderBottom: "2px solid #eee",
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "white",
-                  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                  "& fieldset": {
-                    borderColor: "transparent",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "transparent",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "transparent",
-                  },
-                  "&:focus": {
-                    outline: "none",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "inherit",
-                },
-                "& .MuiInputBase-input": {
-                  fontSize: {
-                    xs: "0.7rem",
-                        sm: "0.8rem",
-                        // md: isBelow ? "0.9rem" : "1rem",
-                        // lg: isBelow ? "0.9rem" : "1rem",
-                  },
-                },
-                "&::placeholder": {
-                  fontSize: "1rem",
-                },
-                width: { xs: "300px", md: "400px" },
-              }}
-            />
-          )}
-        />
-      </div>
-
-      {selectedPerson && (
-        <Card sx={{ width: 550, mx: "auto", p: 3, mt: 4, borderRadius: 2, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
-          <Typography variant="h6" align="center">Missing Person Details</Typography>
-
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 2 }}>
-            <Avatar src={selectedPerson.photo} sx={{ width: 100, height: 100 }} />
-            <Box>
-              <Typography variant="body1"><strong>Name:</strong> {selectedPerson.name}</Typography>
-              <Typography variant="body1"><strong>Age:</strong> {selectedPerson.age}</Typography>
-              <Typography variant="body1"><strong>Gender:</strong> {selectedPerson.gender}</Typography>
-              <Typography variant="body1"><strong>Disaster Type:</strong> {selectedPerson.disasterType}</Typography>
-              <Typography variant="body1"><strong>Last Seen:</strong> {selectedPerson.lastSeen}</Typography>
-              <Typography variant="body1"><strong>Contact Info:</strong> {selectedPerson.contactInfo}</Typography>
-              <Typography variant="body1"><strong>Additional Info:</strong> {selectedPerson.additionalInfo}</Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ mt: 2, gap: 2 }}>
-          <TextField
-          // fullWidth
-            sx ={{width: {xs:"85%", sm: "80%"}}}
-            variant="standard"
-            margin="normal"
-            label="Update Additional Information"
-            name="additionalInfo"
-            value={editedInfo.additionalInfo}
-            onChange={handleEditChange}
-          />
-
-          <FormControl
-          // fullWidth 
-          sx ={{width: {xs:"85%", sm: "70%"}}} 
-          margin="normal" variant="standard">
-            <InputLabel>Status</InputLabel>
-            <Select value={selectedPerson.status} disabled >
-              <MenuItem value="Under Investigation">Under Investigation</MenuItem>
-              <MenuItem value="Found">Found</MenuItem>
-              <MenuItem value="No Updates">No Updates</MenuItem>
-            </Select>
-          </FormControl>
-          </Box>
-
-          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
-            <Button color="primary" onClick={handleSaveChanges}>
-              Save Changes
-            </Button>
-            {selectedPerson.status !== "Found" && (
-              <Button color="success" onClick={handleMarkFound}>
-                Mark as Found
-              </Button>
-            )}
-          </Box>
-        </Card>
-      )}
-    </Container>
-    </Box>
-  );
 };
 
 export default StatusTracking;
