@@ -164,7 +164,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                   }
                 }}
               >
-                <Tab label="Home" component={Link} to="/home" />
+                <Tab label="Home" component={Link} to="/agency-dashboard" />
                 <Tab
                   label="Services"
                   aria-controls="services-menu"

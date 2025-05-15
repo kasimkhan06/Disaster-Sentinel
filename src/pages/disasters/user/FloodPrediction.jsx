@@ -497,7 +497,7 @@ const FloodPrediction = () => {
           {currentLocationState})
         </Alert>
       </Snackbar>
-      <Footer />
+      {/* <Footer /> */}
     </Box>
   );
 };
