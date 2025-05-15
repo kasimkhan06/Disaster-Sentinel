@@ -22,11 +22,10 @@ import {
   Send
 } from "@mui/icons-material";
 
-import "../../../public/css/EventListing.css"; // Ensure this path is correct
+import "../../../public/css/EventListing.css";
 
 // Internal component for displaying event cards
 function EventDisplayCard({ event, customActions }) {
-
   const getTagsBadge = () => {
     if (!event.tags || event.tags.length === 0) return null;
     return (
@@ -40,7 +39,7 @@ function EventDisplayCard({ event, customActions }) {
 
   const getImage = () => {
     if (event.event_type === "Seminar" || event.event_type === "Conference" || event.event_type === "Networking") {
-      return "/assets/Event Images/seminar.jpg"; // Ensure these paths are correct
+      return "/assets/Event Images/seminar.jpg";
     } else if (event.event_type === "Workshop") {
       return "/assets/Event Images/workshop.jpg";
     } else {
@@ -87,10 +86,11 @@ function EventDisplayCard({ event, customActions }) {
   );
 }
 
-
 export default function UserAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState(null);
   const [sort, setSort] = useState("newest");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -99,22 +99,13 @@ export default function UserAnnouncementsPage() {
   const [registeringEventId, setRegisteringEventId] = useState(null);
 
   const fetchUserRegistrations = async (userId) => {
-    console.log("[UserAnnouncementsPage] Attempting to fetch registrations for user ID:", userId);
-    try {
-        // Replace with actual API call: e.g., const response = await fetch(`/api/users/${userId}/registered-events/`);
-        console.log("[UserAnnouncementsPage] fetchUserRegistrations needs a real API endpoint to get events user is registered for.");
-        // Example: setRegisteredEventIds(new Set([1, 3])); // For testing
-    } catch (error) {
-        console.error("[UserAnnouncementsPage] Error fetching user registrations:", error);
-        setSnackbar({ open: true, message: "Could not load your registration status for events.", severity: "warning" });
-    }
+    // Placeholder
   };
 
   const loadCurrentUserData = async () => {
     try {
       const userString = localStorage.getItem('user');
       if (!userString) {
-        console.warn("[UserAnnouncementsPage] User data string not found in localStorage. User-specific features will be limited.");
         setCurrentUser(null);
         setUserLocation(null);
         return;
@@ -126,17 +117,13 @@ export default function UserAnnouncementsPage() {
           state: userDataFromStorage.state,
           district: userDataFromStorage.district,
         };
-        console.log("[UserAnnouncementsPage] User data loaded from localStorage:", CUser);
         setCurrentUser(CUser);
         setUserLocation({ state: CUser.state, district: CUser.district });
-        // fetchUserRegistrations(CUser.id); // Call when API is ready
       } else {
-        console.warn("[UserAnnouncementsPage] Parsed user data from localStorage is missing user_id, state, or district.", userDataFromStorage);
         setCurrentUser(null);
         setUserLocation(null);
       }
     } catch (error) {
-      console.error("[UserAnnouncementsPage] Error processing user data from localStorage:", error);
       setCurrentUser(null);
       setUserLocation(null);
     }
@@ -150,10 +137,9 @@ export default function UserAnnouncementsPage() {
       const data = await response.json();
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
-
-      const validAnnouncements = data.filter(announcement => {
-        return announcement.date && new Date(announcement.date) >= currentDate;
-      });
+      const validAnnouncements = data.filter(announcement =>
+        announcement.date && new Date(announcement.date) >= currentDate
+      );
       setAnnouncements(validAnnouncements);
     } catch (error) {
       console.error("Error fetching announcements:", error);
@@ -165,8 +151,8 @@ export default function UserAnnouncementsPage() {
 
   const handleRegister = async (eventId) => {
     if (!currentUser || !currentUser.id) {
-        setSnackbar({ open: true, message: "You must be logged in to register.", severity: "error" });
-        return;
+      setSnackbar({ open: true, message: "You must be logged in to register.", severity: "error" });
+      return;
     }
     setRegisteringEventId(eventId);
     try {
@@ -175,16 +161,12 @@ export default function UserAnnouncementsPage() {
       );
       if (!eventResponse.ok) throw new Error(`Failed to fetch event details: ${eventResponse.status}`);
       const eventData = await eventResponse.json();
-      console.log("Event data fetched:", eventData);
-
-      const currentAttendees = eventData.attendees || 0;
+      const currentAttendees = eventData.attendees_count || 0;
       const maxCapacity = eventData.max_capacity;
-
       if (typeof maxCapacity === 'number' && currentAttendees >= maxCapacity) {
         setSnackbar({ open: true, message: "This event is already full.", severity: "warning" });
         return;
       }
-
       const updateResponse = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${eventId}/`,
         {
@@ -193,14 +175,9 @@ export default function UserAnnouncementsPage() {
           body: JSON.stringify({ attendees_count: currentAttendees + 1 })
         }
       );
-      
-      // If user-specific registration is implemented on backend:
-      // const userSpecificRegResponse = await fetch('/api/register-user-for-event', { ... });
-
-      if (updateResponse.ok) { // && userSpecificRegResponse.ok)
+      if (updateResponse.ok) {
         setSnackbar({ open: true, message: "Successfully registered for the event!", severity: "success" });
         fetchAnnouncements();
-        // setRegisteredEventIds(prev => new Set(prev).add(eventId)); // Update UI if tracking registrations
       } else {
         const errorData = await updateResponse.json().catch(() => ({ detail: "Failed to update registration count" }));
         throw new Error(errorData.detail || "Failed to update registration count");
@@ -223,57 +200,93 @@ export default function UserAnnouncementsPage() {
 
   useEffect(() => {
     if (currentUser && currentUser.id) {
-      // fetchUserRegistrations(currentUser.id); // UNCOMMENT AND IMPLEMENT when your API is ready
+      // fetchUserRegistrations(currentUser.id);
     }
   }, [currentUser]);
 
-
   const sortedAnnouncements = () => {
     if (!announcements) return [];
-    let announcements_copy = [...announcements];
+    let processedAnnouncements = [...announcements];
 
+    if (statusFilter !== "all") {
+      processedAnnouncements = processedAnnouncements.filter(event =>
+        event.status && event.status.toLowerCase() === statusFilter.toLowerCase()
+      );
+    }
+    if (locationFilter === "online") {
+      processedAnnouncements = processedAnnouncements.filter(announcement =>
+        announcement.location_type && announcement.location_type.toLowerCase() === "online"
+      );
+    } else if (locationFilter === "offline") {
+      processedAnnouncements = processedAnnouncements.filter(announcement =>
+        announcement.location_type && announcement.location_type.toLowerCase() === "offline"
+      );
+    }
     if (sort === "newest") {
-      announcements_copy.sort((a, b) => new Date(b.date) - new Date(a.date));
+      processedAnnouncements.sort((a, b) => new Date(b.date) - new Date(a.date));
     } else if (sort === "oldest") {
-      announcements_copy.sort((a, b) => new Date(a.date) - new Date(b.date));
+      processedAnnouncements.sort((a, b) => new Date(a.date) - new Date(b.date));
     } else if (sort === "nameAZ") {
-      announcements_copy.sort((a, b) => a.name.localeCompare(b.name));
+      processedAnnouncements.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sort === "nameZA") {
-      announcements_copy.sort((a, b) => b.name.localeCompare(a.name));
+      processedAnnouncements.sort((a, b) => b.name.localeCompare(a.name));
     }
 
-    return announcements_copy.filter(announcement => {
-      if (announcement.location_type && announcement.location_type.toLowerCase() === "online") {
-        return true;
-      }
-      if (!userLocation || !userLocation.state || !userLocation.district) {
-        return false;
-      }
-      if (!announcement.state) {
-        return false;
-      }
+    return processedAnnouncements.filter(announcement => {
+      if (announcement.location_type && announcement.location_type.toLowerCase() === "online") return true;
+      if (!userLocation || !userLocation.state || !userLocation.district) return false;
+      if (!announcement.state) return false;
       const userState = userLocation.state.toUpperCase();
       const userDistrict = userLocation.district.toUpperCase();
       const eventState = announcement.state.toUpperCase();
       const eventDistrict = announcement.district ? announcement.district.trim().toUpperCase() : "";
-
-      if (eventState !== userState) {
-        return false;
-      }
-      if (eventDistrict !== "") { 
-        if (eventDistrict !== userDistrict) {
-          return false;
-        }
-      }
+      if (eventState !== userState) return false;
+      if (eventDistrict !== "" && eventDistrict !== userDistrict) return false;
       return true;
     });
   };
 
   const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+    if (reason === 'clickaway') return;
     setSnackbar({ ...snackbar, open: false });
+  };
+
+  const outerFilterBoxStyle = {
+    padding: '8px 16px',
+    textAlign: "left",
+    boxShadow: "2px 2px 2px #E8F1F5",
+    position: "relative",
+    minWidth: 170,
+    flexGrow: 1,
+    flexBasis: { xs: 'calc(100% - 16px)', sm: 180, md: 190 },
+    backgroundColor: 'white',
+    borderRadius: '4px',
+  };
+
+  const filterInputLabelStyle = {
+    position: "absolute",
+    top: -10,
+    left: 24,
+    backgroundColor: "background.paper",
+    padding: "0 6px",
+    fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" },
+    color: "text.secondary",
+    fontStyle: "italic",
+    zIndex: 1
+  };
+
+  const filterSelectStyle = {
+    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+    "& .MuiSelect-select": { 
+      padding: "10px 26px 10px 12px",
+      minHeight: 'auto !important',
+    },
+    fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
+    position: 'relative',
+    zIndex: 2,
+    backgroundColor: 'transparent',
+    width: '100%',
+    marginTop: '4px',
   };
 
   return (
@@ -284,38 +297,90 @@ export default function UserAnnouncementsPage() {
             Announcements
           </Typography>
         </Box>
-        <Box className="controls" sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mb: 3 }}>
-          {/* ACCESSIBILITY FIXES APPLIED HERE */}
-          <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative" }}>
-            <InputLabel
-              htmlFor="sort-select-input" // Points to Select's id
-              id="sort-select-label"    // Id for this label
-              sx={{
-                position: "absolute", top: -10, left: 8,
-                backgroundColor: "white",
-                padding: "0 4px", fontSize: "0.75rem", color: "text.secondary"
-              }}
-            >
-              Sort By
+
+        <Box className="controls" sx={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 2, mb: 3 }}>
+          {/* Status Filter */}
+          <Box sx={outerFilterBoxStyle}>
+            <InputLabel htmlFor="status-filter-input" id="status-filter-label" sx={filterInputLabelStyle}>
+              Status
             </InputLabel>
-            <Select
-              labelId="sort-select-label" // Refers to InputLabel's id
-              id="sort-select-input"     // Unique id for the Select
-              name="sortCriteria"          // Name for the Select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              sx={{
-                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                "& .MuiSelect-select": { padding: "10px 14px" },
-                fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
-              }}
-            >
-              <MenuItem value="newest">Newest First</MenuItem>
-              <MenuItem value="oldest">Oldest First</MenuItem>
-              <MenuItem value="nameAZ">Name A-Z</MenuItem>
-              <MenuItem value="nameZA">Name Z-A</MenuItem>
-            </Select>
-          </FormControl>
+            <FormControl fullWidth>
+              <Select
+                labelId="status-filter-label"
+                id="status-filter-input"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                sx={filterSelectStyle}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="all">All Statuses</MenuItem>
+                <MenuItem value="upcoming">Upcoming</MenuItem>
+                <MenuItem value="ongoing">Ongoing</MenuItem>
+                <MenuItem value="completed">Completed</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Event Type (Online/Offline) Filter */}
+          <Box sx={outerFilterBoxStyle}>
+            <InputLabel htmlFor="location-filter-input" id="location-filter-label" sx={filterInputLabelStyle}>
+              Type
+            </InputLabel>
+            <FormControl fullWidth>
+              <Select
+                labelId="location-filter-label"
+                id="location-filter-input"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                sx={filterSelectStyle}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="all">All Types</MenuItem>
+                <MenuItem value="online">Online</MenuItem>
+                <MenuItem value="offline">Offline</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Sort By Filter */}
+          <Box sx={outerFilterBoxStyle}>
+            <InputLabel htmlFor="sort-select-input" id="sort-select-label" sx={filterInputLabelStyle}>
+              Sort
+            </InputLabel>
+            <FormControl fullWidth>
+              <Select
+                labelId="sort-select-label"
+                id="sort-select-input"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                sx={filterSelectStyle}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="newest">Newest First</MenuItem>
+                <MenuItem value="oldest">Oldest First</MenuItem>
+                <MenuItem value="nameAZ">Name A-Z</MenuItem>
+                <MenuItem value="nameZA">Name Z-A</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
         </Box>
 
         {isLoading ? (
@@ -325,11 +390,11 @@ export default function UserAnnouncementsPage() {
           </Box>
         ) : sortedAnnouncements().length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 5 }}>
-            <Typography variant="h6">No announcements available at the moment.</Typography>
-            <Typography variant="body1" sx={{mt: 1}}>
-              { !userLocation || !userLocation.state || !userLocation.district
-                ? "Please ensure your profile location (state and district) is set to see relevant offline events, or check back later."
-                : `No events currently match your location (State: ${userLocation.state}, District: ${userLocation.district}) or selected filters. Please check back later.`
+            <Typography variant="h6">No announcements available for the selected filters.</Typography>
+            <Typography variant="body1" sx={{ mt: 1 }}>
+              {statusFilter !== "all" || locationFilter !== "all" || (userLocation && (userLocation.state || userLocation.district))
+                ? "Try adjusting your filters or check back later."
+                : "Please ensure your profile location is set to see relevant offline events, or check back later."
               }
             </Typography>
           </Box>
@@ -339,8 +404,6 @@ export default function UserAnnouncementsPage() {
               const currentAttendees = Number(announcement.attendees_count) || 0;
               const maxCapacity = Number(announcement.max_capacity);
               const isFull = typeof maxCapacity === 'number' && !isNaN(maxCapacity) && currentAttendees >= maxCapacity;
-              
-              // const isAlreadyRegistered = currentUser && registeredEventIds.has(announcement.id); // UNCOMMENT WHEN READY
 
               return (
                 <Grid item xs={12} sm={6} md={4} key={announcement.id}>
@@ -348,19 +411,7 @@ export default function UserAnnouncementsPage() {
                     event={announcement}
                     customActions={
                       <Box sx={{ mt: 2, textAlign: 'center' }}>
-                        {/*
-                        // UNCOMMENT AND USE THIS BLOCK WHEN isAlreadyRegistered IS IMPLEMENTED
-                        isAlreadyRegistered ? (
-                          <>
-                            <Button variant="contained" size="small" disabled sx={{ minWidth: '100px', backgroundColor: 'success.main', color: 'white', '&:disabled': { backgroundColor: 'success.light', color: 'rgba(0, 0, 0, 0.7)'} }}>
-                              Registered
-                            </Button>
-                            <Typography variant="caption" display="block" sx={{ mt: 1, color: 'success.main' }}>
-                              You have already registered for this event.
-                            </Typography>
-                          </>
-                        ) : */
-                        isFull ? (
+                        {isFull ? (
                           <Typography color="text.secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                             Slots Filled
                           </Typography>
