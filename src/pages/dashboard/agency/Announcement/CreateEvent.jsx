@@ -388,7 +388,7 @@ export default function EventFormWithStepper() {
                     {/* Event Name & Event Type */}
                     <Grid container spacing={3}>
                       {/* Event Name */}
-                      <Grid item xs={12} md={6}>
+                      <Grid item xs={12} md={12}>
                         <TextField
                           fullWidth
                           label={
@@ -408,7 +408,7 @@ export default function EventFormWithStepper() {
                       </Grid>
 
                       {/* Event Type */}
-                      <Grid item xs={12} md={6}>
+                      <Grid item xs={12} md={12}>
                         <FormControl
                           fullWidth
                           variant="standard"
@@ -450,7 +450,7 @@ export default function EventFormWithStepper() {
                           error={!!errors.date}
                           helperText={errors.date}
                           InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
-                          sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "5px", md: "20px" } }}
+                          sx={{ width: { xs: "95%", md: "80%" }, marginX: { xs: "5px", md: "20px" } }}
 
                         />
                       </Grid>
@@ -469,7 +469,7 @@ export default function EventFormWithStepper() {
                           error={!!errors.start_time}
                           helperText={errors.start_time}
                           InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
-                          sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "5px", md: "20px" } }}
+                          sx={{ width: { xs: "95%", md: "80%" }, marginX: { xs: "5px", md: "20px" } }}
 
                         />
                       </Grid>

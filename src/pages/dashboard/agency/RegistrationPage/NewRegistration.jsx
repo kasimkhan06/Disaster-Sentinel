@@ -210,13 +210,12 @@ const RegistrationForm = ({ setSuccess }) => {
   return (
     <Box
       sx={{
-        position: "fixed",
+        position: "absolute", 
         width: "100vw",
-        height: "100vh",
+        minHeight: "100vh",
         top: 0,
         left: 0,
         right: 0,
-        minHeight: "100vh",
         background: `
       linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
       url(${worldMapBackground})
@@ -224,16 +223,24 @@ const RegistrationForm = ({ setSuccess }) => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        backgroundRepeat: "no-repeat",
+        backgroundRepeat: "repeat-y",
         margin: 0,
         padding: 0,
-        zIndex: -1,
+        overflow: "auto",
       }}
     >
-      <Box sx={{ mt: { xs: 15, md: 15 }, mb: { xs: 2, md: 4 }, mx: "auto", width: { xs: "90%", md: "70%" }, display: "flex", flexDirection: "column" }}>
+      <Box sx={{
+        mt: { xs: 15, md: 15 },
+        mb: { xs: 2, md: 4 },
+        mx: "auto",
+        width: { xs: "85%", md: "70%" },
+        display: "flex",
+        flexDirection: "column",
+        overflowY: "auto",
+      }}>
         <Stepper activeStep={activeStep} sx={{ mb: { xs: 2, md: 4 } }}>
           {isMobile ? (
-            <Step 
+            <Step
               key={steps[activeStep]}
               sx={{
                 display: "flex",
