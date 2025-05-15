@@ -19,10 +19,6 @@ import "../../../../../public/css/Announcement.css";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 export default function AnnouncementPage() {
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  const tabs = ["Event", "Create Event"];
-
   return (
     <Box 
       sx={{
@@ -39,7 +35,7 @@ export default function AnnouncementPage() {
         backgroundRepeat: "repeat-y",
         margin: 0,
         padding: 0,
-        zIndex: 0, // Only needed if you have other elements with zIndex
+        zIndex: 0,
       }}
     >
        <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>

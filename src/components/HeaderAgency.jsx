@@ -18,7 +18,7 @@ import {
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { EventFormProvider } from "../hooks/useEventForm";
-import DrawerComp from "./DrawerComp";
+import DrawerCompAgency from "./DrawerCompAgency";
 import { Link, useNavigate } from "react-router-dom";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import logo from "./logo.png";
@@ -176,7 +176,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 
           {/* Tabs or Drawer for Mobile */}
           {isMatch ? (
-            <DrawerComp isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+            <DrawerCompAgency isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {isLoggedIn ? (
