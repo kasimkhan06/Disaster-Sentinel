@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Container, Link, Typography, List, ListItem, ListItemText } from "@mui/material";
 import { Facebook, Twitter, Instagram, LinkedIn } from "@mui/icons-material";
 import Grid from "@mui/material/Grid2";
@@ -9,7 +9,22 @@ const Footer = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
-  const links = [
+  const [userRole, setUserRole] = useState(null);
+  const [userID, setUserID] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in by retrieving from localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      setUserRole(parsedData.role);
+      setUserID(parsedData.user_id);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const publicLinks = [
     { 
       path: "/current-location", 
       label: "Location Information",
@@ -29,6 +44,29 @@ const Footer = () => {
       alternatePath: "/"
     }
   ];
+
+  const agencyLinks = [
+    { 
+      path: `/agency-profile/${userID}`, 
+      label: "Profile",
+      alternateLabel: "Home",
+      alternatePath: "/agency-dashboard"
+    },
+    { 
+      path: "/missing-person", 
+      label: "Missing Person Info",
+      alternateLabel: "Home",
+      alternatePath: "/agency-dashboard"
+    },
+    { 
+      path: "/event-listing", 
+      label: "Announcement",
+      alternateLabel: "Home",
+      alternatePath: "/agency-dashboard"
+    }
+  ];
+
+  const links = isLoggedIn && userRole === "agency" ? agencyLinks : publicLinks;
 
   const handleNavigation = (path) => {
     navigate(path);

@@ -1129,7 +1129,7 @@ function CurrentLocation() {
                           container
                           spacing={1}
                           sx={{
-                            padding: 2,
+                            padding: 0.5,
                             paddingBottom: 15,
                             height: "400px",
                             overflowY: "auto",

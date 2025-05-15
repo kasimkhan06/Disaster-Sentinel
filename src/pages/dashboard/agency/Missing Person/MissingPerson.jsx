@@ -15,6 +15,7 @@ import Marquee from "react-fast-marquee";
 
 import MissingPersonMap from "./MissingPersonMap";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import Footer from "../../../../components/Footer";
 
 function MissingPerson() {
   const theme = useTheme();
@@ -192,6 +193,7 @@ function MissingPerson() {
           </Grid>
         </Grid>
       </Container>
+      <Footer />
     </Box>
   );
 }
