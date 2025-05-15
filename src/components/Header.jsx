@@ -306,6 +306,12 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
           Agency Information
         </MenuItem>
         <MenuItem
+          onClick={() => handleNavigation("/announcements")}
+          sx={{ width: "100%" }}
+        >
+          Announcements
+        </MenuItem>
+        <MenuItem
           onClick={() => handleNavigation("/current-location")}
           sx={{ width: "100%" }}
         >

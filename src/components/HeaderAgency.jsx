@@ -140,7 +140,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                 fontFamily: "DM Serif Text, serif",
                 cursor: "pointer",
               }}
-              onClick={() => handleNavigation("/home")}
+              onClick={() => handleNavigation("/agency-dashboard")}
             >
               DISASTER SENTINAL
             </Typography>
