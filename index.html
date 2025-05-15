@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./src/components/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -27,12 +30,31 @@
       rel="stylesheet"
     />
     <style>
-      html, body {
+      html,
+      body {
         overflow-x: hidden;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        /* position: fixed; */
+        overscroll-behavior-y: none;
+      }
+      #root {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      /* Safari/iOS specific fixes */
+      @supports (-webkit-touch-callout: none) {
+        html,
+        body {
+          height: -webkit-fill-available;
+        }
       }
     </style>
-    
-    <title>Disaster Sentinal</title>
+
+    <title>Disaster Sentinel</title>
   </head>
   <body>
     <div id="root"></div>

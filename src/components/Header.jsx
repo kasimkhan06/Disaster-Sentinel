@@ -127,7 +127,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
               }}
               onClick={() => handleNavigation("/home")}
             >
-              DISASTER SENTINAL
+              DISASTER SENTINEL
             </Typography>
             {!isMatch && (
               <Tabs
@@ -304,6 +304,12 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
           sx={{ width: "100%" }}
         >
           Agency Information
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleNavigation("/announcements")}
+          sx={{ width: "100%" }}
+        >
+          Announcements
         </MenuItem>
         <MenuItem
           onClick={() => handleNavigation("/current-location")}

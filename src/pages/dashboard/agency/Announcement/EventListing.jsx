@@ -24,6 +24,7 @@ import EventCard from "../../../../components/EventCard";
 // Styles & Assets
 import "../../../../../public/css/EventListing.css";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import Footer from "../../../../components/Footer";
 
 export default function EventListing() {
   const [events, setEvents] = useState(null);
@@ -214,6 +215,7 @@ export default function EventListing() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

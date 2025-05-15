@@ -49,12 +49,19 @@ const Login = ({ setIsLoggedIn }) => {
         console.log('API Response:', { status: response.status, data });
 
         if (response.ok) {
-          setIsLoggedIn(true);
-          console.log('Login successful. User details:', data);
+          // Log the received user details AND permissions
+          setIsLoggedIn(true); 
+          console.log('Login successful. User details:', {
+            id: data.user_id,
+            email: data.email,
+            role: data.role,
+            full_name: data.full_name,
+            state: data.state,
+            district: data.district,
+            permissions: data.permissions // <<< Log the permissions array
+          });
 
-          // Store user data in local storage
           localStorage.setItem("user", JSON.stringify(data));
-
           if (data.role === "user") {
             navigate("/home");
           } else {

@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Container, Link, Typography, List, ListItem, ListItemText } from "@mui/material";
 import { Facebook, Twitter, Instagram, LinkedIn } from "@mui/icons-material";
 import Grid from "@mui/material/Grid2";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Footer = () => {
   console.log("Footer is rendering!");
   const location = useLocation();
   const currentPath = location.pathname;
-  const links = [
+  const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(null);
+  const [userID, setUserID] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in by retrieving from localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      setUserRole(parsedData.role);
+      setUserID(parsedData.user_id);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const publicLinks = [
     { 
       path: "/current-location", 
       label: "Location Information",
@@ -29,6 +45,33 @@ const Footer = () => {
     }
   ];
 
+  const agencyLinks = [
+    { 
+      path: `/agency-profile/${userID}`, 
+      label: "Profile",
+      alternateLabel: "Home",
+      alternatePath: "/agency-dashboard"
+    },
+    { 
+      path: "/missing-person", 
+      label: "Missing Person Info",
+      alternateLabel: "Home",
+      alternatePath: "/agency-dashboard"
+    },
+    { 
+      path: "/event-listing", 
+      label: "Announcement",
+      alternateLabel: "Home",
+      alternatePath: "/agency-dashboard"
+    }
+  ];
+
+  const links = isLoggedIn && userRole === "agency" ? agencyLinks : publicLinks;
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
     <Box
       component="footer"
@@ -46,15 +89,20 @@ const Footer = () => {
             sx={{ textAlign: "center" }}
           >
             <Box display="flex" flexDirection={"row"} justifyContent="center" mb={2} sx={{ fontSize: {xs: "0.8rem", sm: "0.8rem", md: "1rem"},}}>
-            {links.map((link) => (
+              {links.map((link) => (
                 <Link
                   key={link.path}
-                  href={currentPath == link.path ? link.alternatePath : link.path}
+                  component="button" // Treat as button to prevent href behavior
                   color="inherit"
                   underline="hover"
                   display="block"
+                  onClick={() => handleNavigation(currentPath === link.path ? link.alternatePath : link.path)}
                   sx={{
-                    px: { xs: 1, sm: 1, md: 2 }
+                    px: { xs: 1, sm: 1, md: 2 },
+                    cursor: "pointer",
+                    background: "none",
+                    border: "none",
+                    font: "inherit"
                   }}
                 >
                   {currentPath === link.path ? link.alternateLabel : link.label}
