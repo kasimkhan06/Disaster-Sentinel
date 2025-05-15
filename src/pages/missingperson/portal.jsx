@@ -13,7 +13,7 @@ const MissingPersonPortal = () => {
     const initialFormData = {
         name: "", age: "", gender: "", description: "", identificationMarks: "",
         lastSeen: null, lastSeenPlace: "", state: "", district: "",
-        contactInfo: "", additionalInfo: "",
+        contactInfo: "", additional_info: "",
         disasterType: "",
         idCard: null, photo: null, // These will hold File objects for new uploads
     };
@@ -268,7 +268,7 @@ const MissingPersonPortal = () => {
         if (formData.district) apiFormData.append('district', formData.district);
         if (formData.disasterType) apiFormData.append('disasterType', formData.disasterType);
         apiFormData.append('contactInfo', formData.contactInfo); 
-        if (formData.additionalInfo) apiFormData.append('additionalInfo', formData.additionalInfo);
+        if (formData.additional_info) apiFormData.append('additional_info', formData.additional_info);
         
         // Only append files if they are actual File objects (i.e., new uploads)
         if (formData.idCard instanceof File) {

@@ -175,8 +175,9 @@ export default function UserAnnouncementsPage() {
       );
       if (!eventResponse.ok) throw new Error(`Failed to fetch event details: ${eventResponse.status}`);
       const eventData = await eventResponse.json();
+      console.log("Event data fetched:", eventData);
 
-      const currentAttendees = eventData.attendees_count || 0;
+      const currentAttendees = eventData.attendees || 0;
       const maxCapacity = eventData.max_capacity;
 
       if (typeof maxCapacity === 'number' && currentAttendees >= maxCapacity) {

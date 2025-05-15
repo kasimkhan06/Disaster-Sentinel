@@ -287,7 +287,7 @@ const MissingPersonForm = ({
                     {/* Additional Information Field */}
                     <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
                         <Box sx={{ ...boxStyles, mb: 0 }}>
-                            <TextField fullWidth label="Additional Information" name="additionalInfo" value={formData.additionalInfo} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} multiline rows={3} />
+                            <TextField fullWidth label="Additional Information" name="additional_info" value={formData.additional_info} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} multiline rows={3} />
                         </Box>
                     </Grid>
 
