@@ -16,12 +16,15 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from "@mui/material";
-
-import { useMediaQuery } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useTheme } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from "@mui/material";
 
+// router hooks
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+
+// Icons
 import {
   Person,
   CalendarToday,
@@ -30,27 +33,37 @@ import {
   Phone,
   Edit,
 } from "@mui/icons-material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LanguageIcon from "@mui/icons-material/Language";
 import CloseIcon from "@mui/icons-material/Close";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 
 // Axios for API calls
 import axios from "axios";
 
 // Styles & Assets
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
-import { margin, padding } from "@mui/system";
+import ImageUpload from "../../../../components/ImageUpload";
 
 const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails }) => {
   const [formData, setFormData] = useState({});
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const [existingImages, setExistingImages] = useState([]);
+  const [newImages, setNewImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      if (initialData.images) {
+        setExistingImages(initialData.images);
+      }
     }
   }, [initialData]);
 
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -58,7 +71,18 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
     });
   };
 
-  const [isUpdating, setIsUpdating] = useState(false);
+  const handleRemoveExistingImage = async (index) => {
+    const imgToDelete = existingImages[index];
+    const imageId = imgToDelete.id || imgToDelete;
+    try {
+      await axios.delete(`https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-images/${imageId}/`, { withCredentials: true });
+      setExistingImages((prev) => prev.filter((_, i) => i !== index));
+      console.log("Image deleted successfully");
+      fetchAgencyDetails(userId);
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+    }
+  };
 
   const handleSubmit = async (e, id) => {
     e.preventDefault();
@@ -75,6 +99,8 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
         Data.append("contact2", formData.contact2);
         Data.append("website", formData.website);
         Data.append("address", formData.address);
+      }else if (mode === 'images') {
+        newImages.forEach((file) => Data.append('images', file));
       }
 
       const response = await axios.patch(
@@ -84,7 +110,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
       );
 
       console.log("Updation Success:", response.data);
-
+      setFormData({});
       fetchAgencyDetails(id);
       handleClose();
     } catch (error) {
@@ -158,6 +184,20 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
           }}
         />
       );
+    } else if (mode === 'images') {
+      return (
+        <>
+          <Grid container spacing={2} sx={{ width: { xs: "100%", sm: "80%" }, mb: 2 }}>
+            {existingImages.map((img, index) => (
+              <Grid item xs={4} key={index}>
+                <img src={`https://res.cloudinary.com/doxgltggk/${img.image}`} alt={`img-${index}`} style={{ width: '100%' }} />
+                <Button onClick={() => handleRemoveExistingImage(index)}>Remove</Button>
+              </Grid>
+            ))}
+          </Grid>
+            <ImageUpload images={newImages} setImages={setNewImages} />
+        </>
+      );
     }
     return null;
   };
@@ -184,7 +224,13 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
           <CloseIcon />
         </IconButton>
         <Typography variant="h5" gutterBottom sx={{ textAlign: "center" }}>
-          {mode === "basicDetails" ? "Update Basic Details" : "Update Description"}
+          {mode === "basicDetails"
+            ? "Update Basic Details"
+            : mode === "description"
+              ? "Update Description"
+              : mode === "images"
+                ? "Update Images"
+                : ""}
         </Typography>
         <form onSubmit={(e) => handleSubmit(e, userId)}>
           {renderFields()}
@@ -254,6 +300,14 @@ function Profile() {
       description: agency?.description || "",
     });
     setEditMode("description");
+    setOpen(true);
+  };
+
+  const handleOpenImages = () => {
+    setInitialData({
+      images: agency?.images || [],
+    });
+    setEditMode("images");
     setOpen(true);
   };
 
@@ -420,7 +474,7 @@ function Profile() {
                 ))}
               </Box>
             </Grid>
-            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}>
+            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 1 }}>
               <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <Button
                   variant="outlined"
@@ -684,7 +738,7 @@ function Profile() {
                   <Grid
                     item
                     xs={12}
-                    sx={{ textAlign: "center", display: "flex", justifyContent: "end", pb: 2 }}
+                    sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
                   >
                     <Button
                       variant="outlined"
@@ -702,6 +756,7 @@ function Profile() {
                           color: "white",
                         },
                       }}
+                      onClick={handleOpenImages}
                     >
                       Edit
                     </Button>
@@ -724,7 +779,7 @@ function Profile() {
               <Box sx={{ my: 2 }}>
                 <Carousel
                   responsive={{
-                    desktop: { breakpoint: { max: 3000, min: 1024 }, items: agency.images?.length === 2 ? 2 : 4},
+                    desktop: { breakpoint: { max: 3000, min: 1024 }, items: agency.images?.length === 2 ? 2 : 4 },
                     tablet: { breakpoint: { max: 1024, min: 600 }, items: 2 },
                     mobile: { breakpoint: { max: 600, min: 0 }, items: 1 },
                   }}
@@ -767,7 +822,7 @@ function Profile() {
               <Grid
                 item
                 xs={12}
-                sx={{ textAlign: "center", display: "flex", justifyContent: "end", pb: 2 }}
+                sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
               >
                 <Button
                   variant="outlined"
@@ -785,6 +840,7 @@ function Profile() {
                       color: "white",
                     },
                   }}
+                  onClick={handleOpenImages}
                 >
                   Edit
                 </Button>
