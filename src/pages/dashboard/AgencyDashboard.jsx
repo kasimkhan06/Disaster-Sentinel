@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
+  Grid,
   Button,
   TextField,
   Typography,
@@ -25,6 +26,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg"; // Make sure this path is correct
+import Footer from "../../components/Footer";
 
 const permissionsList = [
   "can_view_missing",
@@ -493,13 +495,10 @@ export default function AgencyDashboard() {
         backgroundRepeat: "repeat-y",
         overflowX: "hidden",
         overflowY: "hidden",
-        display: "flex",
-        flexDirection: "column",
         p: { xs: 1, sm: 2, md: 3 },
         top: 0,
         left: 0,
         right: 0,
-        padding: 0,
         zIndex: 0,
       }}
     >
@@ -1031,6 +1030,7 @@ export default function AgencyDashboard() {
           </Dialog>
         </Box>
       </Box>
+      <Footer />
     </Box>
   );
 }

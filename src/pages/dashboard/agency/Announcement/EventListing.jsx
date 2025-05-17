@@ -246,8 +246,8 @@ export default function EventListing() {
                 }}
               >
                 <MenuItem value="all">All</MenuItem>
-                <MenuItem value="online">Virtual</MenuItem>
-                <MenuItem value="offline">InPerson</MenuItem>
+                <MenuItem value="online">Online</MenuItem>
+                <MenuItem value="offline">Offline</MenuItem>
               </Select>
             </FormControl>
           </Box>
