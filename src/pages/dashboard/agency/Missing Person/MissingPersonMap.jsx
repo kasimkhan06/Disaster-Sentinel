@@ -21,8 +21,6 @@ const MissingPersonMap = ({ persons, selectedPerson }) => {
   const markerRefs = useRef([]);
   const mapRef = useRef(null);
   const navigate = useNavigate();
-  const [missing_Date, setMissingDate] = useState(null);
-  const [missing_Time, setMissingTime] = useState(null);
 
   useEffect(() => {
     const fetchLocation = async () => {
