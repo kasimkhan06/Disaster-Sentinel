@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import {
   Typography,
@@ -50,6 +50,8 @@ const AgencyProfile = () => {
   const theme = useTheme();
   const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm"));
   const [expandedAccordion, setExpandedAccordion] = useState("info");
+  const navigate = useNavigate();
+  const [isNotLoggedin, setIsNotLoggedIn] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -59,7 +61,7 @@ const AgencyProfile = () => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedData = JSON.parse(userData);
-      console.log("User Data:", parsedData);
+      console.log("User Data in agency profile:", parsedData);
       setUserID(parsedData.user_id);
     }
   }, []);
@@ -99,6 +101,13 @@ const AgencyProfile = () => {
   }, [id]);
 
   const handleVolunteerClick = () => {
+    console.log("isNotLoggedIn:"+isNotLoggedin);
+    if (!userID) {
+      // Store the current path in localStorage before navigating to login
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
+      setIsNotLoggedIn(true);
+      return;
+    }
     setVolunteer(true);
   };
 
@@ -155,11 +164,11 @@ const AgencyProfile = () => {
   // Mobile view components
   const MobileAgencyInfo = () => (
     <Accordion
-    key="info-accordion" 
+      key="info-accordion"
       expanded={expandedAccordion === "info"}
       onChange={handleAccordionChange("info")}
       sx={{
-        mb: 0 ,
+        mb: 0,
         boxShadow: "none",
         backgroundColor: "rgba(255, 255, 255, 0.67)",
         transition: "none",
@@ -336,7 +345,22 @@ const AgencyProfile = () => {
           >
             WANT TO BE A VOLUNTEER?
           </Button>
-            
+
+          {isNotLoggedin && (
+            <Button
+              onClick={() => navigate("/login")}
+              sx={{
+                borderColor: "#bdbdbd",
+                color: "black",
+                backgroundColor: "#fafafa",
+                "&:hover": {
+                  backgroundColor: "#e0e0e0",
+                },
+              }}
+            >
+              Login
+            </Button>
+          )}
           {/* Volunteer Dialog */}
           {volunteer && !submitSuccess && (
             <Card
@@ -682,15 +706,15 @@ const AgencyProfile = () => {
 
       {isMobileOrTablet ? (
         <Grid
-        container
-        spacing={1}
-        sx={{
-          m: 2,
-          width: { xs: "100%", sm: "100%", md: "75%" },
-          marginX: "auto",
-          marginTop: 1,
-        }}
-      >
+          container
+          spacing={1}
+          sx={{
+            m: 2,
+            width: { xs: "100%", sm: "100%", md: "75%" },
+            marginX: "auto",
+            marginTop: 1,
+          }}
+        >
           {loading ? (
             <Box>
               <Skeleton variant="rectangular" height={200} sx={{ mb: 2 }} />
@@ -700,14 +724,22 @@ const AgencyProfile = () => {
             </Box>
           ) : (
             <>
-            <Grid
-            size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{mx:2}}> <MobileAgencyInfo /></Grid>
-            <Grid
-            size={{ xs: 12, sm: 12, md: 6, lg: 12 }}  sx={{mx:2}}> <MobileDescription /></Grid>
-            <Grid
-            size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{mx:2}}> <MobileMapSection /></Grid>
-            <Grid
-            size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{mx:2}}> <MobileGallery /></Grid>
+              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{ mx: 2 }}>
+                {" "}
+                <MobileAgencyInfo />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{ mx: 2 }}>
+                {" "}
+                <MobileDescription />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{ mx: 2 }}>
+                {" "}
+                <MobileMapSection />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 12, md: 6, lg: 12 }} sx={{ mx: 2 }}>
+                {" "}
+                <MobileGallery />
+              </Grid>
             </>
           )}
         </Grid>
