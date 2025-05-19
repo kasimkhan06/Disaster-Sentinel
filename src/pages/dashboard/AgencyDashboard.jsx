@@ -212,7 +212,7 @@ export default function AgencyDashboard() {
         if (userData && userData.email === searchEmail) {
           setSearchResult({
             id: userData.id,
-            full_name: userData["full name"] || "N/A", // [cite: 7]
+            full_name: userData["full_name"] || "N/A", // [cite: 7]
             email: userData.email, // [cite: 7]
             // role: userData.role, // Role is available from API [cite: 7]
           });
