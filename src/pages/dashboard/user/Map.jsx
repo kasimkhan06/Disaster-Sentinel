@@ -169,33 +169,40 @@ const Map = ({
     return defaultIcon;
   };
 
+  const getRiskLevel = (probability) => {
+    if (probability >= 85) return "high";
+    if (probability >= 70) return "medium";
+    return "low";
+  };
+
   const getFloodPredictionIcon = (prediction, isMobile) => {
-    const iconSize = isMobile ? [20, 20] : [25, 25];
-    const riskLevel = prediction.riskLevel?.toLowerCase() || 'medium';
-    
+    const iconSize = isMobile ? [25, 25] : [30, 30];
+    const probability = prediction.probability * 100; // Convert to percentage
+    const riskLevel = getRiskLevel(probability);
+
     // Colors and animation settings based on risk level
     const riskStyles = {
       high: {
-        color: 'rgba(238, 11, 11, 0.7)', // Red
-        pulseColor: 'rgba(51, 15, 15, 0.7)',
-        pulseSize: '12px',
-        pulseSpeed: '1s'
+        color: "rgba(238, 11, 11, 0.7)", // Red
+        pulseColor: "rgba(173, 50, 50, 0.7)",
+        pulseSize: "12px",
+        pulseSpeed: "1s",
       },
       medium: {
-        color: 'rgba(255, 115, 0, 0.72)', // Orange
-        pulseColor: 'rgba(255, 153, 0, 0.7)',
-        pulseSize: '8px',
-        pulseSpeed: '1.5s'
+        color: "rgba(255, 115, 0, 0.72)", // Orange
+        pulseColor: "rgba(158, 106, 28, 0.7)",
+        pulseSize: "8px",
+        pulseSpeed: "1.5s",
       },
       low: {
-        color: 'rgba(29, 168, 16, 0.7)', // Blue
-        pulseColor: 'rgba(22, 66, 18, 0.7)',
-        pulseSize: '5px',
-        pulseSpeed: '2s'
-      }
+        color: "rgba(29, 168, 16, 0.7)", // Green
+        pulseColor: "rgba(25, 100, 59, 0.7)",
+        pulseSize: "5px",
+        pulseSpeed: "2s",
+      },
     };
 
-    const style = riskStyles[riskLevel] || riskStyles.low;
+    const style = riskStyles[riskLevel];
 
     const html = `
       <div style="
@@ -237,7 +244,8 @@ const Map = ({
         style={{
           height: "100%",
           width: "100%",
-          filter: "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
+          filter:
+            "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
         }}
         zoomControl={false}
         ref={mapRef}
@@ -251,10 +259,22 @@ const Map = ({
 
         <div className="leaflet-bottom leaflet-left">
           <div className="leaflet-control leaflet-bar leaflet-control-zoom">
-            <a className="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in">
+            <a
+              className="leaflet-control-zoom-in"
+              href="#"
+              title="Zoom in"
+              role="button"
+              aria-label="Zoom in"
+            >
               +
             </a>
-            <a className="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out">
+            <a
+              className="leaflet-control-zoom-out"
+              href="#"
+              title="Zoom out"
+              role="button"
+              aria-label="Zoom out"
+            >
               -
             </a>
           </div>
@@ -263,7 +283,10 @@ const Map = ({
         {validDisasters.map((disaster) => (
           <Marker
             key={disaster.eventid}
-            position={[parseFloat(disaster.latitude), parseFloat(disaster.longitude)]}
+            position={[
+              parseFloat(disaster.latitude),
+              parseFloat(disaster.longitude),
+            ]}
             icon={getDisasterIcon(disaster, isMobile)}
             eventHandlers={{
               click: (e) => {
@@ -273,31 +296,45 @@ const Map = ({
               },
             }}
           >
-            {highlightedDisaster && highlightedDisaster.eventid === disaster.eventid && (
+            {highlightedDisaster &&
+              highlightedDisaster.eventid === disaster.eventid && (
+                <div
+                  className="pulse-marker"
+                  style={{
+                    position: "absolute",
+                    width: "40px",
+                    height: "40px",
+                    backgroundColor: "rgba(255, 0, 0, 0.3)",
+                    borderRadius: "50%",
+                    transform: "translate(-50%, -50%)",
+                    pointerEvents: "none",
+                    animation: "pulse 1.5s infinite",
+                    top: "50%",
+                    left: "50%",
+                  }}
+                ></div>
+              )}
+            <Popup
+              closeOnClick={true}
+              autoPan={true}
+              autoPanPadding={[20, 20]}
+              sx={{ zIndex: "1000 !important" }}
+            >
               <div
-                className="pulse-marker"
-                style={{
-                  position: "absolute",
-                  width: "40px",
-                  height: "40px",
-                  backgroundColor: "rgba(255, 0, 0, 0.3)",
-                  borderRadius: "50%",
-                  transform: "translate(-50%, -50%)",
-                  pointerEvents: "none",
-                  animation: "pulse 1.5s infinite",
-                  top: "50%",
-                  left: "50%",
-                }}
-              ></div>
-            )}
-            <Popup closeOnClick={true} autoPan={true} autoPanPadding={[20, 20]} sx={{ zIndex: "1000 !important" }}>
-              <div style={{ padding: "8px" }} onClick={(e) => e.stopPropagation()}>
-                <strong style={{ display: "block", marginBottom: "4px" }}>{disaster.title}</strong>
+                style={{ padding: "8px" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <strong style={{ display: "block", marginBottom: "4px" }}>
+                  {disaster.title}
+                </strong>
                 <p style={{ margin: "2px 0", fontSize: "13px" }}>
-                  Type: {disasterTypeMap[disaster.eventtype] || disaster.eventtype}
+                  Type:{" "}
+                  {disasterTypeMap[disaster.eventtype] || disaster.eventtype}
                 </p>
                 {disaster.pubDate && (
-                  <p style={{ margin: "2px 0", fontSize: "13px" }}>Date: {disaster.pubDate}</p>
+                  <p style={{ margin: "2px 0", fontSize: "13px" }}>
+                    Date: {disaster.pubDate}
+                  </p>
                 )}
               </div>
             </Popup>
@@ -307,7 +344,8 @@ const Map = ({
         {validFloodPredictions.map((prediction) => {
           const lat = parseFloat(prediction.latitude);
           const lng = parseFloat(prediction.longitude);
-          const riskLevel = prediction.riskLevel?.toLowerCase() || 'medium';
+          const probability = prediction.probability * 100; // Convert to percentage
+          const riskLevel = getRiskLevel(probability);
 
           if (isNaN(lat) || isNaN(lng)) return null;
 
@@ -317,12 +355,32 @@ const Map = ({
               position={[lat, lng]}
               icon={getFloodPredictionIcon(prediction, isMobile)}
             >
-              <Tooltip permanent direction="top" offset={[0, -10]}>
-                <div style={{ fontWeight: "bold" }}>
-                  Flood Risk: {prediction.riskLevel || "low"}
+              <Tooltip
+                key={`tooltip-${riskLevel}`}
+                permanent
+                direction="top"
+                offset={[0, -10]}
+                className={`flood-risk-tooltip ${riskLevel}-risk`}
+              >
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "0.9rem",
+                    paddingLeft: "4px",
+                    paddingTop: "4px",
+                  }}
+                >
+                  Flood Risk:{" "}
+                  {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
                 </div>
-                <div>
-                  Probability: {(prediction.probability * 100).toFixed(2)}%
+                <div
+                  style={{
+                    fontSize: "0.8rem",
+                    paddingLeft: "4px",
+                    paddingBottom: "4px",
+                  }}
+                >
+                  Probability: {probability.toFixed(2)}%
                 </div>
               </Tooltip>
             </Marker>
@@ -371,6 +429,35 @@ const Map = ({
           }
           .leaflet-top, .leaflet-bottom {
             z-index: 1000;
+          }
+          
+          .leaflet-tooltip.flood-risk-tooltip {
+            background: white !important;
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+            padding: 6px 8px !important;
+            font-size: 12px !important;
+            color: #333 !important;
+          }
+
+          .leaflet-tooltip.flood-risk-tooltip:before {
+            border-top-color: white !important;
+          }
+
+          /* Risk level specific styles */
+          .leaflet-tooltip.flood-risk-tooltip.high-risk {
+            background:rgba(240, 235, 236, 0.97) !important;
+            box-shadow: 0 5px 8px rgba(209, 37, 37, 0.29), 0 5px 8px rgba(119, 18, 18, 0.29) !important;
+          }
+
+          .leaflet-tooltip.flood-risk-tooltip.medium-risk {
+            background:rgb(247, 237, 222) !important;
+            box-shadow: 0 5px 8px rgba(236, 124, 49, 0.29), 0 5px 8px rgba(194, 104, 45, 0.29) !important;
+          }
+
+          .leaflet-tooltip.flood-risk-tooltip.low-risk {
+            background:rgb(240, 248, 240) !important;
+            box-shadow: 0 5px 8px rgba(42, 133, 49, 0.29), 0 5px 8px rgba(18, 70, 23, 0.29) !important;
           }
         `}
       </style>

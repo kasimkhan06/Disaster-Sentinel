@@ -60,8 +60,8 @@ function HomePage() {
   const [stationData] = useState([
   {
     stationId: 'india-station-1',
-    latitude: 28.6139,  // New Delhi coordinates
-    longitude: 77.2090,
+    latitude: 12.1822,  // New Delhi coordinates
+    longitude: 77.7239,
     // Add other required station parameters here
   }
 ]);
