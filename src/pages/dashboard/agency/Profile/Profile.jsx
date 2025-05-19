@@ -15,6 +15,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Alert,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMediaQuery } from "@mui/material";
@@ -46,13 +47,14 @@ import axios from "axios";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import ImageUpload from "../../../../components/ImageUpload";
 
-const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails }) => {
+const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails, setStatusMessage}) => {
   const [formData, setFormData] = useState({});
   const [isUpdating, setIsUpdating] = useState(false);
 
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  // const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
     if (initialData) {
@@ -110,9 +112,17 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
       );
 
       console.log("Updation Success:", response.data);
+      if (mode === "basicDetails") {
+        setStatusMessage({ type: "success", text: "Basic details updated." });
+      } else if (mode === "description") {
+        setStatusMessage({ type: "success", text: "Description updated." });
+      } else if (mode === "images") {
+        setStatusMessage({ type: "success", text: "Images updated." });
+      }
       setFormData({});
       fetchAgencyDetails(id);
       handleClose();
+
     } catch (error) {
       console.error("Updation Failed:", error.response?.data || error);
     } finally {
@@ -164,34 +174,54 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
       );
     } else if (mode === "description") {
       return (
-        <textarea
-          name="description"
-          value={formData.description || ""}
-          onChange={handleChange}
-          style={{
-            width: "80%",
-            minHeight: "500px",
-            resize: "none",
-            padding: "8px 12px",
-            fontSize: "1.0rem",
-            lineHeight: 1.5,
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontFamily: "inherit",
-            color: "#1C2025",
-            backgroundColor: "#fff",
-            outline: "none",
-          }}
-        />
+        <>
+          <textarea
+            name="description"
+            value={formData.description || ""}
+            onChange={handleChange}
+            style={{
+              width: "80%",
+              minHeight: "500px",
+              resize: "none",
+              padding: "8px 12px",
+              fontSize: "1.0rem",
+              lineHeight: 1.5,
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              fontFamily: "inherit",
+              color: "#1C2025",
+              backgroundColor: "#fff",
+              outline: "none",
+            }}
+          />
+        </>
       );
-    } else if (mode === 'images') {
+    } else if (mode === "images") {
       return (
         <>
           <Grid container spacing={2} sx={{ width: { xs: "100%", sm: "80%" }, mb: 2 }}>
             {existingImages.map((img, index) => (
               <Grid item xs={4} key={index}>
-                <img src={`https://res.cloudinary.com/doxgltggk/${img.image}`} alt={`img-${index}`} style={{ width: '100%' }} />
-                <Button onClick={() => handleRemoveExistingImage(index)}>Remove</Button>
+                <Box sx={{ position: "relative" }}>
+                  <img
+                    src={`https://res.cloudinary.com/doxgltggk/${img.image}`}
+                    alt={`img-${index}`}
+                    style={{ width: '100%', borderRadius: 8 }}
+                  />
+                  <Button
+                    variant="contained"
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to remove this image?")) {
+                        handleRemoveExistingImage(index);
+                      }
+                    }}
+                    sx={{ mt: 1, width: "100%" }}
+                  >
+                    Remove
+                  </Button>
+                </Box>
               </Grid>
             ))}
           </Grid>
@@ -219,26 +249,27 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
       >
         <IconButton
           onClick={handleClose}
+          aria-label="close"
           sx={{ position: "absolute", top: 10, right: 10 }}
         >
           <CloseIcon />
         </IconButton>
+
         <Typography variant="h5" gutterBottom sx={{ textAlign: "center" }}>
-          {mode === "basicDetails"
-            ? "Update Basic Details"
-            : mode === "description"
-              ? "Update Description"
-              : mode === "images"
-                ? "Update Images"
-                : ""}
+          {{
+            basicDetails: "Update Basic Details",
+            description: "Update Description",
+            images: "Update Images",
+          }[mode] || "Update Information"}
         </Typography>
+
         <form onSubmit={(e) => handleSubmit(e, userId)}>
           {renderFields()}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             {isUpdating ? (
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <CircularProgress size={24} sx={{ color: "#4caf50" }} />
-                <Typography variant="body2" sx={{ ml: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <CircularProgress size={24} sx={{ color: "success.main" }} />
+                <Typography variant="body2">
                   Updating...
                 </Typography>
               </Box>
@@ -249,13 +280,13 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
                 sx={{
                   backgroundColor: "#fff",
                   color: "#000",
-                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+                  boxShadow: 3,
                   borderRadius: "20px",
                   px: 4,
                   py: 1,
                   fontSize: { xs: "0.8rem", sm: "0.9rem" },
                   "&:hover": {
-                    backgroundColor: "#f0f0f0",
+                    backgroundColor: "grey.300",
                   },
                 }}
               >
@@ -279,9 +310,17 @@ function Profile() {
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState(null);
   const [type, setType] = useState("about");
+  const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
   const theme = useTheme();
   const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (statusMessage.text) {
+      const timer = setTimeout(() => setStatusMessage({ type: "", text: "" }), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage]);
 
 
   const handleOpenBasicDetails = () => {
@@ -392,6 +431,25 @@ function Profile() {
           pb: { xs: 2, md: 8 },
         }}
       >
+        {console.log("statusMessage in render:", statusMessage)}
+
+        {statusMessage.text && (
+        <Alert
+          severity={statusMessage.type}
+          sx={{
+            mt: 2,
+            mb: 1,
+            maxWidth: 600,
+            mx: "auto",
+            textAlign: "center",
+            fontWeight: 500,
+            fontSize: { xs: "0.95rem", md: "1.1rem" },
+          }}
+          onClose={() => setStatusMessage({ type: "", text: "" })}
+        >
+          {statusMessage.text}
+        </Alert>
+      )}
         {/* Banner */}
         <Box
           sx={{
@@ -899,6 +957,7 @@ function Profile() {
             initialData={initialData}
             userId={userId}
             fetchAgencyDetails={fetchAgencyDetails}
+            setStatusMessage={setStatusMessage} 
           />
         </Box>
       </Box>
