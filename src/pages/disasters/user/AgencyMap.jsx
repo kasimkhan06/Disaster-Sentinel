@@ -111,139 +111,35 @@ const AgencyMap = ({ agency, isMobile }) => {
 
   const agencyPosition = [agency.lat, agency.lng];
 
-  const handleUseCurrentLocation = () => {
-    setLoading(true);
-    setError(null);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setUserPosition([latitude, longitude]);
-          setInputAddress(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-          calculateRoute([latitude, longitude]);
-        },
-        (err) => {
-          setError(
-            "Unable to retrieve your location. Please try again or enter an address."
-          );
-          setLoading(false);
-          console.error("Geolocation error:", err);
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by your browser.");
-      setLoading(false);
-    }
-  };
-
-  const isLocationInIndia = (coordinates) => {
-    // Rough bounding box for India
-    const indiaBounds = {
-      minLat: 6.0,
-      maxLat: 38.0,
-      minLng: 68.0,
-      maxLng: 98.0,
-    };
-
-    const [lat, lng] = coordinates;
-    return (
-      lat >= indiaBounds.minLat &&
-      lat <= indiaBounds.maxLat &&
-      lng >= indiaBounds.minLng &&
-      lng <= indiaBounds.maxLng
-    );
-  };
-
-  const handleSearchLocation = async () => {
-    if (!inputAddress.trim()) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      let newPosition;
-
-      // Check if input is coordinates
-      const coordRegex =
-        /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
-      if (coordRegex.test(inputAddress)) {
-        const [lat, lng] = inputAddress.split(",").map(Number);
-        newPosition = [lat, lng];
-
-        // Check if coordinates are within India
-        if (!isLocationInIndia(newPosition)) {
-          throw new Error("Location outside India");
-        }
-      } else {
-        // Geocode the address using Mapbox
-        const response = await axios.get(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-            inputAddress
-          )}.json?access_token=${MAPBOX_ACCESS_TOKEN}&country=IN`
-        );
-
-        if (
-          response.data &&
-          response.data.features &&
-          response.data.features.length > 0
-        ) {
-          const [lng, lat] = response.data.features[0].center;
-          newPosition = [lat, lng];
-
-          // Additional check for India in the response context
-          const context = response.data.features[0].context;
-          const isInIndia = context.some(
-            (item) =>
-              item.id &&
-              item.id.startsWith("country.") &&
-              item.short_code === "IN"
-          );
-
-          if (!isInIndia) {
-            throw new Error("Location outside India");
-          }
-        } else {
-          throw new Error("Location not found");
-        }
-      }
-
-      setUserPosition(newPosition);
-      calculateRoute(newPosition);
-    } catch (err) {
-      setLoading(false);
-      if (err.message === "Location outside India") {
-        setError("Please enter a location within India only.");
-      } else {
-        setError("Location not found. Please try a different address.");
-      }
-      console.error("Location search error:", err);
-    }
-  };
-
-  const calculateRoute = async (fromPosition) => {
+  const calculateRoute = async (fromPosition, currentProfile = profile) => {
     if (!fromPosition || !agencyPosition) return;
+    setLoading(true);
+    setError(null); // Clear previous errors before new calculation
 
     try {
-      // Note: Mapbox expects coordinates in [lng, lat] order
       const from = `${fromPosition[1]},${fromPosition[0]}`;
       const to = `${agencyPosition[1]},${agencyPosition[0]}`;
 
-      console.log("Making request with:", { from, to, profile }); // Debug log
+      console.log("Making request with:", {
+        from,
+        to,
+        profile: currentProfile,
+      });
 
       const response = await axios.get(
-        `https://api.mapbox.com/directions/v5/mapbox/${profile}/${from};${to}`,
+        `https://api.mapbox.com/directions/v5/mapbox/${currentProfile}/${from};${to}`,
         {
           params: {
             geometries: "geojson",
             access_token: MAPBOX_ACCESS_TOKEN,
             overview: "full",
             annotations:
-              profile === "driving-traffic" ? "congestion" : undefined,
+              currentProfile === "driving-traffic" ? "congestion" : undefined,
           },
         }
       );
 
-      console.log("API Response:", response.data); // Debug log
+      console.log("API Response:", response.data);
 
       if (response.data?.routes?.length > 0) {
         const routeData = response.data.routes[0];
@@ -256,7 +152,7 @@ const AgencyMap = ({ agency, isMobile }) => {
         setDistance((routeData.distance / 1000).toFixed(2));
         setDuration(Math.round(routeData.duration / 60));
 
-        if (profile === "driving-traffic") {
+        if (currentProfile === "driving-traffic") {
           const congestion = routeData.legs?.[0]?.annotation?.congestion || [];
           const hasTrafficData = congestion.some(
             (level) =>
@@ -264,7 +160,6 @@ const AgencyMap = ({ agency, isMobile }) => {
           );
           setTrafficDataAvailable(hasTrafficData);
 
-          // Determine overall traffic condition
           if (hasTrafficData) {
             const severityLevels = {
               severe: 4,
@@ -272,8 +167,6 @@ const AgencyMap = ({ agency, isMobile }) => {
               moderate: 2,
               low: 1,
             };
-
-            // Find the highest severity level present
             let maxSeverity = "low";
             congestion.forEach((level) => {
               if (
@@ -283,7 +176,6 @@ const AgencyMap = ({ agency, isMobile }) => {
                 maxSeverity = level;
               }
             });
-
             setCongestionLevels(maxSeverity);
           } else {
             setCongestionLevels(null);
@@ -312,11 +204,8 @@ const AgencyMap = ({ agency, isMobile }) => {
         );
       }
 
-      // Fallback to straight line
       const newRoute = [fromPosition, agencyPosition];
       setRoute(newRoute);
-
-      // Haversine formula for straight-line distance
       const R = 6371;
       const dLat = (agencyPosition[0] - fromPosition[0]) * (Math.PI / 180);
       const dLon = (agencyPosition[1] - fromPosition[1]) * (Math.PI / 180);
@@ -330,24 +219,159 @@ const AgencyMap = ({ agency, isMobile }) => {
       setDistance((R * c).toFixed(2));
       setDuration(null);
       setTrafficDataAvailable(false);
-
       if (mapRef.current) {
         mapRef.current.fitBounds(L.latLngBounds(newRoute), {
           padding: [50, 50],
         });
       }
-      setCongestionLevels({});
+      setCongestionLevels({}); // Changed from null to {} to avoid issues with string methods if it's null
     } finally {
       setLoading(false);
     }
   };
+
+  // useEffect to recalculate route when profile changes and userPosition is set
+  useEffect(() => {
+    if (userPosition && route) {
+      // Check if a route already exists, implying a location has been searched
+      calculateRoute(userPosition, profile);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile]); // Only re-run if profile changes. userPosition is accessed directly.
+
+  const handleUseCurrentLocation = () => {
+    setLoading(true);
+    setError(null);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserPosition([latitude, longitude]);
+          setInputAddress(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+          calculateRoute([latitude, longitude]);
+        },
+        (err) => {
+          setError(
+            "Unable to retrieve your location. Please try again or enter an address."
+          );
+          setLoading(false);
+          console.error("Geolocation error:", err);
+        }
+      );
+    } else {
+      setError("Geolocation is not supported by your browser.");
+      setLoading(false);
+    }
+  };
+
+  const isLocationInIndia = (coordinates) => {
+    const indiaBounds = {
+      minLat: 6.0,
+      maxLat: 38.0,
+      minLng: 68.0,
+      maxLng: 98.0,
+    };
+    const [lat, lng] = coordinates;
+    return (
+      lat >= indiaBounds.minLat &&
+      lat <= indiaBounds.maxLat &&
+      lng >= indiaBounds.minLng &&
+      lng <= indiaBounds.maxLng
+    );
+  };
+
+  const handleSearchLocation = async () => {
+  if (!inputAddress.trim()) return;
+  setLoading(true);
+  setError(null);
+
+  try {
+    let newPosition;
+
+    // If userPosition exists (from previous search or suggestion selection), use it directly
+    if (userPosition) {
+      newPosition = [...userPosition]; // Create a copy to ensure state updates
+    } 
+    // Check if input is coordinates
+    else {
+      const coordRegex =
+        /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
+      if (coordRegex.test(inputAddress)) {
+        const [lat, lng] = inputAddress.split(",").map(Number);
+        newPosition = [lat, lng];
+      } 
+      // Otherwise geocode the address
+      else {
+        const response = await axios.get(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            inputAddress
+          )}.json?access_token=${MAPBOX_ACCESS_TOKEN}&country=IN`
+        );
+        if (response.data?.features?.length > 0) {
+          const [lng, lat] = response.data.features[0].center;
+          newPosition = [lat, lng];
+        } else {
+          throw new Error("Location not found");
+        }
+      }
+    }
+
+    // Validate the location is in India
+    if (!isLocationInIndia(newPosition)) {
+      throw new Error("Location outside India");
+    }
+
+    // Update position and recalculate route
+    setUserPosition(newPosition);
+    await calculateRoute(newPosition);
+
+  } catch (err) {
+    setLoading(false);
+    setError(
+      err.message === "Location outside India" 
+        ? "Please choose a location within India from the suggestions."
+        : "Location not found. Please try a different address."
+    );
+    console.error("Location search error:", err);
+    
+    // Fallback to straight line distance if we have coordinates but no route
+    if (userPosition) {
+      const newRoute = [userPosition, agencyPosition];
+      setRoute(newRoute);
+      // Calculate straight-line distance
+      const R = 6371;
+      const dLat = (agencyPosition[0] - userPosition[0]) * (Math.PI / 180);
+      const dLon = (agencyPosition[1] - userPosition[1]) * (Math.PI / 180);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(userPosition[0] * (Math.PI / 180)) *
+          Math.cos(agencyPosition[0] * (Math.PI / 180)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      setDistance((R * c).toFixed(2));
+      setDuration(null);
+      if (mapRef.current) {
+        mapRef.current.fitBounds(L.latLngBounds(newRoute), {
+          padding: [50, 50],
+        });
+      }
+    } else {
+      // Clear previous results if search fails completely
+      setRoute(null);
+      setDistance(null);
+      setDuration(null);
+    }
+    setTrafficDataAvailable(false);
+    setCongestionLevels([]);
+  }
+};
 
   const fetchSuggestions = async (query) => {
     if (!query.trim()) {
       setSuggestions([]);
       return;
     }
-
     try {
       const response = await axios.get(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
@@ -356,20 +380,19 @@ const AgencyMap = ({ agency, isMobile }) => {
         {
           params: {
             access_token: MAPBOX_ACCESS_TOKEN,
-            country: "IN", // Focus on India
-            types: "address,place,locality,neighborhood", // Limit to relevant types
+            country: "IN",
+            types: "address,place,locality,neighborhood",
             autocomplete: true,
             limit: 5,
           },
         }
       );
-
       if (response.data?.features) {
         setSuggestions(
           response.data.features.map((feature) => ({
             id: feature.id,
             name: feature.place_name,
-            coordinates: feature.center, // [lng, lat]
+            coordinates: feature.center,
           }))
         );
         setShowSuggestions(true);
@@ -384,7 +407,11 @@ const AgencyMap = ({ agency, isMobile }) => {
     if (
       profile !== "driving-traffic" ||
       !trafficDataAvailable ||
-      !congestionLevels
+      !congestionLevels || // check if congestionLevels is null or empty array
+      (Array.isArray(congestionLevels) && congestionLevels.length === 0) || // handle empty array case
+      (typeof congestionLevels === "object" &&
+        Object.keys(congestionLevels).length === 0 &&
+        congestionLevels.constructor === Object) // handle empty object case if it was {}
     ) {
       return null;
     }
@@ -396,6 +423,12 @@ const AgencyMap = ({ agency, isMobile }) => {
       severe: "Severe traffic",
     };
 
+    // Ensure congestionLevels is a string key before accessing messages
+    const messageKey =
+      typeof congestionLevels === "string" ? congestionLevels : "";
+    const message =
+      congestionMessages[messageKey] || "Traffic data unavailable";
+
     return (
       <Typography variant="body2" sx={{ mt: 1 }}>
         Traffic condition:{" "}
@@ -404,7 +437,7 @@ const AgencyMap = ({ agency, isMobile }) => {
           fontWeight="bold"
           sx={{ color: getCongestionColor(congestionLevels) }}
         >
-          {congestionMessages[congestionLevels]}
+          {message}
         </Typography>
       </Typography>
     );
@@ -442,14 +475,13 @@ const AgencyMap = ({ agency, isMobile }) => {
   const getProfileIcon = () => {
     const iconStyle = {
       fontSize: {
-        xs: "0.8rem", // Extra small screens
-        sm: "0.9rem", // Small screens
-        md: "1.1rem", // Medium screens
+        xs: "0.8rem",
+        sm: "0.9rem",
+        md: "1.1rem",
       },
       alignSelf: "center",
       paddingBottom: "0.2rem",
     };
-
     switch (profile) {
       case "driving-traffic":
         return <DirectionsCar sx={iconStyle} />;
@@ -465,19 +497,18 @@ const AgencyMap = ({ agency, isMobile }) => {
   const getRouteColor = () => {
     switch (profile) {
       case "walking":
-        return "#4CAF50"; // Green
+        return "#4CAF50";
       case "cycling":
-        return "#FF9800"; // Orange
+        return "#FF9800";
       case "driving-traffic":
-        return trafficDataAvailable ? "#3F51B5" : "#9E9E9E"; // Blue or Gray
+        return trafficDataAvailable ? "#3F51B5" : "#9E9E9E";
       default:
-        return "#3F51B5"; // Default blue
+        return "#3F51B5";
     }
   };
 
   return (
-    <Box sx={{ width: "100%", height: "100%" , backgroundColor: "white"}}>
-      {/* Map Container */}
+    <Box sx={{ width: "100%", height: "100%", backgroundColor: "white" }}>
       <Box
         sx={{
           position: "relative",
@@ -503,8 +534,6 @@ const AgencyMap = ({ agency, isMobile }) => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-
-          {/* Agency Marker - Always visible */}
           <Marker position={agencyPosition} icon={agencyIcon}>
             <Popup>
               <Typography variant="subtitle2">{agency.agency_name}</Typography>
@@ -513,15 +542,11 @@ const AgencyMap = ({ agency, isMobile }) => {
               </Typography>
             </Popup>
           </Marker>
-
-          {/* User Location Marker - Only shown after search */}
           {userPosition && (
             <Marker position={userPosition} icon={userIcon}>
               <Popup>Your Location</Popup>
             </Marker>
           )}
-
-          {/* Route between points - Only shown after search */}
           {route && (
             <Polyline
               positions={route}
@@ -531,46 +556,40 @@ const AgencyMap = ({ agency, isMobile }) => {
             />
           )}
         </MapContainer>
-        {/* Fading Overlay on All Sides */}
-        
         {!isMobile && (
-  <Box
-    sx={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: "none",
-      background: `
-        linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
-        linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
-        linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
-        linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%)
-      `,
-      zIndex: 2,
-    }}
-  />
-)}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              pointerEvents: "none",
+              background: `
+                linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
+                linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
+                linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%),
+                linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10%)
+              `,
+              zIndex: 2,
+            }}
+          />
+        )}
       </Box>
 
-      {/* Location Search Controls */}
       <Grid container spacing={0} alignItems="center">
         <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
           <Paper
-            // elevation={3}
             sx={{
               p: 2,
               mb: 0,
-              // borderRadius: 2,
-              // backgroundColor: "background.paper",
               border: "none",
               boxShadow: "none",
             }}
           >
             <Grid container spacing={2} alignItems="center">
-              <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{  px:2  }}>
-                <Box sx={{ position: "relative", }}>
+              <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ px: 2 }}>
+                <Box sx={{ position: "relative" }}>
                   <TextField
                     fullWidth
                     label="Enter location"
@@ -601,7 +620,13 @@ const AgencyMap = ({ agency, isMobile }) => {
                               >
                                 <MyLocation />
                               </IconButton>
-                              <IconButton onClick={resetSearch} color="inherit">
+                            </Tooltip>
+                            <Tooltip title="Clear search and route">
+                              <IconButton
+                                onClick={resetSearch}
+                                color="inherit"
+                                edge="end"
+                              >
                                 <Close />
                               </IconButton>
                             </Tooltip>
@@ -641,7 +666,7 @@ const AgencyMap = ({ agency, isMobile }) => {
                       elevation={3}
                       sx={{
                         position: "absolute",
-                        zIndex: 1,
+                        zIndex: 1000, // Ensure suggestions are on top
                         width: "100%",
                         maxHeight: 200,
                         overflow: "auto",
@@ -653,15 +678,13 @@ const AgencyMap = ({ agency, isMobile }) => {
                           key={suggestion.id}
                           onClick={() => {
                             setInputAddress(suggestion.name);
-                            setUserPosition([
+                            const newPos = [
                               suggestion.coordinates[1],
                               suggestion.coordinates[0],
-                            ]);
+                            ];
+                            setUserPosition(newPos);
                             setShowSuggestions(false);
-                            calculateRoute([
-                              suggestion.coordinates[1],
-                              suggestion.coordinates[0],
-                            ]);
+                            calculateRoute(newPos);
                           }}
                           sx={{
                             py: 1,
@@ -682,33 +705,35 @@ const AgencyMap = ({ agency, isMobile }) => {
                   )}
                 </Box>
               </Grid>
-              <Grid size={{ xs: 6, sm: 10, md: 10, lg: 6 }} sx={{  pl:2  }}>
+              <Grid size={{ xs: 6, sm: 10, md: 10, lg: 6 }} sx={{ pl: 2 }}>
                 <FormControl fullWidth>
                   <Select
                     value={profile}
-                    onChange={(e) => setProfile(e.target.value)}
+                    onChange={(e) => {
+                      setProfile(e.target.value);
+                      // No need to call calculateRoute here, useEffect will handle it
+                    }}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
-                        borderBottom: "1px solid #ccc", // Only bottom border
-                        borderRadius: 0, // Remove rounded corners
+                        borderBottom: "1px solid #ccc",
+                        borderRadius: 0,
                         "& fieldset": {
-                          border: "none", // Remove default border
+                          border: "none",
                         },
                         "&:hover fieldset": {
-                          border: "none", // Remove border on hover
+                          border: "none",
                         },
                         "&.Mui-focused fieldset": {
-                          border: "none", // Remove border on focus
-                          borderBottom: "2px solid #1976d2", // Thicker blue bottom border on focus
+                          border: "none",
+                          borderBottom: "2px solid #1976d2",
                         },
                         "&.Mui-focused": {
-                          outline: "none", // Remove blue focus ring
+                          outline: "none",
                         },
                       },
-                      // Style the dropdown icon
                       "& .MuiSelect-icon": {
-                        color: "rgba(0, 0, 0, 0.54)", // Match Material-UI default
+                        color: "rgba(0, 0, 0, 0.54)",
                       },
                       fontSize: {
                         xs: "0.7rem",
@@ -724,10 +749,9 @@ const AgencyMap = ({ agency, isMobile }) => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid size={{ xs: 6 , sm: 10, md: 10, lg: 6 }} sx={{  pr:2  }}>
+              <Grid size={{ xs: 6, sm: 10, md: 10, lg: 6 }} sx={{ pr: 2 }}>
                 <Button
                   fullWidth
-                  // variant="contained"
                   color="primary"
                   onClick={handleSearchLocation}
                   disabled={loading || !inputAddress.trim()}
@@ -749,7 +773,7 @@ const AgencyMap = ({ agency, isMobile }) => {
                       lg: "0.75rem",
                     },
                     "&:hover": {
-                      backgroundColor: "transparent",
+                      backgroundColor: "transparent", // Keep consistent with other styles
                     },
                   }}
                 >
@@ -757,56 +781,58 @@ const AgencyMap = ({ agency, isMobile }) => {
                 </Button>
               </Grid>
               <Grid size={{ xs: 11, sm: 10, md: 10, lg: 12 }}>
-                <Box sx={{ height: 0.5 }}>
-                  {error && !distance && (
-                    <Typography
-                      color="error"
-                      sx={{
-                        mt: 0,
-                        textAlign: "center",
-                        fontSize: {
-                          xs: "0.7rem",
-                          sm: "0.7rem",
-                          md: "0.8rem",
-                          lg: "0.75rem",
-                        },
-                      }}
-                    >
-                      {error}
-                    </Typography>
-                  )}
+                <Box sx={{ height: 0.5, mt: 1 }}>
+                  {" "}
+                  {/* Added margin top for spacing */}
+                  {error &&
+                    !distance && ( // Only show general error if no distance (i.e., route failed completely)
+                      <Typography
+                        color="error"
+                        sx={{
+                          mt: 0,
+                          textAlign: "center",
+                          fontSize: {
+                            xs: "0.7rem",
+                            sm: "0.7rem",
+                            md: "0.8rem",
+                            lg: "0.75rem",
+                          },
+                        }}
+                      >
+                        {error}
+                      </Typography>
+                    )}
                 </Box>
               </Grid>
             </Grid>
           </Paper>
         </Grid>
         <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
-          {" "}
-          {/* Added order: -1 to move to top */}
-          {/* Route Information - Only shown when route is calculated */}
           {distance && (
             <Paper
               sx={{
-                py: 0,
+                py: 2, // Increased padding for better look
                 px: 2,
                 borderLeft: isMobile ? "none" : "1px solid #ccc",
                 borderRadius: 0,
                 boxShadow: "none",
                 alignSelf: "flex-start",
-                // width: "100%",
                 mb: isMobile ? 3 : 0,
+                height: isMobile ? "auto" : "100%", // Ensure consistent height on desktop
               }}
             >
               <Box
                 display="flex"
                 justifyContent="space-between"
-                // alignItems="flex-start"
+                alignItems="flex-start" // Align items to the top
               >
-                <Box sx={{ marginX: 2 }}>
+                <Box sx={{ marginX: 2, flexGrow: 1 }}>
+                  {" "}
+                  {/* Allow text to take space */}
                   <Typography
                     variant="body1"
                     sx={{
-                      fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"}
+                      fontSize: { xs: "0.79rem", sm: "0.79rem", md: "0.88rem" },
                     }}
                   >
                     Distance to {agency.agency_name}:{" "}
@@ -820,7 +846,11 @@ const AgencyMap = ({ agency, isMobile }) => {
                         variant="body1"
                         sx={{
                           mt: 1,
-                          fontSize: {xs: "0.79rem", sm: "0.79rem", md: "0.88rem"}
+                          fontSize: {
+                            xs: "0.79rem",
+                            sm: "0.79rem",
+                            md: "0.88rem",
+                          },
                         }}
                       >
                         Estimated travel time:{" "}
@@ -840,7 +870,7 @@ const AgencyMap = ({ agency, isMobile }) => {
                               mt: 1,
                               fontStyle: "italic",
                               color: "text.secondary",
-                              display: "block", // Changed to block to force new line
+                              display: "block",
                               fontSize: {
                                 xs: "0.68rem",
                                 sm: "0.68rem",
@@ -856,7 +886,8 @@ const AgencyMap = ({ agency, isMobile }) => {
                   ) : (
                     <Typography variant="body2" sx={{ mt: 1 }}>
                       <Directions sx={{ verticalAlign: "middle", mr: 1 }} />
-                      Straight-line distance (no route found)
+                      Straight-line distance{" "}
+                      {error ? `(${error})` : "(no route found)"}
                     </Typography>
                   )}
                   {profile === "cycling" && (
@@ -887,9 +918,25 @@ const AgencyMap = ({ agency, isMobile }) => {
                   )}
                   {renderCongestionInfo()}
                 </Box>
-                <IconButton onClick={resetSearch} color="inherit">
-                  <Close />
-                </IconButton>
+                <Tooltip title="Clear search and route">
+                  <IconButton
+                    onClick={resetSearch}
+                    color="inherit"
+                    sx={{
+                      p: 0,
+                      "&:hover": {
+                        backgroundColor: "transparent", // No background on hover
+                        // Optional: if you want to change the icon color on hover
+                        "& .MuiSvgIcon-root": {
+                          color: "inherit", // or specify a color like '#000'
+                        },
+                      },
+                    }}
+                  >
+                    {/* Reduced padding */}
+                    <Close />
+                  </IconButton>
+                </Tooltip>
               </Box>
             </Paper>
           )}

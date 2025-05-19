@@ -4,6 +4,10 @@ import L from "leaflet";
 import osm from "../../../../components/osm-providers";
 import { useNavigate } from "react-router-dom";
 import { use } from "react";
+import { Box } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useLocation } from "react-router-dom";
 
 // Custom Leaflet icon
 const myIcon = new L.Icon({
@@ -21,6 +25,12 @@ const MissingPersonMap = ({ persons, selectedPerson }) => {
   const markerRefs = useRef([]);
   const mapRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
+  const isLargeDesktop = useMediaQuery(theme.breakpoints.up("xl"));
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -130,89 +140,111 @@ const MissingPersonMap = ({ persons, selectedPerson }) => {
   }
 
   return (
-    <MapContainer
-      center={center}
-      zoom={9}
-      scrollWheelZoom={true}
-      style={{ height: "500px", width: "100%", borderRadius: "10px" }}
-      whenCreated={(mapInstance) => { mapRef.current = mapInstance }}
-      attributionControl={false}
-    >
-      <TileLayer attribution={""} url={osm.maptiler.url} />
-
-      {markers.map((marker, index) => (
-        <Marker
-          key={index}
-          position={marker.position}
-          icon={myIcon}
-          ref={(el) => markerRefs.current[index] = el}
+    <Box sx={{ width: "100%", height: "100%", backgroundColor: "white" }}>
+      {/* Map Container */}
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          borderRadius: isMobile ? "0px" : "12px",
+          overflow: "hidden",
+          mb: 2,
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+          backgroundColor: "white",
+          border: "1px solid #ccc",
+        }}
+      >
+        <MapContainer
+          center={center}
+          zoom={9}
+          scrollWheelZoom={true}
+          style={{ 
+            height: "100%",
+            width: "100%",
+            position: "absolute",
+            zIndex: 1,
+          }}
+          whenCreated={(mapInstance) => { mapRef.current = mapInstance }}
+          attributionControl={false}
         >
-          <Popup>
-            <div style={{
-              textAlign: "center",
-              fontSize: "14px",
-              fontWeight: "bold",
-              color: "#333",
-              padding: "5px",
-              borderRadius: "5px"
-            }}>
-              <div style={{
-                fontSize: "16px",
-                fontWeight: "bold",
-                color: "#007bff",
-                marginBottom: "8px",
-                borderBottom: "2px solid #007bff",
-                paddingBottom: "5px"
-              }}>
-                {marker.locationName.split(",").slice(0, 2).join(", ")}
-              </div>
+          <TileLayer attribution={""} url={osm.maptiler.url} />
 
-              {marker.persons.map((person, i) => {
-                const dateObj = new Date(person.missingDate);
-                const date = isNaN(dateObj.getTime()) ? "Unknown" : dateObj.toISOString().split("T")[0];
-                const time = isNaN(dateObj.getTime()) ? "Unknown" : dateObj.toTimeString().split(" ")[0];
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      marginBottom: "10px",
-                      borderBottom: "1px solid #ccc",
-                      paddingBottom: "8px",
-                    }}
-                  >
-                    <span style={{ color: "#d32f2f", fontSize: "16px", fontWeight: 600 }}>
-                      {person.name}
-                    </span>
-                    <br />
-                    <span style={{ color: "#555", fontSize: "14px" }}>
-                      Date: {date} <br />
-                      Time: {time}
-                    </span>
-                    <br />
-                    <span
-                      onClick={() =>
-                        navigate(`/person-details/${person.id}`, {
-                          state: { person },
-                        })
-                      }
-                      style={{
-                        color: "#1976d2",
-                        cursor: "pointer",
-                        fontSize: "10px",
-                        marginTop: "4px",
-                        display: "inline-block",
-                      }}
-                    >
-                      View Details
-                    </span>
+          {markers.map((marker, index) => (
+            <Marker
+              key={index}
+              position={marker.position}
+              icon={myIcon}
+              ref={(el) => markerRefs.current[index] = el}
+            >
+              <Popup>
+                <div style={{
+                  textAlign: "center",
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  color: "#333",
+                  padding: "5px",
+                  borderRadius: "5px"
+                }}>
+                  <div style={{
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    color: "#007bff",
+                    marginBottom: "8px",
+                    borderBottom: "2px solid #007bff",
+                    paddingBottom: "5px"
+                  }}>
+                    {marker.locationName.split(",").slice(0, 2).join(", ")}
                   </div>
-                );
-              })}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+
+                  {marker.persons.map((person, i) => {
+                    const dateObj = new Date(person.missingDate);
+                    const date = isNaN(dateObj.getTime()) ? "Unknown" : dateObj.toISOString().split("T")[0];
+                    const time = isNaN(dateObj.getTime()) ? "Unknown" : dateObj.toTimeString().split(" ")[0];
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          marginBottom: "10px",
+                          borderBottom: "1px solid #ccc",
+                          paddingBottom: "8px",
+                        }}
+                      >
+                        <span style={{ color: "#d32f2f", fontSize: "16px", fontWeight: 600 }}>
+                          {person.name}
+                        </span>
+                        <br />
+                        <span style={{ color: "#555", fontSize: "14px" }}>
+                          Date: {date} <br />
+                          Time: {time}
+                        </span>
+                        <br />
+                        <span
+                          onClick={() =>
+                            navigate(`/person-details/${person.id}`, {
+                              state: { person },
+                            })
+                          }
+                          style={{
+                            color: "#1976d2",
+                            cursor: "pointer",
+                            fontSize: "10px",
+                            marginTop: "4px",
+                            display: "inline-block",
+                          }}
+                        >
+                          View Details
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </Box>
+    </Box>
   );
 };
 

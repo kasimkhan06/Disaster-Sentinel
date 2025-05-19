@@ -62,8 +62,9 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
         setIsLoggedIn(false);
-        handleAccountMenuClose();
-        navigate("/home");
+        // handleAccountMenuClose();
+        // navigate("/home");
+         window.location.reload();
       } else {
         console.error("Logout failed:", data.message || "Unknown error");
       }

@@ -72,6 +72,7 @@ const DrawerCompAgency = ({ isLoggedIn, setIsLoggedIn }) => {
         setIsLoggedIn(false);
         handleAccountMenuClose();
         navigate("/login");
+         window.location.reload();
       } else {
         console.error("Logout failed:", data.message || "Unknown error");
       }

@@ -1,6 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Typography, Box, Grid, TextField, Button, Avatar, } from "@mui/material";
+import {
+  Typography,
+  Box,
+  Grid,
+  TextField,
+  Button,
+  Avatar,
+} from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -32,11 +39,11 @@ const Login = ({ setIsLoggedIn }) => {
       try {
         // Make the API call
         const response = await fetch(
-          'https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/login/',
+          "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/auth/login/",
           {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               email: formData.email,
@@ -46,24 +53,27 @@ const Login = ({ setIsLoggedIn }) => {
         );
 
         const data = await response.json();
-        console.log('API Response:', { status: response.status, data });
+        console.log("API Response:", { status: response.status, data });
 
         if (response.ok) {
           // Log the received user details AND permissions
-          setIsLoggedIn(true); 
-          console.log('Login successful. User details:', {
+          setIsLoggedIn(true);
+          console.log("Login successful. User details:", {
             id: data.user_id,
             email: data.email,
             role: data.role,
             full_name: data.full_name,
             state: data.state,
             district: data.district,
-            permissions: data.permissions // <<< Log the permissions array
+            permissions: data.permissions, // <<< Log the permissions array
           });
 
           localStorage.setItem("user", JSON.stringify(data));
+          const redirectPath = localStorage.getItem("redirectAfterLogin");
+          localStorage.removeItem("redirectAfterLogin");
           if (data.role === "user") {
-            navigate("/home");
+            window.location.assign(redirectPath ||"/home");
+            // navigate(redirectPath ||"/home");
           } else {
             try {
               const agencyResponse = await fetch(
@@ -72,31 +82,52 @@ const Login = ({ setIsLoggedIn }) => {
               const agencyData = await agencyResponse.json();
               console.log("Agency details:", agencyData);
 
-              if (agencyResponse.ok && agencyData && Object.keys(agencyData).length > 0) {
-                console.log("Agency data found, navigating to agency dashboard.");
-                navigate("/agency-dashboard");
+              if (
+                agencyResponse.ok &&
+                agencyData &&
+                Object.keys(agencyData).length > 0
+              ) {
+                console.log(
+                  "Agency data found, navigating to agency dashboard."
+                );
+                // navigate("/agency-dashboard");
+                window.location.assign("/agency-dashboard");
+                
               } else {
-                console.error("Agency details not found for user ID:", data.user_id);
-                navigate("/registration-form");
+                console.error(
+                  "Agency details not found for user ID:",
+                  data.user_id
+                );
+                // navigate("/registration-form");
+                window.location.assign("/registration-form");
               }
             } catch (error) {
               console.error("Error fetching agency details:", error);
-              setErrors({ ...errors, form: 'Failed to retrieve agency information. Please try again.' });
+              setErrors({
+                ...errors,
+                form: "Failed to retrieve agency information. Please try again.",
+              });
             }
           }
         } else {
-          console.error('Login failed:', data.error || `HTTP error! status: ${response.status}`);
-          let errorMessage = 'Login failed. Please try again.';
-          if (data.error === 'User is not verified') {
-            errorMessage = 'Please verify your email before logging in';
-          } else if (data.error === 'Invalid credentials') {
-            errorMessage = 'Invalid email or password';
+          console.error(
+            "Login failed:",
+            data.error || `HTTP error! status: ${response.status}`
+          );
+          let errorMessage = "Login failed. Please try again.";
+          if (data.error === "User is not verified") {
+            errorMessage = "Please verify your email before logging in";
+          } else if (data.error === "Invalid credentials") {
+            errorMessage = "Invalid email or password";
           }
           setErrors({ ...errors, form: errorMessage });
         }
       } catch (error) {
-        console.error('Login error:', error);
-        setErrors({ ...errors, form: 'Network error or issue processing response. Please try again.' });
+        console.error("Login error:", error);
+        setErrors({
+          ...errors,
+          form: "Network error or issue processing response. Please try again.",
+        });
       }
     }
   };
@@ -156,10 +187,14 @@ const Login = ({ setIsLoggedIn }) => {
           }}
         >
           <Box sx={{ textAlign: "center" }}>
-            <Avatar sx={{ bgcolor: "#4F646F", margin: "auto", width: 50, height: 50 }}>
+            <Avatar
+              sx={{ bgcolor: "#4F646F", margin: "auto", width: 50, height: 50 }}
+            >
               <PersonIcon />
             </Avatar>
-            <Typography variant="h6" fontWeight="bold" mt={2}>LOGIN</Typography>
+            <Typography variant="h6" fontWeight="bold" mt={2}>
+              LOGIN
+            </Typography>
           </Box>
 
           {errors.form && (
@@ -169,8 +204,14 @@ const Login = ({ setIsLoggedIn }) => {
           )}
 
           <Grid container spacing={2} mt={2} justifyContent={"center"}>
-            <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-              <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <Grid
+              item
+              xs={12}
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
+              <Box
+                sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              >
                 <EmailIcon sx={{ mt: 2, ml: 5, mr: 1, color: "gray" }} />
                 <TextField
                   label="Email"
@@ -182,12 +223,18 @@ const Login = ({ setIsLoggedIn }) => {
                   helperText={errors.email}
                   size="small"
                   sx={{ width: "70%" }}
-                  InputLabelProps={{ sx: { fontSize: "0.9rem" }, }}
+                  InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                 />
               </Box>
             </Grid>
-            <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-              <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <Grid
+              item
+              xs={12}
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
+              <Box
+                sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              >
                 <LockIcon sx={{ mt: 2, ml: 5, mr: 1, color: "gray" }} />
                 <TextField
                   label="Password"
@@ -206,7 +253,7 @@ const Login = ({ setIsLoggedIn }) => {
             </Grid>
           </Grid>
 
-          <Box textAlign="center" mt={4} >
+          <Box textAlign="center" mt={4}>
             <Button
               variant="contained"
               size="medium"
@@ -226,7 +273,9 @@ const Login = ({ setIsLoggedIn }) => {
           <Box textAlign="center" mt={3}>
             <Typography variant="body2" color="textSecondary">
               Dont have an account?
-              <Button variant="text" onClick={handleRegister}>Register</Button>
+              <Button variant="text" onClick={handleRegister}>
+                Register
+              </Button>
             </Typography>
           </Box>
         </Box>
