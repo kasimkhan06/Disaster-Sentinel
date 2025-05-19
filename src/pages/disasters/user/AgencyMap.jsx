@@ -285,6 +285,11 @@ const AgencyMap = ({ agency, isMobile }) => {
     setLoading(true);
     setError(null);
 
+    if (userPosition) {
+    calculateRoute(userPosition);
+    return;
+  }
+
     try {
       let newPosition;
       const coordRegex =
@@ -327,7 +332,7 @@ const AgencyMap = ({ agency, isMobile }) => {
     } catch (err) {
       setLoading(false);
       if (err.message === "Location outside India") {
-        setError("Choose a location from the dropdown.");
+        setError("Location outside India. Please choose from suggestions.");
       } else {
         setError("Location not found. Please try a different address.");
       }
