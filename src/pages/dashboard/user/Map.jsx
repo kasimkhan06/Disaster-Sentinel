@@ -7,6 +7,7 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { Link } from "react-router-dom";
+import { Tooltip } from "react-leaflet";
 
 // Set default marker icon options
 delete L.Icon.Default.prototype._getIconUrl;
@@ -25,6 +26,43 @@ const disasterTypeMap = {
   DR: "Drought",
   // Add other mappings as needed
 };
+
+const disasterIcons = {
+  eq: {
+    options: {
+      iconUrl: 'https://www.gdacs.org/Images/gdacs_icons/alerts/Green/EQ.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16]
+    }
+  },
+  fl: {
+    options: {
+      iconUrl: 'https://www.gdacs.org/Images/gdacs_icons/alerts/Green/FL.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16]
+    }
+  },
+  default: {
+    options: {
+      iconUrl: markerIcon,
+      iconRetinaUrl: markerIcon2x,
+      shadowUrl: markerShadow,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34]
+    }
+  }
+};
+
+// const floodPredictionIcon = new L.Icon({
+//   iconUrl: "https://cdn-icons-png.flaticon.com/512/3261/3261915.png", // Water drop icon
+//   iconSize: [25, 25],
+//   iconAnchor: [12, 12],
+//   popupAnchor: [0, -12],
+// });
+
 
 // Fit map to all markers
 const FitBounds = ({ markers }) => {
@@ -68,6 +106,7 @@ const PopupHandler = ({ selectedDisaster }) => {
 // Update the Map component with these changes
 const Map = ({
   disasters,
+  floodPredictions = [],
   onMarkerClick,
   selectedDisaster,
   highlightedDisaster,
@@ -95,6 +134,23 @@ const Map = ({
   const validDisasters = disasters.filter(
     (disaster) => disaster.latitude && disaster.longitude
   );
+
+  // Filter out invalid flood predictions
+  const validFloodPredictions = floodPredictions.filter(
+    (prediction) => prediction.latitude && prediction.longitude
+  );
+
+
+  const allMarkerPositions = [
+    ...validDisasters.map((disaster) => [
+      parseFloat(disaster.latitude),
+      parseFloat(disaster.longitude),
+    ]),
+    ...validFloodPredictions.map((prediction) => [
+      parseFloat(prediction.latitude),
+      parseFloat(prediction.longitude),
+    ]),
+  ];
 
   if (validDisasters.length === 0) {
     return (
@@ -129,7 +185,9 @@ const Map = ({
         iconSize,
         iconAnchor,
         popupAnchor,
+        //console.log('Creating marker at:', [lat, lng], 'with icon:', icon);
       });
+
     }
 
     // Fallback to colored markers based on disaster type if no alert level
@@ -142,6 +200,7 @@ const Map = ({
         icon.options.iconAnchor = iconAnchor;
         icon.options.popupAnchor = popupAnchor;
       }
+
       return icon;
     }
 
@@ -154,6 +213,28 @@ const Map = ({
     }
     return defaultIcon;
   };
+
+  const getFloodPredictionIcon = (prediction, isMobile) => {
+  const iconSize = isMobile ? [20, 20] : [25, 25];
+  
+  // Default blue water drop icon
+  let iconUrl = 'https://cdn-icons-png.flaticon.com/512/3261/3261915.png';
+  
+  // Change color based on risk level
+  if (prediction.riskLevel === 'high') {
+    iconUrl = 'https://cdn-icons-png.flaticon.com/512/3050/3050941.png'; // Red
+  } else if (prediction.riskLevel === 'medium') {
+    iconUrl = 'https://cdn-icons-png.flaticon.com/512/3050/3050945.png'; // Orange
+  }
+  console.log('Flood Prediction Icon:', iconUrl);
+  return new L.Icon({
+    iconUrl,
+    iconSize,
+    iconAnchor: [iconSize[0] / 2, iconSize[1] / 2],
+    popupAnchor: [0, -iconSize[1] / 2],
+    className: 'flood-prediction-marker'
+  });
+};
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -222,7 +303,9 @@ const Map = ({
               },
             }}
           >
-            {/* Add pulsing animation to the marker if it's the highlighted one */}
+            
+
+               {/* Add pulsing animation to the marker if it's the highlighted one */}
             {highlightedDisaster &&
               highlightedDisaster.eventid === disaster.eventid && (
                 <div
@@ -295,8 +378,34 @@ const Map = ({
             </Popup>
           </Marker>
         ))}
+        {validFloodPredictions.map((prediction) => {
+  const lat = parseFloat(prediction.latitude);
+  const lng = parseFloat(prediction.longitude);
+  
+  if (isNaN(lat) || isNaN(lng)) return null;
 
-        <FitBounds markers={markerPositions} />
+  return (
+    <Marker
+      key={`flood-${prediction.stationId || 'static'}`}
+      position={[lat, lng]}
+      icon={getFloodPredictionIcon(prediction, isMobile)}
+    >
+      <Tooltip permanent direction="top" offset={[0, -10]}>
+        <div style={{ fontWeight: 'bold' }}>
+          {prediction.stationId?.includes('static') ? 'Sample Data' : 'Flood Risk'}: 
+          {prediction.riskLevel || 'low'}
+        </div>
+        <div>Probability: {(prediction.probability * 100).toFixed(2)}%</div>
+        {prediction.stationId?.includes('static') && (
+          <div style={{ color: '#666', fontSize: '0.8em' }}>
+            (Sample data)
+          </div>
+        )}
+      </Tooltip>
+    </Marker>
+  );
+})}
+        <FitBounds markers={allMarkerPositions} />
         <PopupHandler selectedDisaster={selectedDisaster} />
       </MapContainer>
 
