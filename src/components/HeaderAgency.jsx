@@ -106,6 +106,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
         setIsLoggedIn(false);
         handleProfileMenuClose();
         navigate("/home");
+         window.location.reload();
       } else {
         console.error("Logout failed:", data.message || "Unknown error");
       }
