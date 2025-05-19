@@ -281,70 +281,91 @@ const AgencyMap = ({ agency, isMobile }) => {
   };
 
   const handleSearchLocation = async () => {
-    if (!inputAddress.trim()) return;
-    setLoading(true);
-    setError(null);
+  if (!inputAddress.trim()) return;
+  setLoading(true);
+  setError(null);
 
+  try {
+    let newPosition;
+
+    // If userPosition exists (from previous search or suggestion selection), use it directly
     if (userPosition) {
-    calculateRoute(userPosition);
-    return;
-  }
-
-    try {
-      let newPosition;
+      newPosition = [...userPosition]; // Create a copy to ensure state updates
+    } 
+    // Check if input is coordinates
+    else {
       const coordRegex =
         /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
       if (coordRegex.test(inputAddress)) {
         const [lat, lng] = inputAddress.split(",").map(Number);
         newPosition = [lat, lng];
-        if (!isLocationInIndia(newPosition)) {
-          throw new Error("Location outside India");
-        }
-      } else {
+      } 
+      // Otherwise geocode the address
+      else {
         const response = await axios.get(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
             inputAddress
           )}.json?access_token=${MAPBOX_ACCESS_TOKEN}&country=IN`
         );
-        if (
-          response.data &&
-          response.data.features &&
-          response.data.features.length > 0
-        ) {
+        if (response.data?.features?.length > 0) {
           const [lng, lat] = response.data.features[0].center;
           newPosition = [lat, lng];
-          const context = response.data.features[0].context;
-          const isInIndia = context.some(
-            (item) =>
-              item.id &&
-              item.id.startsWith("country.") &&
-              item.short_code === "IN"
-          );
-          if (!isInIndia) {
-            throw new Error("Location outside India");
-          }
         } else {
           throw new Error("Location not found");
         }
       }
-      setUserPosition(newPosition);
-      calculateRoute(newPosition);
-    } catch (err) {
-      setLoading(false);
-      if (err.message === "Location outside India") {
-        setError("Location outside India. Please choose from suggestions.");
-      } else {
-        setError("Location not found. Please try a different address.");
+    }
+
+    // Validate the location is in India
+    if (!isLocationInIndia(newPosition)) {
+      throw new Error("Location outside India");
+    }
+
+    // Update position and recalculate route
+    setUserPosition(newPosition);
+    await calculateRoute(newPosition);
+
+  } catch (err) {
+    setLoading(false);
+    setError(
+      err.message === "Location outside India" 
+        ? "Please choose a location within India from the suggestions."
+        : "Location not found. Please try a different address."
+    );
+    console.error("Location search error:", err);
+    
+    // Fallback to straight line distance if we have coordinates but no route
+    if (userPosition) {
+      const newRoute = [userPosition, agencyPosition];
+      setRoute(newRoute);
+      // Calculate straight-line distance
+      const R = 6371;
+      const dLat = (agencyPosition[0] - userPosition[0]) * (Math.PI / 180);
+      const dLon = (agencyPosition[1] - userPosition[1]) * (Math.PI / 180);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(userPosition[0] * (Math.PI / 180)) *
+          Math.cos(agencyPosition[0] * (Math.PI / 180)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      setDistance((R * c).toFixed(2));
+      setDuration(null);
+      if (mapRef.current) {
+        mapRef.current.fitBounds(L.latLngBounds(newRoute), {
+          padding: [50, 50],
+        });
       }
-      console.error("Location search error:", err);
-      // Clear previous route/distance/duration if search fails
+    } else {
+      // Clear previous results if search fails completely
       setRoute(null);
       setDistance(null);
       setDuration(null);
-      setTrafficDataAvailable(false);
-      setCongestionLevels([]);
     }
-  };
+    setTrafficDataAvailable(false);
+    setCongestionLevels([]);
+  }
+};
 
   const fetchSuggestions = async (query) => {
     if (!query.trim()) {
