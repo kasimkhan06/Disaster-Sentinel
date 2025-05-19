@@ -39,7 +39,7 @@ const SuccessMessage = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate("/dashboard/agency/AgencyDashboard");
+      navigate("/agency-dashboard");
     }, 5000);
 
     return () => clearTimeout(timer);
@@ -48,23 +48,30 @@ const SuccessMessage = () => {
   return (
     <Box
       sx={{
-        minHeight: "50%",
-        width: "50%",
+        minHeight: { xs: "70%", md: "50%" },  
+        width: { xs: "90%", sm: "70%", md: "50%", lg: "40%" },
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "rgba(255, 255, 255, 0.95)",
         borderRadius: "10px",
         boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-        margin: "300px auto",
-        padding: "20px",
+        margin: { xs: "100px auto", md: "300px auto" },  
+        padding: { xs: "15px", md: "20px", lg: "25px" },
       }}
     >
       <Container sx={{ textAlign: "center" }}>
-        <Typography variant="h4" fontWeight="bold" sx={{ mb: 3, color: "black" }}>
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          sx={{ mb: 2, color: "black", fontSize: { xs: "1.5rem", md: "2rem" } }}  
+        >
           Registration Successful
         </Typography>
-        <Typography variant="h6" sx={{ mb: 3, color: "black" }}>
+        <Typography
+          variant="h6"
+          sx={{ mb: 2, color: "black", fontSize: { xs: "1rem", md: "1.25rem" } }}  
+        >
           Your agency has been successfully registered. You will be redirected to the dashboard shortly.
         </Typography>
       </Container>
@@ -210,13 +217,12 @@ const RegistrationForm = ({ setSuccess }) => {
   return (
     <Box
       sx={{
-        position: "fixed",
+        position: "absolute",
         width: "100vw",
-        height: "100vh",
+        minHeight: "100vh",
         top: 0,
         left: 0,
         right: 0,
-        minHeight: "100vh",
         background: `
       linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
       url(${worldMapBackground})
@@ -224,16 +230,24 @@ const RegistrationForm = ({ setSuccess }) => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        backgroundRepeat: "no-repeat",
+        backgroundRepeat: "repeat-y",
         margin: 0,
         padding: 0,
-        zIndex: -1,
+        overflow: "auto",
       }}
     >
-      <Box sx={{ mt: { xs: 15, md: 15 }, mb: { xs: 2, md: 4 }, mx: "auto", width: { xs: "90%", md: "70%" }, display: "flex", flexDirection: "column" }}>
+      <Box sx={{
+        mt: { xs: 15, md: 15 },
+        mb: { xs: 2, md: 4 },
+        mx: "auto",
+        width: { xs: "85%", md: "70%" },
+        display: "flex",
+        flexDirection: "column",
+        overflowY: "auto",
+      }}>
         <Stepper activeStep={activeStep} sx={{ mb: { xs: 2, md: 4 } }}>
           {isMobile ? (
-            <Step 
+            <Step
               key={steps[activeStep]}
               sx={{
                 display: "flex",
@@ -342,17 +356,15 @@ const RegistrationForm = ({ setSuccess }) => {
           )}
 
           {activeStep === 3 && (
-            <Grid container justifyContent="center" sx={{ marginTop: "20px" }}>
-              <Grid item xs={12} sm={10} md={8} lg={8}>
-                <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
-                  <MapLeaflet markers={markers} setMarkers={setMarkers} />
-                  {errors.location && (
-                    <Typography color="error" textAlign="center" mt={2}>
-                      {errors.location}
-                    </Typography>
-                  )}
-                </Card>
-              </Grid>
+            <Grid item xs={12} sm={12} md={8} lg={8} sx={{ marginX: "auto" }}>
+              <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
+                <MapLeaflet markers={markers} setMarkers={setMarkers} />
+                {errors.location && (
+                  <Typography color="error" textAlign="center" mt={2}>
+                    {errors.location}
+                  </Typography>
+                )}
+              </Card>
             </Grid>
           )}
         </Grid>

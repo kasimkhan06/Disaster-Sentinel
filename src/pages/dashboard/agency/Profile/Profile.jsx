@@ -11,9 +11,20 @@ import {
   TextField,
   IconButton,
   TextareaAutosize as Textarea,
-  CircularProgress
+  CircularProgress,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useMediaQuery } from "@mui/material";
 
+// router hooks
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+
+// Icons
 import {
   Person,
   CalendarToday,
@@ -22,27 +33,37 @@ import {
   Phone,
   Edit,
 } from "@mui/icons-material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LanguageIcon from "@mui/icons-material/Language";
 import CloseIcon from "@mui/icons-material/Close";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 
 // Axios for API calls
 import axios from "axios";
 
 // Styles & Assets
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
-import { margin, padding } from "@mui/system";
+import ImageUpload from "../../../../components/ImageUpload";
 
 const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails }) => {
   const [formData, setFormData] = useState({});
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const [existingImages, setExistingImages] = useState([]);
+  const [newImages, setNewImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      if (initialData.images) {
+        setExistingImages(initialData.images);
+      }
     }
   }, [initialData]);
 
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -50,7 +71,18 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
     });
   };
 
-  const [isUpdating, setIsUpdating] = useState(false);
+  const handleRemoveExistingImage = async (index) => {
+    const imgToDelete = existingImages[index];
+    const imageId = imgToDelete.id || imgToDelete;
+    try {
+      await axios.delete(`https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-images/${imageId}/`, { withCredentials: true });
+      setExistingImages((prev) => prev.filter((_, i) => i !== index));
+      console.log("Image deleted successfully");
+      fetchAgencyDetails(userId);
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+    }
+  };
 
   const handleSubmit = async (e, id) => {
     e.preventDefault();
@@ -67,6 +99,8 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
         Data.append("contact2", formData.contact2);
         Data.append("website", formData.website);
         Data.append("address", formData.address);
+      }else if (mode === 'images') {
+        newImages.forEach((file) => Data.append('images', file));
       }
 
       const response = await axios.patch(
@@ -76,7 +110,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
       );
 
       console.log("Updation Success:", response.data);
-
+      setFormData({});
       fetchAgencyDetails(id);
       handleClose();
     } catch (error) {
@@ -150,6 +184,20 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
           }}
         />
       );
+    } else if (mode === 'images') {
+      return (
+        <>
+          <Grid container spacing={2} sx={{ width: { xs: "100%", sm: "80%" }, mb: 2 }}>
+            {existingImages.map((img, index) => (
+              <Grid item xs={4} key={index}>
+                <img src={`https://res.cloudinary.com/doxgltggk/${img.image}`} alt={`img-${index}`} style={{ width: '100%' }} />
+                <Button onClick={() => handleRemoveExistingImage(index)}>Remove</Button>
+              </Grid>
+            ))}
+          </Grid>
+            <ImageUpload images={newImages} setImages={setNewImages} />
+        </>
+      );
     }
     return null;
   };
@@ -176,7 +224,13 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
           <CloseIcon />
         </IconButton>
         <Typography variant="h5" gutterBottom sx={{ textAlign: "center" }}>
-          {mode === "basicDetails" ? "Update Basic Details" : "Update Description"}
+          {mode === "basicDetails"
+            ? "Update Basic Details"
+            : mode === "description"
+              ? "Update Description"
+              : mode === "images"
+                ? "Update Images"
+                : ""}
         </Typography>
         <form onSubmit={(e) => handleSubmit(e, userId)}>
           {renderFields()}
@@ -224,6 +278,11 @@ function Profile() {
   const [initialData, setInitialData] = useState({});
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [type, setType] = useState("about");
+  const theme = useTheme();
+  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+
 
   const handleOpenBasicDetails = () => {
     setInitialData({
@@ -241,6 +300,14 @@ function Profile() {
       description: agency?.description || "",
     });
     setEditMode("description");
+    setOpen(true);
+  };
+
+  const handleOpenImages = () => {
+    setInitialData({
+      images: agency?.images || [],
+    });
+    setEditMode("images");
     setOpen(true);
   };
 
@@ -300,7 +367,7 @@ function Profile() {
         sx={{
           position: "relative",
           width: "100%",
-          minHeight: "100vh", 
+          minHeight: "100vh",
           background: `
             linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
             url(${worldMapBackground})
@@ -407,7 +474,7 @@ function Profile() {
                 ))}
               </Box>
             </Grid>
-            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}>
+            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 1 }}>
               <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <Button
                   variant="outlined"
@@ -435,123 +502,351 @@ function Profile() {
         </Box>
 
         {/* Description Section */}
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
-              mx: "auto",
-              mt: 2,
-              p: { xs: 2, md: 3, lg: 5 },
-              backgroundColor: "white",
-              borderRadius: 3,
-              boxShadow: 3,
-            }}
-          >
-            {/* <Typography variant="h6" fontWeight={600} mb={2}>
-              Description
-            </Typography> */}
-            <Typography sx={{ color: "text.secondary", whiteSpace: "pre-line", fontSize: { xs: "0.8rem", md: "1rem" } }}>
-              {agency.description || "No description available."}
-            </Typography>
-            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}>
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<Edit />}
+        <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+          {isMobileOrTablet ? (
+            <Box sx={{ width: "100%", maxWidth: { xs: "90%", md: "85%", lg: "1000px" }, mx: "auto", mt: 2 }}>
+              <Accordion
                 sx={{
-                  mt: 1,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  color: "green",
-                  borderColor: "#388e3c",
+                  width: "100%",
+                  boxShadow: "none",
+                  backgroundColor: "rgba(255, 255, 255, 0.67)",
+                  transition: "margin 0.3s ease",
+                  "&.Mui-expanded": {
+                    mt: 1,  // Add top margin when expanded
+                  },
+                  "&:before": {
+                    display: "none",  // Remove default underline
+                  },
                   "&:hover": {
-                    backgroundColor: "black",
-                    borderColor: "black",
-                    color: "white",
+                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
                   },
                 }}
-                onClick={handleOpenDescription}
               >
-                Edit
-              </Button>
-            </Grid>
-          </Box>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    minHeight: "48px !important",
+                    "&.Mui-expanded": {
+                      minHeight: "48px !important",
+                    },
+                    "& .MuiAccordionSummary-content": {
+                      margin: "12px 0",
+                      justifyContent: "center",
+                      "&.Mui-expanded": {
+                        margin: "12px auto",
+                      },
+                    },
+                  }}
+                >
+                  <Typography sx={{ fontWeight: "bold", fontSize: "1rem", textAlign: "center" }}>
+                    ABOUT US
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails
+                  sx={{
+                    p: 0,
+                    width: "100%",
+                    boxSizing: "border-box",
+                    backgroundColor: "rgb(255, 255, 255)",
+                    minHeight: "60px",  // Maintain height when expanded
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "text.secondary",
+                      whiteSpace: "pre-line",
+                      fontSize: { xs: "0.8rem", md: "1rem" },
+                      textAlign: "center",
+                      p: 2,
+                    }}
+                  >
+                    {agency.description || "No description available."}
+                  </Typography>
+                  <Grid
+                    item
+                    xs={12}
+                    sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
+                  >
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<Edit />}
+                      sx={{
+                        mt: 1,
+                        textTransform: "none",
+                        fontWeight: 600,
+                        color: "green",
+                        borderColor: "#388e3c",
+                        "&:hover": {
+                          backgroundColor: "black",
+                          borderColor: "black",
+                          color: "white",
+                        },
+                      }}
+                      onClick={handleOpenDescription}
+                    >
+                      Edit
+                    </Button>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
+                mx: "auto",
+                p: { xs: 2, md: 3, lg: 5 },
+                backgroundColor: "white",
+                borderRadius: 3,
+                boxShadow: 3,
+                mt: 2,
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                  whiteSpace: "pre-line",
+                  fontSize: { xs: "0.8rem", md: "1rem" },
+                }}
+              >
+                {agency.description || "No description available."}
+              </Typography>
+              <Grid
+                item
+                xs={12}
+                sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
+              >
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<Edit />}
+                  sx={{
+                    mt: 1,
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: "green",
+                    borderColor: "#388e3c",
+                    "&:hover": {
+                      backgroundColor: "black",
+                      borderColor: "black",
+                      color: "white",
+                    },
+                  }}
+                  onClick={handleOpenDescription}
+                >
+                  Edit
+                </Button>
+              </Grid>
+            </Box>
+          )}
         </Grid>
 
-        <Grid item xs={12}>
-          {/* Images Section */}
-          <Box
-            sx={{
-              maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
-              mx: "auto",
-              mt: 2,
-              p: { xs: 2, md: 3, lg: 5 },
-              backgroundColor: "white",
-              borderRadius: 3,
-              boxShadow: 3,
-            }}
-          >
-            {/* <Typography variant="h6" fontWeight={600} mb={2}>
-              Gallery
-            </Typography> */}
-            <Box sx={{ my: 2 }}>
-              <Carousel
-                responsive={{
-                  desktop: { breakpoint: { max: 3000, min: 1024 }, items: 4 },
-                  tablet: { breakpoint: { max: 1024, min: 600 }, items: 2 },
-                  mobile: { breakpoint: { max: 600, min: 0 }, items: 1 },
-                }}
-                ssr={true}
-                infinite={true}
-                autoPlay={true}
-                autoPlaySpeed={2000}
-                arrows={true}
-              >
-                {agency.images?.map((imgObj, index) => (
-                  <Box
-                    key={index}
-                    component="img"
-                    src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
-                    alt={`Agency Image ${index}`}
-                    sx={{
-                      width: "100%",
-                      height: { xs: 120, md: 180 },
-                      borderRadius: 2,
-                      border: "1px solid #ccc",
-                      boxShadow: 1,
-                      transition: "transform 0.3s",
-                      "&:hover": {
-                        transform: "scale(1.05)",
-                      },
-                      marginLeft: "20px",
-                    }}
-                  />
-                ))}
-              </Carousel>
-            </Box>
-            <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end" }}>
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<Edit />}
+        {/* Images Section */}
+        <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+          {isMobileOrTablet ? (
+            <Box sx={{ width: "100%", maxWidth: { xs: "90%", md: "85%", lg: "1000px" }, mx: "auto", mt: 2 }}>
+              <Accordion
                 sx={{
-                  mt: 1,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  color: "green",
-                  borderColor: "#388e3c",
+                  width: "100%",
+                  boxShadow: "none",
+                  backgroundColor: "rgba(255, 255, 255, 0.67)",
+                  transition: "margin 0.3s ease",
+                  "&.Mui-expanded": {
+                    mt: 1,  // Maintain top spacing when expanded
+                  },
+                  "&:before": {
+                    display: "none",  // Remove default underline
+                  },
                   "&:hover": {
-                    backgroundColor: "black",
-                    borderColor: "black",
-                    color: "white",
+                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
                   },
                 }}
-              // onClick={handleOpenImages}
               >
-                Edit
-              </Button>
-            </Grid>
-          </Box>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  sx={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    minHeight: "48px !important",
+                    "&.Mui-expanded": {
+                      minHeight: "48px !important",
+                    },
+                    "& .MuiAccordionSummary-content": {
+                      margin: "12px 0",
+                      justifyContent: "center",
+                      "&.Mui-expanded": {
+                        margin: "12px auto",
+                      },
+                    },
+                  }}
+                >
+                  <Typography sx={{ fontWeight: "bold", fontSize: "1rem", textAlign: "center" }}>
+                    GALLERY
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails
+                  sx={{
+                    p: 0,
+                    width: "100%",
+                    boxSizing: "border-box",
+                    backgroundColor: "rgb(255, 255, 255)",
+                    minHeight: "60px",  // Maintain height when expanded
+                  }}
+                >
+                  <Box sx={{ my: 2 }}>
+                    <Carousel
+                      responsive={{
+                        mobile: { breakpoint: { max: 600, min: 0 }, items: 1 },
+                      }}
+                      ssr={true}
+                      infinite={true}
+                      autoPlay={true}
+                      autoPlaySpeed={2000}
+                      arrows={true}
+                    >
+                      {agency.images?.map((imgObj, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            padding: { xs: 1, md: 2 },
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
+                            alt={`Agency Image ${index}`}
+                            sx={{
+                              width: "100%",
+                              height: { xs: 200, md: 180 },
+                              borderRadius: 2,
+                              border: "1px solid #ccc",
+                              boxShadow: 1,
+                              transition: "transform 0.3s",
+                              "&:hover": {
+                                transform: "scale(1.05)",
+                              },
+                            }}
+                          />
+                        </Box>
+                      ))}
+                    </Carousel>
+                  </Box>
+                  <Grid
+                    item
+                    xs={12}
+                    sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
+                  >
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<Edit />}
+                      sx={{
+                        mt: 1,
+                        textTransform: "none",
+                        fontWeight: 600,
+                        color: "green",
+                        borderColor: "#388e3c",
+                        "&:hover": {
+                          backgroundColor: "black",
+                          borderColor: "black",
+                          color: "white",
+                        },
+                      }}
+                      onClick={handleOpenImages}
+                    >
+                      Edit
+                    </Button>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
+                mx: "auto",
+                p: { xs: 2, md: 3, lg: 5 },
+                backgroundColor: "white",
+                borderRadius: 3,
+                boxShadow: 3,
+                mt: 2,
+              }}
+            >
+              <Box sx={{ my: 2 }}>
+                <Carousel
+                  responsive={{
+                    desktop: { breakpoint: { max: 3000, min: 1024 }, items: agency.images?.length === 2 ? 2 : 4 },
+                    tablet: { breakpoint: { max: 1024, min: 600 }, items: 2 },
+                    mobile: { breakpoint: { max: 600, min: 0 }, items: 1 },
+                  }}
+                  ssr={true}
+                  infinite={true}
+                  autoPlay={true}
+                  autoPlaySpeed={2000}
+                  arrows={true}
+                >
+                  {agency.images?.map((imgObj, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        padding: { xs: 1, md: 2 },
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
+                        alt={`Agency Image ${index}`}
+                        sx={{
+                          width: "100%",
+                          height: { xs: 200, md: 180 },
+                          borderRadius: 2,
+                          border: "1px solid #ccc",
+                          boxShadow: 1,
+                          transition: "transform 0.3s",
+                          "&:hover": {
+                            transform: "scale(1.05)",
+                          },
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Carousel>
+              </Box>
+              <Grid
+                item
+                xs={12}
+                sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
+              >
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<Edit />}
+                  sx={{
+                    mt: 1,
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: "green",
+                    borderColor: "#388e3c",
+                    "&:hover": {
+                      backgroundColor: "black",
+                      borderColor: "black",
+                      color: "white",
+                    },
+                  }}
+                  onClick={handleOpenImages}
+                >
+                  Edit
+                </Button>
+              </Grid>
+            </Box>
+          )}
         </Grid>
         <UpdateModal
           open={open}

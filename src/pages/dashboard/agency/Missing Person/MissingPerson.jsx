@@ -26,10 +26,46 @@ function MissingPerson() {
   const [loading, setLoading] = useState(true);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const mapContainerRef = useRef(null);
+  const [userRole, setUserRole] = useState(null);
+  const [userID, setUserID] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [agency, setAgency] = useState(null);
+  const [selectiveMissingPersons, setSelectiveMissingPersons] = useState([]);
 
   useEffect(() => {
+    // Check if user is logged in by retrieving from localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      setUserRole(parsedData.role);
+      setUserID(parsedData.user_id);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchAgencyDetails = async () => {
+      try {
+        const response = await fetch(
+          `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${userID}/`
+        );
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Error fetching agency details:", error);
+        return null;
+      }
+    };
+
     const fetchMissingPersons = async () => {
       try {
+        // Fetch agency details once
+        const agencyData = await fetchAgencyDetails();
+        if (!agencyData) return;
+
+        setAgency(agencyData);
+        console.log("Agency data:", agencyData);
+
         const res = await fetch(
           "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/missing-persons/"
         );
@@ -44,21 +80,24 @@ function MissingPerson() {
             );
             const personData = await response.json();
             console.log(`Details for person ID ${person.id}:`, personData);
-            return { 
-              ...person, 
-              person_photo: personData.person_photo || "", 
-              description: personData.description || "", 
+
+            return {
+              ...person,
+              person_photo: personData.person_photo || "",
+              description: personData.description || "",
               identification_marks: personData.identification_marks || "",
               identity_card_image: personData.identity_card_image || "",
-            }; 
+              state: personData.state || "",
+            };
           } catch (err) {
             console.error(`Failed to fetch details for person ID ${person.id}:`, err);
-            return { 
-              ...person, 
-              person_photo: "", 
-              description: "", 
-              identification_marks: "", 
-              identity_card_image: "" 
+            return {
+              ...person,
+              person_photo: "",
+              description: "",
+              identification_marks: "",
+              identity_card_image: "",
+              state: ""
             };
           }
         });
@@ -66,9 +105,15 @@ function MissingPerson() {
         // Wait for all the details to be fetched
         const personsWithDetails = await Promise.all(personDetailsPromises);
 
-        // Update the state with the enriched data
+        // Filter based on the agency's state
+        const filteredPersons = personsWithDetails.filter((person) =>
+          person.state?.toLowerCase() === agencyData?.state?.toLowerCase()
+        );
+
         setMissingPersons(personsWithDetails);
-        console.log("Enriched missing persons data:", personsWithDetails);
+        setSelectiveMissingPersons(filteredPersons);
+
+        console.log("Filtered missing persons based on agency state:", filteredPersons);
       } catch (err) {
         console.error("Failed to fetch missing persons:", err);
       } finally {
@@ -77,7 +122,7 @@ function MissingPerson() {
     };
 
     fetchMissingPersons();
-  }, []);
+  }, [userID]);
 
   const getMissingDate = (dateString) => {
     const dateObj = new Date(dateString);
@@ -88,14 +133,14 @@ function MissingPerson() {
   };
 
   const topPersonsByType = useMemo(() => {
-    const grouped = missingPersons.reduce((acc, person) => {
+    const grouped = selectiveMissingPersons.reduce((acc, person) => {
       acc[person.eventtype] = acc[person.eventtype] || [];
       acc[person.eventtype].push(person);
       return acc;
     }, {});
 
     return Object.values(grouped).flatMap((group) => group.slice(0, 5));
-  }, [missingPersons]);
+  }, [selectiveMissingPersons]);
 
   return (
     <Box
@@ -107,7 +152,7 @@ function MissingPerson() {
         paddingTop: "100px",
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{ py: 10 }}>
         <Grid container spacing={3}>
           {/* Map and Sidebar */}
           <Grid item xs={12} md={12} lg={8} sx={{ height: "100%" }}>
@@ -125,7 +170,7 @@ function MissingPerson() {
                     </Box>
                   ) : (
                     <MissingPersonMap
-                      persons={missingPersons}
+                      persons={selectiveMissingPersons}
                       selectedPerson={selectedPerson}
                     />
                   )}
@@ -199,228 +244,3 @@ function MissingPerson() {
 }
 
 export default MissingPerson;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useState, useEffect, useMemo, useRef } from "react";
-// import {
-//   Card,
-//   CardContent,
-//   Typography,
-//   Container,
-//   Box,
-//   CardActionArea,
-// } from "@mui/material";
-// import Grid from "@mui/material/Grid";
-// import Marquee from "react-fast-marquee";
-// import useMediaQuery from "@mui/material/useMediaQuery";
-// import { useTheme } from "@mui/material/styles";
-// import MissingPersonMap from "./MissingPersonMap"; // Keep your existing map component
-// import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-
-// const dummyMissingPersons = [
-//   {
-//     id: 1,
-//     name: "Jane Doe",
-//     missingDate: "2025-04-15",
-//     location: "Manila",
-//     img: "/assets/person.png",
-//     eventtype: "Flood",
-//   },
-//   {
-//     id: 2,
-//     name: "John Smith",
-//     missingDate: "2025-04-12",
-//     location: "Cebu",
-//     img: "/assets/person.png",
-//     eventtype: "Earthquake",
-//   },
-//   {
-//     id: 3,
-//     name: "Maria Lopez",
-//     missingDate: "2025-04-18",
-//     location: "Davao",
-//     img: "/assets/person.png",
-//     eventtype: "Flood",
-//   },
-//   {
-//     id: 4,
-//     name: "Maria Lopez",
-//     missingDate: "2025-04-18",
-//     location: "Davao",
-//     img: "/assets/person.png",
-//     eventtype: "Flood",
-//   },
-//   {
-//     id: 5,
-//     name: "Maria Lopez",
-//     missingDate: "2025-04-18",
-//     location: "Davao",
-//     img: "/assets/person.png",
-//     eventtype: "Flood",
-//   },
-// ];
-
-// function MissingPerson() {
-//   const theme = useTheme();
-//   const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("md"));
-//   const [missingPersonDetails, setMissingPersonDetails] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [selectedPerson, setSelectedPerson] = useState(null);
-
-//   const handlePersonSelect = (person) => {
-//     setSelectedPerson(person);
-//   };
-
-//   // Simulate API call
-//   useEffect(() => {
-//     setTimeout(() => {
-//       setMissingPersonDetails(dummyMissingPersons);
-//       setLoading(false);
-//     }, 1000);
-//   }, []);
-
-//   const marqueePeople = useMemo(() => missingPersonDetails.slice(0, 3), [missingPersonDetails]);
-
-//   return (
-//     <Box
-//       sx={{
-//         position: "absolute",
-//         top: 0,
-//         left: 0,
-//         right: 0,
-//         minHeight: "100vh",
-//         background: `
-//           linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
-//           url(${worldMapBackground})`,
-//         backgroundSize: "cover",
-//         backgroundPosition: "center",
-//         backgroundAttachment: "fixed",
-//         padding: 0,
-//       }}
-//     >
-//       <Container
-//         maxWidth="lg"
-//         sx={{
-//             paddingTop: "100px",
-//             paddingBottom: "50px",
-//         }}
-//       >
-//         <Grid container spacing={2}>
-//           {/* Marquee */}
-//           <Grid item xs={12}>
-//             <Card sx={{ background: "transparent", boxShadow: 0 }}>
-//               <CardContent sx={{ py: 1 }}>
-//                 <Marquee speed={50} gradient={false}>
-//                   {marqueePeople.map((person) => (
-//                     <Box
-//                       key={person.id}
-//                       sx={{ display: "flex", alignItems: "center", px: 3, cursor: "pointer" }}
-//                       onClick={() => handlePersonSelect(person)}
-//                     >
-//                       <Box sx={{ fontSize: 24, px: 1 }}>•</Box>
-//                       <Typography sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>
-//                         {person.name} - {person.missingDate} - {person.location}
-//                       </Typography>
-//                     </Box>
-//                   ))}
-//                 </Marquee>
-//               </CardContent>
-//             </Card>
-//           </Grid>
-
-//           {/* Map Section */}
-//           <Grid item xs={12} md={8}>
-//                 {loading ? (
-//                   <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-//                     <Typography>Loading map data...</Typography>
-//                   </Box>
-//                 ) : (
-//                   <MissingPersonMap
-//                     name={missingPersonDetails.map((p) => p.name)}
-//                     missingDate={missingPersonDetails.map((p) => p.missingDate)}
-//                     locations={missingPersonDetails.map((p) => p.location)}
-//                     selectedPerson={selectedPerson}
-//                   />
-//                 )}
-//           </Grid>
-
-//           {/* Details Section */}
-//           <Grid item xs={12} md={4}>
-//             <Card sx={{ height: 500, overflowY: "auto", borderRadius: 2, boxShadow: 3 }}>
-//               <CardContent>
-//                 {loading ? (
-//                   <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-//                     <Typography>Loading...</Typography>
-//                   </Box>
-//                 ) : (
-//                   <Grid container spacing={2}>
-//                     {missingPersonDetails.map((person) => (
-//                       <Grid item xs={12} key={person.id}>
-//                         <Card
-//                           onClick={() => handlePersonSelect(person)}
-//                           sx={{
-//                             display: "flex",
-//                             flexDirection: "column",
-//                             alignItems: "center",
-//                             backgroundColor: "#E8F1F5",
-//                             borderRadius: 3,
-//                             boxShadow: 2,
-//                             transition: "transform 0.2s",
-//                             "&:hover": {
-//                               boxShadow: 6,
-//                               transform: "scale(1.01)",
-//                             },
-//                           }}
-//                         >
-//                           <CardActionArea>
-//                             <CardContent sx={{ textAlign: "center" }}>
-//                               <Box
-//                                 component="img"
-//                                 src={person.img}
-//                                 alt={person.name}
-//                                 sx={{
-//                                   width: 70,
-//                                   height: 70,
-//                                   borderRadius: "50%",
-//                                   objectFit: "cover",
-//                                   mb: 1,
-//                                   mx: "auto",
-//                                   boxShadow: 2,
-//                                 }}
-//                               />
-//                               <Typography fontWeight={600}>{person.name}</Typography>
-//                               <Typography fontSize={13} color="text.secondary">
-//                                 Missing on: {person.missingDate}
-//                               </Typography>
-//                               <Typography fontSize={13} color="text.secondary">
-//                                 Location: {person.location}
-//                               </Typography>
-//                             </CardContent>
-//                           </CardActionArea>
-//                         </Card>
-//                       </Grid>
-//                     ))}
-//                   </Grid>
-//                 )}
-//               </CardContent>
-//             </Card>
-//           </Grid>
-//         </Grid>
-//       </Container>
-//     </Box>
-//   );
-// }
-
-// export default MissingPerson;

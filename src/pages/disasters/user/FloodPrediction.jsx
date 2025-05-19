@@ -32,7 +32,7 @@ const FloodPrediction = () => {
   const [currentLocationCoords, setCurrentLocationCoords] = useState(null);
   const [focusOnCurrentLocation, setFocusOnCurrentLocation] = useState(false);
   const [noStationsInLocation, setNoStationsInLocation] = useState(false);
-   const theme = useTheme();
+  const theme = useTheme();
   const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm"));
 
   // State to hold filtered options
@@ -191,7 +191,7 @@ const FloodPrediction = () => {
         backgroundAttachment: "fixed",
         backgroundRepeat: "repeat-y",
         margin: 0,
-        paddingX: {xs:0, sm:0, md:3},
+        paddingX: { xs: 0, sm: 0, md: 3 },
         zIndex: 0,
         display: "flex",
         flexDirection: "column",
@@ -199,20 +199,28 @@ const FloodPrediction = () => {
         overflow: "hidden",
       }}
     >
-    <Box sx={{position: {xs:"relative", sm:"relative",md:"static"},
-            zIndex: 1,backgroundColor: isMobileOrTablet? "rgba(255, 255, 255, 0.93)" : "transparent",   backdropFilter: isMobileOrTablet? "blur(2px)": "none",}}>
+      <Box
+        sx={{
+          position: { xs: "relative", sm: "relative", md: "static" },
+          zIndex: 1,
+          backgroundColor: isMobileOrTablet
+            ? "rgba(255, 255, 255, 0.93)"
+            : "transparent",
+          backdropFilter: isMobileOrTablet ? "blur(2px)" : "none",
+        }}
+      >
         <Typography
           align="center"
           sx={{
             mt: 10,
-          p:2,
-          mb:0.5,
-          fontSize: {
-            xs: "1.2rem",
-            sm: "1.2rem",
-            md: isBelow ? "1.2rem" : "1.4rem",
-            lg: isBelow ? "1.2rem" : "1.4rem",
-          },
+            p: 2,
+            mb: 0.5,
+            fontSize: {
+              xs: "1.2rem",
+              sm: "1.2rem",
+              md: isBelow ? "1.2rem" : "1.4rem",
+              lg: isBelow ? "1.2rem" : "1.4rem",
+            },
             fontWeight: "bold",
             textTransform: "uppercase",
             color: "rgba(0, 0, 0, 0.87)",
@@ -230,7 +238,7 @@ const FloodPrediction = () => {
           spacing={1}
           sx={{
             mb: 0,
-            mt:1,
+            mt: 1,
             width: {
               xs: "100%",
               sm: "90%",
@@ -294,7 +302,11 @@ const FloodPrediction = () => {
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
-                        boxShadow: {xs: "1px 3px 4px rgba(0, 0, 0, 0.2)", sm: "1px 2px 4px rgba(0, 0, 0, 0.2)", md:"0px 2px 4px rgba(0, 0, 0, 0.1)"},
+                        boxShadow: {
+                          xs: "1px 3px 4px rgba(0, 0, 0, 0.2)",
+                          sm: "1px 2px 4px rgba(0, 0, 0, 0.2)",
+                          md: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        },
                         "& fieldset": {
                           borderColor: "transparent",
                         },
@@ -348,7 +360,7 @@ const FloodPrediction = () => {
                 width: { xs: "100%", sm: "75%", md: "90%" },
                 padding: 0,
                 paddingLeft: { xs: 0, md: 2 },
-                paddingRight: {xs:2, sm:2, md:0}, 
+                paddingRight: { xs: 2, sm: 2, md: 0 },
                 mb: 2,
                 textAlign: "left",
                 position: "relative",
@@ -369,7 +381,11 @@ const FloodPrediction = () => {
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
-                        boxShadow: {xs: "1px 3px 4px rgba(0, 0, 0, 0.2)", sm: "1px 2px 4px rgba(0, 0, 0, 0.2)", md:"0px 2px 4px rgba(0, 0, 0, 0.1)"},
+                        boxShadow: {
+                          xs: "1px 3px 4px rgba(0, 0, 0, 0.2)",
+                          sm: "1px 2px 4px rgba(0, 0, 0, 0.2)",
+                          md: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                        },
                         "& fieldset": {
                           borderColor: "transparent",
                         },
@@ -428,34 +444,32 @@ const FloodPrediction = () => {
                   backgroundColor: "transparent",
                 },
                 width: { xs: "50%", sm: "40%", md: "60%", lg: "100%" },
-                fontSize: {xs: "0.78rem", sm: "0.78rem", md: "0.875rem"},
-                fontWeight: {xs: 700, sm: 700, md: 500},
+                fontSize: { xs: "0.78rem", sm: "0.78rem", md: "0.875rem" },
+                fontWeight: { xs: 700, sm: 700, md: 500 },
               }}
             >
               Clear Filters
             </Button>
           </Grid>
         </Grid>
-        </Box>
-      
+      </Box>
 
       {/* Map container */}
       <Box
         sx={{
           flex: 1,
-          position: {xs:"absolute", sm:"absolute", md:"relative"},
+          position: { xs: "absolute", sm: "absolute", md: "relative" },
           marginX: "auto",
           alignSelf: "center",
-          mx:{xs: 0, sm: 0, md: 3},
-          width: {xs:"100%", sm:"100%", md:"75%"},
+          mx: { xs: 0, sm: 0, md: 3 },
+          width: { xs: "100%", sm: "100%", md: "75%" },
           height: { xs: "100%", sm: "100%", md: "100%" },
           mb: 4,
           // overflow: "hidden",
           borderRadius: 2,
           boxShadow: 3,
           backgroundColor: "white",
-          p: {xs: 0, sm: 0, md: 1},
-          
+          p: { xs: 0, sm: 0, md: 1 },
         }}
       >
         {loading ? (

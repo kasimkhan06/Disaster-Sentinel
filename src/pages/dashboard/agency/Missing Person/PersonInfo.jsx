@@ -26,6 +26,7 @@ import {
     Description
 } from "@mui/icons-material";
 import { useParams, useLocation } from "react-router-dom";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const FoundForm = ({ open, handleClose }) => {
     const [formData, setFormData] = useState({
@@ -187,125 +188,136 @@ function PersonInfo() {
     return (
         <Box
             sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
                 minHeight: "100vh",
-                px: { xs: 2, sm: 3, md: 5 },
-                mt: { xs: 4, sm: 6, md: 0 },
-                overflowX: "hidden",
+                background: `linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), url(${worldMapBackground})`,
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed",
+                paddingTop: "20px",
             }}
         >
-            <Grid container spacing={3} sx={{ maxWidth: "1200px", width: "100%" }}>
-                <Grid
-                    item
-                    xs={12}
-                    sm={6}
-                    md={12}
-                    lg={4}
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        mt: { xs: 4, sm: 6, md: 2, lg: 3 },
-                        p: { xs: 1, sm: 2, md: 3, lg: 4 },
-                    }}
-                >
-                    <Box
-                        component="img"
-                        src={person.person_photo ? `https://res.cloudinary.com/doxgltggk/${person.person_photo}` : "/assets/person.png"}
-                        alt="Profile"
-                        sx={{
-                            width: { xs: "100%", sm: "70%", md: "65%", lg: "90%" },
-                            maxWidth: {md: 300, lg: 500},
-                            height: "auto",
-                            borderRadius: "10px",
-                            border: "3px solid black",
-                            objectFit: "cover",
-                            mx: "auto",
-                            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-                        }}
-                    />
-                </Grid>
-                <Grid
-                    item
-                    xs={12}
-                    sm={6}
-                    md={7}
-                    lg={8}
-                    sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center", 
-                        mx: "auto",
-                        maxWidth: { xs: "100%", md: "80%" }, 
-                    }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "100vh",
+                    px: { xs: 2, sm: 3, md: 5 },
+                    mt: { xs: 4, sm: 6, md: 0 },
+                    overflowX: "hidden",
+                }}
+            >
+                <Grid container sx={{ maxWidth: "1200px", width: "100%" }}>
                     <Card
+                        elevation={3}
                         sx={{
                             p: { xs: 2, md: 3 },
-                            boxShadow: "none",
-                            border: "none",
+                            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
                             bgcolor: "background.paper",
+                            borderRadius: "10px",
+                            display: "flex",
+                            flexDirection: { xs: "column", md: "row" },
+                            alignItems: "center",
+                            justifyContent: "center",
+                            m: "auto",
                         }}
                     >
-                        <CardContent>
-                            {[
-                                { label: "Name", value: person.name, icon: <Person sx={{ color: "#5C6BC0" }} /> },
-                                { label: "Age", value: person.age, icon: <CalendarToday sx={{ color: "#42A5F5" }} /> },
-                                { label: "Gender", value: person.gender, icon: <Wc sx={{ color: "#26A69A" }} /> },
-                                { label: "Missing Date", value: `${getMissingDate(person.missingDate).date} at ${getMissingDate(person.missingDate).time}`, icon: <History sx={{ color: "#1E88E5" }} /> },
-                                { label: "Last Seen", value: person.lastSeenLocation.split(",").slice(0, 2).join(", "), icon: <LocationOn sx={{ color: "#E57373" }} /> },
-                                { label: "Address", value: person.lastSeenLocation, icon: <Home sx={{ color: "#8D6E63" }} /> },
-                                { label: "Identification Mark", value: person.identification_marks, icon: <Visibility sx={{ color: "#FBC02D" }} /> },
-                                { label: "Description", value: person.description, icon: <Description sx={{ color: "#757575" }} /> },
-                            ].map((item, index) => (
+                        <CardContent
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", md: "column", lg: "row" },
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: "100%",
+                                gap: {xs: 5, md: 10, lg: 15},
+                            }}
+                        >
+                            <Grid item xs={12} md={12} lg={6} sx={{ display: "flex", justifyContent: "center" }}>
+                                {/* Image Section */}
                                 <Box
-                                    key={index}
+                                    component="img"
+                                    src={person.person_photo ? `https://res.cloudinary.com/doxgltggk/${person.person_photo}` : "/assets/person.png"}
+                                    alt="Profile"
                                     sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        py: 1,
-                                        borderBottom: "1px solid #ddd",
-                                        gap: 1,
+                                        width: { xs: "50%", md: "100%", lg: "65%" },
+                                        minWidth: {xs: 150, md: 250, lg: 200},
+                                        height: "auto",
+                                        borderRadius: "10px",
+                                        border: "2px solid black",
+                                        objectFit: "cover",
+                                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
                                     }}
-                                >
-                                    {item.icon}
-                                    <Typography sx={{ fontWeight: 500, fontSize: { xs: "0.9rem", md: "1rem" } }}>
-                                        {item.label}:
-                                    </Typography>
-                                    <Typography sx={{ ml: 1, fontSize: { xs: "0.85rem", md: "1rem" } }}>
-                                        {item.value}
-                                    </Typography>
-                                </Box>
-                            ))}
+                                />
+                            </Grid>
+
+                            {/* Information Section */}
+                            <Grid
+                                item
+                                xs={12}
+                                md={12}
+                                lg={6}
+                                sx={{
+                                    flex: 1,
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    maxWidth: { xs: "100%", md: "60%" }, // Adjusted for side-by-side layout
+                                }}
+                            >
+                                {[
+                                    { label: "Name", value: person.name, icon: <Person sx={{ color: "#5C6BC0" }} /> },
+                                    { label: "Age", value: person.age, icon: <CalendarToday sx={{ color: "#42A5F5" }} /> },
+                                    { label: "Gender", value: person.gender, icon: <Wc sx={{ color: "#26A69A" }} /> },
+                                    { label: "Missing Date", value: `${getMissingDate(person.missingDate).date} at ${getMissingDate(person.missingDate).time}`, icon: <History sx={{ color: "#1E88E5" }} /> },
+                                    { label: "Last Seen", value: person.lastSeenLocation.split(",").slice(0, 2).join(", "), icon: <LocationOn sx={{ color: "#E57373" }} /> },
+                                    { label: "Address", value: person.lastSeenLocation, icon: <Home sx={{ color: "#8D6E63" }} /> },
+                                    { label: "Identification Mark", value: person.identification_marks, icon: <Visibility sx={{ color: "#FBC02D" }} /> },
+                                    { label: "Description", value: person.description, icon: <Description sx={{ color: "#757575" }} /> },
+                                ].map((item, index) => (
+                                    <Box
+                                        key={index}
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            py: 1,
+                                            borderBottom: "1px solid #ddd",
+                                            gap: 1,
+                                        }}
+                                    >
+                                        {item.icon}
+                                        <Typography sx={{ fontWeight: 500, fontSize: { xs: "0.9rem", md: "1rem" } }}>
+                                            {item.label}:
+                                        </Typography>
+                                        <Typography sx={{ ml: 1, fontSize: { xs: "0.85rem", md: "1rem" } }}>
+                                            {item.value}
+                                        </Typography>
+                                    </Box>
+                                ))}
+                            </Grid>
                         </CardContent>
                     </Card>
                 </Grid>
-            </Grid>
 
-            <Button
-                variant="contained"
-                onClick={handleOpen}
-                sx={{
-                    mt: { xs: 2, sm: 3 },
-                    backgroundColor: "#fff",
-                    color: "#000",
-                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-                    borderRadius: "20px",
-                    fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
-                    px: { xs: 3, sm: 4 },
-                    py: { xs: 1, sm: 1.5 },
-                    "&:hover": {
-                        backgroundColor: "#f0f0f0",
-                    },
-                }}
-            >
-                Marked Found
-            </Button>
-            <FoundForm open={open} handleClose={handleClose} />
+                <Button
+                    variant="contained"
+                    onClick={handleOpen}
+                    sx={{
+                        mt: { xs: 2, sm: 3 },
+                        backgroundColor: "#fff",
+                        color: "#000",
+                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+                        borderRadius: "20px",
+                        fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
+                        px: { xs: 3, sm: 4 },
+                        py: { xs: 1, sm: 1.5 },
+                        "&:hover": {
+                            backgroundColor: "#f0f0f0",
+                        },
+                    }}
+                >
+                    Marked Found
+                </Button>
+                <FoundForm open={open} handleClose={handleClose} />
+            </Box>
         </Box>
     );
 }
