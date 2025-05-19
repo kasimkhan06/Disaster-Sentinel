@@ -1,8 +1,14 @@
 import React, { useState, useRef, useCallback } from "react";
 import { TileLayer, MapContainer, Marker, Popup, useMapEvents } from "react-leaflet";
-import { MyLocation as MyLocationIcon } from "@mui/icons-material";
+import { MyLocation as MyLocationIcon, 
+    Search as SearchIcon, 
+    Close as CloseIcon
+ } from "@mui/icons-material";
 import { Search as MySearchIcon } from "@mui/icons-material";
-import { Button, Typography, Stack, Box, IconButton, InputBase } from "@mui/material";
+import {
+    Button, Typography, Stack, Box, IconButton, InputBase,
+    TextField, Tooltip, FormHelperText
+} from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import L from "leaflet";
 import osm from "./osm-providers";
@@ -124,39 +130,87 @@ function MapLeaflet({ markers, setMarkers }) {
             </Typography>
 
             <Stack direction="row" spacing={1.5} alignItems="center" sx={{ marginTop: "10px" }}>
-                <SearchBar city={city} setCity={setCity} searchCity={searchCity} />
-                <Button
-                    variant="contained"
-                    onClick={showMyLocation}
-                    startIcon={<MyLocationIcon />}
-                    sx={{
-                        backgroundColor: "#4F646F",
-                        color: "#fff",
-                        "&:hover": {
-                            backgroundColor: "#6B7A85"
-                        }
-                    }}
-                >
-                    Locate Me
-                </Button>
+                <Box sx={{ display: "flex", gap: 1, alignItems: "center", width: "100%" }}>
+                    <TextField
+                        variant="outlined"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder="Enter city"
+                        InputProps={{
+                            endAdornment: (
+                                <>
+                                    <Tooltip title="Use my current location">
+                                        <IconButton
+                                            onClick={showMyLocation}
+                                            size="small"
+                                            sx={{ mr: -1 }}
+                                        >
+                                            <MyLocationIcon fontSize="small" />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Button
+                                        onClick={searchCity}
+                                        sx={{
+                                            color: "grey",
+                                            minWidth: "40px",
+                                            ml: 1,  
+                                        }}
+                                    >
+                                        <SearchIcon fontSize="medium" />
+                                    </Button>
+                                </>
+                            ),
+                        }}
+                        sx={{
+                            "& .MuiOutlinedInput-root": {
+                                backgroundColor: "white",
+                                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                                "& fieldset": {
+                                    borderColor: "transparent !important",
+                                },
+                                "&:hover fieldset": {
+                                    borderColor: "transparent",
+                                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+                                },
+                                "&.Mui-focused fieldset": {
+                                    borderColor: "transparent",
+                                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+                                },
+                                "&.Mui-disabled fieldset": {
+                                    borderColor: "transparent !important",
+                                },
+                            },
+                            "& .MuiInputBase-input": {
+                                fontSize: {
+                                    xs: "0.8rem",
+                                    sm: "0.8rem",
+                                    md: "0.9rem",
+                                    lg: "1rem",
+                                },
+                            },
+                            width: "100%",
+                        }}
+                    />
+                </Box>
             </Stack>
 
             <MapContainer
                 center={center}
                 zoom={ZOOM_LEVEL}
                 scrollWheelZoom={false}
-                style={{ 
-                    height: "350px", 
-                    width: "100%", 
-                    marginTop: "10px", 
-                    borderRadius: "5px", 
-                    border: "1px solid #ccc", 
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.3)", 
+                style={{
+                    height: "350px",
+                    width: "100%",
+                    marginTop: "10px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
                     filter: "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
                 }}
                 ref={mapRef}
+                attributionControl={false}
             >
-                <TileLayer attribution={osm.maptiler.attribution} url={osm.maptiler.url} />
+                <TileLayer attribution={""} url={osm.maptiler.url} />
 
                 {markers.length > 0 && (
                     <Marker position={markers[0]} icon={myIcon}>

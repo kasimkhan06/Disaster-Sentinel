@@ -7,6 +7,8 @@ import { Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { useRef } from "react";
 
 // MUI Components
 import {
@@ -33,6 +35,7 @@ import {
   Card,
   TextareaAutosize,
   Divider,
+  Alert,
 } from "@mui/material";
 import {
   Add,
@@ -69,8 +72,10 @@ export default function EventFormWithStepper() {
   const navigate = useNavigate();
   const location = useLocation();
   const formatTime = (time) => (time.length === 5 ? time + ":00" : time);
+  const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
+  const theme = useTheme();
+  const isBelow = useMediaQuery(theme.breakpoints.down("md"));
   const isMobile = useMediaQuery("(max-width:600px)");
-
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -215,12 +220,14 @@ export default function EventFormWithStepper() {
         },
       });
 
-      alert(isEditMode ? "Event updated successfully!" : "Event created successfully!");
+      setStatusMessage(isEditMode ? { type: "success", text: "Event updated successfully!" } : { type: "success", text: "Event created successfully!" });
       console.log("Success:", response.data);
-      navigate("/event-listing");
+      setTimeout(() => {
+        navigate("/event-listing");
+      }, 2000);
     } catch (error) {
       console.error("Event save/update failed:", error.response?.data || error);
-      alert("An error occurred. Please try again.");
+      setStatusMessage({ type: "error", text: "An error occurred. Please try again." });
     }
   };
 
@@ -317,7 +324,7 @@ export default function EventFormWithStepper() {
       sx={{
         position: "relative",
         width: "100vw",
-        minHeight: "100vh", 
+        minHeight: "100vh",
         top: 0,
         left: 0,
         right: 0,
@@ -332,20 +339,45 @@ export default function EventFormWithStepper() {
         margin: 0,
         padding: 0,
         zIndex: 0,
-        overflow: "auto", 
+        overflow: "auto",
       }}
     >
+      <Typography
+        align="center"
+        sx={{
+          mt: 10,
+          p: 2,
+          fontSize: {
+            xs: "1.2rem",
+            sm: "1.2rem",
+            md: isBelow ? "1.2rem" : "1.4rem",
+            lg: isBelow ? "1.2rem" : "1.4rem",
+          },
+          fontWeight: "bold",
+          textTransform: "uppercase",
+          color: "rgba(0, 0, 0, 0.87)",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        CREATE EVENT
+      </Typography>
       <Box
         sx={{
-          mt: { xs: 15, md: 15 },
+          mt: { xs: 3, md: 4 },
           mb: { xs: 2, md: 4 },
           mx: "auto",
           width: { xs: "80%", md: "70%" },
           display: "flex",
           flexDirection: "column",
-          overflowY: "auto", 
+          overflowY: "auto",
         }}
       >
+        {statusMessage.text && (
+          <Alert severity={statusMessage.type} sx={{ mt: 2, mb: 1, textAlign: 'left' }}>
+            {statusMessage.text}
+          </Alert>
+        )}
         {/* Stepper Component */}
         <Stepper activeStep={activeStep} sx={{ mb: { xs: 2, md: 4 } }}>
           {isMobile ? (

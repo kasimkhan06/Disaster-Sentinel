@@ -91,6 +91,7 @@ function EventDisplayCard({ event, customActions }) {
 export default function UserAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState(null);
   const [sort, setSort] = useState("newest");
+  const [filter, setFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -176,8 +177,8 @@ export default function UserAnnouncementsPage() {
       if (!eventResponse.ok) throw new Error(`Failed to fetch event details: ${eventResponse.status}`);
       const eventData = await eventResponse.json();
 
-      const currentAttendees = eventData.attendees_count || 0;
-      const maxCapacity = eventData.max_capacity;
+      const currentAttendees = Number(eventData.attendees_count) || 0;
+      const maxCapacity = Number(eventData.max_capacity);
 
       if (typeof maxCapacity === 'number' && currentAttendees >= maxCapacity) {
         setSnackbar({ open: true, message: "This event is already full.", severity: "warning" });
@@ -227,21 +228,24 @@ export default function UserAnnouncementsPage() {
   }, [currentUser]);
 
 
-  const sortedAnnouncements = () => {
+  const sortedAndFilteredAnnouncements = () => {
     if (!announcements) return [];
     let announcements_copy = [...announcements];
 
-    if (sort === "newest") {
-      announcements_copy.sort((a, b) => new Date(b.date) - new Date(a.date));
-    } else if (sort === "oldest") {
-      announcements_copy.sort((a, b) => new Date(a.date) - new Date(b.date));
-    } else if (sort === "nameAZ") {
-      announcements_copy.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sort === "nameZA") {
-      announcements_copy.sort((a, b) => b.name.localeCompare(a.name));
+    // Apply filter first
+    if (filter !== "all") {
+      announcements_copy = announcements_copy.filter(announcement => {
+        if (filter === "online") {
+          return announcement.location_type && announcement.location_type.toLowerCase() === "online";
+        } else if (filter === "offline") {
+          return !announcement.location_type || announcement.location_type.toLowerCase() !== "online";
+        }
+        return true;
+      });
     }
 
-    return announcements_copy.filter(announcement => {
+    // Then apply location filter (only for offline events)
+    announcements_copy = announcements_copy.filter(announcement => {
       if (announcement.location_type && announcement.location_type.toLowerCase() === "online") {
         return true;
       }
@@ -266,6 +270,19 @@ export default function UserAnnouncementsPage() {
       }
       return true;
     });
+
+    // Finally apply sorting
+    if (sort === "newest") {
+      announcements_copy.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } else if (sort === "oldest") {
+      announcements_copy.sort((a, b) => new Date(a.date) - new Date(b.date));
+    } else if (sort === "nameAZ") {
+      announcements_copy.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sort === "nameZA") {
+      announcements_copy.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
+    return announcements_copy;
   };
 
   const handleCloseSnackbar = (event, reason) => {
@@ -284,11 +301,42 @@ export default function UserAnnouncementsPage() {
           </Typography>
         </Box>
         <Box className="controls" sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mb: 3 }}>
-          {/* ACCESSIBILITY FIXES APPLIED HERE */}
+          {/* Filter Control */}
           <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative" }}>
             <InputLabel
-              htmlFor="sort-select-input" // Points to Select's id
-              id="sort-select-label"    // Id for this label
+              htmlFor="filter-select-input"
+              id="filter-select-label"
+              sx={{
+                position: "absolute", top: -10, left: 8,
+                backgroundColor: "white",
+                padding: "0 4px", fontSize: "0.75rem", color: "text.secondary"
+              }}
+            >
+              Filter By
+            </InputLabel>
+            <Select
+              labelId="filter-select-label"
+              id="filter-select-input"
+              name="filterCriteria"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              sx={{
+                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                "& .MuiSelect-select": { padding: "10px 14px" },
+                fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
+              }}
+            >
+              <MenuItem value="all">All Events</MenuItem>
+              <MenuItem value="online">Online</MenuItem>
+              <MenuItem value="offline">Offline</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Sort Control */}
+          <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative" }}>
+            <InputLabel
+              htmlFor="sort-select-input"
+              id="sort-select-label"
               sx={{
                 position: "absolute", top: -10, left: 8,
                 backgroundColor: "white",
@@ -298,9 +346,9 @@ export default function UserAnnouncementsPage() {
               Sort By
             </InputLabel>
             <Select
-              labelId="sort-select-label" // Refers to InputLabel's id
-              id="sort-select-input"     // Unique id for the Select
-              name="sortCriteria"          // Name for the Select
+              labelId="sort-select-label"
+              id="sort-select-input"
+              name="sortCriteria"
               value={sort}
               onChange={(e) => setSort(e.target.value)}
               sx={{
@@ -322,7 +370,7 @@ export default function UserAnnouncementsPage() {
             <CircularProgress size={50} sx={{ color: "#4F646F", mb: 2 }} />
             <Typography>Loading announcements...</Typography>
           </Box>
-        ) : sortedAnnouncements().length === 0 ? (
+        ) : sortedAndFilteredAnnouncements().length === 0 ? (
           <Box sx={{ textAlign: "center", mt: 5 }}>
             <Typography variant="h6">No announcements available at the moment.</Typography>
             <Typography variant="body1" sx={{mt: 1}}>
@@ -334,7 +382,7 @@ export default function UserAnnouncementsPage() {
           </Box>
         ) : (
           <Grid container spacing={3}>
-            {sortedAnnouncements().map((announcement) => {
+            {sortedAndFilteredAnnouncements().map((announcement) => {
               const currentAttendees = Number(announcement.attendees_count) || 0;
               const maxCapacity = Number(announcement.max_capacity);
               const isFull = typeof maxCapacity === 'number' && !isNaN(maxCapacity) && currentAttendees >= maxCapacity;

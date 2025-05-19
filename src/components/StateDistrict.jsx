@@ -92,7 +92,7 @@ const StateDistrictDropdown = ({
 
       {/* District Autocomplete (Only Show if State is Selected) */}
       {selectedState && (
-        <Grid item xs={12} md={6} sx={{ marginTop: "10px" }}>
+        <Grid item xs={12} md={6}>
           <Autocomplete
             options={districts} 
             value={selectedDistrict}
@@ -107,7 +107,7 @@ const StateDistrictDropdown = ({
               }
               variant="standard" />
             )}
-            sx = {{width: {xs:"95%", md: "95%"}, marginX: {xs: "10px", md: "20px"}}}
+            sx = {{width: {xs:"95%", md: "90%"}, marginX: {xs: "10px", md: "20px"}}}
           />
         </Grid>
       )}
