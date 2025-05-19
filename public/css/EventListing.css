@@ -21,7 +21,7 @@
   margin-top: 100px; /* Center the container */
   margin-left: auto;
   margin-right: auto;
-  z-index: 1;
+  z-index: 0;
   position: relative;
 }
 
