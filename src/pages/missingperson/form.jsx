@@ -315,7 +315,7 @@ const MissingPersonForm = ({
                     {/* reCAPTCHA */}
                     <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', my: 2, width: '100%' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <ReCAPTCHA sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94"} onChange={handleCaptchaVerify} />
+                            <ReCAPTCHA sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LfyGwcrAAAAAIljljWmE0jVM33GJ41IL04cOhiH"} onChange={handleCaptchaVerify} />
                             {errors.captcha && <Typography color="error" variant="caption" sx={{ mt: 0.5 }}>{errors.captcha}</Typography>}
                         </Box>
                     </Grid>
