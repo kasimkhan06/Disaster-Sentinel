@@ -156,7 +156,7 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
                   setOpenDrawer(false), navigate("/flood-prediction");
                 }}
               >
-                <ListItemText primary="Flood Prediction" />
+                <ListItemText primary="Station Information" />
               </ListItemButton>
             </List>
           </Collapse>
