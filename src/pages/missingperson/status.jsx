@@ -12,6 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 import worldMapBackground from "../../../public/assets/background_image/world-map-background.jpg";
+import Footer from "../../components/Footer";
 
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api";
@@ -136,7 +137,7 @@ const StatusTracking = () => {
                 currentReporterEmail.toLowerCase()
           );
           const options = processedData.map((person) => ({
-            label: `${person.full_name} (ID: ${person.id})`,
+            label: `${person.full_name}`,
             id: person.id,
           }));
           setReportList(options);
@@ -404,9 +405,9 @@ const StatusTracking = () => {
     // to set the status to "Found" and isMarkedFound to true.
     // If newadditional_info (without [FOUND]) is saved, and the server doesn't add it back or have another status field,
     // the UI might revert to "Under Investigation" after this action.
-    updateReportInfo(selectedPerson.id, { 
+    updateReportInfo(selectedPerson.id, {
       reporter_id: userId,
-      additional_info: newadditional_info 
+      additional_info: newadditional_info,
     });
   };
 
@@ -439,18 +440,28 @@ const StatusTracking = () => {
   return (
     <Box
       sx={{
-        minHeight: "calc(100vh - 64px)",
-        background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)), url(${worldMapBackground})`,
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        minHeight: "100vh",
+        background: `
+              linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+              url(${worldMapBackground})
+            `,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        paddingTop: 0,
-        boxSizing: "border-box",
+        backgroundRepeat: "repeat-y",
+        margin: 0,
+        padding: 0,
+        zIndex: 0,
       }}
     >
       <Container
+      
         maxWidth="md"
-        sx={{ mt: { xs: 2, sm: 4 }, pb: 4, pt: { xs: 2, sm: 4 } }}
+        sx={{ mt: { xs: 2, sm: 4, md:7 }, pb: 4, pt: { xs: 2, sm: 4 } }}
       >
         {error && (
           <Alert
@@ -480,7 +491,7 @@ const StatusTracking = () => {
             loading={loadingList}
             value={reportList.find((p) => p.id === selectedPerson?.id) || null}
             onChange={(event, newValue) => handleSearch(newValue)}
-            sx={{ width: { xs: "90%", sm: 500, md: 600 } }}
+            sx={{ width: { xs: "90%", sm: 500, md: 400 } }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -499,7 +510,7 @@ const StatusTracking = () => {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "white",
-                    borderRadius: "8px",
+                    borderRadius: "3px",
                     boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.05)",
                     "& fieldset": { borderColor: "transparent" },
                     "&:hover fieldset": { borderColor: "rgba(0, 0, 0, 0.1)" },
@@ -530,7 +541,7 @@ const StatusTracking = () => {
             }}
           >
             <Typography variant="h6" align="center" gutterBottom>
-              Missing Person Details (ID: {selectedPerson.id})
+              Missing Person Details 
             </Typography>
             <Box
               sx={{
@@ -693,6 +704,7 @@ const StatusTracking = () => {
             </Typography>
           )}
       </Container>
+      <Footer/>
     </Box>
   );
 };

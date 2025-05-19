@@ -6,6 +6,7 @@ import { useTheme } from "@mui/material/styles";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg"; // Ensure this path is correct
 import MissingPersonForm from '../missingperson/form'; // Ensure this path is correct
 import InteractiveMap from '../../components/InteractiveMap'; // Ensure this path is correct
+import Footer from "../../components/Footer"; 
 
 const API_BASE_URL = "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com";
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/doxgltggk/";
@@ -317,15 +318,23 @@ const MissingPersonPortal = () => {
     return (
         <Box
             sx={{
-                position: "absolute", top: 0, left: 0, right: 0,
-                minHeight: "100vh",
-                background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)), url(${worldMapBackground})`,
-                backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
-                backgroundRepeat: "repeat-y", margin: 0, padding: 0, zIndex: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    minHeight: "100vh",
+                    background: `
+                  linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+                  url(${worldMapBackground})
+                `,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundAttachment: "fixed",
+                    backgroundRepeat: "repeat-y",
+                    margin: 0,
+                    padding: 0,
+                    zIndex: 0,
+                  }}
         >
             <Typography
                 align="center"
@@ -466,6 +475,7 @@ const MissingPersonPortal = () => {
                     <Typography sx={{ ml: 2, color: 'white' }}>Submitting report...</Typography>
                 </Box>
             )}
+           <Footer /> 
         </Box>
     );
 };

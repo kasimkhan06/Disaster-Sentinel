@@ -32,7 +32,7 @@ const Footer = () => {
       alternatePath: "/"
     },
     {
-      path: "/missingPersonPortal",
+      path: "/missingpersonportal",
       label: "Report Missing Person",
       alternateLabel: "Home",
       alternatePath: "/"
@@ -40,6 +40,12 @@ const Footer = () => {
     {
       path: "/agencies",
       label: "Agency Information",
+      alternateLabel: "Home",
+      alternatePath: "/"
+    },
+    {
+      path: "/announcements",
+      label: "Announcements",
       alternateLabel: "Home",
       alternatePath: "/"
     }
