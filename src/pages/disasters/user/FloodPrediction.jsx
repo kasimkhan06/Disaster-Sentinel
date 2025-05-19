@@ -243,7 +243,7 @@ const FloodPrediction = () => {
               xs: "100%",
               sm: "90%",
               md: "83%",
-              lg: isBelow ? "40%" : "45%",
+              lg: "45%",
             },
             marginX: "auto",
             maxWidth: "100%",
