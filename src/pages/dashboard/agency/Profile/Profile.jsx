@@ -47,7 +47,7 @@ import axios from "axios";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import ImageUpload from "../../../../components/ImageUpload";
 
-const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails, setStatusMessage}) => {
+const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails, setStatusMessage }) => {
   const [formData, setFormData] = useState({});
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -112,16 +112,18 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
       );
 
       console.log("Updation Success:", response.data);
-      if (mode === "basicDetails") {
-        setStatusMessage({ type: "success", text: "Basic details updated." });
-      } else if (mode === "description") {
-        setStatusMessage({ type: "success", text: "Description updated." });
-      } else if (mode === "images") {
-        setStatusMessage({ type: "success", text: "Images updated." });
-      }
       setFormData({});
       fetchAgencyDetails(id);
       handleClose();
+      setTimeout(() => {
+        if (mode === "basicDetails") {
+          setStatusMessage({ type: "success", text: "Basic details updated." });
+        } else if (mode === "description") {
+          setStatusMessage({ type: "success", text: "Description updated." });
+        } else if (mode === "images") {
+          setStatusMessage({ type: "success", text: "Images updated." });
+        }
+      }, 300);
 
     } catch (error) {
       console.error("Updation Failed:", error.response?.data || error);
@@ -434,22 +436,22 @@ function Profile() {
         {console.log("statusMessage in render:", statusMessage)}
 
         {statusMessage.text && (
-        <Alert
-          severity={statusMessage.type}
-          sx={{
-            mt: 2,
-            mb: 1,
-            maxWidth: 600,
-            mx: "auto",
-            textAlign: "center",
-            fontWeight: 500,
-            fontSize: { xs: "0.95rem", md: "1.1rem" },
-          }}
-          onClose={() => setStatusMessage({ type: "", text: "" })}
-        >
-          {statusMessage.text}
-        </Alert>
-      )}
+          <Alert
+            severity={statusMessage.type}
+            sx={{
+              mt: 2,
+              mb: 1,
+              maxWidth: 600,
+              mx: "auto",
+              textAlign: "center",
+              fontWeight: 500,
+              fontSize: { xs: "0.95rem", md: "1.1rem" },
+            }}
+            onClose={() => setStatusMessage({ type: "", text: "" })}
+          >
+            {statusMessage.text}
+          </Alert>
+        )}
         {/* Banner */}
         <Box
           sx={{
@@ -957,7 +959,7 @@ function Profile() {
             initialData={initialData}
             userId={userId}
             fetchAgencyDetails={fetchAgencyDetails}
-            setStatusMessage={setStatusMessage} 
+            setStatusMessage={setStatusMessage}
           />
         </Box>
       </Box>
