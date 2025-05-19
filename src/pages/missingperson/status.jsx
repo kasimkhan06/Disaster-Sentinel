@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-// Ensure this path is correct for your project structure
 import worldMapBackground from "../../../public/assets/background_image/world-map-background.jpg";
 
 const API_BASE_URL =
@@ -22,14 +21,14 @@ const mapApiResponseToSelectedPerson = (apiData) => {
   console.log(
     "mapApiResponseToSelectedPerson: Input API Data:",
     JSON.parse(JSON.stringify(apiData))
-  ); // Deep copy for logging
+  );
   if (!apiData) {
     console.log("mapApiResponseToSelectedPerson: No API data, returning null.");
     return null;
   }
-  let currentStatus = "Under Investigation";
-  // Use the additionalInfo passed in, which should now be correct after the fix in updateReportInfo
-  let displayAdditionalInfo = apiData.additional_info || "";
+  let currentStatus = "Missing";
+  // Use the additional_info passed in, which should now be correct after the fix in updateReportInfo
+  let displayadditional_info = apiData.additional_info || "";
   let isMarkedFound = false;
 
   // This check is now more reliable because dataForMapping in updateReportInfo ensures
@@ -41,12 +40,12 @@ const mapApiResponseToSelectedPerson = (apiData) => {
     currentStatus = "Found";
     isMarkedFound = true;
     console.log(
-      "mapApiResponseToSelectedPerson: Status derived as 'Found'. additionalInfo:",
+      "mapApiResponseToSelectedPerson: Status derived as 'Found'. additional_info:",
       apiData.additional_info
     );
   } else {
     console.log(
-      "mapApiResponseToSelectedPerson: Status derived as 'Under Investigation'. additionalInfo:",
+      "mapApiResponseToSelectedPerson: Status derived as 'Missing'. additional_info:",
       apiData.additional_info
     );
   }
@@ -59,8 +58,8 @@ const mapApiResponseToSelectedPerson = (apiData) => {
     status: currentStatus,
     disasterType: apiData.disaster_type || "N/A",
     contactInfo: apiData.reporter_contact_info || "N/A",
-    additionalInfo: apiData.additional_info || "", // This will be the value from dataForMapping
-    displayAdditionalInfo: displayAdditionalInfo,
+    additional_info: apiData.additional_info || "", // This will be the value from dataForMapping
+    displayadditional_info: displayadditional_info,
     lastSeen: apiData.last_seen_location || "N/A",
     photo: apiData.person_photo || null,
     isMarkedFound: isMarkedFound,
@@ -74,15 +73,17 @@ const StatusTracking = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
 
   const [selectedPerson, setSelectedPerson] = useState(null);
-  const [editedInfo, setEditedInfo] = useState({ additionalInfo: "" });
+  const [editedInfo, setEditedInfo] = useState({ additional_info: "" });
   const [reportList, setReportList] = useState([]);
   const [loadingList, setLoadingList] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [currentStatus, setCurrentStatus] = useState("Missing");
 
   useEffect(() => {
     let userFromStorage = null;
@@ -105,6 +106,7 @@ const StatusTracking = () => {
       localStorage.removeItem("user");
     }
     setCurrentUser(userFromStorage);
+    setUserId(userFromStorage.user_id);
     setIsAuthenticated(authenticated);
     setAuthLoading(false);
   }, []);
@@ -154,6 +156,7 @@ const StatusTracking = () => {
   const handleSearch = async (selectedOption) => {
     if (!selectedOption || !selectedOption.id) {
       setSelectedPerson(null);
+      setEditedInfo({ additional_info: "" }); // Reset editedInfo when selection is cleared
       setError("");
       setSuccessMessage("");
       return;
@@ -161,6 +164,7 @@ const StatusTracking = () => {
     const personId = selectedOption.id;
     setLoadingDetails(true);
     setSelectedPerson(null);
+    setEditedInfo({ additional_info: "" }); // Reset editedInfo during new search
     setError("");
     setSuccessMessage("");
     try {
@@ -179,11 +183,12 @@ const StatusTracking = () => {
       const detailedData = await response.json();
       const mappedData = mapApiResponseToSelectedPerson(detailedData);
       setSelectedPerson(mappedData);
-      setEditedInfo({ additionalInfo: mappedData?.additionalInfo || "" });
+      setEditedInfo({ additional_info: mappedData?.additional_info || "" });
     } catch (err) {
       console.error("Error fetching person details:", err);
       setError(`Failed to load details: ${err.message}`);
       setSelectedPerson(null);
+      setEditedInfo({ additional_info: "" }); // Ensure reset on error
     } finally {
       setLoadingDetails(false);
     }
@@ -209,13 +214,17 @@ const StatusTracking = () => {
     const formData = new FormData();
     for (const key in payload) {
       if (payload.hasOwnProperty(key)) {
+        console.log(
+          `updateReportInfo: Appending ${key} to FormData with value:`,
+          payload[key]
+        );
         formData.append(key, payload[key]);
       }
     }
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/missing-persons/${reportId}/`,
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/missing-persons/${reportId}/update-info/`,
         {
           method: "PATCH",
           body: formData,
@@ -311,20 +320,20 @@ const StatusTracking = () => {
       let dataForMapping;
       if (updatedDataFromServer) {
         dataForMapping = { ...updatedDataFromServer };
-        if (payload.hasOwnProperty("additionalInfo")) {
+        if (payload.hasOwnProperty("additional_info")) {
           console.log(
-            "updateReportInfo: Overriding/setting additionalInfo in dataForMapping with payload's value:",
-            payload.additionalInfo
+            "updateReportInfo: Overriding/setting additional_info in dataForMapping with payload's value:",
+            payload.additional_info
           );
-          dataForMapping.additionalInfo = payload.additionalInfo;
+          dataForMapping.additional_info = payload.additional_info;
         }
       } else {
         console.warn(
           "updateReportInfo: No data in server response body and re-fetch failed. Optimistically using payload for UI update."
         );
         dataForMapping = { ...selectedPerson, ...payload };
-        if (payload.hasOwnProperty("additionalInfo")) {
-          dataForMapping.additionalInfo = payload.additionalInfo;
+        if (payload.hasOwnProperty("additional_info")) {
+          dataForMapping.additional_info = payload.additional_info;
         }
       }
       // ***** END KEY FIX REFINED *****
@@ -335,7 +344,7 @@ const StatusTracking = () => {
 
       const mappedData = mapApiResponseToSelectedPerson(dataForMapping);
       setSelectedPerson(mappedData);
-      setEditedInfo({ additionalInfo: mappedData?.additionalInfo || "" });
+      setEditedInfo({ additional_info: mappedData?.additional_info || "" });
 
       console.log(
         "updateReportInfo: selectedPerson state updated to:",
@@ -353,32 +362,52 @@ const StatusTracking = () => {
   const handleSaveChanges = () => {
     if (!selectedPerson) return;
     console.log(
-      "handleSaveChanges: Current editedInfo.additionalInfo:",
-      editedInfo.additionalInfo
+      "handleSaveChanges: Current editedInfo.additional_info:",
+      editedInfo.additional_info
     );
     updateReportInfo(selectedPerson.id, {
-      additionalInfo: editedInfo.additionalInfo,
+      reporter_id: userId,
+      additional_info: editedInfo.additional_info,
+    }).then(() => {
+      setSuccessMessage("Changes saved successfully!");
+      console.log(
+        "handleSaveChanges: Changes saved successfully. Updated additional_info:",
+        editedInfo.additional_info
+      );
     });
   };
 
   const handleMarkFound = () => {
     if (!selectedPerson || selectedPerson.isMarkedFound) return;
-    const currentInfoForFound = selectedPerson.additionalInfo || "";
+    const currentInfoForFound = selectedPerson.additional_info || "";
+    console.log(
+      "handleMarkFound: Current additional_info before marking as found:",
+      currentInfoForFound
+    );
 
     const baseInfo =
       typeof currentInfoForFound === "string" &&
       currentInfoForFound.startsWith("[FOUND]")
         ? currentInfoForFound.substring(7).trim()
         : currentInfoForFound;
-    const newAdditionalInfo = `${baseInfo}`.trim();
+    const newadditional_info = `${baseInfo}`.trim();
 
     console.log(
       "handleMarkFound: Marking as found. Base info:",
       baseInfo,
-      "New additionalInfo:",
-      newAdditionalInfo
+      "New additional_info:",
+      newadditional_info
     );
-    updateReportInfo(selectedPerson.id, { additionalInfo: newAdditionalInfo });
+    // It's important that the backend correctly interprets this additional_info
+    // or that a separate field/mechanism is used to mark as found if "[FOUND]" prefix isn't stored.
+    // The current logic in mapApiResponseToSelectedPerson relies on additional_info starting with "[FOUND]"
+    // to set the status to "Found" and isMarkedFound to true.
+    // If newadditional_info (without [FOUND]) is saved, and the server doesn't add it back or have another status field,
+    // the UI might revert to "Under Investigation" after this action.
+    updateReportInfo(selectedPerson.id, { 
+      reporter_id: userId,
+      additional_info: newadditional_info 
+    });
   };
 
   if (authLoading) {
@@ -552,10 +581,12 @@ const StatusTracking = () => {
                 <Typography variant="body1">
                   <strong>Description:</strong> {selectedPerson.description}
                 </Typography>
+                {/* MODIFICATION START: Display additional_info from editedInfo for live updates */}
                 <Typography variant="body1" sx={{ wordBreak: "break-word" }}>
                   <strong>Additional Info:</strong>{" "}
-                  {selectedPerson.additionalInfo}
+                  {selectedPerson.additional_info}
                 </Typography>
+                {/* MODIFICATION END */}
               </Box>
             </Box>
             <Box sx={{ mt: 3 }}>
@@ -577,10 +608,10 @@ const StatusTracking = () => {
                 variant="outlined"
                 margin="normal"
                 label="Update Additional Information"
-                name="additionalInfo"
+                name="additional_info"
                 multiline
-                rows={3}
-                value={editedInfo.additionalInfo}
+                rows={2}
+                value={editedInfo.additional_info}
                 onChange={handleEditChange}
                 InputLabelProps={{ shrink: true }}
                 disabled={loadingUpdate}

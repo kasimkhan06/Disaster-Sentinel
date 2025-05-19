@@ -35,7 +35,7 @@ const boxStyles = {
     padding: 0,
     mb: 2,
     textAlign: "left",
-    boxShadow: "2px 2px 2px #E8F1F5",
+    boxShadow: "2px 3px 2px #E8F1F5",
     position: "relative",
 };
 
@@ -142,26 +142,26 @@ const MissingPersonForm = ({
 
     return (
         <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0, }}>
-            <Typography align="center" sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, fontWeight: "500", mb: 0 }}>
+            {/* <Typography align="center" sx={{ fontSize: { xs: "1rem", sm: "1.2rem", md:"1.2rem" }, fontWeight: "bold", mb: 0, textTransform: "uppercase", }}>
                 Report Details
-            </Typography>
+            </Typography> */}
             <form onSubmit={handleSubmit} noValidate>
                 <Grid container spacing={0} direction="column" alignItems="center">
                     {/* Name Field */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <TextField fullWidth label="Name" name="name" value={formData.name} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} error={!!errors.name} helperText={errors.name || ''} />
                         </Box>
                     </Grid>
                     {/* Age Field */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <TextField fullWidth label="Age" name="age" type="number" value={formData.age} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} error={!!errors.age} helperText={errors.age || ''}
                             />
                         </Box>
                     </Grid>
                     {/* Gender Field */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <FormControl fullWidth required error={!!errors.gender}>
                                 <InputLabel sx={{ fontSize: "0.9rem" }} id="gender-label">Gender</InputLabel>
@@ -180,13 +180,13 @@ const MissingPersonForm = ({
                         </Box>
                     </Grid>
                     {/* Description Field */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <TextField fullWidth label="Description" name="description" value={formData.description} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} multiline rows={3} error={!!errors.description} helperText={errors.description || ''} />
                         </Box>
                     </Grid>
                     {/* Identification Marks Field */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <TextField fullWidth label="Identification Marks" name="identificationMarks" value={formData.identificationMarks} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} />
                         </Box>
@@ -194,7 +194,7 @@ const MissingPersonForm = ({
 
 
                     {/* Last Seen Location Field (Editable + Search Button) */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <TextField
                                 fullWidth
@@ -228,7 +228,7 @@ const MissingPersonForm = ({
                     </Grid>
 
                     {/* State and District Dropdowns */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={{ ...boxStyles, boxShadow: 'none', mb: 0 }}>
                             <StateDistrictDropdown formData={formData} setFormData={setFormData} selectedState={selectedState} setSelectedState={setSelectedState} selectedDistrict={selectedDistrict} setSelectedDistrict={setSelectedDistrict} errors={errors} />
                             {errors.state && <FormHelperText error sx={{ ml: 1.5 }}>{errors.state}</FormHelperText>}
@@ -238,7 +238,7 @@ const MissingPersonForm = ({
                     <Grid item xs={12} sx={{ height: '16px' }} /> {/* Spacer */}
 
                     {/* Disaster Type Dropdown */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <FormControl fullWidth required error={!!errors.disasterType}>
                                 <InputLabel sx={{ fontSize: "0.9rem" }} id="disaster-type-label">Disaster Type</InputLabel>
@@ -278,14 +278,14 @@ const MissingPersonForm = ({
                     </Grid>
 
                     {/* Contact Information Field */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <TextField fullWidth label="Contact Information" name="contactInfo" value={formData.contactInfo} onChange={handleInputChange} required variant="outlined" sx={textFieldStyles} error={!!errors.contactInfo} helperText={errors.contactInfo || ''} />
                         </Box>
                     </Grid>
 
                     {/* Additional Information Field */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "right", width: '100%' }}>
+                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={{ ...boxStyles, mb: 0 }}>
                             <TextField fullWidth label="Additional Information" name="additional_info" value={formData.additional_info} onChange={handleInputChange} variant="outlined" sx={textFieldStyles} multiline rows={3} />
                         </Box>
@@ -293,18 +293,18 @@ const MissingPersonForm = ({
 
 
                     {/* File Uploads */}
-                    <Grid container item xs={12} sx={{ display: "flex", justifyContent: "right", width: "90%", mt: 2 }}>
-                        <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'right', sm: 'right' }, pr: 1, mb: { xs: 1, sm: 0 }, alignSelf: 'center' }}>
+                    <Grid container item xs={12} sx={{ display: "flex", justifyContent: "left", width: "80%", mt: 2 }}>
+                        <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'center', sm: 'center' }, pr: 1, mb: { xs: 1, sm: 0 }, alignSelf: 'center' }}>
                             <Typography variant="subtitle1">Upload Identity Card:</Typography>
                         </Grid>
-                        <Grid item xs={12} sm={6} sx={{ textAlign: 'left', pl: 1 }}>
+                        <Grid item xs={12} sm={6} sx={{ textAlign: 'center', pl: 1 }}>
                             <Input type="file" name="idCard" onChange={handleFileChange} disableUnderline />
                             {errors.idCard && <Typography color="error" variant="caption" sx={{ display: 'block', mt: 0.5 }}>{errors.idCard}</Typography>}
                         </Grid>
                     </Grid>
-                    <Grid container item xs={12} sx={{ display: "flex", justifyContent: "right", width: "90%", mt: 2 }}>
-                        <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'right', sm: 'right' }, pr: 1, mb: { xs: 1, sm: 0 }, alignSelf: 'center' }}>
-                            <Typography variant="subtitle1">Photo (JPEG Req*):</Typography>
+                    <Grid container item xs={12} sx={{ display: "flex", justifyContent: "left", width: "80%", mt: 2 }}>
+                        <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'center', sm: 'center' }, pr: 1, mb: { xs: 1, sm: 0 }, alignSelf: 'center' }}>
+                            <Typography variant="subtitle1">Photo (JPEG/JPG/PNG Req*):</Typography>
                         </Grid>
                         <Grid item xs={12} sm={6} sx={{ textAlign: 'left', pl: 1 }}>
                             <Input type="file" name="photo" onChange={handleFileChange} required disableUnderline />

@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Grid from "@mui/material/Grid2"; // MUI Grid v2
 import { Container, Typography, Box, Alert, Card, CircularProgress } from "@mui/material";
-import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-import MissingPersonForm from '../missingperson/form';
-import InteractiveMap from '../../components/InteractiveMap';
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg"; // Ensure this path is correct
+import MissingPersonForm from '../missingperson/form'; // Ensure this path is correct
+import InteractiveMap from '../../components/InteractiveMap'; // Ensure this path is correct
 
 const API_BASE_URL = "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com";
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/doxgltggk/";
 
 const MissingPersonPortal = () => {
+    const theme = useTheme();
+    const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm")); // Used for Container's original mt, now only for reference if needed elsewhere
+
     const initialFormData = {
         name: "", age: "", gender: "", description: "", identificationMarks: "",
         lastSeen: null, lastSeenPlace: "", state: "", district: "",
@@ -181,10 +186,10 @@ const MissingPersonPortal = () => {
         if (formData.state && !formData.district) validationErrors.district = "District is required.";
         if (!formData.disasterType) validationErrors.disasterType = "Disaster type is required.";
         if (!formData.contactInfo.trim()) validationErrors.contactInfo = "Contact information for updates is required.";
-        
+
         if (!formData.photo) {
             if (!imagePreviews.photo || !imagePreviews.photo.startsWith(CLOUDINARY_BASE_URL)) {
-                validationErrors.photo = "Person's photo (JPEG/PNG) is required.";
+                validationErrors.photo = "Person's photo (JPEG/JPG/PNG) is required.";
             }
         }
         if (errors.photo && !validationErrors.photo) validationErrors.photo = errors.photo;
@@ -242,7 +247,7 @@ const MissingPersonPortal = () => {
         if (formData.disasterType) apiFormData.append('disasterType', formData.disasterType);
         apiFormData.append('contactInfo', formData.contactInfo);
         if (formData.additional_info) apiFormData.append('additional_info', formData.additional_info);
-        
+
         if (formData.idCard instanceof File) {
             apiFormData.append('idCard', formData.idCard, formData.idCard.name);
         }
@@ -298,7 +303,7 @@ const MissingPersonPortal = () => {
                 photo: newPhotoPreview,
                 idCard: newIdCardPreview
             });
-            
+
             setTimeout(() => setStatusMessage({ type: '', text: '' }), 7000);
 
         } catch (error) {
@@ -317,51 +322,64 @@ const MissingPersonPortal = () => {
                 background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)), url(${worldMapBackground})`,
                 backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
                 backgroundRepeat: "repeat-y", margin: 0, padding: 0, zIndex: 0,
-                display: 'flex', // Added for centering the container if needed, or managing overall page flow
-                flexDirection: 'column', // Ensures children stack vertically
-                alignItems: 'center', // Centers the container horizontally
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
             }}
         >
-            <Container 
-                sx={{ 
-                    pt: { xs: 10, md: 12 },
-                    pb: 4, 
-                    position: "relative",
-                    width: '100%', // Ensure container takes available width
+            <Typography
+                align="center"
+                sx={{
+                    mt: 10, // Consistent with FloodPrediction title's mt: 10 (80px)
+                    p: 2,   // Consistent with FloodPrediction title's p: 2 (16px padding around text)
+                    mb: 0.5, // Consistent with FloodPrediction title's mb: 0.5 (4px margin after padded title)
+                    fontSize: { xs: "1.2rem", sm: "1.2rem", md: "1.2rem" }, // Retained original responsive font size
+                    fontWeight: "bold", // Changed to "bold"
+                    textTransform: "uppercase", // Added for consistency
+                    color: "rgba(0, 0, 0, 0.87)", // Consistent with FloodPrediction title's color
                 }}
             >
-                {/* <Typography align="center" sx={{ mt: 1, mb: 3, fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.5rem" }, fontWeight: "500" }}>
-                    Report a Missing Person
-                </Typography> */}
+                Report a Missing Person
+            </Typography>
 
+            <Container
+                maxWidth={false}
+                sx={{
+                    mt: 1, 
+                    mb: 4,
+                    width: { xs: '100%', sm: "90%", md: "85%", lg: "75%" },
+                    padding: 0,
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    position: "relative",
+                }}
+            >
                 {statusMessage.text && (
                     <Alert
                         severity={statusMessage.type || 'info'}
                         onClose={() => setStatusMessage({ type: '', text: '' })}
-                        sx={{ mb: 2, width: '100%', maxWidth: {xs: '90%', md: '800px'}, mx: 'auto' }} // Make alert responsive
+                        sx={{
+                            mb: 2,
+                        }}
                     >
                         {statusMessage.text}
                     </Alert>
                 )}
 
-                {/* Main Grid Layout: Using a single Card to contain both form and map for a unified look */}
-                <Card sx={{ 
-                    p: { xs: 2, md: 3 }, // Responsive padding for the main card
-                    borderRadius: 3, 
-                    boxShadow: 3, // A bit more shadow for the main container card
-                    display: 'flex', // Use flex to manage children
-                    flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, row on medium+
-                    gap: { xs: 3, md: 4 }, // Gap between form and map sections
-                    width: '100%', // Card takes full width of its container
-                    mx: 'auto', // Center the card if container is wider
-                   // maxWidth: '1400px' // Optional: Max width for the entire content card
+                <Card sx={{
+                    p: { xs: 2, md: 3 },
+                    borderRadius: 3,
+                    boxShadow: 3,
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    gap: { xs: 3, md: 4 },
+                    width: '100%',
                 }}>
-                    {/* Form Grid Item (Now a Box within the flex Card) */}
-                    <Box sx={{ 
-                        flex: { md: 1 }, // Takes 1 part of flex space on medium screens and up
-                        width: { xs: '100%', md: 'auto' }, // Full width on small, auto on medium+
+                    <Box sx={{
+                        flex: { md: 1 },
+                        width: { xs: '100%', md: 'auto' },
                         display: 'flex',
-                        flexDirection: 'column' 
+                        flexDirection: 'column'
                     }}>
                         <MissingPersonForm
                             formData={formData}
@@ -380,33 +398,30 @@ const MissingPersonPortal = () => {
                         />
                     </Box>
 
-                    {/* Map and Image Previews Grid Item (Now a Box within the flex Card) */}
-                    <Box sx={{ 
-                        flex: { md: 1 }, // Takes 1 part of flex space on medium screens and up
-                        width: { xs: '100%', md: 'auto' }, // Full width on small, auto on medium+
-                        display: 'flex', 
-                        flexDirection: 'column', 
+                    <Box sx={{
+                        marginTop: { xs: 2, md: 2 },
+                        flex: { md: 1 },
+                        width: { xs: '100%', md: 'auto' },
+                        display: 'flex',
+                        flexDirection: 'column',
                         gap: 2,
-                        minHeight: {xs: 'auto', md: '500px'} // Ensure this section has some min height on larger screens
-                                                            // Adjust this value based on your map's typical content height
+                        minHeight: { xs: 'auto', md: '500px' }
                     }}>
-                        <Typography align="center" sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, fontWeight: "500" }}>
+                        {/* <Typography align="center" sx={{ fontSize: { xs: "1rem", sm: "1.2rem", md:"1.2rem" }, fontWeight: "bold", textTransform: "uppercase",}}>
                             Last Seen Location Map
-                        </Typography>
-                        <Box sx={{ flexGrow: 1, width: '100%', minHeight: {xs: '300px', md: '400px'}, // Ensure map has space
-                                   backgroundColor: '#f0f0f0', // Placeholder background
-                                   borderRadius: 2,
-                                   overflow: 'hidden' // Important for map if it has its own scroll/zoom
-                                   }}>
-                             <InteractiveMap
+                        </Typography> */}
+                        <Box sx={{
+                            flexGrow: 1, width: '90%', minHeight: { xs: '300px', md: '400px' },
+                            // backgroundColor: '#f0f0f0',
+                            borderRadius: 1,
+                            overflow: 'hidden'
+                        }}>
+                            <InteractiveMap
                                 formData={formData}
                                 setFormData={setFormData}
                                 setError={(mapError) => setStatusMessage({ type: 'error', text: mapError })}
-                                // It's crucial that InteractiveMap is styled to fill this Box.
-                                // e.g., its root element should have height: '100%', width: '100%'
                             />
                         </Box>
-
 
                         {(imagePreviews.photo || imagePreviews.idCard) && (
                             <Box sx={{ mt: 2 }}>
@@ -419,7 +434,7 @@ const MissingPersonPortal = () => {
                                             <img
                                                 src={imagePreviews.photo}
                                                 alt="Uploaded Photo Preview"
-                                                style={{ width: "100%", borderRadius: 8, border: '1px solid #eee', maxHeight: '150px', objectFit: 'contain' }} // Reduced max height
+                                                style={{ width: "100%", borderRadius: 8, border: '1px solid #eee', maxHeight: '150px', objectFit: 'contain' }}
                                             />
                                             <Typography align="center" variant="caption" display="block" sx={{ mt: 0.5 }}>Photo Preview</Typography>
                                         </Grid>
@@ -429,7 +444,7 @@ const MissingPersonPortal = () => {
                                             <img
                                                 src={imagePreviews.idCard}
                                                 alt="Uploaded ID Card Preview"
-                                                style={{ width: "100%", borderRadius: 8, border: '1px solid #eee', maxHeight: '150px', objectFit: 'contain' }} // Reduced max height
+                                                style={{ width: "100%", borderRadius: 8, border: '1px solid #eee', maxHeight: '150px', objectFit: 'contain' }}
                                             />
                                             <Typography align="center" variant="caption" display="block" sx={{ mt: 0.5 }}>ID Card Preview</Typography>
                                         </Grid>
