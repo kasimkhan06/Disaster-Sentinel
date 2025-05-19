@@ -48,7 +48,7 @@ const SuccessMessage = () => {
   return (
     <Box
       sx={{
-        minHeight: { xs: "70%", md: "50%" },  
+        minHeight: { xs: "70%", md: "50%" },
         width: { xs: "90%", sm: "70%", md: "50%", lg: "40%" },
         display: "flex",
         justifyContent: "center",
@@ -56,7 +56,7 @@ const SuccessMessage = () => {
         backgroundColor: "rgba(255, 255, 255, 0.95)",
         borderRadius: "10px",
         boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-        margin: { xs: "100px auto", md: "300px auto" },  
+        margin: { xs: "100px auto", md: "300px auto" },
         padding: { xs: "15px", md: "20px", lg: "25px" },
       }}
     >
@@ -64,13 +64,13 @@ const SuccessMessage = () => {
         <Typography
           variant="h4"
           fontWeight="bold"
-          sx={{ mb: 2, color: "black", fontSize: { xs: "1.5rem", md: "2rem" } }}  
+          sx={{ mb: 2, color: "black", fontSize: { xs: "1.5rem", md: "2rem" } }}
         >
           Registration Successful
         </Typography>
         <Typography
           variant="h6"
-          sx={{ mb: 2, color: "black", fontSize: { xs: "1rem", md: "1.25rem" } }}  
+          sx={{ mb: 2, color: "black", fontSize: { xs: "1rem", md: "1.25rem" } }}
         >
           Your agency has been successfully registered. You will be redirected to the dashboard shortly.
         </Typography>
@@ -111,6 +111,7 @@ const RegistrationForm = ({ setSuccess }) => {
   const isTablet = useMediaQuery("(min-width:600px) and (max-width:900px)");
   const isDesktop = useMediaQuery("(min-width:900px)");
   const isLargeDesktop = useMediaQuery("(min-width:1200px)");
+  const isBelow = useMediaQuery("(max-width:1470px)");
 
   const navigate = useNavigate();
 
@@ -236,8 +237,28 @@ const RegistrationForm = ({ setSuccess }) => {
         overflow: "auto",
       }}
     >
+      <Typography
+        align="center"
+        sx={{
+          mt: 10,
+          p: 2,
+          fontSize: {
+            xs: "1.2rem",
+            sm: "1.2rem",
+            md: isBelow ? "1.2rem" : "1.4rem",
+            lg: isBelow ? "1.2rem" : "1.4rem",
+          },
+          fontWeight: "bold",
+          textTransform: "uppercase",
+          color: "rgba(0, 0, 0, 0.87)",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        ADD YOUR AGENCY DETAILS
+      </Typography>
       <Box sx={{
-        mt: { xs: 15, md: 15 },
+        mt: { xs: 3, md: 5 },
         mb: { xs: 2, md: 4 },
         mx: "auto",
         width: { xs: "85%", md: "70%" },
@@ -356,7 +377,7 @@ const RegistrationForm = ({ setSuccess }) => {
           )}
 
           {activeStep === 3 && (
-            <Grid item xs={12} sm={12} md={8} lg={8} sx={{ marginX: "auto" }}>
+            <Grid item xs={12} sm={12} md={8} lg={10} sx={{ marginX: "auto" }}>
               <Card sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, boxShadow: 3 }}>
                 <MapLeaflet markers={markers} setMarkers={setMarkers} />
                 {errors.location && (
