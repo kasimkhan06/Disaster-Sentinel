@@ -327,7 +327,7 @@ const AgencyMap = ({ agency, isMobile }) => {
     } catch (err) {
       setLoading(false);
       if (err.message === "Location outside India") {
-        setError("Please enter a location within India only.");
+        setError("Choose a location from the dropdown.");
       } else {
         setError("Location not found. Please try a different address.");
       }
