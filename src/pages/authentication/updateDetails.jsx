@@ -131,12 +131,14 @@ useEffect(() => {
     setDistricts(newState ? stateDistricts[newState] || [] : []);
     setSelectedDistrict("");
     setFormData({ ...formData, state: newState, district: "" });
+    console.log("Selected State:", newState);
   };
 
   const handleDistrictChange = (event, newValue) => {
     const newDistrict = newValue || formData.district;
     setSelectedDistrict(newDistrict);
     setFormData({ ...formData, district: newDistrict });
+    console.log("Selected District:", newDistrict);
   };
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -174,7 +176,7 @@ useEffect(() => {
         console.log("Updation Success:", response.data);
         alert("Details updated successfully!");
         localStorage.setItem("user", JSON.stringify(formData));
-        navigate("/home");
+        // navigate("/home"); 
 
       } catch (error) {
         console.error("Updation Failed:", error.response?.data || error);
