@@ -245,7 +245,7 @@ const FloodPredictionMap = ({
                   Warning Level: {parseFloat(station.warning_level).toFixed(2)}
                 </li>
               </ul>
-              <button
+              {/* <button
                 onClick={() => handlePredictFlood(station.gaugeid)}
                 style={{
                   padding: "8px 16px",
@@ -259,7 +259,7 @@ const FloodPredictionMap = ({
                 }}
               >
                 Predict Flood
-              </button>
+              </button> */}
             </Popup>
           </Marker>
         ))}

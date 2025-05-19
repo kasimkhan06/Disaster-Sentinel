@@ -446,7 +446,7 @@ const Map = ({
 
           /* Risk level specific styles */
           .leaflet-tooltip.flood-risk-tooltip.high-risk {
-            background:rgba(240, 235, 236, 0.97) !important;
+            background:rgba(250, 246, 246, 0.97) !important;
             box-shadow: 0 5px 8px rgba(209, 37, 37, 0.29), 0 5px 8px rgba(119, 18, 18, 0.29) !important;
           }
 
