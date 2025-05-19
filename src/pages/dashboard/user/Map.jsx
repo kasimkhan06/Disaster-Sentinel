@@ -24,25 +24,24 @@ const disasterTypeMap = {
   TC: "Tropical Cyclone",
   VO: "Volcano",
   DR: "Drought",
-  // Add other mappings as needed
 };
 
 const disasterIcons = {
   eq: {
     options: {
-      iconUrl: 'https://www.gdacs.org/Images/gdacs_icons/alerts/Green/EQ.png',
+      iconUrl: "https://www.gdacs.org/Images/gdacs_icons/alerts/Green/EQ.png",
       iconSize: [32, 32],
       iconAnchor: [16, 16],
-      popupAnchor: [0, -16]
-    }
+      popupAnchor: [0, -16],
+    },
   },
   fl: {
     options: {
-      iconUrl: 'https://www.gdacs.org/Images/gdacs_icons/alerts/Green/FL.png',
+      iconUrl: "https://www.gdacs.org/Images/gdacs_icons/alerts/Green/FL.png",
       iconSize: [32, 32],
       iconAnchor: [16, 16],
-      popupAnchor: [0, -16]
-    }
+      popupAnchor: [0, -16],
+    },
   },
   default: {
     options: {
@@ -51,18 +50,10 @@ const disasterIcons = {
       shadowUrl: markerShadow,
       iconSize: [25, 41],
       iconAnchor: [12, 41],
-      popupAnchor: [1, -34]
-    }
-  }
+      popupAnchor: [1, -34],
+    },
+  },
 };
-
-// const floodPredictionIcon = new L.Icon({
-//   iconUrl: "https://cdn-icons-png.flaticon.com/512/3261/3261915.png", // Water drop icon
-//   iconSize: [25, 25],
-//   iconAnchor: [12, 12],
-//   popupAnchor: [0, -12],
-// });
-
 
 // Fit map to all markers
 const FitBounds = ({ markers }) => {
@@ -88,7 +79,6 @@ const PopupHandler = ({ selectedDisaster }) => {
         parseFloat(selectedDisaster.longitude)
       );
 
-      // Find the marker that matches the selected disaster
       Object.values(map._layers).forEach((layer) => {
         if (
           layer instanceof L.Marker &&
@@ -103,7 +93,6 @@ const PopupHandler = ({ selectedDisaster }) => {
   return null;
 };
 
-// Update the Map component with these changes
 const Map = ({
   disasters,
   floodPredictions = [],
@@ -115,31 +104,13 @@ const Map = ({
   const mapRef = useRef(null);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   if (mapRef.current) {
-  //     // Remove the default zoom control if it exists
-  //     mapRef.current._zoomControl?.remove();
-  //   }
-  // }, []);
-
-  // if (!disasters || disasters.length === 0) {
-  //   return (
-  //     <p style={{ padding: "16px", margin: "16px", textAlign: "center" }}>
-  //       No disaster data available.
-  //     </p>
-  //   );
-  // }
-
-  // Filter out disasters without coordinates
   const validDisasters = disasters.filter(
     (disaster) => disaster.latitude && disaster.longitude
   );
 
-  // Filter out invalid flood predictions
   const validFloodPredictions = floodPredictions.filter(
     (prediction) => prediction.latitude && prediction.longitude
   );
-
 
   const allMarkerPositions = [
     ...validDisasters.map((disaster) => [
@@ -160,23 +131,13 @@ const Map = ({
     );
   }
 
-  // Get marker positions for fitting bounds
-  const markerPositions = validDisasters.map((disaster) => [
-    parseFloat(disaster.latitude),
-    parseFloat(disaster.longitude),
-  ]);
-
-  // Function to get appropriate icon based on disaster type and alert level
   const getDisasterIcon = (disaster, isMobile) => {
     const eventType = disaster.eventtype?.toUpperCase();
     const alertLevel = disaster.alertlevel?.toLowerCase();
-
-    // Set icon sizes based on device type
     const iconSize = isMobile ? [24, 24] : [32, 32];
     const iconAnchor = isMobile ? [12, 12] : [16, 16];
     const popupAnchor = isMobile ? [0, -12] : [0, -16];
 
-    // If we have both eventType and alertLevel, use the dynamic GDACS icon
     if (eventType && alertLevel) {
       return new L.Icon({
         iconUrl: `https://www.gdacs.org/Images/gdacs_icons/alerts/${
@@ -185,26 +146,20 @@ const Map = ({
         iconSize,
         iconAnchor,
         popupAnchor,
-        //console.log('Creating marker at:', [lat, lng], 'with icon:', icon);
       });
-
     }
 
-    // Fallback to colored markers based on disaster type if no alert level
     const type = disaster.eventtype?.toLowerCase();
     if (type && disasterIcons[type]) {
-      // Clone the existing icon and adjust its size for mobile
       const icon = L.icon(disasterIcons[type].options);
       if (isMobile) {
         icon.options.iconSize = iconSize;
         icon.options.iconAnchor = iconAnchor;
         icon.options.popupAnchor = popupAnchor;
       }
-
       return icon;
     }
 
-    // Default marker if no specific icon found
     const defaultIcon = L.icon(disasterIcons.default.options);
     if (isMobile) {
       defaultIcon.options.iconSize = iconSize;
@@ -215,26 +170,64 @@ const Map = ({
   };
 
   const getFloodPredictionIcon = (prediction, isMobile) => {
-  const iconSize = isMobile ? [20, 20] : [25, 25];
-  
-  // Default blue water drop icon
-  let iconUrl = 'https://cdn-icons-png.flaticon.com/512/3261/3261915.png';
-  
-  // Change color based on risk level
-  if (prediction.riskLevel === 'high') {
-    iconUrl = 'https://cdn-icons-png.flaticon.com/512/3050/3050941.png'; // Red
-  } else if (prediction.riskLevel === 'medium') {
-    iconUrl = 'https://cdn-icons-png.flaticon.com/512/3050/3050945.png'; // Orange
-  }
-  console.log('Flood Prediction Icon:', iconUrl);
-  return new L.Icon({
-    iconUrl,
-    iconSize,
-    iconAnchor: [iconSize[0] / 2, iconSize[1] / 2],
-    popupAnchor: [0, -iconSize[1] / 2],
-    className: 'flood-prediction-marker'
-  });
-};
+    const iconSize = isMobile ? [20, 20] : [25, 25];
+    const riskLevel = prediction.riskLevel?.toLowerCase() || 'medium';
+    
+    // Colors and animation settings based on risk level
+    const riskStyles = {
+      high: {
+        color: 'rgba(238, 11, 11, 0.7)', // Red
+        pulseColor: 'rgba(51, 15, 15, 0.7)',
+        pulseSize: '12px',
+        pulseSpeed: '1s'
+      },
+      medium: {
+        color: 'rgba(255, 115, 0, 0.72)', // Orange
+        pulseColor: 'rgba(255, 153, 0, 0.7)',
+        pulseSize: '8px',
+        pulseSpeed: '1.5s'
+      },
+      low: {
+        color: 'rgba(29, 168, 16, 0.7)', // Blue
+        pulseColor: 'rgba(22, 66, 18, 0.7)',
+        pulseSize: '5px',
+        pulseSpeed: '2s'
+      }
+    };
+
+    const style = riskStyles[riskLevel] || riskStyles.low;
+
+    const html = `
+      <div style="
+        width: ${iconSize[0]}px;
+        height: ${iconSize[1]}px;
+        background-color: ${style.color};
+        border-radius: 50%;
+        animation: pulse-${riskLevel} ${style.pulseSpeed} infinite;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+      ">
+        <div style="
+          width: 60%;
+          height: 60%;
+          background-color: white;
+          border-radius: 50%;
+          opacity: 0.8;
+          position: relative;
+          z-index: 2;
+        "></div>
+      </div>
+    `;
+
+    return L.divIcon({
+      html,
+      className: `flood-prediction-marker flood-risk-${riskLevel}`,
+      iconSize: [iconSize[0], iconSize[1]],
+      iconAnchor: [iconSize[0] / 2, iconSize[1] / 2],
+    });
+  };
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -244,17 +237,11 @@ const Map = ({
         style={{
           height: "100%",
           width: "100%",
-          filter:
-            "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
+          filter: "brightness(0.85) contrast(1.4) saturate(0.8) hue-rotate(10deg)",
         }}
         zoomControl={false}
         ref={mapRef}
-        worldCopyJump={true} // Allows horizontal wrapping
-        // maxBounds={[
-        //   [-90, -180],
-        //   [90, 180],
-        // ]} // Limits vertical panning
-        // maxBoundsViscosity={1.0}
+        worldCopyJump={true}
       >
         <TileLayer
           attribution=""
@@ -262,25 +249,12 @@ const Map = ({
           noWrap={false}
         />
 
-        {/* Add custom zoom control at bottom-left */}
         <div className="leaflet-bottom leaflet-left">
           <div className="leaflet-control leaflet-bar leaflet-control-zoom">
-            <a
-              className="leaflet-control-zoom-in"
-              href="#"
-              title="Zoom in"
-              role="button"
-              aria-label="Zoom in"
-            >
+            <a className="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in">
               +
             </a>
-            <a
-              className="leaflet-control-zoom-out"
-              href="#"
-              title="Zoom out"
-              role="button"
-              aria-label="Zoom out"
-            >
+            <a className="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out">
               -
             </a>
           </div>
@@ -289,150 +263,116 @@ const Map = ({
         {validDisasters.map((disaster) => (
           <Marker
             key={disaster.eventid}
-            position={[
-              parseFloat(disaster.latitude),
-              parseFloat(disaster.longitude),
-            ]}
+            position={[parseFloat(disaster.latitude), parseFloat(disaster.longitude)]}
             icon={getDisasterIcon(disaster, isMobile)}
             eventHandlers={{
               click: (e) => {
-                // Stop the event from propagating to the map
                 e.originalEvent.preventDefault();
                 e.originalEvent.stopPropagation();
                 onMarkerClick(disaster);
               },
             }}
           >
-            
-
-               {/* Add pulsing animation to the marker if it's the highlighted one */}
-            {highlightedDisaster &&
-              highlightedDisaster.eventid === disaster.eventid && (
-                <div
-                  className="pulse-marker"
-                  style={{
-                    position: "absolute",
-                    width: "40px",
-                    height: "40px",
-                    backgroundColor: "rgba(255, 0, 0, 0.3)",
-                    borderRadius: "50%",
-                    transform: "translate(-50%, -50%)",
-                    pointerEvents: "none",
-                    animation: "pulse 1.5s infinite",
-                    top: "50%",
-                    left: "50%",
-                  }}
-                ></div>
-              )}
-            <Popup
-              closeOnClick={true}
-              autoPan={true}
-              autoPanPadding={[20, 20]}
-              sx={{ zIndex: "1000 !important" }}
-            >
+            {highlightedDisaster && highlightedDisaster.eventid === disaster.eventid && (
               <div
-                style={{ padding: "8px" }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <strong style={{ display: "block", marginBottom: "4px" }}>
-                  {disaster.title}
-                </strong>
+                className="pulse-marker"
+                style={{
+                  position: "absolute",
+                  width: "40px",
+                  height: "40px",
+                  backgroundColor: "rgba(255, 0, 0, 0.3)",
+                  borderRadius: "50%",
+                  transform: "translate(-50%, -50%)",
+                  pointerEvents: "none",
+                  animation: "pulse 1.5s infinite",
+                  top: "50%",
+                  left: "50%",
+                }}
+              ></div>
+            )}
+            <Popup closeOnClick={true} autoPan={true} autoPanPadding={[20, 20]} sx={{ zIndex: "1000 !important" }}>
+              <div style={{ padding: "8px" }} onClick={(e) => e.stopPropagation()}>
+                <strong style={{ display: "block", marginBottom: "4px" }}>{disaster.title}</strong>
                 <p style={{ margin: "2px 0", fontSize: "13px" }}>
-                  Type:{" "}
-                  {disasterTypeMap[disaster.eventtype] || disaster.eventtype}
+                  Type: {disasterTypeMap[disaster.eventtype] || disaster.eventtype}
                 </p>
                 {disaster.pubDate && (
-                  <p style={{ margin: "2px 0", fontSize: "13px" }}>
-                    Date: {disaster.pubDate}
-                  </p>
+                  <p style={{ margin: "2px 0", fontSize: "13px" }}>Date: {disaster.pubDate}</p>
                 )}
-                {/* <button
-                  style={{
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    marginTop: "6px",
-                    fontSize: "13px",
-                    color: "#1976d2",
-                    textDecoration: "none",
-                    cursor: "pointer",
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(
-                      `/disaster/${disaster.eventid}/${disaster.eventtype}`,
-                      {
-                        state: {
-                          eventType: disaster.eventtype,
-                          title: disaster.title,
-                          date: disaster.pubDate,
-                          link: disaster.link,
-                        },
-                      }
-                    );
-                  }}
-                >
-                  View Details
-                </button> */}
               </div>
             </Popup>
           </Marker>
         ))}
-        {validFloodPredictions.map((prediction) => {
-  const lat = parseFloat(prediction.latitude);
-  const lng = parseFloat(prediction.longitude);
-  
-  if (isNaN(lat) || isNaN(lng)) return null;
 
-  return (
-    <Marker
-      key={`flood-${prediction.stationId || 'static'}`}
-      position={[lat, lng]}
-      icon={getFloodPredictionIcon(prediction, isMobile)}
-    >
-      <Tooltip permanent direction="top" offset={[0, -10]}>
-        <div style={{ fontWeight: 'bold' }}>
-          {prediction.stationId?.includes('static') ? 'Sample Data' : 'Flood Risk'}: 
-          {prediction.riskLevel || 'low'}
-        </div>
-        <div>Probability: {(prediction.probability * 100).toFixed(2)}%</div>
-        {prediction.stationId?.includes('static') && (
-          <div style={{ color: '#666', fontSize: '0.8em' }}>
-            (Sample data)
-          </div>
-        )}
-      </Tooltip>
-    </Marker>
-  );
-})}
+        {validFloodPredictions.map((prediction) => {
+          const lat = parseFloat(prediction.latitude);
+          const lng = parseFloat(prediction.longitude);
+          const riskLevel = prediction.riskLevel?.toLowerCase() || 'medium';
+
+          if (isNaN(lat) || isNaN(lng)) return null;
+
+          return (
+            <Marker
+              key={`flood-${prediction.stationId || "static"}`}
+              position={[lat, lng]}
+              icon={getFloodPredictionIcon(prediction, isMobile)}
+            >
+              <Tooltip permanent direction="top" offset={[0, -10]}>
+                <div style={{ fontWeight: "bold" }}>
+                  Flood Risk: {prediction.riskLevel || "low"}
+                </div>
+                <div>
+                  Probability: {(prediction.probability * 100).toFixed(2)}%
+                </div>
+              </Tooltip>
+            </Marker>
+          );
+        })}
+
         <FitBounds markers={allMarkerPositions} />
         <PopupHandler selectedDisaster={selectedDisaster} />
       </MapContainer>
 
-      {/* Add CSS for the pulse animation */}
       <style>
         {`
-    @keyframes pulse {
-      0% {
-        transform: translate(-50%, -50%) scale(0.8);
-        opacity: 0.7;
-      }
-      70% {
-        transform: translate(-50%, -50%) scale(1.3);
-        opacity: 0.2;
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(0.8);
-        opacity: 0;
-      }
-    }
-    .leaflet-container {
-      z-index: 1;
-    }
-    .leaflet-top, .leaflet-bottom {
-      z-index: 1000;
-    }
-  `}
+          /* Base pulse animation */
+          @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+          }
+
+          /* Risk-specific pulse animations */
+          @keyframes pulse-high {
+            0% { box-shadow: 0 0 0 0 rgba(173, 50, 50, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(255, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+          }
+
+          @keyframes pulse-medium {
+            0% { box-shadow: 0 0 0 0 rgba(158, 106, 28, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(192, 125, 25, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 153, 0, 0); }
+          }
+
+          @keyframes pulse-low {
+            0% { box-shadow: 0 0 0 0 rgba(25, 100, 59, 0.7); }
+            70% { box-shadow: 0 0 0 5px rgba(0, 153, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 153, 255, 0); }
+          }
+
+          .flood-prediction-marker {
+            background: transparent !important;
+            border: none !important;
+          }
+
+          .leaflet-container {
+            z-index: 1;
+          }
+          .leaflet-top, .leaflet-bottom {
+            z-index: 1000;
+          }
+        `}
       </style>
     </div>
   );
