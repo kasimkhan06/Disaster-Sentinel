@@ -115,7 +115,7 @@ const MissingPersonMap = ({ persons, selectedPerson }) => {
     return (
       <div style={{ textAlign: "center", margin: "20px", fontSize: "18px", color: "#007bff" }}>
         <span style={{ fontSize: "18px", color: "black" }}>
-          🔄 Loading map data...
+          Loading map...
         </span>
       </div>
     );
@@ -136,8 +136,9 @@ const MissingPersonMap = ({ persons, selectedPerson }) => {
       scrollWheelZoom={true}
       style={{ height: "500px", width: "100%", borderRadius: "10px" }}
       whenCreated={(mapInstance) => { mapRef.current = mapInstance }}
+      attributionControl={false}
     >
-      <TileLayer attribution={osm.maptiler.attribution} url={osm.maptiler.url} />
+      <TileLayer attribution={""} url={osm.maptiler.url} />
 
       {markers.map((marker, index) => (
         <Marker
