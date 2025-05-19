@@ -156,8 +156,6 @@ function MissingPerson() {
         <Grid container spacing={3}>
           {/* Map and Sidebar */}
           <Grid item xs={12} md={12} lg={8} sx={{ height: "100%" }}>
-            <Card elevation={3} sx={{ height: "100%" }}>
-              <CardContent sx={{ p: 0 }}>
                 <Box sx={{ height: 500 }} ref={mapContainerRef}>
                   {loading ? (
                     <Box
@@ -165,23 +163,38 @@ function MissingPerson() {
                       alignItems="center"
                       justifyContent="center"
                       height="100%"
-                    >
+                      sx={{
+                        backgroundColor: "rgb(255, 255, 255)",
+                        borderRadius: 3,
+                      }}
+                      >
                       <Typography>Loading map...</Typography>
                     </Box>
                   ) : (
-                    <MissingPersonMap
-                      persons={selectiveMissingPersons}
-                      selectedPerson={selectedPerson}
-                    />
+                    <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    height="100%"
+                    sx={{
+                      backgroundColor: "rgb(255, 255, 255)",
+                      borderRadius: 3,
+                      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                      position: "relative",
+                    }}
+                    >
+                      <MissingPersonMap
+                        persons={selectiveMissingPersons}
+                        selectedPerson={selectedPerson}
+                      />
+                    </Box>
                   )}
                 </Box>
-              </CardContent>
-            </Card>
           </Grid>
 
           {/* Person Cards */}
           <Grid item xs={12} md={12} lg={4} sx={{ height: "100%" }}>
-            <Card elevation={3} sx={{ height: 500, overflowY: "auto" }}>
+            <Card elevation={3} sx={{ height: 500, overflowY: "auto", borderRadius: 3 }}>
               <CardContent>
                 {loading ? (
                   <Typography align="center">Loading data...</Typography>
