@@ -72,7 +72,8 @@ const Login = ({ setIsLoggedIn }) => {
           const redirectPath = localStorage.getItem("redirectAfterLogin");
           localStorage.removeItem("redirectAfterLogin");
           if (data.role === "user") {
-            navigate(redirectPath ||"/home");
+            window.location.assign(redirectPath ||"/home");
+            // navigate(redirectPath ||"/home");
           } else {
             try {
               const agencyResponse = await fetch(
@@ -89,13 +90,16 @@ const Login = ({ setIsLoggedIn }) => {
                 console.log(
                   "Agency data found, navigating to agency dashboard."
                 );
-                navigate("/agency-dashboard");
+                // navigate("/agency-dashboard");
+                window.location.assign("/agency-dashboard");
+                
               } else {
                 console.error(
                   "Agency details not found for user ID:",
                   data.user_id
                 );
-                navigate("/registration-form");
+                // navigate("/registration-form");
+                window.location.assign("/registration-form");
               }
             } catch (error) {
               console.error("Error fetching agency details:", error);

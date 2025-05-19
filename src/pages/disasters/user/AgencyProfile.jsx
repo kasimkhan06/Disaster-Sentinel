@@ -101,7 +101,7 @@ const AgencyProfile = () => {
   }, [id]);
 
   const handleVolunteerClick = () => {
-    console.log("isNotLoggedIn:"+isNotLoggedin);
+    console.log("isNotLoggedIn:" + isNotLoggedin);
     if (!userID) {
       // Store the current path in localStorage before navigating to login
       localStorage.setItem("redirectAfterLogin", window.location.pathname);
@@ -347,19 +347,33 @@ const AgencyProfile = () => {
           </Button>
 
           {isNotLoggedin && (
-            <Button
-              onClick={() => navigate("/login")}
+            <Card
               sx={{
-                borderColor: "#bdbdbd",
-                color: "black",
-                backgroundColor: "#fafafa",
-                "&:hover": {
-                  backgroundColor: "#e0e0e0",
-                },
+                mt: 1,
+                px: { xs: 3, sm: 3, md: 2 },
+                borderRadius: 0,
+                boxShadow: 0,
               }}
             >
-              Login
-            </Button>
+              <Typography
+                sx={{ fontSize: "0.8rem", textAlign: "center", mb: 1 }}
+              >
+                Please login to continue:
+              </Typography>
+              <Button
+                onClick={() => navigate("/login")}
+                sx={{
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    textDecoration: "underline",
+                  },
+                  width: "100%",
+                }}
+              >
+                Login
+              </Button>
+            </Card>
           )}
           {/* Volunteer Dialog */}
           {volunteer && !submitSuccess && (
@@ -1022,6 +1036,39 @@ const AgencyProfile = () => {
                       </Grid>
                       <Grid size={{ xs: 11, sm: 10, md: 10, lg: 12 }}>
                         <Box sx={{ width: "100%" }}>
+                          {isNotLoggedin && (
+                            <Card
+                              sx={{
+                                mt: 1,
+                                px: { xs: 3, sm: 3, md: 2 },
+                                borderRadius: 0,
+                                boxShadow: 0,
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontSize: "0.8rem",
+                                  textAlign: "center",
+                                  mb: 1,
+                                }}
+                              >
+                                Please login to continue:
+                              </Typography>
+                              <Button
+                                onClick={() => navigate("/login")}
+                                sx={{
+                                  color: "black",
+                                  "&:hover": {
+                                    backgroundColor: "transparent",
+                                    textDecoration:"underline",
+                                  },
+                                  width: "100%",
+                                }}
+                              >
+                                Login
+                              </Button>
+                            </Card>
+                          )}
                           {volunteer && !submitSuccess && (
                             <Grid
                               container
