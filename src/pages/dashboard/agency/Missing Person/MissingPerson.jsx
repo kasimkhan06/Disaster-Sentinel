@@ -31,6 +31,7 @@ function MissingPerson() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [agency, setAgency] = useState(null);
   const [selectiveMissingPersons, setSelectiveMissingPersons] = useState([]);
+  const isBelow = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     // Check if user is logged in by retrieving from localStorage
@@ -107,7 +108,7 @@ function MissingPerson() {
 
         // Filter based on the agency's state
         const filteredPersons = personsWithDetails.filter((person) =>
-          person.state?.toLowerCase() === agencyData?.state?.toLowerCase()
+          person.state?.toLowerCase() === agencyData?.state?.toLowerCase() && person.is_found == false
         );
 
         setMissingPersons(personsWithDetails);
@@ -146,50 +147,72 @@ function MissingPerson() {
     <Box
       sx={{
         minHeight: "100vh",
-        background: `linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), url(${worldMapBackground})`,
+        background: `
+              linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+              url(${worldMapBackground})
+            `,
         backgroundSize: "cover",
         backgroundAttachment: "fixed",
         paddingTop: "100px",
       }}
     >
-      <Container maxWidth="xl" sx={{ py: 10 }}>
+      <Typography
+        align="center"
+        sx={{
+          p: 2,
+          fontSize: {
+            xs: "1.2rem",
+            sm: "1.2rem",
+            md: isBelow ? "1.2rem" : "1.4rem",
+            lg: isBelow ? "1.2rem" : "1.4rem",
+          },
+          fontWeight: "bold",
+          textTransform: "uppercase",
+          color: "rgba(0, 0, 0, 0.87)",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        Missing Persons
+      </Typography>
+      <Container maxWidth="xl" sx={{ py: 5 }}>
         <Grid container spacing={3}>
           {/* Map and Sidebar */}
           <Grid item xs={12} md={12} lg={8} sx={{ height: "100%" }}>
-                <Box sx={{ height: 500 }} ref={mapContainerRef}>
-                  {loading ? (
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      height="100%"
-                      sx={{
-                        backgroundColor: "rgb(255, 255, 255)",
-                        borderRadius: 3,
-                      }}
-                      >
-                      <Typography>Loading map...</Typography>
-                    </Box>
-                  ) : (
-                    <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    height="100%"
-                    sx={{
-                      backgroundColor: "rgb(255, 255, 255)",
-                      borderRadius: 3,
-                      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-                      position: "relative",
-                    }}
-                    >
-                      <MissingPersonMap
-                        persons={selectiveMissingPersons}
-                        selectedPerson={selectedPerson}
-                      />
-                    </Box>
-                  )}
+            <Box sx={{ height: 500 }} ref={mapContainerRef}>
+              {loading ? (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  height="100%"
+                  sx={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    borderRadius: 3,
+                  }}
+                >
+                  <Typography>Loading map...</Typography>
                 </Box>
+              ) : (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  height="100%"
+                  sx={{
+                    backgroundColor: "rgb(255, 255, 255)",
+                    borderRadius: 3,
+                    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                    position: "relative",
+                  }}
+                >
+                  <MissingPersonMap
+                    persons={selectiveMissingPersons}
+                    selectedPerson={selectedPerson}
+                  />
+                </Box>
+              )}
+            </Box>
           </Grid>
 
           {/* Person Cards */}
