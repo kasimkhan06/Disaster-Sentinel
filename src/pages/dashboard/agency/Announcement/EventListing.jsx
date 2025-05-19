@@ -144,10 +144,27 @@ export default function EventListing() {
 
   return (
     <div className="background-image">
+      <Typography
+        align="center"
+        sx={{
+          mt: 10,
+          p: 2,
+          fontSize: {
+            xs: "1.2rem",
+            sm: "1.2rem",
+            md: isBelow ? "1.2rem" : "1.4rem",
+            lg: isBelow ? "1.2rem" : "1.4rem",
+          },
+          fontWeight: "bold",
+          textTransform: "uppercase",
+          color: "rgba(0, 0, 0, 0.87)",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        ANNOUNCEMENTS
+      </Typography>
       <div className="container">
-        <div className="header" style={{ marginBottom: "20px", textAlign: "center" }}>
-          <Typography variant="h4">Announcements</Typography>
-        </div>
         <div className="controls" style={{ display: "flex", gap: "15px" }}>
           {/* Sort Box */}
           <Box
