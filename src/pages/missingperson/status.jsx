@@ -36,7 +36,7 @@ const mapApiResponseToSelectedPerson = (apiData) => {
   // apiData.additional_info has the correct value from the payload.
   if (
     typeof apiData.additional_info === "string" &&
-    apiData.additional_info.startsWith("[FOUND]")
+    apiData.additional_info.startsWith("FOUND")
   ) {
     currentStatus = "Found";
     isMarkedFound = true;
@@ -378,38 +378,129 @@ const StatusTracking = () => {
     });
   };
 
-  const handleMarkFound = () => {
-    if (!selectedPerson || selectedPerson.isMarkedFound) return;
-    const currentInfoForFound = selectedPerson.additional_info || "";
+  // const handleMarkFound = () => {
+  //   if (!selectedPerson || selectedPerson.isMarkedFound) return;
+  //   const currentInfoForFound = selectedPerson.additional_info || "";
+  //   console.log(
+  //     "handleMarkFound: Current additional_info before marking as found:",
+  //     currentInfoForFound
+  //   );
+
+  //   const baseInfo =
+  //     typeof currentInfoForFound === "string" &&
+  //     currentInfoForFound.startsWith("FOUND")
+  //       ? currentInfoForFound.substring(7).trim()
+  //       : currentInfoForFound;
+  //   const newadditional_info = `FOUND${baseInfo}`.trim();
+
+  //   console.log(
+  //     "handleMarkFound: Marking as found. Base info:",
+  //     baseInfo,
+  //     "New additional_info:",
+  //     newadditional_info
+  //   );
+  //   // It's important that the backend correctly interprets this additional_info
+  //   // or that a separate field/mechanism is used to mark as found if "[FOUND]" prefix isn't stored.
+  //   // The current logic in mapApiResponseToSelectedPerson relies on additional_info starting with "[FOUND]"
+  //   // to set the status to "Found" and isMarkedFound to true.
+  //   // If newadditional_info (without [FOUND]) is saved, and the server doesn't add it back or have another status field,
+  //   // the UI might revert to "Under Investigation" after this action.
+  //   updateReportInfo(selectedPerson.id, {
+  //     reporter_id: userId,
+  //     additional_info: newadditional_info,
+  //   });
+
+
+  // };
+
+
+  const handleMarkFound = async () => {
+  // Ensure a person is selected, not already marked as found, and user is identified
+  if (!selectedPerson) {
+    setError("No person selected to mark as found.");
+    return;
+  }
+  if (selectedPerson.isMarkedFound) {
+    setSuccessMessage("This person is already marked as found."); // Or setError if preferred
+    return;
+  }
+  if (!userId) {
+    setError("User not identified. Cannot mark as found.");
+    return;
+  }
+
+  setLoadingUpdate(true);
+  setError("");
+  setSuccessMessage("");
+
+  try {
     console.log(
-      "handleMarkFound: Current additional_info before marking as found:",
-      currentInfoForFound
+      `handleMarkFound: Attempting to mark report ID: ${selectedPerson.id} as found by reporter ID: ${userId}`
     );
 
-    const baseInfo =
-      typeof currentInfoForFound === "string" &&
-      currentInfoForFound.startsWith("[FOUND]")
-        ? currentInfoForFound.substring(7).trim()
-        : currentInfoForFound;
-    const newadditional_info = `${baseInfo}`.trim();
+    // The API endpoint for a reporter to mark a person as found
+    const markFoundEndpoint = `${API_BASE_URL}/missing-persons/${selectedPerson.id}/reporter-mark-found/`;
 
-    console.log(
-      "handleMarkFound: Marking as found. Base info:",
-      baseInfo,
-      "New additional_info:",
-      newadditional_info
-    );
-    // It's important that the backend correctly interprets this additional_info
-    // or that a separate field/mechanism is used to mark as found if "[FOUND]" prefix isn't stored.
-    // The current logic in mapApiResponseToSelectedPerson relies on additional_info starting with "[FOUND]"
-    // to set the status to "Found" and isMarkedFound to true.
-    // If newadditional_info (without [FOUND]) is saved, and the server doesn't add it back or have another status field,
-    // the UI might revert to "Under Investigation" after this action.
-    updateReportInfo(selectedPerson.id, {
-      reporter_id: userId,
-      additional_info: newadditional_info,
+    const response = await fetch(markFoundEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // The body should contain the reporter_id as per the API documentation
+      body: JSON.stringify({ reporter_id: parseInt(userId) }), // Ensure userId is an integer if backend expects it
     });
-  };
+
+    const responseContentType = response.headers.get("content-type");
+    let responseData;
+
+    // Try to parse response, expecting JSON
+    if (responseContentType && responseContentType.includes("application/json")) {
+      responseData = await response.json();
+    } else {
+      const text = await response.text();
+      // If not JSON, try to parse it anyway or use the text as an error detail
+      try {
+        responseData = JSON.parse(text);
+      } catch (e) {
+        // If parsing fails and response is not OK, this text might be the error.
+        // If response IS ok but not JSON, it's unexpected.
+        console.warn("handleMarkFound: Response was not JSON. Text:", text);
+        if (!response.ok) {
+          throw new Error(text || `Server error: ${response.status}`);
+        }
+        // If response.ok but not JSON, backend might not be returning full object on success.
+        // In this specific case (reporter-mark-found), the doc says it returns the updated object.
+        // So this path (ok but not json) should ideally not happen if API conforms to doc.
+        responseData = { id: selectedPerson.id, is_found: true }; // Fallback optimistic data
+      }
+    }
+    
+    console.log(
+        "handleMarkFound: API Response Status:", response.status, "Data:", responseData
+    );
+
+    if (!response.ok) {
+      // Extract error message from responseData if available
+      const errorDetail = responseData?.detail || responseData?.message || JSON.stringify(responseData.errors) || `HTTP error ${response.status}`;
+      throw new Error(errorDetail);
+    }
+
+    // Assuming the API returns the updated person object upon success
+    // Use mapApiResponseToSelectedPerson to correctly format it for your state
+    const mappedData = mapApiResponseToSelectedPerson(responseData);
+    setSelectedPerson(mappedData); // Update the selected person's state
+
+    setSuccessMessage("Person marked as found successfully!");
+
+  } catch (err) {
+    console.error("handleMarkFound: Error marking person as found:", err);
+    setError(`Failed to mark as found: ${err.message}`);
+    // Optionally, to revert optimistic updates if any were made, or re-fetch:
+    // fetchPersonDetails(selectedPerson.id); // You'd need to implement/call this
+  } finally {
+    setLoadingUpdate(false);
+  }
+};
 
   if (authLoading) {
     return (
