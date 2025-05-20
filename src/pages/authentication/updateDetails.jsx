@@ -37,27 +37,27 @@ const UpdateDetails = () => {
 
   // Fetch user data from localStorage
   // Set initial selectedState and selectedDistrict after stateDistricts are loaded
-useEffect(() => {
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) {
-    const parsedUser = JSON.parse(storedUser);
-    setUser(parsedUser);
-    setUserId(parsedUser.user_id);
-    setFormData({
-      fullName: parsedUser.full_name || "",
-      email: parsedUser.email || "",
-      contact: parsedUser.contact || "",
-      state: parsedUser.state || "",
-      district: parsedUser.district || "",
-    });
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setUserId(parsedUser.user_id);
+      setFormData({
+        fullName: parsedUser.full_name || "",
+        email: parsedUser.email || "",
+        contact: parsedUser.contact || "",
+        state: parsedUser.state || "",
+        district: parsedUser.district || "",
+      });
 
-    // Ensure selectedState and selectedDistrict are set after stateDistricts is loaded
-    if (parsedUser.state && parsedUser.district) {
-      setSelectedState(parsedUser.state);
-      setSelectedDistrict(parsedUser.district);
+      // Ensure selectedState and selectedDistrict are set after stateDistricts is loaded
+      if (parsedUser.state && parsedUser.district) {
+        setSelectedState(parsedUser.state);
+        setSelectedDistrict(parsedUser.district);
+      }
     }
-  }
-}, [stateDistricts]); // Add stateDistricts as a dependency
+  }, [stateDistricts]); // Add stateDistricts as a dependency
 
   useEffect(() => {
     const fetchExcelFile = async () => {
@@ -156,6 +156,24 @@ useEffect(() => {
     if (validateForm()) {
       e.preventDefault();
       console.log("Submitting:", formData);
+
+      const originalState = user.state;
+      const originalDistrict = user.district;
+      console.log("Original State:", originalState);
+      console.log("Original District:", originalDistrict);
+      const stateChanged = formData.state !== originalState;
+      const districtChanged = formData.district !== originalDistrict;
+
+      const isLocationUpdate = stateChanged || districtChanged;
+      const updateURL = isLocationUpdate ? `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${userId}/location/` : `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${userId}/profile/`;
+
+      const dataToSend = isLocationUpdate
+        ? { state: formData.state, district: formData.district }
+        : {
+          fullName: formData.fullName,
+          email: formData.email,
+          contact: formData.contact,
+        };
       try {
         setIsUpdating(true);
         const Data = new FormData();
@@ -165,16 +183,12 @@ useEffect(() => {
         Data.append("state", formData.state);
         Data.append("district", formData.district);
 
-        const response = await axios.patch(
-          `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${id}/profile/`,
-          Data,
-          { withCredentials: true }
-        );
+        const res = await axios.patch(updateURL, dataToSend);
 
-        console.log("Updation Success:", response.data);
+        console.log("Updation Success:", res.data);
         alert("Details updated successfully!");
         localStorage.setItem("user", JSON.stringify(formData));
-        navigate("/home");
+        // navigate("/home");
 
       } catch (error) {
         console.error("Updation Failed:", error.response?.data || error);
