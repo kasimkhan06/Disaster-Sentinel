@@ -10,7 +10,7 @@ import {
   Modal,
   TextField,
   IconButton,
-  TextareaAutosize as Textarea,
+  TextareaAutosize as Textarea, // Already present, good. Using MUI's TextareaAutosize might be an option too.
   CircularProgress,
   Accordion,
   AccordionSummary,
@@ -22,8 +22,8 @@ import { useMediaQuery } from "@mui/material";
 
 // router hooks
 import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+// import { useParams } from "react-router-dom"; // Not used in the provided Profile component
+// import { useLocation } from "react-router-dom"; // Not used in the provided Profile component
 
 // Icons
 import {
@@ -44,8 +44,8 @@ import "react-multi-carousel/lib/styles.css";
 import axios from "axios";
 
 // Styles & Assets
-import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-import ImageUpload from "../../../../components/ImageUpload";
+import worldMapBackground from "/assets/background_image/world-map-background.jpg"; // Ensure this path is correct
+import ImageUpload from "../../../../components/ImageUpload"; // Ensure this path is correct
 
 const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails, setStatusMessage }) => {
   const [formData, setFormData] = useState({});
@@ -53,17 +53,23 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
 
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  // const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
+  // const [isLoading, setIsLoading] = useState(false); // isLoading was declared but not used here. Removed for clarity.
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
-      if (initialData.images) {
+      if (mode === 'images' && initialData.images) { // Specifically for images mode
         setExistingImages(initialData.images);
+        setNewImages([]); // Reset new images when modal opens for images
+      } else {
+        setExistingImages([]); // Clear existing images for other modes
       }
+    } else { // If initialData is undefined/null, reset form
+        setFormData({});
+        setExistingImages([]);
+        setNewImages([]);
     }
-  }, [initialData]);
+  }, [initialData, mode, open]); // Added `open` to dependencies to re-initialize when modal re-opens
 
 
   const handleChange = (e) => {
@@ -75,58 +81,96 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
 
   const handleRemoveExistingImage = async (index) => {
     const imgToDelete = existingImages[index];
-    const imageId = imgToDelete.id || imgToDelete;
+    // Ensure imageId is correctly extracted, whether imgToDelete is an object or just an ID string/number
+    const imageId = typeof imgToDelete === 'object' && imgToDelete !== null ? imgToDelete.id : imgToDelete;
+
+    if (!imageId) {
+        console.error('Image ID is missing for deletion.');
+        setStatusMessage({ type: "error", text: "Failed to delete image: ID missing." });
+        return;
+    }
+
     try {
       await axios.delete(`https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-images/${imageId}/`, { withCredentials: true });
       setExistingImages((prev) => prev.filter((_, i) => i !== index));
       console.log("Image deleted successfully");
-      fetchAgencyDetails(userId);
+      if (fetchAgencyDetails && userId) { // Ensure fetchAgencyDetails and userId are available
+          fetchAgencyDetails(userId); // Refresh agency details to reflect removed image
+      }
+      setStatusMessage({ type: "success", text: "Image removed successfully." });
     } catch (error) {
-      console.error('Failed to delete image:', error);
+      console.error('Failed to delete image:', error.response?.data || error);
+      setStatusMessage({ type: "error", text: error.response?.data?.detail || "Failed to delete image." });
     }
   };
 
-  const handleSubmit = async (e, id) => {
+  const handleSubmit = async (e) => { // Removed 'id' from params as 'userId' is already a prop
     e.preventDefault();
-    console.log("Submitting:", formData);
+    console.log("Submitting for mode:", mode, "Data:", formData, "New Images:", newImages);
+
+    if (!userId) {
+        console.error("User ID is missing for update.");
+        setStatusMessage({ type: "error", text: "User ID missing. Cannot update." });
+        return;
+    }
+
+    setIsUpdating(true);
+    const submissionData = new FormData();
+
+    if (mode === "description") {
+      submissionData.append("description", formData.description || "");
+    } else if (mode === "basicDetails") {
+      submissionData.append("contact1", formData.contact1 || "");
+      submissionData.append("contact2", formData.contact2 || ""); // Allow empty if not provided
+      submissionData.append("website", formData.website || "");   // Allow empty
+      submissionData.append("address", formData.address || "");
+    } else if (mode === 'images') {
+      newImages.forEach((file) => submissionData.append('images', file));
+      // If only removing images, newImages might be empty.
+      // The removal is handled by handleRemoveExistingImage.
+      // This submit is for ADDING new images. If no new images, maybe don't call patch or call with different logic.
+      // However, the current backend PATCH might handle empty 'images' field gracefully.
+      if (newImages.length === 0) {
+        // If no new images are being added, we might not need to submit.
+        // Or, if the intention is to signal completion of an image update session:
+        console.log("No new images to upload for user:", userId);
+        fetchAgencyDetails(userId); // Refresh details
+        handleClose();
+        setStatusMessage({ type: "info", text: "Image gallery checked." }); // Or a more appropriate message
+        setIsUpdating(false);
+        return;
+      }
+    }
 
     try {
-      setIsUpdating(true);
-
-      const Data = new FormData();
-      if (mode === "description") {
-        Data.append("description", formData.description);
-      } else if (mode === "basicDetails") {
-        Data.append("contact1", formData.contact1);
-        Data.append("contact2", formData.contact2);
-        Data.append("website", formData.website);
-        Data.append("address", formData.address);
-      } else if (mode === 'images') {
-        newImages.forEach((file) => Data.append('images', file));
-      }
-
       const response = await axios.patch(
-        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${id}/`,
-        Data,
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${userId}/`,
+        submissionData,
         { withCredentials: true }
       );
 
       console.log("Updation Success:", response.data);
-      setFormData({});
-      fetchAgencyDetails(id);
-      handleClose();
-      setTimeout(() => {
-        if (mode === "basicDetails") {
-          setStatusMessage({ type: "success", text: "Basic details updated." });
-        } else if (mode === "description") {
-          setStatusMessage({ type: "success", text: "Description updated." });
-        } else if (mode === "images") {
-          setStatusMessage({ type: "success", text: "Images updated." });
-        }
-      }, 300);
+      setFormData({}); // Clear form in modal
+      setNewImages([]); // Clear new images
+      if (fetchAgencyDetails) {
+        fetchAgencyDetails(userId); // Refresh data in Profile component
+      }
+      handleClose(); // Close modal
+
+      // Set status message in Profile component immediately
+      let successText = "Information updated successfully.";
+      if (mode === "basicDetails") {
+        successText = "Basic details updated.";
+      } else if (mode === "description") {
+        successText = "Description updated.";
+      } else if (mode === "images" && newImages.length > 0) { // Only if new images were actually submitted
+        successText = "Images updated successfully.";
+      }
+      setStatusMessage({ type: "success", text: successText });
 
     } catch (error) {
       console.error("Updation Failed:", error.response?.data || error);
+      setStatusMessage({ type: "error", text: error.response?.data?.detail || `Failed to update ${mode}.` });
     } finally {
       setIsUpdating(false);
     }
@@ -156,7 +200,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
           />
           <TextField
             fullWidth
-            label="Contact 2"
+            label="Contact 2 (Optional)"
             variant="standard"
             name="contact2"
             value={formData.contact2 || ""}
@@ -165,7 +209,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
           />
           <TextField
             fullWidth
-            label="Website"
+            label="Website (Optional)"
             variant="standard"
             name="website"
             value={formData.website || ""}
@@ -177,14 +221,16 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
     } else if (mode === "description") {
       return (
         <>
-          <textarea
+          <Textarea // Using the imported TextareaAutosize as Textarea
             name="description"
             value={formData.description || ""}
             onChange={handleChange}
-            style={{
-              width: "80%",
-              minHeight: "500px",
-              resize: "none",
+            placeholder="Enter agency description..."
+            minRows={10} // MUI TextareaAutosize uses minRows
+            style={{ // Retaining your style for consistency
+              width: "100%", // Changed to 100% for better fit in modal
+              minHeight: "300px", // Adjusted for modal view
+              resize: "vertical",
               padding: "8px 12px",
               fontSize: "1.0rem",
               lineHeight: 1.5,
@@ -194,6 +240,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
               color: "#1C2025",
               backgroundColor: "#fff",
               outline: "none",
+              boxSizing: 'border-box', // Ensure padding and border are inside width
             }}
           />
         </>
@@ -201,32 +248,40 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
     } else if (mode === "images") {
       return (
         <>
-          <Grid container spacing={2} sx={{ width: { xs: "100%", sm: "80%" }, mb: 2 }}>
-            {existingImages.map((img, index) => (
-              <Grid item xs={4} key={index}>
-                <Box sx={{ position: "relative" }}>
-                  <img
-                    src={`https://res.cloudinary.com/doxgltggk/${img.image}`}
-                    alt={`img-${index}`}
-                    style={{ width: '100%', borderRadius: 8 }}
-                  />
-                  <Button
-                    variant="contained"
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      if (window.confirm("Are you sure you want to remove this image?")) {
-                        handleRemoveExistingImage(index);
-                      }
-                    }}
-                    sx={{ mt: 1, width: "100%" }}
-                  >
-                    Remove
-                  </Button>
-                </Box>
-              </Grid>
-            ))}
+          {existingImages.length > 0 && (
+            <Typography variant="subtitle1" gutterBottom>Existing Images:</Typography>
+          )}
+          <Grid container spacing={2} sx={{ width: "100%", mb: 2 }}>
+            {existingImages.map((img, index) => {
+               // Assuming img can be a string (URL part) or an object {id: ..., image: ...}
+               const imgSrc = typeof img === 'object' && img !== null ? img.image : img;
+               return (
+                <Grid item xs={6} sm={4} key={img.id || index}> {/* Use a stable key like img.id if available */}
+                    <Box sx={{ position: "relative", textAlign: 'center' }}>
+                    <img
+                        src={`https://res.cloudinary.com/doxgltggk/${imgSrc}`}
+                        alt={`img-${index}`}
+                        style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: 8 }}
+                    />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        color="error"
+                        onClick={() => {
+                        if (window.confirm("Are you sure you want to remove this image?")) {
+                            handleRemoveExistingImage(index);
+                        }
+                        }}
+                        sx={{ mt: 1, width: "100px", fontSize: '0.7rem', p: '2px 4px' }}
+                    >
+                        Remove
+                    </Button>
+                    </Box>
+                </Grid>
+               );
+            })}
           </Grid>
+          <Typography variant="subtitle1" gutterBottom sx={{mt: existingImages.length > 0 ? 2 : 0}}>Add New Images:</Typography>
           <ImageUpload images={newImages} setImages={setNewImages} />
         </>
       );
@@ -242,7 +297,9 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: { xs: "90%", sm: 400 },
+          width: { xs: "90%", sm: mode === 'description' ? 600 : 450, md: mode === 'description' ? 800 : 500 }, // Wider for description
+          maxHeight: "90vh",
+          overflowY: "auto",
           bgcolor: "background.paper",
           boxShadow: 24,
           p: { xs: 2, sm: 3 },
@@ -252,25 +309,25 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
         <IconButton
           onClick={handleClose}
           aria-label="close"
-          sx={{ position: "absolute", top: 10, right: 10 }}
+          sx={{ position: "absolute", top: 10, right: 10, zIndex: 1 }} // Ensure close button is on top
         >
           <CloseIcon />
         </IconButton>
 
-        <Typography variant="h5" gutterBottom sx={{ textAlign: "center" }}>
+        <Typography variant="h5" gutterBottom sx={{ textAlign: "center", mb: 2 }}>
           {{
             basicDetails: "Update Basic Details",
             description: "Update Description",
-            images: "Update Images",
+            images: "Update Gallery Images",
           }[mode] || "Update Information"}
         </Typography>
 
-        <form onSubmit={(e) => handleSubmit(e, userId)}>
+        <form onSubmit={handleSubmit}> {/* Pass userId to handleSubmit if it was intended */}
           {renderFields()}
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
             {isUpdating ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <CircularProgress size={24} sx={{ color: "success.main" }} />
+                <CircularProgress size={24} sx={{ color: "primary.main" }} />
                 <Typography variant="body2">
                   Updating...
                 </Typography>
@@ -280,15 +337,15 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
                 type="submit"
                 variant="contained"
                 sx={{
-                  backgroundColor: "#fff",
-                  color: "#000",
+                  backgroundColor: "primary.main", // Consistent theme color
+                  color: "primary.contrastText",
                   boxShadow: 3,
                   borderRadius: "20px",
                   px: 4,
                   py: 1,
                   fontSize: { xs: "0.8rem", sm: "0.9rem" },
                   "&:hover": {
-                    backgroundColor: "grey.300",
+                    backgroundColor: "primary.dark",
                   },
                 }}
               >
@@ -304,23 +361,31 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
 
 function Profile() {
   const [user, setUser] = useState(null);
-  const [isLogin, setIsLogin] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLogin, setIsLogin] = useState(false); // isLogin not directly used for conditional rendering after initial check.
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
   const [agency, setAgency] = useState(null);
   const [editMode, setEditMode] = useState("");
   const [initialData, setInitialData] = useState({});
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState(null);
-  const [type, setType] = useState("about");
+  // const [type, setType] = useState("about"); // 'type' state for tab/section selection not implemented in provided JSX. Removed for now.
   const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
+
   const theme = useTheme();
-  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("md")); // Adjusted to 'md' for wider tablet applicability
   const navigate = useNavigate();
 
   useEffect(() => {
     if (statusMessage.text) {
-      const timer = setTimeout(() => setStatusMessage({ type: "", text: "" }), 5000);
-      return () => clearTimeout(timer);
+      console.log("Status message set:", statusMessage); // Log when message appears
+      const timer = setTimeout(() => {
+        console.log("Clearing status message via timer:", statusMessage);
+        setStatusMessage({ type: "", text: "" });
+      }, 5000);
+      return () => {
+        console.log("useEffect cleanup: Clearing timer for status message:", statusMessage);
+        clearTimeout(timer);
+      };
     }
   }, [statusMessage]);
 
@@ -346,7 +411,7 @@ function Profile() {
 
   const handleOpenImages = () => {
     setInitialData({
-      images: agency?.images || [],
+      images: agency?.images || [], // Pass existing images to the modal
     });
     setEditMode("images");
     setOpen(true);
@@ -354,6 +419,38 @@ function Profile() {
 
   const handleClose = () => {
     setOpen(false);
+    // Optionally reset initialData if it's large and not needed
+    // setInitialData({});
+  };
+
+  const fetchAgencyDetails = async (currentUserId) => {
+    if (!currentUserId) return; // Don't fetch if no userId
+    setIsLoading(true);
+    // console.log(`Workspaceing agency details for user ID: ${currentUserId}`);
+    try {
+      const response = await fetch(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${currentUserId}/`
+      );
+      if (!response.ok) {
+        // If response is not OK (e.g. 404), treat as no agency or error
+        if (response.status === 404) {
+            console.warn("Agency profile not found for user:", currentUserId);
+            setAgency({ agency_name: null }); // Explicitly set to indicate "not found" state for rendering logic
+        } else {
+            throw new Error(`Failed to fetch agency details: ${response.status}`);
+        }
+      } else {
+        const data = await response.json();
+        setAgency(data);
+      }
+    } catch (error) {
+      console.error("Error fetching agency details:", error);
+      // Optionally set an error status message for the user here
+      // setStatusMessage({ type: "error", text: "Could not load agency details." });
+      setAgency({ agency_name: null }); // Fallback to a state indicating no agency or error
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -361,30 +458,39 @@ function Profile() {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      setIsLogin(true);
-      fetchAgencyDetails(parsedUser.user_id);
-      setUserId(parsedUser.user_id);
+      // setIsLogin(true);
+      setUserId(parsedUser.user_id); // Set userId state
+      fetchAgencyDetails(parsedUser.user_id); // Fetch details using the id
+    } else {
+      // Handle not logged in: redirect or show message
+      setIsLoading(false); // Not loading if no user
+      // navigate("/login"); // Example redirect
     }
-  }, []);
+  }, [navigate]); // Added navigate to dependencies of useEffect
 
-  const fetchAgencyDetails = async (userId) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${userId}/`
-      );
-      const data = await response.json();
-      setAgency(data);
-    } catch (error) {
-      console.error("Error fetching agency details:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  if (isLoading || !agency) return <Typography>Loading...</Typography>;
+  // Loading state
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <CircularProgress />
+        <Typography sx={{ml: 2}}>Loading profile...</Typography>
+      </Box>
+    );
+  }
 
-  if (!!agency && !agency.agency_name) {
+  // No user identified (e.g. not logged in, or userId not set)
+  if (!userId && !agency) { // If no userId and still no agency data (e.g. initial load failed before user parse)
+    return (
+        <Box sx={{ textAlign: 'center', mt: 5, p: 3 }}>
+            <Typography variant="h5">User information not available.</Typography>
+            <Button variant="contained" onClick={() => navigate("/login")} sx={{mt: 2}}>Go to Login</Button>
+        </Box>
+    );
+  }
+  
+  // User identified, but no agency profile found for them
+  if (agency && !agency.agency_name) {
     return (
       <Box
         sx={{
@@ -396,27 +502,36 @@ function Profile() {
           justifyContent: "center",
           minHeight: "100vh",
           textAlign: "center",
+          p: 2, // Padding for smaller screens
         }}
       >
-        <Typography variant="h4" sx={{ textAlign: "center", mt: 5 }}>
+        {/* Display status message if any (e.g. error from fetch) */}
+        {statusMessage.text && (
+          <Alert
+            severity={statusMessage.type || "info"}
+            sx={{ mt: 0, mb: 3,  width: 'auto', minWidth: '300px', maxWidth: '90%'}}
+            onClose={() => setStatusMessage({ type: "", text: "" })}
+          >
+            {statusMessage.text}
+          </Alert>
+        )}
+        <Typography variant="h4" sx={{ textAlign: "center", mt: statusMessage.text ? 0 : 5, fontSize: {xs: "1.5rem", sm: "2rem"} }}>
           No Agency Profile Found
         </Typography>
+        <Typography variant="body1" sx={{mt: 1, mb: 3, color: 'text.secondary'}}>
+            It seems you haven't created an agency profile yet.
+        </Typography>
         <Button
-          variant="standard"
+          variant="contained" // Changed to contained for better visibility
+          color="primary"
           size="large"
           sx={{
-            mt: 3,
             textTransform: "none",
-            backgroundColor: "#fff",
-            color: "#000",
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
             borderRadius: "20px",
             px: { xs: 3, sm: 4 },
             py: { xs: 1, sm: 1.5 },
             fontSize: { xs: "0.9rem", sm: "1rem" },
-            "&:hover": {
-              backgroundColor: "#f0f0f0",
-            },
           }}
           onClick={() => navigate("/registration-form")}
         >
@@ -424,28 +539,39 @@ function Profile() {
         </Button>
       </Box>
     );
-  } else {
+  }
+  
+  // Agency profile exists, render main profile view
+  if (agency && agency.agency_name) { // Ensure agency is not null and has a name
+    const profileImageSrc = agency.images?.[1]?.image // Use second image for profile card as per original logic
+        ? `https://res.cloudinary.com/doxgltggk/${agency.images[1].image}`
+        : "/assets/logo_image.webp"; // Fallback
+    const bannerImageSrc = agency.images?.[0]?.image
+        ? `https://res.cloudinary.com/doxgltggk/${agency.images[0].image}`
+        : worldMapBackground; // Fallback to world map if no first image
+
+
     return (
       <Box
         sx={{
           width: "100%",
-          backgroundColor: "#f0f2f5",
-          pb: { xs: 2, md: 8 },
+          backgroundColor: "#f0f2f5", // Light grey background for the whole page
+          pb: { xs: 2, md: 8 }, // Bottom padding
         }}
       >
-        {console.log("statusMessage in render:", statusMessage)}
-
+        {/* Status Message Alert - This is the crucial part */}
         {statusMessage.text && (
           <Alert
-            severity={statusMessage.type}
+            severity={statusMessage.type || "info"} // Default to info if type is missing
             sx={{
-              mt: 2,
-              mb: 1,
-              maxWidth: 600,
-              mx: "auto",
-              textAlign: "center",
-              fontWeight: 500,
-              fontSize: { xs: "0.95rem", md: "1.1rem" },
+              position: 'fixed', // Fixed position to ensure visibility
+              top: theme.spacing(2), // Spacing from top (Material UI theme spacing)
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1500, // High zIndex to be on top of other elements
+              minWidth: 300, // Minimum width
+              maxWidth: '90%', // Max width relative to viewport
+              boxShadow: theme.shadows[6],
             }}
             onClose={() => setStatusMessage({ type: "", text: "" })}
           >
@@ -456,508 +582,206 @@ function Profile() {
         <Box
           sx={{
             width: "100%",
-            minWidth: { xs: "100%", md: "85%", lg: "1000px" },
-            mx: "auto",
-            mt: { xs: 2, md: 3, lg: 8 },
-            height: { xs: 180, md: 220 },
-            backgroundImage: `url(https://res.cloudinary.com/doxgltggk/${agency.images?.[0]?.image})`,
+            // Removed minWidth for simplicity, maxWidth on inner content is better
+            height: { xs: 180, sm: 220, md: 250 }, // Responsive height
+            backgroundImage: `url(${bannerImageSrc})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            position: "relative",
-            zIndex: 1,
+            position: "relative", // For potential overlays if needed, but not strictly zIndex here
+            // zIndex: 1, // Not strictly needed here if Alert has higher zIndex
           }}
         />
-        <Box
+        <Box // This Box now serves as the main content area with the world map background
           sx={{
             position: "relative",
             width: "100%",
-            minHeight: "100vh",
+            minHeight: "100vh", // Ensure it takes at least full viewport height
             background: `
-            linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
-            url(${worldMapBackground})
-          `,
+              linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), 
+              url(${worldMapBackground})
+            `, // Slightly more opaque gradient
             backgroundSize: "cover",
             backgroundPosition: "center",
-            backgroundAttachment: "fixed",
-            backgroundRepeat: "repeat-y",
+            backgroundAttachment: "fixed", // Keeps background stationary on scroll
+            backgroundRepeat: "no-repeat", // No repeat should be fine for cover
+            pt: 2, // Padding top to space content from banner
           }}
         >
           {/* Profile Card */}
           <Box
             sx={{
-              maxWidth: { xs: "80%", md: "85%", lg: "1000px" },
-              mx: "auto",
-              mt: { xs: -6, md: -5, lg: -3 },
-              p: { xs: 2, md: 3, lg: 5 },
+              maxWidth: { xs: "90%", sm: "85%", md: "80%", lg: "1000px" }, // Responsive max width
+              mx: "auto", // Center the card
+              mt: { xs: -8, sm: -10, md: -12 }, // Negative margin to overlap banner
+              p: { xs: 2, sm: 3, md: 4 }, // Responsive padding
               backgroundColor: "white",
-              borderRadius: 3,
-              boxShadow: 3,
-              zIndex: 1,
-              position: "relative",
+              borderRadius: 3, // Softer radius
+              boxShadow: theme.shadows[5], // Consistent shadow
+              position: "relative", // Needed for zIndex context if overlapping
+              zIndex: 10, // Higher than banner if any direct overlap logic, but Alert is higher
             }}
           >
-            <Grid container spacing={4}>
+            <Grid container spacing={{ xs: 2, md: 4 }}>
               <Grid item xs={12} md={4} sx={{ textAlign: "center" }}>
                 <Typography
                   variant="h4"
+                  component="h1" // Semantic heading
                   sx={{
-                    fontWeight: 500,
+                    fontWeight: 600, // Slightly bolder
                     mb: 2,
-                    textAlign: "center",
-                    color: "black",
+                    color: "text.primary",
                     textTransform: "uppercase",
                     letterSpacing: 1.5,
-                    fontSize: { xs: "1.2rem", md: "1.5rem" },
-                    textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                    fontSize: { xs: "1.3rem", sm: "1.5rem", md: "1.75rem" },
+                    textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
                   }}
                 >
                   {agency.agency_name}
                 </Typography>
                 <Box
                   component="img"
-                  src={agency.images?.[0]?.image ? `https://res.cloudinary.com/doxgltggk/${agency.images[1].image}` : "/assets/logo_image.webp"}
-                  alt="Profile"
+                  src={profileImageSrc}
+                  alt={`${agency.agency_name} Profile`}
                   sx={{
-                    width: { xs: 120, md: 180 },
-                    height: { xs: 120, md: 180 },
-                    borderRadius: "10px",
-                    border: "2px solid #ccc",
+                    width: { xs: 120, sm: 150, md: 180 },
+                    height: { xs: 120, sm: 150, md: 180 },
+                    borderRadius: "50%", // Circular profile image
+                    border: `3px solid ${theme.palette.grey[300]}`,
                     objectFit: "cover",
                     mb: 2,
-                    boxShadow: 1,
+                    boxShadow: theme.shadows[3],
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, md: 5 }, textAlign: "left", alignItems: "center", justifyContent: "center" }}>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  {[
-                    {
-                      label: "Name",
-                      value: agency.agency_name,
-                      icon: <Person fontSize="small" />
-                    },
-                    {
-                      label: "Founded",
-                      value: agency.date_of_establishment,
-                      icon: <CalendarToday fontSize="small" />
-                    },
-                    {
-                      label: "Address",
-                      value: `${agency.address}, ${agency.district}, ${agency.state}`,
-                      icon: <LocationOn fontSize="small" />
-                    },
-                    {
-                      label: "Contact",
-                      value: agency.contact2
-                        ? `${agency.contact1}, ${agency.contact2}`
-                        : agency.contact1,
-                      icon: <Phone fontSize="small" />
-                    },
-                    {
-                      label: "Website",
-                      value: agency.website
-                        ? agency.website
-                        : "No website available",
-                      icon: <LanguageIcon fontSize="small" />
-                    },
-                    {
-                      label: "Volunteers",
-                      value: agency.volunteers,
-                      icon: <Visibility fontSize="small" />
-                    },
-                  ].map((item, index) => (
-                    <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      {item.icon}
-                      <Typography sx={{ ml: 1, fontWeight: 600, minWidth: 100, fontSize: { xs: "0.9rem", md: "1rem" } }}>
-                        {item.label}:
-                      </Typography>
-                      <Typography sx={{ ml: 1, color: "text.secondary", wordBreak: "break-word", fontSize: { xs: "0.8rem", md: "1rem" } }}>
+              <Grid item xs={12} md={8} sx={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: { xs: 1, md: 1.5 }}}>
+                {[
+                  { label: "Name", value: agency.agency_name, icon: <Person fontSize="small" /> },
+                  { label: "Founded", value: agency.date_of_establishment ? new Date(agency.date_of_establishment).toLocaleDateString() : "N/A", icon: <CalendarToday fontSize="small" /> },
+                  { label: "Address", value: `${agency.address || ''}, ${agency.district || ''}, ${agency.state || ''}`.replace(/, ,/g, ',').replace(/^,|,$/g, '') || "N/A", icon: <LocationOn fontSize="small" /> },
+                  { label: "Contact", value: agency.contact2 ? `${agency.contact1}, ${agency.contact2}` : agency.contact1 || "N/A", icon: <Phone fontSize="small" /> },
+                  { label: "Website", value: agency.website || "No website available", icon: <LanguageIcon fontSize="small" />, link: agency.website },
+                  { label: "Volunteers", value: agency.volunteers || "N/A", icon: <Visibility fontSize="small" /> },
+                ].map((item, index) => (
+                  <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
+                    <Box sx={{mr: 1.5, color: 'primary.main'}}>{item.icon}</Box>
+                    <Typography sx={{ fontWeight: 600, minWidth: {xs: 80, sm:100}, fontSize: { xs: "0.85rem", sm:"0.9rem", md: "1rem" } }}>
+                      {item.label}:
+                    </Typography>
+                    {item.link ? (
+                        <Typography component="a" href={item.link.startsWith('http') ? item.link : `http://${item.link}`} target="_blank" rel="noopener noreferrer" sx={{ ml: 1, color: "primary.main", wordBreak: "break-word", fontSize: { xs: "0.85rem", sm:"0.9rem", md: "1rem" }, textDecoration: 'none', '&:hover': {textDecoration: 'underline'} }}>
+                            {item.value}
+                        </Typography>
+                    ) : (
+                        <Typography sx={{ ml: 1, color: "text.secondary", wordBreak: "break-word", fontSize: { xs: "0.85rem", sm:"0.9rem", md: "1rem" } }}>
                         {item.value}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              </Grid>
-              <Grid item xs={12} sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 1 }}>
-                <Box sx={{ display: "flex", justifyContent: "center" }}>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<Edit />}
-                    sx={{
-                      mt: 1,
-                      textTransform: "none",
-                      fontWeight: 600,
-                      color: "green",
-                      borderColor: "#388e3c",
-                      "&:hover": {
-                        backgroundColor: "black",
-                        borderColor: "black",
-                        color: "white",
-                      }
-                    }}
-                    onClick={handleOpenBasicDetails}
-                  >
-                    Edit
-                  </Button>
-                </Box>
+                        </Typography>
+                    )}
+                  </Box>
+                ))}
+                 <Grid item xs={12} sx={{ textAlign: "right", pt: 1 }}>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<Edit />}
+                        onClick={handleOpenBasicDetails}
+                        sx={{ textTransform: "none", fontWeight: 600, color: "primary.main", borderColor: "primary.main", '&:hover': { backgroundColor: theme.palette.primary.main, color: theme.palette.primary.contrastText, borderColor: theme.palette.primary.main } }}
+                    >
+                        Edit Details
+                    </Button>
+                 </Grid>
               </Grid>
             </Grid>
           </Box>
 
-          {/* Description Section */}
-          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-            {isMobileOrTablet ? (
-              <Box sx={{ width: "100%", maxWidth: { xs: "85%", md: "85%", lg: "1000px" }, mx: "auto", mt: 2 }}>
-                <Accordion
-                  sx={{
-                    width: "100%",
-                    boxShadow: "none",
-                    backgroundColor: "rgba(255, 255, 255, 0.67)",
-                    transition: "margin 0.3s ease",
-                    "&.Mui-expanded": {
-                      mt: 1,  // Add top margin when expanded
-                    },
-                    "&:before": {
-                      display: "none",  // Remove default underline
-                    },
-                    "&:hover": {
-                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-                    },
-                  }}
-                >
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    sx={{
-                      backgroundColor: "rgb(255, 255, 255)",
-                      minHeight: "48px !important",
-                      "&.Mui-expanded": {
-                        minHeight: "48px !important",
-                      },
-                      "& .MuiAccordionSummary-content": {
-                        margin: "12px 0",
-                        justifyContent: "center",
-                        "&.Mui-expanded": {
-                          margin: "12px auto",
-                        },
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: "bold", fontSize: "1rem", textAlign: "center" }}>
-                      ABOUT US
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails
-                    sx={{
-                      p: 0,
-                      width: "100%",
-                      boxSizing: "border-box",
-                      backgroundColor: "rgb(255, 255, 255)",
-                      minHeight: "60px",  // Maintain height when expanded
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: "text.secondary",
-                        whiteSpace: "pre-line",
-                        fontSize: { xs: "0.8rem", md: "1rem" },
-                        textAlign: "center",
-                        p: 2,
-                      }}
-                    >
-                      {agency.description || "No description available."}
-                    </Typography>
-                    <Grid
-                      item
-                      xs={12}
-                      sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
-                    >
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<Edit />}
-                        sx={{
-                          mt: 1,
-                          textTransform: "none",
-                          fontWeight: 600,
-                          color: "green",
-                          borderColor: "#388e3c",
-                          "&:hover": {
-                            backgroundColor: "black",
-                            borderColor: "black",
-                            color: "white",
-                          },
-                        }}
-                        onClick={handleOpenDescription}
-                      >
-                        Edit
-                      </Button>
-                    </Grid>
-                  </AccordionDetails>
-                </Accordion>
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
-                  mx: "auto",
-                  p: { xs: 2, md: 3, lg: 5 },
-                  backgroundColor: "white",
-                  borderRadius: 3,
-                  boxShadow: 3,
-                  mt: 2,
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "text.secondary",
-                    whiteSpace: "pre-line",
-                    fontSize: { xs: "0.8rem", md: "1rem" },
-                  }}
-                >
-                  {agency.description || "No description available."}
-                </Typography>
-                <Grid
-                  item
-                  xs={12}
-                  sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
-                >
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<Edit />}
-                    sx={{
-                      mt: 1,
-                      textTransform: "none",
-                      fontWeight: 600,
-                      color: "green",
-                      borderColor: "#388e3c",
-                      "&:hover": {
-                        backgroundColor: "black",
-                        borderColor: "black",
-                        color: "white",
-                      },
-                    }}
-                    onClick={handleOpenDescription}
-                  >
-                    Edit
-                  </Button>
-                </Grid>
-              </Box>
-            )}
-          </Grid>
-
-          {/* Images Section */}
-          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-            {isMobileOrTablet ? (
-              <Box sx={{ width: "100%", maxWidth: { xs: "85%", md: "85%", lg: "1000px" }, mx: "auto", mt: 2 }}>
-                <Accordion
-                  sx={{
-                    width: "100%",
-                    boxShadow: "none",
-                    backgroundColor: "rgba(255, 255, 255, 0.67)",
-                    transition: "margin 0.3s ease",
-                    "&.Mui-expanded": {
-                      mt: 1,  // Maintain top spacing when expanded
-                    },
-                    "&:before": {
-                      display: "none",  // Remove default underline
-                    },
-                    "&:hover": {
-                      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-                    },
-                  }}
-                >
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    sx={{
-                      backgroundColor: "rgb(255, 255, 255)",
-                      minHeight: "48px !important",
-                      "&.Mui-expanded": {
-                        minHeight: "48px !important",
-                      },
-                      "& .MuiAccordionSummary-content": {
-                        margin: "12px 0",
-                        justifyContent: "center",
-                        "&.Mui-expanded": {
-                          margin: "12px auto",
-                        },
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: "bold", fontSize: "1rem", textAlign: "center" }}>
-                      GALLERY
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails
-                    sx={{
-                      p: 0,
-                      width: "100%",
-                      boxSizing: "border-box",
-                      backgroundColor: "rgb(255, 255, 255)",
-                      minHeight: "60px",  // Maintain height when expanded
-                    }}
-                  >
-                    <Box sx={{ my: 2 }}>
-                      <Carousel
-                        responsive={{
-                          mobile: { breakpoint: { max: 600, min: 0 }, items: 1 },
-                        }}
-                        ssr={true}
-                        infinite={true}
-                        autoPlay={true}
-                        autoPlaySpeed={2000}
-                        arrows={true}
-                      >
-                        {agency.images?.map((imgObj, index) => (
-                          <Box
-                            key={index}
-                            sx={{
-                              padding: { xs: 1, md: 2 },
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
+          {/* Sections: About Us & Gallery */}
+          {["description", "images"].map((sectionName) => {
+            const sectionTitle = sectionName === "description" ? "ABOUT US" : "GALLERY";
+            const sectionContent = sectionName === "description" 
+                ? <Typography sx={{ color: "text.secondary", whiteSpace: "pre-line", fontSize: { xs: "0.9rem", md: "1rem" }, p: 2, textAlign: isMobileOrTablet ? 'center' : 'left' }}>{agency.description || "No description available."}</Typography>
+                : (
+                    <Box sx={{ my: 2, p: {xs: 1, sm: 0} }}> {/* Added padding for mobile carousel */}
+                        {agency.images && agency.images.length > 0 ? (
+                        <Carousel
+                            responsive={{
+                                desktop: { breakpoint: { max: 3000, min: 1024 }, items: Math.min(agency.images.length, isMobileOrTablet ? 1 : 3), slidesToSlide: 1 }, // Show 3 or less on desktop
+                                tablet: { breakpoint: { max: 1024, min: 600 }, items: Math.min(agency.images.length, 2), slidesToSlide: 1 },
+                                mobile: { breakpoint: { max: 600, min: 0 }, items: 1, slidesToSlide: 1 },
                             }}
-                          >
+                            ssr={true}
+                            infinite={agency.images.length > (isMobileOrTablet ? 1 : 3)} // Only infinite if enough items
+                            autoPlay={agency.images.length > 1 ? true : false}
+                            autoPlaySpeed={3000}
+                            arrows={true}
+                            centerMode={isMobileOrTablet && agency.images.length > 1} // Center mode for mobile if multiple images
+                        >
+                            {agency.images.map((imgObj, index) => (
                             <Box
-                              component="img"
-                              src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
-                              alt={`Agency Image ${index}`}
-                              sx={{
-                                width: "100%",
-                                height: { xs: 200, md: 180 },
-                                borderRadius: 2,
-                                border: "1px solid #ccc",
-                                boxShadow: 1,
-                                transition: "transform 0.3s",
-                                "&:hover": {
-                                  transform: "scale(1.05)",
-                                },
-                              }}
-                            />
-                          </Box>
-                        ))}
-                      </Carousel>
+                                key={imgObj.id || index} // Use stable ID
+                                sx={{
+                                padding: { xs: '0 8px', sm: '0 10px', md: '0 12px' }, // Horizontal padding for spacing between items
+                                display: "flex", justifyContent: "center", alignItems: "center",
+                                }}
+                            >
+                                <Box
+                                component="img"
+                                src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
+                                alt={`Agency Image ${index + 1}`}
+                                sx={{
+                                    width: "100%", // Make image responsive within its container
+                                    height: { xs: 200, sm: 220, md: 250 },
+                                    objectFit: "cover", // Cover to maintain aspect ratio
+                                    borderRadius: 2,
+                                    border: `1px solid ${theme.palette.grey[300]}`,
+                                    boxShadow: theme.shadows[2],
+                                    transition: "transform 0.3s ease-in-out",
+                                    "&:hover": { transform: "scale(1.03)" },
+                                }}
+                                />
+                            </Box>
+                            ))}
+                        </Carousel>
+                        ) : <Typography sx={{p:2, textAlign: 'center', color: 'text.secondary'}}>No images in the gallery yet.</Typography>}
                     </Box>
-                    <Grid
-                      item
-                      xs={12}
-                      sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
+                );
+            const handleOpenAction = sectionName === "description" ? handleOpenDescription : handleOpenImages;
+
+            return (
+                <Grid item xs={12} key={sectionName} sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                 <Box sx={{ width: "100%", maxWidth: { xs: "90%", sm: "85%", md: "80%", lg: "1000px" }, mx: "auto"}}>
+                    {isMobileOrTablet ? (
+                    <Accordion
+                        sx={{ width: "100%", boxShadow: theme.shadows[2], '&:before': { display: 'none' }, '&.Mui-expanded': { mt: 1, mb: 1, boxShadow: theme.shadows[4] }, backgroundColor: 'white' }}
                     >
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<Edit />}
-                        sx={{
-                          mt: 1,
-                          textTransform: "none",
-                          fontWeight: 600,
-                          color: "green",
-                          borderColor: "#388e3c",
-                          "&:hover": {
-                            backgroundColor: "black",
-                            borderColor: "black",
-                            color: "white",
-                          },
-                        }}
-                        onClick={handleOpenImages}
-                      >
-                        Edit
-                      </Button>
-                    </Grid>
-                  </AccordionDetails>
-                </Accordion>
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  maxWidth: { xs: "85%", md: "85%", lg: "1000px" },
-                  mx: "auto",
-                  p: { xs: 2, md: 3, lg: 5 },
-                  backgroundColor: "white",
-                  borderRadius: 3,
-                  boxShadow: 3,
-                  mt: 2,
-                }}
-              >
-                <Box sx={{ my: 2 }}>
-                  <Carousel
-                    responsive={{
-                      desktop: { breakpoint: { max: 3000, min: 1024 }, items: agency.images?.length === 2 ? 2 : 4 },
-                      tablet: { breakpoint: { max: 1024, min: 600 }, items: 2 },
-                      mobile: { breakpoint: { max: 600, min: 0 }, items: 1 },
-                    }}
-                    ssr={true}
-                    infinite={true}
-                    autoPlay={true}
-                    autoPlaySpeed={2000}
-                    arrows={true}
-                  >
-                    {agency.images?.map((imgObj, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          padding: { xs: 1, md: 2 },
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Box
-                          component="img"
-                          src={`https://res.cloudinary.com/doxgltggk/${imgObj.image}`}
-                          alt={`Agency Image ${index}`}
-                          sx={{
-                            width: "100%",
-                            height: { xs: 200, md: 180 },
-                            borderRadius: 2,
-                            border: "1px solid #ccc",
-                            boxShadow: 1,
-                            transition: "transform 0.3s",
-                            "&:hover": {
-                              transform: "scale(1.05)",
-                            },
-                          }}
-                        />
-                      </Box>
-                    ))}
-                  </Carousel>
-                </Box>
-                <Grid
-                  item
-                  xs={12}
-                  sx={{ textAlign: "center", display: "flex", justifyContent: "end", p: 2 }}
-                >
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<Edit />}
-                    sx={{
-                      mt: 1,
-                      textTransform: "none",
-                      fontWeight: 600,
-                      color: "green",
-                      borderColor: "#388e3c",
-                      "&:hover": {
-                        backgroundColor: "black",
-                        borderColor: "black",
-                        color: "white",
-                      },
-                    }}
-                    onClick={handleOpenImages}
-                  >
-                    Edit
-                  </Button>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ minHeight: "48px !important", '&.Mui-expanded': { minHeight: "48px !important" }, '& .MuiAccordionSummary-content': { margin: "12px 0", justifyContent: "space-between", alignItems: 'center' }}}>
+                        <Typography sx={{ fontWeight: "bold", fontSize: "1.1rem", textAlign: "left" }}>{sectionTitle}</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ p:0, backgroundColor: "white" }}>
+                            {sectionContent}
+                            <Grid item xs={12} sx={{ textAlign: "right", p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+                                <Button variant="outlined" size="small" startIcon={<Edit />} onClick={handleOpenAction} sx={{ textTransform: "none", fontWeight: 600, color: "primary.main", borderColor: "primary.main", '&:hover': { backgroundColor: theme.palette.primary.main, color: theme.palette.primary.contrastText } }}>Edit {sectionName}</Button>
+                            </Grid>
+                        </AccordionDetails>
+                    </Accordion>
+                    ) : (
+                    <Box sx={{ p: { xs: 2, md: 3 }, backgroundColor: "white", borderRadius: 3, boxShadow: theme.shadows[3], mt: 2 }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={sectionName === "images" ? 0 : 2}>
+                             <Typography variant="h5" component="h2" sx={{ fontWeight: 500, color: "text.primary" }}>{sectionTitle}</Typography>
+                             <Button variant="outlined" size="small" startIcon={<Edit />} onClick={handleOpenAction} sx={{ textTransform: "none", fontWeight: 600, color: "primary.main", borderColor: "primary.main", '&:hover': { backgroundColor: theme.palette.primary.main, color: theme.palette.primary.contrastText } }}>Edit {sectionName}</Button>
+                        </Box>
+                        {sectionContent}
+                    </Box>
+                    )}
+                  </Box>
                 </Grid>
-              </Box>
-            )}
-          </Grid>
+            );
+          })}
+
           <UpdateModal
             open={open}
             handleClose={handleClose}
             mode={editMode}
             initialData={initialData}
-            userId={userId}
+            userId={userId} // Pass the userId state
             fetchAgencyDetails={fetchAgencyDetails}
             setStatusMessage={setStatusMessage}
           />
@@ -965,6 +789,14 @@ function Profile() {
       </Box>
     );
   }
+  
+  // Fallback if agency is null for some reason after loading and not fitting other conditions
+  // This case should ideally be covered by isLoading or !agency.agency_name check
+  return (
+    <Box sx={{ textAlign: 'center', mt: 5 }}>
+        <Typography>Profile data is currently unavailable.</Typography>
+    </Box>
+  );
 }
 
 export default Profile;

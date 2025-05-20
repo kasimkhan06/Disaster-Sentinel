@@ -322,7 +322,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
           onClick={() => handleNavigation("/flood-prediction")}
           sx={{ width: "100%" }}
         >
-          Flood Prediction
+          Station Information
         </MenuItem>
       </Menu>
     </>

@@ -52,6 +52,8 @@ const AgencyProfile = () => {
   const [expandedAccordion, setExpandedAccordion] = useState("info");
   const navigate = useNavigate();
   const [isNotLoggedin, setIsNotLoggedIn] = useState(false);
+  const [volunteerData, setVolunteerData] = useState(null);
+  const [volunteerStatus, setVolunteerStatus] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -100,15 +102,36 @@ const AgencyProfile = () => {
     fetchAgencyData();
   }, [id]);
 
-  const handleVolunteerClick = () => {
+  const handleVolunteerClick = async () => {
     console.log("isNotLoggedIn:" + isNotLoggedin);
     if (!userID) {
-      // Store the current path in localStorage before navigating to login
       localStorage.setItem("redirectAfterLogin", window.location.pathname);
       setIsNotLoggedIn(true);
       return;
     }
-    setVolunteer(true);
+
+    try {
+      console.log("User ID in volunteer data:", userID);
+      const response = await axios.get(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/volunteer-interest/check-status/?volunteer_id=${userID}&agency_id=${id}`
+      );
+
+      console.log("Volunteer Data:", response.data);
+      const newStatus = response.data.reason_code;
+      setVolunteerStatus(newStatus);
+
+      if (
+        newStatus === "EXISTING_VOLUNTEER_REQUEST" ||
+        newStatus === "ALREADY_AGENCY_MEMBER"
+      ) {
+        setVolunteer(false);
+        return;
+      }
+
+      setVolunteer(true);
+    } catch (error) {
+      console.error("Error fetching volunteer status details:", error);
+    }
   };
 
   const handleCloseVolunteer = () => {
@@ -156,6 +179,24 @@ const AgencyProfile = () => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    let timer;
+
+    if (submitSuccess) {
+      timer = setTimeout(() => {
+        setSubmitSuccess(false);
+        handleVolunteerClick();
+        // setVolunteer(true);
+      }, 10000); // 10 seconds
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [submitSuccess]);
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpandedAccordion(isExpanded ? panel : null);
@@ -375,6 +416,35 @@ const AgencyProfile = () => {
               </Button>
             </Card>
           )}
+
+          {!isNotLoggedin &&
+            (volunteerStatus === "EXISTING_VOLUNTEER_REQUEST" ||
+              volunteerStatus === "ALREADY_AGENCY_MEMBER") && (
+              <Card
+                sx={{
+                  mt: 1,
+                  px: { xs: 3, sm: 3, md: 2 },
+                  borderRadius: 0,
+                  boxShadow: 0,
+                }}
+              >
+                {volunteerStatus === "EXISTING_VOLUNTEER_REQUEST" && (
+                  <Typography
+                    sx={{ fontSize: "0.9rem", textAlign: "center", mb: 1 }}
+                  >
+                    Your request is already submitted.
+                  </Typography>
+                )}
+                {volunteerStatus === "ALREADY_AGENCY_MEMBER" && (
+                  <Typography
+                    sx={{ fontSize: "0.9rem", textAlign: "center", mb: 1 }}
+                  >
+                    You are already a volunteer of this agency.
+                  </Typography>
+                )}
+              </Card>
+            )}
+
           {/* Volunteer Dialog */}
           {volunteer && !submitSuccess && (
             <Card
@@ -1060,7 +1130,7 @@ const AgencyProfile = () => {
                                   color: "black",
                                   "&:hover": {
                                     backgroundColor: "transparent",
-                                    textDecoration:"underline",
+                                    textDecoration: "underline",
                                   },
                                   width: "100%",
                                 }}
@@ -1069,6 +1139,43 @@ const AgencyProfile = () => {
                               </Button>
                             </Card>
                           )}
+                          {!isNotLoggedin &&
+                            (volunteerStatus === "EXISTING_VOLUNTEER_REQUEST" ||
+                              volunteerStatus === "ALREADY_AGENCY_MEMBER") && (
+                              <Card
+                                sx={{
+                                  mt: 1,
+                                  px: { xs: 3, sm: 3, md: 2 },
+                                  borderRadius: 0,
+                                  boxShadow: 0,
+                                }}
+                              >
+                                {volunteerStatus ===
+                                  "EXISTING_VOLUNTEER_REQUEST" && (
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.9rem",
+                                      textAlign: "center",
+                                      mb: 1,
+                                    }}
+                                  >
+                                    Your request is already submitted.
+                                  </Typography>
+                                )}
+                                {volunteerStatus ===
+                                  "ALREADY_AGENCY_MEMBER" && (
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.9rem",
+                                      textAlign: "center",
+                                      mb: 1,
+                                    }}
+                                  >
+                                    You are already a volunteer of this agency.
+                                  </Typography>
+                                )}
+                              </Card>
+                            )}
                           {volunteer && !submitSuccess && (
                             <Grid
                               container
@@ -1181,7 +1288,7 @@ const AgencyProfile = () => {
                             </Grid>
                           )}
                           {submitSuccess && !volunteer && (
-                            <Typography>
+                            <Typography align="center">
                               {" "}
                               Thank you for your request.
                             </Typography>
@@ -1360,7 +1467,7 @@ const AgencyProfile = () => {
             </Box>
           </Grid>
         </Grid>
-      )}  
+      )}
     </Box>
   );
 };

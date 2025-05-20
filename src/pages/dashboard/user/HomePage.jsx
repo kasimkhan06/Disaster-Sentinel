@@ -43,6 +43,8 @@ import DisasterMap from "../../disasters/user/DisasterMap";
 import Map from "./Map";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import Footer from "../../../components/Footer";
+import useFloodPredictions from "../../../hooks/useFloodPredictions";
+
 
 function HomePage() {
   const theme = useTheme();
@@ -54,6 +56,16 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [selectedDisaster, setSelectedDisaster] = useState(null);
   const [expandedAccordion, setExpandedAccordion] = useState(null);
+  // const [stationData, setStationData] = useState([]); // This would be populated with your station data
+  const [stationData] = useState([
+  {
+    stationId: 'india-station-1',
+    latitude: 12.1822,  // New Delhi coordinates
+    longitude: 77.7239,
+    // Add other required station parameters here
+  }
+]);
+  const { predictions: floodPredictions, loading: floodLoading } = useFloodPredictions(stationData);
 
   // Calculate sliced disasters (5 per type) to be used in both the list and map
   const slicedDisasters = useMemo(() => {
@@ -313,6 +325,7 @@ function HomePage() {
                   ) : (
                     <Map
                       disasters={slicedDisasters}
+                      floodPredictions={floodPredictions}
                       onMarkerClick={handleDisasterSelect}
                       selectedDisaster={selectedDisaster}
                       highlightedDisaster={highlightedDisaster}
