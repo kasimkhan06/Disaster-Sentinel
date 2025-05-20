@@ -639,8 +639,9 @@ const StatusTracking = () => {
               }}
             >
               <Button
-                variant="contained"
-                color="primary"
+              disableRipple
+                // variant="contained"
+                // color="primary"
                 onClick={handleSaveChanges}
                 disabled={loadingUpdate || selectedPerson.isMarkedFound}
               >
@@ -652,7 +653,8 @@ const StatusTracking = () => {
               </Button>
               {!selectedPerson.isMarkedFound && (
                 <Button
-                  variant="contained"
+                disableRipple
+                  // variant="contained"
                   color="success"
                   onClick={handleMarkFound}
                   disabled={loadingUpdate}

@@ -247,18 +247,19 @@ const Verification = () => {
                 disabled={!email}
               />
               <Button
+              disableRipple
                 type="submit" // Submit form on click
-                variant="contained"
-                sx={{
-                  textTransform: "uppercase",
-                  width: { xs: "60%", sm: "40%" }, // Responsive width
-                  backgroundColor: "#4F646F",
-                  "&:hover": {
-                    backgroundColor: "#3E505A",
-                  },
-                  padding: "10px 0", // More padding
-                  fontSize: "0.9rem",
-                }}
+                // variant="contained"
+                // sx={{
+                //   textTransform: "uppercase",
+                //   width: { xs: "60%", sm: "40%" }, // Responsive width
+                //   backgroundColor: "#4F646F",
+                //   "&:hover": {
+                //     backgroundColor: "#3E505A",
+                //   },
+                //   padding: "10px 0", // More padding
+                //   fontSize: "0.9rem",
+                // }}
                 // Disable if email is not present
                 disabled={!email}
               >

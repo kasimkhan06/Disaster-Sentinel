@@ -5,8 +5,6 @@ import { MyLocation as MyLocationIcon } from "@mui/icons-material"; // SearchIco
 import { Button, Typography, Stack, Box, IconButton, CircularProgress } from "@mui/material"; // InputBase, styled, alpha removed
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Helpers and Hooks
 import osm from "../components/osm-providers"; // Adjust path
 import UserGeoLocation from "../components/UserGeoLocation"; // Adjust path
 import { reverseGeocode } from "../components/ReverseGeocode"; // Adjust path
@@ -156,7 +154,7 @@ const InteractiveMap = ({ formData, setFormData, setError }) => {
                     style={{ height: "100%", width: "100%" }}
                     whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}
                 >
-                    <TileLayer attribution={osm.maptiler.attribution} url={osm.maptiler.url} />
+                    <TileLayer attribution={osm.attribution} url={osm.maptiler.url} />
 
                     {formData.lastSeen && formData.lastSeen.length === 2 && (
                         <Marker position={formData.lastSeen} >
