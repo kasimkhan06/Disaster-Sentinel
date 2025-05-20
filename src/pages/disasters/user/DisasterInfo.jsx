@@ -759,7 +759,7 @@ const DisasterInfo = () => {
                                 fontSize: {
                                   xs: "0.7rem",
                                   sm: "0.7rem",
-                                  md: "0.8rem",
+                                  md: "0.7rem",
                                   lg: "1rem",
                                 },
                                 fontWeight: 500,
@@ -774,7 +774,7 @@ const DisasterInfo = () => {
                                 fontSize: {
                                   xs: "0.7rem",
                                   sm: "0.7rem",
-                                  md: "0.8rem",
+                                  md: "0.7rem",
                                   lg: "1rem",
                                 },
                               }}
