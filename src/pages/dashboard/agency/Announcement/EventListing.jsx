@@ -17,7 +17,24 @@ import {
   Box,
   useMediaQuery,
   ListItemText as MUIListItemText,
+  Autocomplete,
+  TextField,
+  ListItemText,
+  ListItemIcon,
+  Checkbox,
+  ListItem,
+  List,
+  Divider,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+
+// MUI Icons
+import { Search as SearchIcon } from "@mui/icons-material";
+
+// React Router
+import { useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 // Custom Components
 import EventCard from "../../../../components/EventCard";
@@ -37,6 +54,7 @@ export default function EventListing() {
   const [deletedEvents, setDeletedEvents] = useState([]);
   const [userID, setUserID] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Check login status
   useEffect(() => {
@@ -100,6 +118,13 @@ export default function EventListing() {
 
     let eventsCopy = [...events];
 
+    // Apply search filter
+    if (searchTerm) {
+      eventsCopy = eventsCopy.filter((event) => {
+        return event.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    }
+
     // Apply filter
     if (filter !== "all") {
       eventsCopy = eventsCopy.filter((event) => {
@@ -147,7 +172,7 @@ export default function EventListing() {
       <Typography
         align="center"
         sx={{
-          mt: 10,
+          mt: 12,
           p: 2,
           fontSize: {
             xs: "1.2rem",
@@ -164,18 +189,73 @@ export default function EventListing() {
       >
         ANNOUNCEMENTS
       </Typography>
-      <div className="container">
-        <div className="controls" style={{ display: "flex", gap: "15px" }}>
+      <div className="controls"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "15px",
+          flexWrap: "wrap",
+          margin: "20px auto",
+          maxWidth: "80%",
+          padding: "0 20px",
+          marginTop: -2
+        }}
+      >
+        {/* Search Box */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-start",
+            my: 1,
+            backgroundColor: "rgba(255, 255, 255, 0.97)",
+            borderRadius: "8px",
+          }}
+        >
+          <Autocomplete
+            options={events ? events.map((event) => event.name) : []}
+            onInputChange={(e, value) => setSearchTerm(value)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Search Events"
+                variant="outlined"
+                sx={{
+                  width: 300,
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)"
+                  }
+                }}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <SearchIcon fontSize="medium" />
+                    </InputAdornment>
+                  )
+                }}
+              />
+            )}
+          />
+        </Box>
+
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           {/* Sort Box */}
           <Box
             sx={{
-              paddingLeft: 3,
-              mb: 3,
+              padding: "12px 15px",
               textAlign: "left",
-              boxShadow: "2px 2px 2px #E8F1F5",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              backgroundColor: "rgba(255, 255, 255, 0.85)",
               position: "relative",
-              width: { xs: "300px", md: "150px" },
-              marginX: "auto",
+              borderRadius: "8px",
+              minWidth: "150px",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)"
+              }
             }}
           >
             <InputLabel
@@ -183,15 +263,10 @@ export default function EventListing() {
                 position: "absolute",
                 top: -5,
                 left: 16,
-                backgroundColor: "background.paper",
                 padding: "0 2px",
-                fontSize: {
-                  xs: "0.55rem",
-                  sm: "0.6rem",
-                  md: "0.75rem",
-                },
+                fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.75rem" },
                 color: "text.secondary",
-                fontStyle: "italic",
+                fontStyle: "italic"
               }}
             >
               Sort
@@ -203,11 +278,7 @@ export default function EventListing() {
                 sx={{
                   "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                   "& .MuiSelect-select": { padding: "9px 32px 4px 12px" },
-                  fontSize: {
-                    xs: "0.7rem",
-                    sm: "0.8rem",
-                    md: "1rem",
-                  },
+                  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" }
                 }}
               >
                 <MenuItem value="newest">Newest First</MenuItem>
@@ -221,13 +292,17 @@ export default function EventListing() {
           {/* Filter Box */}
           <Box
             sx={{
-              paddingLeft: 3,
-              mb: 3,
+              padding: "12px 15px",
               textAlign: "left",
-              boxShadow: "2px 2px 2px #E8F1F5",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              backgroundColor: "rgba(255, 255, 255, 0.97)",
               position: "relative",
-              width: { xs: "300px", md: "150px" },
-              marginX: "auto",
+              borderRadius: "8px",
+              minWidth: "150px",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)"
+              }
             }}
           >
             <InputLabel
@@ -235,15 +310,10 @@ export default function EventListing() {
                 position: "absolute",
                 top: -5,
                 left: 16,
-                backgroundColor: "background.paper",
                 padding: "0 2px",
-                fontSize: {
-                  xs: "0.55rem",
-                  sm: "0.6rem",
-                  md: "0.75rem",
-                },
+                fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.75rem" },
                 color: "text.secondary",
-                fontStyle: "italic",
+                fontStyle: "italic"
               }}
             >
               Filter
@@ -255,11 +325,7 @@ export default function EventListing() {
                 sx={{
                   "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                   "& .MuiSelect-select": { padding: "9px 32px 4px 12px" },
-                  fontSize: {
-                    xs: "0.7rem",
-                    sm: "0.8rem",
-                    md: "1rem",
-                  },
+                  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" }
                 }}
               >
                 <MenuItem value="all">All</MenuItem>
@@ -269,7 +335,10 @@ export default function EventListing() {
             </FormControl>
           </Box>
         </div>
+      </div>
 
+
+      <div className="container">
         {isLoading ? (
           <div className="loading-events" style={{ textAlign: "center" }}>
             <CircularProgress size={50} sx={{ color: "#4F646F", mb: 2 }} />

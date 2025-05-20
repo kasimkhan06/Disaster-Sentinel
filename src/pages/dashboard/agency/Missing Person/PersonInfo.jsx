@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Typography,
     Box,
@@ -12,8 +12,11 @@ import {
     Select,
     InputLabel,
     Card,
-    CardContent
+    CardContent,
+    CardActions,
 } from "@mui/material";
+import axios from "axios";
+import TextareaAutosize from "@mui/material/TextareaAutosize";
 import CloseIcon from "@mui/icons-material/Close";
 import {
     Person,
@@ -28,13 +31,30 @@ import {
 import { useParams, useLocation } from "react-router-dom";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
-const FoundForm = ({ open, handleClose }) => {
+const FoundForm = ({ open, handleClose, personId }) => {
+
+    const [user, setUser] = useState(null);
+    const [userId, setUserId] = useState(null);
+    const [isLogin, setIsLogin] = useState(false);
+    const [success, setSuccess] = useState(false);
+
     const [formData, setFormData] = useState({
-        foundLocation: "",
-        foundDate: "",
-        currentLocation: "",
-        foundState: "",
+        agency_found_location: "",
+        found_date: "",
+        agency_current_location_of_person: "",
+        agency_person_condition: "UNKNOWN",
+        agency_found_notes: "",
     });
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+            setIsLogin(true);
+            setUserId(parsedUser.user_id);
+        }
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
@@ -43,10 +63,32 @@ const FoundForm = ({ open, handleClose }) => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
-        handleClose();
+        try {
+            const Data = new FormData();
+            Data.append("agency_found_location", formData.agency_found_location);
+            Data.append("found_date", formData.found_date);
+            Data.append("agency_current_location_of_person", formData.agency_current_location_of_person);
+            Data.append("agency_person_condition", formData.agency_person_condition);
+            Data.append("agency_found_notes", formData.agency_found_notes);
+            Data.append("agency_user_id", userId);
+
+            const response = await axios.post(
+                `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/missing-persons/${personId}/agency-mark-found/`,
+                Data,
+                { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
+            );
+
+            console.log("Form submitted successfully", response.data);
+            setSuccess(true);
+            handleClose();
+        }
+        catch (error) {
+            console.error("Error submitting form", error);
+            setSuccess(false);
+        }
+
     };
 
     return (
@@ -93,8 +135,8 @@ const FoundForm = ({ open, handleClose }) => {
                         fullWidth
                         label="Found Location"
                         variant="standard"
-                        name="foundLocation"
-                        value={formData.foundLocation}
+                        name="agency_found_location"
+                        value={formData.agency_found_location}
                         onChange={handleChange}
                         sx={{ my: 1, fontSize: { xs: "0.9rem", sm: "1rem" } }}
                     />
@@ -103,8 +145,8 @@ const FoundForm = ({ open, handleClose }) => {
                         label="Found Date"
                         type="date"
                         variant="standard"
-                        name="foundDate"
-                        value={formData.foundDate}
+                        name="found_date"
+                        value={formData.found_date}
                         onChange={handleChange}
                         InputLabelProps={{ shrink: true }}
                         sx={{ my: 1, fontSize: { xs: "0.9rem", sm: "1rem" } }}
@@ -113,24 +155,44 @@ const FoundForm = ({ open, handleClose }) => {
                         fullWidth
                         label="Current Location"
                         variant="standard"
-                        name="currentLocation"
-                        value={formData.currentLocation}
+                        name="agency_current_location_of_person"
+                        value={formData.agency_current_location_of_person}
                         onChange={handleChange}
                         sx={{ my: 1, fontSize: { xs: "0.9rem", sm: "1rem" } }}
                     />
                     <FormControl fullWidth variant="standard" sx={{ my: 1 }}>
                         <InputLabel sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}>Found State</InputLabel>
                         <Select
-                            name="foundState"
-                            value={formData.foundState}
+                            name="agency_person_condition"
+                            value={formData.agency_person_condition}
                             onChange={handleChange}
                             sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
                         >
-                            <MenuItem value="Alive and Safe">Unharmed</MenuItem>
-                            <MenuItem value="Injured">Injured</MenuItem>
-                            <MenuItem value="Deceased">Deceased</MenuItem>
+                            <MenuItem value="ALIVE">Unharmed</MenuItem>
+                            <MenuItem value="INJURED">Injured</MenuItem>
+                            <MenuItem value="DECEASED">Deceased</MenuItem>
                         </Select>
                     </FormControl>
+                    <TextareaAutosize
+                        minRows={3}
+                        placeholder="Give small note about the person"
+                        name="agency_found_notes"
+                        value={formData.agency_found_notes}
+                        onChange={handleChange}
+                        style={{
+                            width: '95%',
+                            resize: 'none',
+                            marginTop: '15px',
+                            padding: '2px 10px',
+                            fontSize: '0.9rem',
+                            lineHeight: 1.5,
+                            borderRadius: '8px',
+                            border: '1px solid #ccc',
+                            color: '#1C2025',
+                            backgroundColor: '#fff',
+                            outline: 'none',
+                        }}
+                    />
                     <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                         <Button
                             type="submit"
@@ -229,7 +291,7 @@ function PersonInfo() {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 width: "100%",
-                                gap: {xs: 5, md: 10, lg: 15},
+                                gap: { xs: 5, md: 10, lg: 15 },
                             }}
                         >
                             <Grid item xs={12} md={12} lg={6} sx={{ display: "flex", justifyContent: "center" }}>
@@ -240,7 +302,7 @@ function PersonInfo() {
                                     alt="Profile"
                                     sx={{
                                         width: { xs: "50%", md: "100%", lg: "65%" },
-                                        minWidth: {xs: 150, md: 250, lg: 200},
+                                        minWidth: { xs: 150, md: 250, lg: 200 },
                                         height: "auto",
                                         borderRadius: "10px",
                                         border: "2px solid black",
@@ -316,7 +378,7 @@ function PersonInfo() {
                 >
                     Marked Found
                 </Button>
-                <FoundForm open={open} handleClose={handleClose} />
+                <FoundForm open={open} handleClose={handleClose} personId={id} />
             </Box>
         </Box>
     );
