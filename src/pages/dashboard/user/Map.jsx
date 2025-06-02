@@ -105,7 +105,7 @@ const Map = ({
   const navigate = useNavigate();
 
   const validDisasters = disasters.filter(
-    (disaster) => disaster.latitude && disaster.longitude
+    (disaster) => disaster.latitude && disaster.longitude && disaster.pubDate
   );
 
   const validFloodPredictions = floodPredictions.filter(
