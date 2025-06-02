@@ -21,24 +21,24 @@ const useFloodPredictions = (stationData) => {
   // };
 
   //medium risk
-    // const floodApiRequestBody = {
-    //   'prcp_cum3': 6.10,
-    //   'prcp_lag1': 0.55,
-    //   'sm_anomaly': -2.79,
-    //   'streamflow_lag1': 572.80,
-    //   'streamflow_avg3': 363.75,
-    //   'doy': 183.00
-    // };
+    const floodApiRequestBody = {
+      'prcp_cum3': 6.10,
+      'prcp_lag1': 0.55,
+      'sm_anomaly': -2.79,
+      'streamflow_lag1': 572.80,
+      'streamflow_avg3': 363.75,
+      'doy': 183.00
+    };
 
   //high risk
-  const floodApiRequestBody = {
-    'prcp_cum3': 10.22,
-    'prcp_lag1': 2.11,
-    'sm_anomaly': 3.3,
-    'streamflow_lag1': 470.64,
-    'streamflow_avg3': 467.01,
-    'doy': 227.0, 
-  };
+  // const floodApiRequestBody = {
+  //   'prcp_cum3': 10.22,
+  //   'prcp_lag1': 2.11,
+  //   'sm_anomaly': 3.3,
+  //   'streamflow_lag1': 470.64,
+  //   'streamflow_avg3': 467.01,
+  //   'doy': 227.0, 
+  // };
 
   useEffect(() => {
     // If stationData is not provided or is empty, set a minimal prediction
