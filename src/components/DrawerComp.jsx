@@ -78,6 +78,11 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
     setOpenMissingPerson(!openMissingPerson);
   };
 
+  const handleLogin = () => {
+    localStorage.setItem("redirectAfterLogin", window.location.pathname);
+    navigate("/login");
+  }
+
   return (
     <>
       <Drawer
@@ -182,7 +187,7 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
           ) : (
             <ListItemButton
               onClick={() => {
-                setOpenDrawer(false), navigate("/login");
+                setOpenDrawer(false), handleLogin();
               }}
             >
               <ListItemText primary="Login" />
