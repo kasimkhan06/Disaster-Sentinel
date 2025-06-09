@@ -43,14 +43,19 @@ export default function EventCard({ event, refreshEvents }) {
     }
   };
 
+  const toCapitalizeCase = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   return (
     <Card className="event-card">
       <img src={getImage()} alt={event.event_type || "Event"} className="event-img" />
       <CardContent className="event-content">
         <Typography variant="h6" className="event-title">
-          {event.name}
+          {event.name.toUpperCase()}
         </Typography>
-        
+
         <div className="event-details">
           <Typography variant="body2">
             <CalendarToday fontSize="small" /> {event.date}
@@ -63,7 +68,7 @@ export default function EventCard({ event, refreshEvents }) {
             </Typography>
           ) : (
             <Typography variant="body2">
-              <LocationOn fontSize="small" /> {event.venue_name}, {event.district}, {event.state}
+              <LocationOn fontSize="small" /> {toCapitalizeCase(event.venue_name)}, {event.district}, {event.state}
             </Typography>
           )}
           <Typography variant="body2">
@@ -82,10 +87,10 @@ export default function EventCard({ event, refreshEvents }) {
           >
             Edit
           </Button>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            startIcon={<Delete />} 
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<Delete />}
             className="delete-btn"
             onClick={handleDelete}
           >

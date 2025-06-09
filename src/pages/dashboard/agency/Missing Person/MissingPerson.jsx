@@ -256,7 +256,7 @@ function MissingPerson() {
                             }}
                           />
                           <Box>
-                            <Typography fontWeight="bold">{person.full_name}</Typography>
+                            <Typography fontWeight="bold">{person.full_name.toUpperCase()}</Typography>
                             <Typography variant="body2" color="text.secondary">
                               Missing: {getMissingDate(person.created_at).date} at {getMissingDate(person.created_at).time}
                             </Typography>

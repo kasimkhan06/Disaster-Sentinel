@@ -322,7 +322,7 @@ function PersonInfo() {
                                     flex: 1,
                                     flexDirection: "column",
                                     justifyContent: "center",
-                                    maxWidth: { xs: "100%", md: "60%" }, // Adjusted for side-by-side layout
+                                    maxWidth: { xs: "100%", md: "60%" },
                                 }}
                             >
                                 {[
