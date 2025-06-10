@@ -81,26 +81,35 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
 
   const handleRemoveExistingImage = async (index) => {
     const imgToDelete = existingImages[index];
-    // Ensure imageId is correctly extracted, whether imgToDelete is an object or just an ID string/number
     const imageId = typeof imgToDelete === 'object' && imgToDelete !== null ? imgToDelete.id : imgToDelete;
 
     if (!imageId) {
-      console.error('Image ID is missing for deletion.');
-      setStatusMessage({ type: "error", text: "Failed to delete image: ID missing." });
+      console.error('Image is missing for deletion.');
+      setStatusMessage({ type: "error", text: "Failed: Image missing." });
       return;
     }
 
     try {
-      await axios.delete(`https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-images/${imageId}/`, { withCredentials: true });
-      setExistingImages((prev) => prev.filter((_, i) => i !== index));
+      // Optimistically remove from UI first
+      const updatedImages = existingImages.filter((_, i) => i !== index);
+      setExistingImages(updatedImages);
+      await axios.delete(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-images/${imageId}/`,
+        { withCredentials: true }
+      );
+
       console.log("Image deleted successfully");
-      if (fetchAgencyDetails && userId) { // Ensure fetchAgencyDetails and userId are available
-        fetchAgencyDetails(userId); // Refresh agency details to reflect removed image
-      }
+
       setStatusMessage({ type: "success", text: "Image removed successfully." });
     } catch (error) {
       console.error('Failed to delete image:', error.response?.data || error);
       setStatusMessage({ type: "error", text: error.response?.data?.detail || "Failed to delete image." });
+
+      setExistingImages((prev) => {
+        const rollbackImages = [...prev];
+        rollbackImages.splice(index, 0, imgToDelete); // Reinsert the removed image
+        return rollbackImages;
+      });
     }
   };
 
@@ -126,17 +135,10 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
       submissionData.append("address", formData.address || "");
     } else if (mode === 'images') {
       newImages.forEach((file) => submissionData.append('images', file));
-      // If only removing images, newImages might be empty.
-      // The removal is handled by handleRemoveExistingImage.
-      // This submit is for ADDING new images. If no new images, maybe don't call patch or call with different logic.
-      // However, the current backend PATCH might handle empty 'images' field gracefully.
       if (newImages.length === 0) {
-        // If no new images are being added, we might not need to submit.
-        // Or, if the intention is to signal completion of an image update session:
         console.log("No new images to upload for user:", userId);
         fetchAgencyDetails(userId); // Refresh details
         handleClose();
-        setStatusMessage({ type: "info", text: "Image gallery checked." }); // Or a more appropriate message
         setIsUpdating(false);
         return;
       }
@@ -163,7 +165,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
         successText = "Basic details updated.";
       } else if (mode === "description") {
         successText = "Description updated.";
-      } else if (mode === "images" && newImages.length > 0) { // Only if new images were actually submitted
+      } else if (mode === "images" && newImages.length > 0) { 
         successText = "Images updated successfully.";
       }
       setStatusMessage({ type: "success", text: successText });

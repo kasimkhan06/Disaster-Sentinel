@@ -224,14 +224,14 @@ export default function AgencyDashboard() {
         const errorData = await response.json().catch(() => null);
         setError(
           errorData?.error ||
-            `No volunteer found with the email: ${searchEmail}.`
+          `No volunteer found with the email: ${searchEmail}.`
         ); // [cite: 10]
       } else if (response.status === 400) {
         // [cite: 8]
         const errorData = await response.json().catch(() => null);
         setError(
           errorData?.error ||
-            "Search input is invalid. Please check the email entered."
+          "Search input is invalid. Please check the email entered."
         );
       } else {
         const errorData = await response
@@ -348,8 +348,7 @@ export default function AgencyDashboard() {
             .json()
             .catch(() => ({ detail: "Failed to accept interest." }));
           throw new Error(
-            `Accept Interest API: ${
-              errorData.detail || `Status ${acceptResponse.status}`
+            `Accept Interest API: ${errorData.detail || `Status ${acceptResponse.status}`
             }`
           );
         }
@@ -381,8 +380,7 @@ export default function AgencyDashboard() {
           .json()
           .catch(() => ({ detail: "Failed to set permissions." }));
         throw new Error(
-          `Set Permissions API: ${
-            errorData.detail || `Status ${setPermissionsResponse.status}`
+          `Set Permissions API: ${errorData.detail || `Status ${setPermissionsResponse.status}`
           }`
         );
       }
@@ -437,8 +435,7 @@ export default function AgencyDashboard() {
           .json()
           .catch(() => ({ detail: "Failed to update permissions." }));
         throw new Error(
-          `Update Permissions API: ${
-            errorData.detail || `HTTP error! status: ${response.status}`
+          `Update Permissions API: ${errorData.detail || `HTTP error! status: ${response.status}`
           }`
         );
       }
@@ -760,14 +757,14 @@ export default function AgencyDashboard() {
                 </TableContainer>
               )}
               {requests.length > 1 && (
-                  <Pagination
-                    count={requestsPageCount}
-                    page={requestsPage}
-                    onChange={handleRequestsPageChange}
-                    sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
-                    color="primary"
-                  />
-                )}
+                <Pagination
+                  count={requestsPageCount}
+                  page={requestsPage}
+                  onChange={handleRequestsPageChange}
+                  sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+                  color="primary"
+                />
+              )}
             </Box>
           </Box>
 
@@ -843,9 +840,9 @@ export default function AgencyDashboard() {
                               onChange={(e) => {
                                 setVolunteers((prevVols) =>
                                   prevVols.map((v_orig) => // Iterate over original list
-                                      v_orig.member.id === vol.member.id // Compare with item from current page
-                                        ? { ...v_orig, [perm]: e.target.checked }
-                                        : v_orig
+                                    v_orig.member.id === vol.member.id // Compare with item from current page
+                                      ? { ...v_orig, [perm]: e.target.checked }
+                                      : v_orig
                                   )
                                 );
                               }}
@@ -861,8 +858,8 @@ export default function AgencyDashboard() {
                             size="small" // Made button smaller
                             onClick={() => {
                               const volunteerToSave = volunteers.find(
-                                  (v_orig) => v_orig.member.id === vol.member.id
-                                );
+                                (v_orig) => v_orig.member.id === vol.member.id
+                              );
                               if (volunteerToSave) {
                                 handleSavePermissions(
                                   vol.member.id,
@@ -882,14 +879,14 @@ export default function AgencyDashboard() {
               </TableContainer>
             )}
             {volunteersPageCount > 1 && (
-                  <Pagination
-                    count={volunteersPageCount}
-                    page={volunteersPage}
-                    onChange={handleVolunteersPageChange}
-                    sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
-                    color="primary"
-                  />
-                )}
+              <Pagination
+                count={volunteersPageCount}
+                page={volunteersPage}
+                onChange={handleVolunteersPageChange}
+                sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+                color="primary"
+              />
+            )}
           </Box>
 
           {/* Permission Processing Modal */}
@@ -1030,7 +1027,11 @@ export default function AgencyDashboard() {
           </Dialog>
         </Box>
       </Box>
-      <Footer />
+      <Grid container xs={12} sx={{ mt: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Grid item xs={12} md={10} sx={{ textAlign: "center" }}>
+          <Footer />
+        </Grid>
+      </Grid>
     </Box>
   );
 }
