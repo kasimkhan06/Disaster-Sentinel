@@ -25,7 +25,8 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import * as XLSX from "xlsx"; // Import xlsx
-import worldMapBackground from "/assets/background_image/world-map-background.jpg"; // Ensure this path is correct
+import worldMapBackground from "/assets/background_image/world-map-background.jpg"; 
+import Footer from "../../components/Footer"; 
 
 const Register = () => {
   const navigate = useNavigate();
@@ -241,10 +242,23 @@ const Register = () => {
   return (
     <Box // Outer container
       sx={{
-        position: "fixed", top: -50, left: 0, right: 0, minHeight: "100vh",
-        background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)), url(${worldMapBackground})`,
-        backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
-      }}
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              minHeight: "100vh",
+              background: `
+            linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+            url(${worldMapBackground})
+          `,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundAttachment: "fixed",
+              backgroundRepeat: "repeat-y",
+              margin: 0,
+              padding: 0,
+              zIndex: 0,
+            }}
     >
       <Box // Centering container
         sx={{
@@ -396,6 +410,7 @@ const Register = () => {
 
         </Box> {/* End Form container */}
       </Box> {/* End Centering container */}
+      <Footer/>
     </Box> // End Outer container
   );
 };

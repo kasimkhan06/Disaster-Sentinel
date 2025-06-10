@@ -293,7 +293,7 @@ const MissingPersonForm = ({
 
 
                     {/* File Uploads */}
-                    <Grid container item xs={12} sx={{ display: "flex", justifyContent: "left", width: "80%", mt: 2 }}>
+                    {/* <Grid container item xs={12} sx={{ display: "flex", justifyContent: "left", width: "80%", mt: 2 }}>
                         <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'center', sm: 'center' }, pr: 1, mb: { xs: 1, sm: 0 }, alignSelf: 'center' }}>
                             <Typography variant="subtitle1">Upload Identity Card:</Typography>
                         </Grid>
@@ -310,22 +310,22 @@ const MissingPersonForm = ({
                             <Input type="file" name="photo" onChange={handleFileChange} required disableUnderline />
                             {errors.photo && <Typography color="error" variant="caption" sx={{ display: 'block', mt: 0.5 }}>{errors.photo}</Typography>}
                         </Grid>
-                    </Grid>
+                    </Grid> */}
 
                     {/* reCAPTCHA */}
-                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', my: 2, width: '100%' }}>
+                    {/* <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', my: 2, width: '100%' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <ReCAPTCHA sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94"} onChange={handleCaptchaVerify} />
                             {errors.captcha && <Typography color="error" variant="caption" sx={{ mt: 0.5 }}>{errors.captcha}</Typography>}
                         </Box>
-                    </Grid>
+                    </Grid> */}
 
                     {/* Submit Button */}
-                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                    {/* <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Button disableRipple type="submit" sx={{ height: { md: 52 }, paddingY: "9px", px: 5, fontSize: "1rem", fontWeight: 800, display: "flex", alignItems: "center", "&:hover": { backgroundColor: "white" }, }}>
                             Submit Report
                         </Button>
-                    </Grid>
+                    </Grid> */}
                 </Grid>
             </form>
         </Card>

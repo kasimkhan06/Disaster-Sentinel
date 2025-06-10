@@ -1,9 +1,10 @@
+/* General Page Styles */
 .background-image {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 0;
+  z-index: 0; /* Ensure this z-index is appropriate for your layout stack */
   background: linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
               url('/assets/background_image/world-map-background.jpg');
   background-size: cover;
@@ -12,8 +13,9 @@
   background-attachment: fixed;
 }
 
+/* Container for the main content */
 .container {
-  background-color: rgba(255, 255, 255, 0.85); /* slight overlay to enhance readability */
+  background-color: rgba(255, 255, 255, 0.85); /* Slight overlay to enhance readability */
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -21,42 +23,22 @@
   margin-top: 20px; /* Center the container */
   margin-left: auto;
   margin-right: auto;
-  z-index: 0;
-  position: relative;
+  z-index: 0; /* Relative to its stacking context, ensure it's above .background-image if needed or vice-versa */
+  position: relative; /* Needed for z-index to apply correctly in some cases */
+  /* margin-top: 90px; /* Consider if this is needed or handled by parent layout */
 }
 
-/* Responsive styles */
-@media (max-width: 1024px) { /* Tablet */
-  .container {
-    padding: 1.5rem;
-    max-width: 900px;
-    margin-top: 100px;
-  }
-}
-
-@media (max-width: 768px) { /* Mobile */
-  .container {
-    padding: 1rem;
-    max-width: 100%;
-    margin-top: 60px;
-  }
-}
-
+/* Event Card Styling */
 .event-card {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100%; /* Ensures cards in a row can be of equal height if container allows */
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background: #ffffff;
-  margin: 10px; /* Space between cards */
-}
-
-.event-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+  margin: 10px; /* Space between cards, good if cards are direct children of a flex/grid container */
 }
 
 .event-img {
@@ -68,14 +50,14 @@
 .event-content {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  flex-grow: 1;
+  justify-content: space-between; /* Ensures actions are pushed to the bottom if it's the last child */
+  flex-grow: 1; /* Allows content to fill available space */
   padding: 16px;
 }
 
 .event-title {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: bold;
   color: #333;
   margin-bottom: 8px;
 }
@@ -86,6 +68,7 @@
   margin-bottom: 16px;
 }
 
+/* Tags Styling */
 .tags-container {
   display: flex;
   flex-wrap: wrap;
@@ -95,50 +78,110 @@
 }
 
 .event-tag {
-  background-color: #1976d2;
+  background-color: #1976d2; /* MUI primary blue */
   color: white;
-  margin-right: 4px;
+  /* margin-right: 4px; /* Replaced by gap in .tags-container */
   font-size: 0.8rem;
-  padding: 4px 8px;
+  padding: 4px 8px; /* Consider using MUI Chip component's styling if possible */
+  border-radius: 4px; /* Added for softer edges, common for tags */
 }
 
+/* Event Actions and Buttons (General - from first CSS block) */
 .event-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: auto; /* Push actions to the bottom */
+  margin-top: auto; /* Push actions to the bottom of .event-content */
 }
 
-.publish-btn {
-  background-color: #4caf50 !important;
+.publish-btn { /* Consider using MUI Button with color="success" */
+  background-color: #4caf50 !important; /* Using !important can be a sign of specificity wars, try to avoid if possible */
   color: white;
 }
 
-.delete-btn {
+.delete-btn { /* Consider using MUI Button with color="error" */
   color: #d32f2f;
   border-color: #d32f2f;
 }
 
-.event-card:hover .delete-btn {
+/* Specific Button Styles (for Register/Full - from second CSS block) */
+/* Ensure your React Button components have these classNames applied */
+.register-button {
+  min-width: 150px;
+  transition: all 0.3s ease;
+  /* Add other base button styles if not using MUI Button classes */
+}
+
+.register-button.registered {
+  background-color: #4caf50; /* MUI success green */
+  color: white;
+}
+
+.register-button.registered:hover {
+  background-color: #388e3c; /* Darker green */
+}
+
+.register-button:not(.registered) { /* Style for the active "Register" button */
+  border: 1px solid #1976d2; /* MUI primary blue for border */
+  color: #1976d2; /* MUI primary blue for text */
+  background-color: transparent; /* Or white */
+}
+
+.register-button:not(.registered):hover {
+  background-color: #1976d2; /* Fill with primary blue on hover */
+  color: white;
+}
+
+.register-button.loading { /* Style when the button is in a loading state */
+  opacity: 0.7;
+  /* Consider adding a spinner or changing text via React state */
+}
+
+.register-button.disabled { /* General disabled style for the register button */
+  opacity: 0.6;
+  cursor: not-allowed;
+  /* MUI Buttons handle their own disabled styles, these might conflict or supplement */
+}
+
+.event-full-button { /* Style for the "Event Full" button */
+  background-color: #f44336; /* MUI error red */
+  color: white;
+  min-width: 150px;
+  /* Add other base button styles if not using MUI Button classes */
+}
+
+.event-full-button:hover {
+  background-color: #d32f2f; /* Darker red */
+}
+
+
+/* Hover Effects for Event Card */
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.event-card:hover .event-title {
+  color: #1976d2; /* Change title color on card hover */
+}
+
+.event-card:hover .event-details {
+  color: #333; /* Darken details text on card hover */
+}
+
+.event-card:hover .delete-btn { /* Specific hover for delete button if it's a distinct element */
   background-color: #b71c1c !important;
   color: white;
 }
 
-.event-card:hover .edit-btn {
-  background-color: #388e3c !important;
+.event-card:hover .edit-btn { /* Specific hover for an edit button */
+  background-color: #388e3c !important; /* MUI success dark green */
   color: white;
 }
 
-.event-card:hover .event-title {
-  color: #1976d2;
-}
-
-.event-card:hover .event-details {
-  color: #333;
-}
-
+/* Styles for "No Events" Message */
 .event-no-events {
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: #555;
   margin-top: 50px; /* Space above the message */
 }
@@ -147,4 +190,27 @@
   font-size: 2rem;
   color: #333;
   margin-top: 20px; /* Space above the heading */
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) { /* Tablet */
+  .container {
+    padding: 1.5rem;
+    max-width: 90%; /* Adjusted from 900px to be more relative */
+    /* margin-top: 100px; /* Handle spacing with parent layout or global styles */
+  }
+}
+
+@media (max-width: 768px) { /* Mobile */
+  .container {
+    padding: 1rem;
+    max-width: 95%; /* Adjusted from 100% to allow small screen edge gap */
+    margin-top: 60px; /* This might be necessary depending on your header/navbar */
+  }
+  .event-title {
+    font-size: 1.1rem; /* Slightly smaller title for mobile */
+  }
+  .event-details {
+    font-size: 0.85rem; /* Slightly smaller details for mobile */
+  }
 }

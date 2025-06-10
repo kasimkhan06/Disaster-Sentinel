@@ -11,6 +11,7 @@ import {
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
+import Footer from "../../components/Footer";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 
 const Login = ({ setIsLoggedIn }) => {
@@ -167,7 +168,6 @@ const Login = ({ setIsLoggedIn }) => {
     >
       <Box
         sx={{
-          // background: "linear-gradient(to bottom,rgb(100, 126, 139), rgb(210, 223, 248))",
           minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
@@ -181,7 +181,7 @@ const Login = ({ setIsLoggedIn }) => {
             width: { xs: "90%", sm: "60%", md: "35%" },
             backgroundColor: "#fff",
             paddingTop: "25px",
-            paddingBottom: "25px",
+            // paddingBottom: "25px",
             borderRadius: 2,
             boxShadow: 3,
           }}
@@ -280,6 +280,7 @@ const Login = ({ setIsLoggedIn }) => {
           </Box>
         </Box>
       </Box>
+      <Footer/>
     </Box>
   );
 };
