@@ -19,7 +19,8 @@
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  max-width: 75%;
+  max-width: 1200px;
+  margin-top: 20px; /* Center the container */
   margin-left: auto;
   margin-right: auto;
   z-index: 0; /* Relative to its stacking context, ensure it's above .background-image if needed or vice-versa */

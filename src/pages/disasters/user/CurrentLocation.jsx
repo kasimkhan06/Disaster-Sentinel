@@ -1159,6 +1159,7 @@ function CurrentLocation() {
                             height: "400px",
                             overflowY: "auto",
                             paddingBottom: 15,
+                            gap: "8px",
                           }}
                         >
                           {cards}

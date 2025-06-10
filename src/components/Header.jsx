@@ -105,6 +105,11 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
     }
   };
 
+  const handleLogin = () => {
+    handleNavigation("/login");
+    localStorage.setItem("redirectAfterLogin", window.location.pathname);
+  }
+
   return (
     <>
       <AppBar
@@ -236,7 +241,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                 </>
               ) : (
                 <Button
-                  onClick={() => handleNavigation("/login")}
+                  onClick={() => handleLogin() }
                   sx={{
                     borderColor: "#bdbdbd",
                     color: "black",
