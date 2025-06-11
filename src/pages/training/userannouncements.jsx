@@ -96,6 +96,11 @@ function EventDisplayCard({ event, currentUser, onRegister }) {
     }
   };
 
+  const toCapitalizeCase = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   const isEventFull = event.max_capacity > 0 && event.attendees_count >= event.max_capacity;
   console.log(`[${COMPONENT_NAME}] Button conditions for event ${event?.id} - isEventFull: ${isEventFull}, isRegistered: ${isRegistered}, loading: ${loading}, !!currentUser: ${!!currentUser}`);
 
@@ -104,7 +109,7 @@ function EventDisplayCard({ event, currentUser, onRegister }) {
       <img src={getImage()} alt={event.event_type || "Event"} className="event-img"/>
       <CardContent className="event-content">
         <Typography variant="h6" className="event-title">
-          {event.name}
+          {event.name.toUpperCase()}
         </Typography>
         <div className="event-details">
           <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
@@ -122,7 +127,7 @@ function EventDisplayCard({ event, currentUser, onRegister }) {
           ) : (
             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
               <LocationOn fontSize="small" sx={{ mr: 0.5 }} />
-              {event.venue_name}{event.venue_name && (event.district || event.state) ? ", " : ""}
+              {toCapitalizeCase(event.venue_name)}{event.venue_name && (event.district || event.state) ? ", " : ""}
               {event.district}{event.district && event.state ? ", " : ""}
               {event.state}
             </Typography>
