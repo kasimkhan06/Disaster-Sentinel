@@ -28,7 +28,7 @@ const mapApiResponseToSelectedPerson = (apiData) => {
     name: apiData.full_name || "N/A",
     age: apiData.age || "N/A",
     gender: apiData.gender || "N/A",
-    status: apiData.isMarkedFound ? "Found" : "Missing",
+    status: isMarkedFound ? "Found" : "Missing",
     disasterType: apiData.disaster_type || "N/A",
     contactInfo: apiData.reporter_contact_info || "N/A",
     additional_info: apiData.additional_info || "",
