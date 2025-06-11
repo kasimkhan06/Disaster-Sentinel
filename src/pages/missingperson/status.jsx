@@ -17,57 +17,27 @@ import Footer from "../../components/Footer";
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api";
 
-// Helper function to map API data to component state structure
 const mapApiResponseToSelectedPerson = (apiData) => {
-  console.log(
-    "mapApiResponseToSelectedPerson: Input API Data:",
-    JSON.parse(JSON.stringify(apiData))
-  );
-  if (!apiData) {
-    console.log("mapApiResponseToSelectedPerson: No API data, returning null.");
-    return null;
-  }
-  let currentStatus = "Missing";
-  // Use the additional_info passed in, which should now be correct after the fix in updateReportInfo
-  let displayadditional_info = apiData.additional_info || "";
-  let isMarkedFound = false;
+  if (!apiData) return null;
 
-  // This check is now more reliable because dataForMapping in updateReportInfo ensures
-  // apiData.additional_info has the correct value from the payload.
-  if (
-    typeof apiData.additional_info === "string" &&
-    apiData.additional_info.startsWith("FOUND")
-  ) {
-    currentStatus = "Found";
-    isMarkedFound = true;
-    console.log(
-      "mapApiResponseToSelectedPerson: Status derived as 'Found'. additional_info:",
-      apiData.additional_info
-    );
-  } else {
-    console.log(
-      "mapApiResponseToSelectedPerson: Status derived as 'Missing'. additional_info:",
-      apiData.additional_info
-    );
-  }
+  const isMarkedFound = typeof apiData.additional_info === "string" &&
+    apiData.additional_info.trim().startsWith("FOUND");
 
-  const mapped = {
+  return {
     id: apiData.id,
     name: apiData.full_name || "N/A",
     age: apiData.age || "N/A",
     gender: apiData.gender || "N/A",
-    status: currentStatus,
+    status: apiData.isMarkedFound ? "Found" : "Missing",
     disasterType: apiData.disaster_type || "N/A",
     contactInfo: apiData.reporter_contact_info || "N/A",
-    additional_info: apiData.additional_info || "", // This will be the value from dataForMapping
-    displayadditional_info: displayadditional_info,
+    additional_info: apiData.additional_info || "",
+    displayadditional_info: apiData.additional_info || "",
     lastSeen: apiData.last_seen_location || "N/A",
     photo: apiData.person_photo || null,
-    isMarkedFound: isMarkedFound,
+    isMarkedFound,
     description: apiData.description || "N/A",
   };
-  console.log("mapApiResponseToSelectedPerson: Mapped Data Output:", mapped);
-  return mapped;
 };
 
 const StatusTracking = () => {
@@ -123,8 +93,7 @@ const StatusTracking = () => {
           const response = await fetch(`${API_BASE_URL}/missing-persons/`);
           if (!response.ok) {
             throw new Error(
-              `HTTP error! status: ${
-                response.status
+              `HTTP error! status: ${response.status
               }, Text: ${await response.text()}`
             );
           }
@@ -134,13 +103,23 @@ const StatusTracking = () => {
               person.reporter_email &&
               typeof person.reporter_email === "string" &&
               person.reporter_email.toLowerCase() ===
-                currentReporterEmail.toLowerCase()
+              currentReporterEmail.toLowerCase()
+          );
+
+          console.log(
+            "Fetched raw data from API:",
+            JSON.parse(JSON.stringify(processedData))
           );
           const options = processedData.map((person) => ({
             label: `${person.full_name}`,
             id: person.id,
+            isFound: person.is_found,
           }));
           setReportList(options);
+          console.log(
+            "Fetched report list successfully:",
+            JSON.parse(JSON.stringify(reportList))
+          );
         } catch (err) {
           console.error("Error fetching report list:", err);
           setError(`Failed to load report list: ${err.message}.`);
@@ -176,8 +155,7 @@ const StatusTracking = () => {
         if (response.status === 404)
           throw new Error(`Report with ID ${personId} not found.`);
         throw new Error(
-          `HTTP error! status: ${
-            response.status
+          `HTTP error! status: ${response.status
           }, Text: ${await response.text()}`
         );
       }
@@ -189,7 +167,7 @@ const StatusTracking = () => {
       console.error("Error fetching person details:", err);
       setError(`Failed to load details: ${err.message}`);
       setSelectedPerson(null);
-      setEditedInfo({ additional_info: "" }); // Ensure reset on error
+      setEditedInfo({ additional_info: "" });
     } finally {
       setLoadingDetails(false);
     }
@@ -378,129 +356,75 @@ const StatusTracking = () => {
     });
   };
 
-  // const handleMarkFound = () => {
-  //   if (!selectedPerson || selectedPerson.isMarkedFound) return;
-  //   const currentInfoForFound = selectedPerson.additional_info || "";
-  //   console.log(
-  //     "handleMarkFound: Current additional_info before marking as found:",
-  //     currentInfoForFound
-  //   );
+  const handleAdditionalInfo = () => {
+    if (!selectedPerson || selectedPerson.isMarkedFound) return;
 
-  //   const baseInfo =
-  //     typeof currentInfoForFound === "string" &&
-  //     currentInfoForFound.startsWith("FOUND")
-  //       ? currentInfoForFound.substring(7).trim()
-  //       : currentInfoForFound;
-  //   const newadditional_info = `FOUND${baseInfo}`.trim();
+    const baseInfo = selectedPerson.additional_info?.replace(/^FOUND\s*/, "") || "";
+    const newadditional_info = `FOUND ${baseInfo}`.trim();
 
-  //   console.log(
-  //     "handleMarkFound: Marking as found. Base info:",
-  //     baseInfo,
-  //     "New additional_info:",
-  //     newadditional_info
-  //   );
-  //   // It's important that the backend correctly interprets this additional_info
-  //   // or that a separate field/mechanism is used to mark as found if "[FOUND]" prefix isn't stored.
-  //   // The current logic in mapApiResponseToSelectedPerson relies on additional_info starting with "[FOUND]"
-  //   // to set the status to "Found" and isMarkedFound to true.
-  //   // If newadditional_info (without [FOUND]) is saved, and the server doesn't add it back or have another status field,
-  //   // the UI might revert to "Under Investigation" after this action.
-  //   updateReportInfo(selectedPerson.id, {
-  //     reporter_id: userId,
-  //     additional_info: newadditional_info,
-  //   });
-
-
-  // };
-
+    updateReportInfo(selectedPerson.id, {
+      reporter_id: userId,
+      additional_info: newadditional_info,
+    });
+  };
 
   const handleMarkFound = async () => {
-  // Ensure a person is selected, not already marked as found, and user is identified
-  if (!selectedPerson) {
-    setError("No person selected to mark as found.");
-    return;
-  }
-  if (selectedPerson.isMarkedFound) {
-    setSuccessMessage("This person is already marked as found."); // Or setError if preferred
-    return;
-  }
-  if (!userId) {
-    setError("User not identified. Cannot mark as found.");
-    return;
-  }
+    if (!selectedPerson) {
+      setError("No person selected to mark as found.");
+      return;
+    }
+    if (selectedPerson.isMarkedFound) {
+      setSuccessMessage("This person is already marked as found.");
+      return;
+    }
+    if (!userId) {
+      setError("User not identified. Cannot mark as found.");
+      return;
+    }
 
-  setLoadingUpdate(true);
-  setError("");
-  setSuccessMessage("");
+    setLoadingUpdate(true);
+    setError("");
+    setSuccessMessage("");
 
-  try {
-    console.log(
-      `handleMarkFound: Attempting to mark report ID: ${selectedPerson.id} as found by reporter ID: ${userId}`
-    );
-
-    // The API endpoint for a reporter to mark a person as found
-    const markFoundEndpoint = `${API_BASE_URL}/missing-persons/${selectedPerson.id}/reporter-mark-found/`;
-
-    const response = await fetch(markFoundEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // The body should contain the reporter_id as per the API documentation
-      body: JSON.stringify({ reporter_id: parseInt(userId) }), // Ensure userId is an integer if backend expects it
-    });
-
-    const responseContentType = response.headers.get("content-type");
-    let responseData;
-
-    // Try to parse response, expecting JSON
-    if (responseContentType && responseContentType.includes("application/json")) {
-      responseData = await response.json();
-    } else {
-      const text = await response.text();
-      // If not JSON, try to parse it anyway or use the text as an error detail
-      try {
-        responseData = JSON.parse(text);
-      } catch (e) {
-        // If parsing fails and response is not OK, this text might be the error.
-        // If response IS ok but not JSON, it's unexpected.
-        console.warn("handleMarkFound: Response was not JSON. Text:", text);
-        if (!response.ok) {
-          throw new Error(text || `Server error: ${response.status}`);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/missing-persons/${selectedPerson.id}/reporter-mark-found/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reporter_id: parseInt(userId) }),
         }
-        // If response.ok but not JSON, backend might not be returning full object on success.
-        // In this specific case (reporter-mark-found), the doc says it returns the updated object.
-        // So this path (ok but not json) should ideally not happen if API conforms to doc.
-        responseData = { id: selectedPerson.id, is_found: true }; // Fallback optimistic data
+      );
+
+      const data = await response.json();
+      handleAdditionalInfo();
+      console.log(
+        "handleMarkFound: API Response Data:",
+        JSON.parse(JSON.stringify(data))
+      );
+      console.log(
+        "handleMarkFound: API Response Status:",
+        response.status
+      );
+
+      if (!response.ok) {
+        const errorMsg = data?.detail || data?.message || "Failed to mark as found.";
+        throw new Error(errorMsg);
       }
+
+      const mappedData = mapApiResponseToSelectedPerson(data);
+      setSelectedPerson(mappedData);
+      setSuccessMessage("Person marked as found successfully!");
+      console.log(
+        "handleMarkFound: Person marked as found. Updated selectedPerson state:",
+        JSON.parse(JSON.stringify(mappedData))
+      );
+    } catch (err) {
+      setError(`Failed to mark as found: ${err.message}`);
+    } finally {
+      setLoadingUpdate(false);
     }
-    
-    console.log(
-        "handleMarkFound: API Response Status:", response.status, "Data:", responseData
-    );
-
-    if (!response.ok) {
-      // Extract error message from responseData if available
-      const errorDetail = responseData?.detail || responseData?.message || JSON.stringify(responseData.errors) || `HTTP error ${response.status}`;
-      throw new Error(errorDetail);
-    }
-
-    // Assuming the API returns the updated person object upon success
-    // Use mapApiResponseToSelectedPerson to correctly format it for your state
-    const mappedData = mapApiResponseToSelectedPerson(responseData);
-    setSelectedPerson(mappedData); // Update the selected person's state
-
-    setSuccessMessage("Person marked as found successfully!");
-
-  } catch (err) {
-    console.error("handleMarkFound: Error marking person as found:", err);
-    setError(`Failed to mark as found: ${err.message}`);
-    // Optionally, to revert optimistic updates if any were made, or re-fetch:
-    // fetchPersonDetails(selectedPerson.id); // You'd need to implement/call this
-  } finally {
-    setLoadingUpdate(false);
-  }
-};
+  };
 
   if (authLoading) {
     return (
@@ -550,9 +474,8 @@ const StatusTracking = () => {
       }}
     >
       <Container
-      
         maxWidth="md"
-        sx={{ mt: { xs: 2, sm: 4, md:7 }, pb: 4, pt: { xs: 2, sm: 4 } }}
+        sx={{ mt: { xs: 2, sm: 4, md: 7 }, pb: 4, pt: { xs: 2, sm: 4 } }}
       >
         {error && (
           <Alert
@@ -577,12 +500,44 @@ const StatusTracking = () => {
           <Autocomplete
             id="person-search-input"
             options={reportList}
-            getOptionLabel={(option) => option.label || ""}
+            getOptionLabel={(option) =>
+              option && option.label ? option.label : ""
+            }
             isOptionEqualToValue={(option, value) => option.id === value.id}
             loading={loadingList}
             value={reportList.find((p) => p.id === selectedPerson?.id) || null}
             onChange={(event, newValue) => handleSearch(newValue)}
             sx={{ width: { xs: "90%", sm: 500, md: 400 } }}
+            renderOption={(props, option) => (
+              <Box
+                component="li"
+                {...props}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  px: 1,
+                }}
+              >
+                <Box>{option.label}</Box>
+                <Box
+                  sx={{
+                    color: option.isFound ? "green" : "orange",
+                    fontWeight: 500,
+                    backgroundColor: option.isFound ? "#e8f5e9" : "#fff3e0",
+                    borderRadius: "4px",
+                    border: `1px solid ${option.isFound ? "#c8e6c9" : "#ffccbc"}`,
+                    padding: "2px 6px",
+                    minWidth: "70px",
+                    textAlign: "center",
+                    marginLeft: "auto",
+                  }}
+                >
+                  {option.isFound ? "Found" : "Missing"}
+                </Box>
+              </Box>
+            )}
+
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -614,6 +569,7 @@ const StatusTracking = () => {
               />
             )}
           />
+
         </Box>
 
         {loadingDetails && (
@@ -632,7 +588,7 @@ const StatusTracking = () => {
             }}
           >
             <Typography variant="h6" align="center" gutterBottom>
-              Missing Person Details 
+              Missing Person Details
             </Typography>
             <Box
               sx={{
@@ -709,7 +665,7 @@ const StatusTracking = () => {
                 fullWidth
                 variant="outlined"
                 margin="normal"
-                label="Update Additional Information"
+                label="Additional Information"
                 name="additional_info"
                 multiline
                 rows={2}
@@ -730,7 +686,7 @@ const StatusTracking = () => {
               }}
             >
               <Button
-              disableRipple
+                disableRipple
                 // variant="contained"
                 // color="primary"
                 onClick={handleSaveChanges}
@@ -744,7 +700,7 @@ const StatusTracking = () => {
               </Button>
               {!selectedPerson.isMarkedFound && (
                 <Button
-                disableRipple
+                  disableRipple
                   // variant="contained"
                   color="success"
                   onClick={handleMarkFound}
@@ -797,7 +753,7 @@ const StatusTracking = () => {
             </Typography>
           )}
       </Container>
-      <Footer/>
+      <Footer />
     </Box>
   );
 };

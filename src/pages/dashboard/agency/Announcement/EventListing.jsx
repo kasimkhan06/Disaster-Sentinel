@@ -337,7 +337,6 @@ export default function EventListing() {
         </div>
       </div>
 
-
       <div className="container">
         {isLoading ? (
           <div className="loading-events" style={{ textAlign: "center" }}>

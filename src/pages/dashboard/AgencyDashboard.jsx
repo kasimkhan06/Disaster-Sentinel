@@ -25,6 +25,7 @@ import {
 } from "@mui/material";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import Footer from "../../components/Footer";
+import { Grid } from "@mui/material";
 
 const permissionsList = [
   "can_view_missing",
