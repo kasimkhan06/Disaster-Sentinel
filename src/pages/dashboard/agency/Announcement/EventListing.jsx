@@ -19,15 +19,11 @@ import {
   ListItemText as MUIListItemText,
   Autocomplete,
   TextField,
-  ListItemText,
-  ListItemIcon,
-  Checkbox,
-  ListItem,
-  List,
-  Divider,
-  IconButton,
   InputAdornment,
 } from "@mui/material";
+
+// MUI Theme
+import { useTheme } from "@mui/material/styles";
 
 // MUI Icons
 import { Search as SearchIcon } from "@mui/icons-material";
@@ -42,6 +38,8 @@ import Footer from "../../../../components/Footer";
 
 // Styles & Assets
 import "../../../../../public/css/EventListing.css";
+import userAnnouncementsBackground from "/assets/background_image/world-map-background.jpg";
+
 
 export default function EventListing() {
   const [events, setEvents] = useState(null);
@@ -55,6 +53,8 @@ export default function EventListing() {
   const [userID, setUserID] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const theme = useTheme();
+  const location = useLocation();
 
   // Check login status
   useEffect(() => {
@@ -168,193 +168,193 @@ export default function EventListing() {
   }
 
   return (
-    <div className="background-image">
-      <Typography
-        align="center"
-        sx={{
-          mt: 12,
-          p: 2,
-          fontSize: {
-            xs: "1.2rem",
-            sm: "1.2rem",
-            md: isBelow ? "1.2rem" : "1.4rem",
-            lg: isBelow ? "1.2rem" : "1.4rem",
-          },
-          fontWeight: "bold",
-          textTransform: "uppercase",
-          color: "rgba(0, 0, 0, 0.87)",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        ANNOUNCEMENTS
-      </Typography>
-      <div className="controls"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "15px",
-          flexWrap: "wrap",
-          margin: "20px auto",
-          maxWidth: "80%",
-          padding: "0 20px",
-          marginTop: -2
-        }}
-      >
-        {/* Search Box */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-start",
-            my: 1,
-            backgroundColor: "rgba(255, 255, 255, 0.97)",
-            borderRadius: "8px",
-          }}
-        >
-          <Autocomplete
-            options={events ? events.map((event) => event.name) : []}
-            onInputChange={(e, value) => setSearchTerm(value)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search Events"
-                variant="outlined"
-                sx={{
-                  width: 300,
-                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)"
-                  }
-                }}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <SearchIcon fontSize="medium" />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            )}
-          />
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${userAnnouncementsBackground})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        margin: 0,
+        zIndex: 0,
+        display: "flex",
+        flexDirection: "column",
+        boxSizing: "border-box",
+        overflowY: "auto",
+      }}
+    >
+      <Box>
+        <Box sx={{ maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 3 } }}>
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
+            <Typography
+              align="center"
+              sx={{
+                mt: { xs: 8, sm: 5, md: 5, lg: 5 },
+                p: 2,
+                fontSize: { xs: "1.2rem", sm: "1.3rem", md: "1.4rem", lg: "1.5rem" },
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                color: "rgba(0, 0, 0, 0.87)",
+                zIndex: 1,
+              }}
+            >
+              ANNOUNCEMENTS
+            </Typography>
+          </Box>
+          <Box className="controls" sx={{ mb: 3 }}>
+            <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
+
+              {/* Search Section */}
+              <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" }, mb: { xs: 1, md: 0 } }}>
+                <Box sx={{
+                  backgroundColor: "rgba(255, 255, 255, 0.97)",
+                  borderRadius: "8px",
+                  width: "100%",
+                  maxWidth: 350,
+                }}>
+                  <Autocomplete
+                    options={events ? events.map((event) => event.name) : []}
+                    onInputChange={(e, value) => setSearchTerm(value)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search Events"
+                        variant="outlined"
+                        fullWidth
+                        sx={{
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          "&:hover": {
+                            boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)",
+                          },
+                        }}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <SearchIcon fontSize="medium" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Grid>
+
+              {/* Filters Section */}
+              <Grid item xs={12} sm={12} md={6}>
+                <Box sx={{
+                  display: "flex",
+                  justifyContent: { xs: "center", md: "flex-end" },
+                  flexWrap: "wrap",
+                  gap: 2,
+                }}>
+                  {/* Filter Dropdown */}
+                  <FormControl
+                    sx={{
+                      minWidth: 140,
+                      backgroundColor: "white",
+                      boxShadow: "2px 2px 2px #E8F1F5",
+                      position: "relative",
+                    }}
+                  >
+                    <InputLabel
+                      id="filter-select-label"
+                      sx={{
+                        position: "absolute",
+                        top: -10,
+                        left: 8,
+                        fontSize: "0.75rem",
+                        padding: "0 4px",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      Filter By
+                    </InputLabel>
+                    <Select
+                      labelId="filter-select-label"
+                      id="filter-select-input"
+                      value={filter}
+                      onChange={(e) => setFilter(e.target.value)}
+                      sx={{
+                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                        "& .MuiSelect-select": { padding: "10px 14px" },
+                        fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                      }}
+                    >
+                      <MenuItem value="all">All Events</MenuItem>
+                      <MenuItem value="online">Online</MenuItem>
+                      <MenuItem value="offline">Offline</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  {/* Sort Dropdown */}
+                  <FormControl
+                    sx={{
+                      minWidth: 140,
+                      backgroundColor: "white",
+                      boxShadow: "2px 2px 2px #E8F1F5",
+                      position: "relative",
+                    }}
+                  >
+                    <InputLabel
+                      id="sort-select-label"
+                      sx={{
+                        position: "absolute",
+                        top: -10,
+                        left: 8,
+                        fontSize: "0.75rem",
+                        padding: "0 4px",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      Sort By
+                    </InputLabel>
+                    <Select
+                      labelId="sort-select-label"
+                      id="sort-select-input"
+                      value={sort}
+                      onChange={(e) => setSort(e.target.value)}
+                      sx={{
+                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                        "& .MuiSelect-select": { padding: "10px 14px" },
+                        fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                      }}
+                    >
+                      <MenuItem value="newest">Newest First</MenuItem>
+                      <MenuItem value="oldest">Oldest First</MenuItem>
+                      <MenuItem value="nameAZ">Name A-Z</MenuItem>
+                      <MenuItem value="nameZA">Name Z-A</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
         </Box>
+      </Box>
 
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          {/* Sort Box */}
-          <Box
-            sx={{
-              padding: "12px 15px",
-              textAlign: "left",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              backgroundColor: "rgba(255, 255, 255, 0.85)",
-              position: "relative",
-              borderRadius: "8px",
-              minWidth: "150px",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)"
-              }
-            }}
-          >
-            <InputLabel
-              sx={{
-                position: "absolute",
-                top: -5,
-                left: 16,
-                padding: "0 2px",
-                fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.75rem" },
-                color: "text.secondary",
-                fontStyle: "italic"
-              }}
-            >
-              Sort
-            </InputLabel>
-            <FormControl fullWidth>
-              <Select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                  "& .MuiSelect-select": { padding: "9px 32px 4px 12px" },
-                  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" }
-                }}
-              >
-                <MenuItem value="newest">Newest First</MenuItem>
-                <MenuItem value="oldest">Oldest First</MenuItem>
-                <MenuItem value="nameAZ">Name A-Z</MenuItem>
-                <MenuItem value="nameZA">Name Z-A</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-
-          {/* Filter Box */}
-          <Box
-            sx={{
-              padding: "12px 15px",
-              textAlign: "left",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              backgroundColor: "rgba(255, 255, 255, 0.97)",
-              position: "relative",
-              borderRadius: "8px",
-              minWidth: "150px",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)"
-              }
-            }}
-          >
-            <InputLabel
-              sx={{
-                position: "absolute",
-                top: -5,
-                left: 16,
-                padding: "0 2px",
-                fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.75rem" },
-                color: "text.secondary",
-                fontStyle: "italic"
-              }}
-            >
-              Filter
-            </InputLabel>
-            <FormControl fullWidth>
-              <Select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                  "& .MuiSelect-select": { padding: "9px 32px 4px 12px" },
-                  fontSize: { xs: "0.7rem", sm: "0.8rem", md: "1rem" }
-                }}
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="online">Online</MenuItem>
-                <MenuItem value="offline">Offline</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-        </div>
-      </div>
-
-      <div className="container">
+      <Box className="container" sx={{ flex: 1, pb: 4, width: '100%', maxWidth: { xs: '80%', sm: '1200px', md: '900px', lg: '1100px' }, marginX: 'auto', px: { xs: 0, sm: 3 } }}>
         {isLoading ? (
-          <div className="loading-events" style={{ textAlign: "center" }}>
-            <CircularProgress size={50} sx={{ color: "#4F646F", mb: 2 }} />
-            <Typography>Loading events...</Typography>
-          </div>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pt: 10, height: '300px' }}>
+            <CircularProgress size={50} sx={{ mb: 2, color: theme.palette.primary.main }} />
+            <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
+          </Box>
         ) : filteredEvents().length === 0 ? (
-          <div className="no-events" style={{ textAlign: "center" }}>
-            <Typography variant="h6">No events found</Typography>
-          </div>
+          <Box sx={{ textAlign: "center", p: { xs: 2, sm: 3 }, backgroundColor: 'transparent', borderRadius: 0 }}>
+            <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
+              No announcements available at the moment.
+            </Typography>
+          </Box>
         ) : (
           <Grid container spacing={3}>
             {filteredEvents().map((event) => (
-              <Grid item xs={12} sm={6} md={4} key={event.id}>
+              <Grid item xs={12} sm={6} md={6} lg={4} key={event.id}>
                 <EventCard event={event} refreshEvents={fetchEvents} />
               </Grid>
             ))}
           </Grid>
+
         )}
 
         {deletedEvents.length > 0 && (
@@ -382,8 +382,8 @@ export default function EventListing() {
             ))}
           </div>
         )}
-      </div>
+      </Box>
       <Footer />
-    </div>
+    </Box>
   );
 }

@@ -26,6 +26,7 @@ import {
 import userAnnouncementsBackground from "../../../public/assets/background_image/world-map-background.jpg";
 import "../../../public/css/EventListing.css"; // Ensure this path is correct
 import Footer from "../../components/Footer"; // Ensure this path is correct
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const COMPONENT_NAME = "EventDisplayCard";
 
@@ -106,7 +107,7 @@ function EventDisplayCard({ event, currentUser, onRegister }) {
 
   return (
     <Card className="event-card">
-      <img src={getImage()} alt={event.event_type || "Event"} className="event-img"/>
+      <img src={getImage()} alt={event.event_type || "Event"} className="event-img" />
       <CardContent className="event-content">
         <Typography variant="h6" className="event-title">
           {event.name.toUpperCase()}
@@ -198,6 +199,8 @@ export default function UserAnnouncementsPage() {
   const [userLocation, setUserLocation] = useState(null);
   const [currentUser, setCurrentUser] = useState(null); // Initially null
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const isBelow = useMediaQuery("(max-width:1470px)");
+  
 
   const theme = useTheme();
 
@@ -216,7 +219,7 @@ export default function UserAnnouncementsPage() {
         setUserLocation(null);
         return;
       }
-      
+
       const userDataFromStorage = JSON.parse(userString);
       console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Parsed userDataFromStorage:`, userDataFromStorage);
 
@@ -246,9 +249,9 @@ export default function UserAnnouncementsPage() {
     console.log(`[${PAGE_COMPONENT_NAME}] handleRegister called for eventId: ${eventId}, isPreCheckFailure: ${isPreCheckFailure}`);
 
     if (isPreCheckFailure && !currentUser?.id) {
-        console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Pre-check failed: User not logged in. Showing snackbar.`);
-        setSnackbar({ open: true, message: "Please login to register.", severity: "error" });
-        return false;
+      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Pre-check failed: User not logged in. Showing snackbar.`);
+      setSnackbar({ open: true, message: "Please login to register.", severity: "error" });
+      return false;
     }
 
     if (!currentUser?.id) {
@@ -260,9 +263,9 @@ export default function UserAnnouncementsPage() {
     const token = localStorage.getItem('token');
     console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Token: ${token ? 'found' : 'not found'}`);
     if (!token) {
-        console.warn(`[${PAGE_COMPONENT_NAME}] handleRegister - No token. Aborting.`);
-        setSnackbar({ open: true, message: "Authentication token not found. Please login again.", severity: "error" });
-        return false;
+      console.warn(`[${PAGE_COMPONENT_NAME}] handleRegister - No token. Aborting.`);
+      setSnackbar({ open: true, message: "Authentication token not found. Please login again.", severity: "error" });
+      return false;
     }
 
     console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Proceeding with registration for event ${eventId}`);
@@ -312,7 +315,7 @@ export default function UserAnnouncementsPage() {
         fetchAnnouncements(); // Refetch to get the absolute latest state
         return false;
       }
-      
+
       const newAttendeesCount = currentAttendees + 1; // Assuming successful registration means one more attendee
       const updatePayload = { attendees_count: newAttendeesCount };
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - 3. Updating attendance count for event ${eventId}. Payload:`, updatePayload);
@@ -335,9 +338,9 @@ export default function UserAnnouncementsPage() {
 
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Updating local announcements state for event ${eventId}`);
       setAnnouncements(prevAnnouncements => {
-        const newAnnouncements = prevAnnouncements.map(event => 
-          event.id === eventId 
-            ? { ...event, is_current_user_interested: true, attendees_count: updatedEventData.attendees_count } 
+        const newAnnouncements = prevAnnouncements.map(event =>
+          event.id === eventId
+            ? { ...event, is_current_user_interested: true, attendees_count: updatedEventData.attendees_count }
             : event
         );
         console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - setAnnouncements complete. New count: ${newAnnouncements.length}`);
@@ -363,7 +366,7 @@ export default function UserAnnouncementsPage() {
       const token = localStorage.getItem('token');
       const headers = token ? { "Authorization": `Token ${token}` } : {};
       console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Token for API call: ${token ? 'present' : 'absent'}. Headers:`, headers);
-      
+
       const response = await fetch(
         "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/",
         { headers }
@@ -373,12 +376,12 @@ export default function UserAnnouncementsPage() {
         console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Failed to fetch. Status: ${response.status}`);
         throw new Error(`Failed to fetch: ${response.status}`);
       }
-      
+
       let data = await response.json();
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Raw data received (count: ${data.length}):`, data.slice(0,1)); // Log first item for brevity
+      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Raw data received (count: ${data.length}):`, data.slice(0, 1)); // Log first item for brevity
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
-      
+
       console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtering announcements by date (>= ${currentDate.toISOString()}).`);
       const originalCount = data.length;
       data = data.filter(announcement => {
@@ -389,7 +392,7 @@ export default function UserAnnouncementsPage() {
         const eventDate = new Date(announcement.date);
         const isValidDate = !isNaN(eventDate) && eventDate >= currentDate;
         if (!isValidDate) {
-            console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtering out event ${announcement.id} (date: ${announcement.date}) as it's past or invalid.`);
+          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtering out event ${announcement.id} (date: ${announcement.date}) as it's past or invalid.`);
         }
         return isValidDate;
       });
@@ -424,27 +427,27 @@ export default function UserAnnouncementsPage() {
     // This effect might be too aggressive if fetchAnnouncements doesn't strictly depend on currentUser changing for its content
     // (e.g., if backend already uses token to determine 'is_current_user_interested').
     // For now, keeping it as it might be intended to refresh data if user logs in/out.
-    if(currentUser !== undefined){ // Check if currentUser state has been initialized (is not the initial 'undefined' during setup)
-        // No, this check for 'undefined' is not standard for useState. It will be null initially.
-        // If you want to fetch only after first load and when currentUser.id specifically changes from one value to another (not from null to value):
-        // You would need a ref to track previous currentUser.id if that's the precise logic.
-        // For now, this will run if currentUser.id changes (e.g. null -> someId, or someId -> null)
-        console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser?.id] - currentUser is defined (or null), proceeding to fetchAnnouncements.`);
-        // fetchAnnouncements(); // Re-evaluate if this is needed or causes too many fetches.
-                               // loadInitialData already calls fetchAnnouncements.
-                               // This would be for cases where user logs in/out AFTER initial load.
+    if (currentUser !== undefined) { // Check if currentUser state has been initialized (is not the initial 'undefined' during setup)
+      // No, this check for 'undefined' is not standard for useState. It will be null initially.
+      // If you want to fetch only after first load and when currentUser.id specifically changes from one value to another (not from null to value):
+      // You would need a ref to track previous currentUser.id if that's the precise logic.
+      // For now, this will run if currentUser.id changes (e.g. null -> someId, or someId -> null)
+      console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser?.id] - currentUser is defined (or null), proceeding to fetchAnnouncements.`);
+      // fetchAnnouncements(); // Re-evaluate if this is needed or causes too many fetches.
+      // loadInitialData already calls fetchAnnouncements.
+      // This would be for cases where user logs in/out AFTER initial load.
     }
   }, [currentUser?.id]);
 
   const sortedAndFilteredAnnouncements = () => {
     console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Starting sort and filter. Initial count: ${announcements?.length}`);
     if (!announcements) {
-        console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Announcements is null/undefined, returning [].`);
-        return [];
+      console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Announcements is null/undefined, returning [].`);
+      return [];
     }
     let announcementsCopy = [...announcements];
     console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Current filter: '${filter}', sort: '${sort}'. UserLocation:`, userLocation);
-    
+
     if (filter !== "all") {
       const countBeforeFilter = announcementsCopy.length;
       announcementsCopy = announcementsCopy.filter(ann =>
@@ -453,29 +456,29 @@ export default function UserAnnouncementsPage() {
       );
       console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - After type filter ('${filter}'): count changed from ${countBeforeFilter} to ${announcementsCopy.length}`);
     }
-    
+
     const countBeforeLocationFilter = announcementsCopy.length;
     announcementsCopy = announcementsCopy.filter(ann => {
       if (ann.location_type?.toLowerCase() === "online") return true;
       if (userLocation?.state && userLocation?.district) {
-          if (!ann.state) {
-            console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (no state) for user in ${userLocation.state}/${userLocation.district}`);
-            return false;
-          }
-          const userState = userLocation.state.trim().toUpperCase();
-          const userDistrict = userLocation.district.trim().toUpperCase();
-          const eventState = ann.state.trim().toUpperCase();
-          const eventDistrict = ann.district ? ann.district.trim().toUpperCase() : "";
+        if (!ann.state) {
+          console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (no state) for user in ${userLocation.state}/${userLocation.district}`);
+          return false;
+        }
+        const userState = userLocation.state.trim().toUpperCase();
+        const userDistrict = userLocation.district.trim().toUpperCase();
+        const eventState = ann.state.trim().toUpperCase();
+        const eventDistrict = ann.district ? ann.district.trim().toUpperCase() : "";
 
-          if (eventState !== userState) {
-            console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (state: ${eventState}) for user in state ${userState}`);
-            return false;
-          }
-          if (eventDistrict && eventDistrict !== userDistrict) {
-            console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (district: ${eventDistrict}) for user in district ${userDistrict}`);
-            return false;
-          }
-          return true; // Match
+        if (eventState !== userState) {
+          console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (state: ${eventState}) for user in state ${userState}`);
+          return false;
+        }
+        if (eventDistrict && eventDistrict !== userDistrict) {
+          console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (district: ${eventDistrict}) for user in district ${userDistrict}`);
+          return false;
+        }
+        return true; // Match
       }
       // If user location is not set, show all offline events that passed the 'offline' filter.
       // To hide them if user location is not set, add: if (!userLocation?.state || !userLocation?.district) return false;
@@ -483,14 +486,14 @@ export default function UserAnnouncementsPage() {
       return true;
     });
     console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - After location filter: count changed from ${countBeforeLocationFilter} to ${announcementsCopy.length}`);
-    
+
     const sortFn = {
       newest: (a, b) => new Date(b.date) - new Date(a.date),
       oldest: (a, b) => new Date(a.date) - new Date(b.date),
       nameAZ: (a, b) => a.name.localeCompare(b.name),
       nameZA: (a, b) => b.name.localeCompare(a.name),
     };
-    
+
     announcementsCopy.sort(sortFn[sort] || sortFn.newest);
     console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - After sort ('${sort}'). Final count: ${announcementsCopy.length}`);
     return announcementsCopy;
@@ -527,17 +530,34 @@ export default function UserAnnouncementsPage() {
     >
       <Box>
         <Box sx={{ maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 3 } }}>
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: {xs: 1, sm: 2} }}>
-            <Typography sx={{ textAlign: "center", mt: 7, mb: 3, fontSize: { xs: "1.2rem", md: "1.2rem" }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)"}}>
-              Announcements
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
+            <Typography
+              align="center"
+              sx={{
+                mt: 5,
+                p: 2,
+                fontSize: {
+                  xs: "1.2rem",
+                  sm: "1.2rem",
+                  md: isBelow ? "1.2rem" : "1.4rem",
+                  lg: isBelow ? "1.2rem" : "1.4rem",
+                },
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                color: "rgba(0, 0, 0, 0.87)",
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              ANNOUNCEMENTS
             </Typography>
           </Box>
-          <Box className="controls" sx={{ display: "flex", flexDirection: {xs: 'column', sm: 'row'}, justifyContent: "flex-start", alignItems:'center', gap: 2, mb: 3 }}>
+          <Box className="controls" sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, justifyContent: "flex-start", alignItems: 'center', gap: 2, mb: 3 }}>
             <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative", backgroundColor: 'white' }}>
               <InputLabel htmlFor="filter-select-input" id="filter-select-label" sx={{ position: "absolute", top: -10, left: 8, padding: "0 4px", fontSize: "0.75rem", color: "text.secondary" }}>
                 Filter By
               </InputLabel>
-              <Select value={filter} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Filter changed to: ${e.target.value}`); setFilter(e.target.value);}}
+              <Select value={filter} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Filter changed to: ${e.target.value}`); setFilter(e.target.value); }}
                 labelId="filter-select-label" id="filter-select-input"
                 sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" }, "& .MuiSelect-select": { padding: "10px 14px" }, fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, }}
               >
@@ -550,7 +570,7 @@ export default function UserAnnouncementsPage() {
               <InputLabel htmlFor="sort-select-input" id="sort-select-label" sx={{ position: "absolute", top: -10, left: 8, padding: "0 4px", fontSize: "0.75rem", color: "text.secondary" }}>
                 Sort By
               </InputLabel>
-              <Select value={sort} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Sort changed to: ${e.target.value}`); setSort(e.target.value);}}
+              <Select value={sort} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Sort changed to: ${e.target.value}`); setSort(e.target.value); }}
                 labelId="sort-select-label" id="sort-select-input"
                 sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" }, "& .MuiSelect-select": { padding: "10px 14px" }, fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, }}
               >
@@ -572,7 +592,7 @@ export default function UserAnnouncementsPage() {
             <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
           </Box>
         ) : finalAnnouncements.length === 0 ? (
-          <Box sx={{ textAlign: "center", p: {xs: 2, sm: 3}, backgroundColor: 'transparent', borderRadius: 0 }}>
+          <Box sx={{ textAlign: "center", p: { xs: 2, sm: 3 }, backgroundColor: 'transparent', borderRadius: 0 }}>
             {console.log(`[${PAGE_COMPONENT_NAME}] Render - No announcements to display.`)}
             <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
               No announcements available at the moment.

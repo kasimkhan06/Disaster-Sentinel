@@ -8,10 +8,14 @@ import {
   CardActionArea,
   Grid,
   useMediaQuery,
+  Autocomplete,
+  TextField,
+  InputLabel,
+  Button,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import Marquee from "react-fast-marquee";
+import * as XLSX from "xlsx";
 
 import MissingPersonMap from "./MissingPersonMap";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
@@ -31,18 +35,122 @@ function MissingPerson() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [agency, setAgency] = useState(null);
   const [selectiveMissingPersons, setSelectiveMissingPersons] = useState([]);
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [stateDistricts, setStateDistricts] = useState({});
+  const [errors, setErrors] = useState({});
+  const [districts, setDistricts] = useState([]);
   const isBelow = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
-    // Check if user is logged in by retrieving from localStorage
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedData = JSON.parse(userData);
       setUserRole(parsedData.role);
       setUserID(parsedData.user_id);
+      setSelectedState(parsedData.state || "");
+      console.log("User State1:", selectedState);
+      console.log("User Data:", parsedData);
       setIsLoggedIn(true);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchExcelFile = async () => {
+      try {
+        const response = await fetch("/assets/District_Masters.xlsx");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const blob = await response.blob();
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            const tempStateDistricts = {};
+            jsonData.forEach((row) => {
+              const state = row["State Name"]?.trim();
+              const district = row["District Name"]?.trim();
+              if (state && district) {
+                if (!tempStateDistricts[state]) {
+                  tempStateDistricts[state] = [];
+                }
+                if (!tempStateDistricts[state].includes(district)) {
+                  tempStateDistricts[state].push(district);
+                }
+              }
+            });
+            // Sort states alphabetically
+            const sortedStates = Object.keys(tempStateDistricts).sort();
+            const sortedStateDistricts = {};
+            sortedStates.forEach(state => {
+              sortedStateDistricts[state] = tempStateDistricts[state].sort();
+            });
+
+            setStateDistricts(sortedStateDistricts);
+            console.log("State Districts:", sortedStateDistricts);
+
+            // Set districts based only on the agency's state
+            if (selectedState && stateDistricts[selectedState]) {
+              setDistricts(stateDistricts[selectedState]);
+            } else {
+              setDistricts([]);
+            }
+
+          } catch (parseError) {
+            console.error("Error parsing Excel data:", parseError);
+          }
+        };
+        reader.onerror = (error) => {
+          console.error("FileReader error:", error);
+        }
+
+        reader.readAsArrayBuffer(blob);
+      } catch (error) {
+        console.error("Error fetching the Excel file:", error);
+      }
+    };
+
+    fetchExcelFile();
+  }, []);
+
+  useEffect(() => {
+    if (selectedState && stateDistricts[selectedState]) {
+      setDistricts(stateDistricts[selectedState]);
+    }
+  }, [selectedState, stateDistricts]);
+
+
+  const handleDistrictChange = (event, value) => {
+    setSelectedDistrict(value || "");
+
+    if (value && selectedState) {
+      const filtered = missingPersons.filter(
+        (person) =>
+          person.state?.toLowerCase() === selectedState.toLowerCase() &&
+          person.district?.toLowerCase() === value.toLowerCase() &&
+          person.is_found === false
+      );
+      setSelectiveMissingPersons(filtered);
+    } else if (agency?.district && agency?.state) {
+      const fallbackFiltered = missingPersons.filter(
+        (person) =>
+          person.state?.toLowerCase() === agency.state.toLowerCase() &&
+          person.district?.toLowerCase() === agency.district.toLowerCase() &&
+          person.is_found === false
+      );
+      setSelectiveMissingPersons(fallbackFiltered);
+    } else {
+      const allUnfound = missingPersons.filter((person) => person.is_found === false);
+      setSelectiveMissingPersons(allUnfound);
+    }
+  };
 
   useEffect(() => {
     const fetchAgencyDetails = async () => {
@@ -60,18 +168,16 @@ function MissingPerson() {
 
     const fetchMissingPersons = async () => {
       try {
-        // Fetch agency details once
+        // Fetch agency details
         const agencyData = await fetchAgencyDetails();
         if (!agencyData) return;
 
         setAgency(agencyData);
-        console.log("Agency data:", agencyData);
 
         const res = await fetch(
           "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/missing-persons/"
         );
         const data = await res.json();
-        console.log("Missing persons data:", data);
 
         // Fetch detailed data for each person in parallel
         const personDetailsPromises = data.map(async (person) => {
@@ -80,7 +186,6 @@ function MissingPerson() {
               `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/missing-persons/${person.id}/`
             );
             const personData = await response.json();
-            console.log(`Details for person ID ${person.id}:`, personData);
 
             return {
               ...person,
@@ -89,6 +194,7 @@ function MissingPerson() {
               identification_marks: personData.identification_marks || "",
               identity_card_image: personData.identity_card_image || "",
               state: personData.state || "",
+              district: personData.district || "",
             };
           } catch (err) {
             console.error(`Failed to fetch details for person ID ${person.id}:`, err);
@@ -98,29 +204,39 @@ function MissingPerson() {
               description: "",
               identification_marks: "",
               identity_card_image: "",
-              state: ""
+              state: "",
+              district: "",
             };
           }
         });
 
-        // Wait for all the details to be fetched
         const personsWithDetails = await Promise.all(personDetailsPromises);
+        setMissingPersons(personsWithDetails); // store all data
 
-        // Filter based on the agency's state
-        const filteredPersons = personsWithDetails.filter((person) =>
-          person.state?.toLowerCase() === agencyData?.state?.toLowerCase() && person.is_found == false
+        const defaultState = agencyData?.state?.toLowerCase();
+        const defaultDistrict = agencyData?.district?.toLowerCase();
+
+        // Set selectedDistrict as default
+        if (agencyData?.district) {
+          setSelectedDistrict(agencyData.district);
+        }
+
+        // Filter by agency state + district
+        const filteredPersons = personsWithDetails.filter(
+          (person) =>
+            person.state?.toLowerCase() === defaultState &&
+            person.district?.toLowerCase() === defaultDistrict &&
+            person.is_found === false
         );
 
-        setMissingPersons(personsWithDetails);
         setSelectiveMissingPersons(filteredPersons);
-
-        console.log("Filtered missing persons based on agency state:", filteredPersons);
       } catch (err) {
         console.error("Failed to fetch missing persons:", err);
       } finally {
         setLoading(false);
       }
     };
+
 
     fetchMissingPersons();
   }, [userID]);
@@ -175,6 +291,82 @@ function MissingPerson() {
       >
         Missing Persons
       </Typography>
+      <Grid item xs={12} sm={6} md={4} lg={3}
+        sx={{
+          padding: "0 15px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+        }}>
+        <Box
+          sx={{
+            padding: "12px 15px",
+            textAlign: "left",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            backgroundColor: "rgba(255, 255, 255, 0.97)",
+            position: "relative",
+            borderRadius: "8px",
+            minWidth: "20px",
+            width: "15%",
+            transition: "all 0.3s ease",
+            mt: 1,
+            "&:hover": {
+              boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)",
+            },
+          }}
+        >
+          <InputLabel
+            sx={{
+              position: "absolute",
+              top: -5,
+              left: 16,
+              padding: "0 2px",
+              fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.75rem" },
+              color: "text.secondary",
+              fontStyle: "italic",
+            }}
+          >
+            District
+          </InputLabel>
+          <Autocomplete
+            options={districts}
+            value={districts.includes(selectedDistrict) ? selectedDistrict : null}
+            onChange={handleDistrictChange}
+            isOptionEqualToValue={(option, value) => option === value || value === ""}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="standard"
+                error={!!errors.district}
+                placeholder="Select District"
+                InputProps={{ ...params.InputProps, disableUnderline: true }}
+              />
+            )}
+            size="small"
+            sx={{
+              width: "100%",
+              mt: 1,
+              "& .MuiAutocomplete-inputRoot": {
+                padding: "4px 6px",
+              },
+            }}
+          />
+          {errors.district && (
+            <Typography
+              color="error"
+              variant="caption"
+              display="block"
+              textAlign="left"
+              mt={0.5}
+            >
+              {errors.district}
+            </Typography>
+          )}
+        </Box>
+      </Grid>
+
       <Container maxWidth="xl" sx={{ py: 5 }}>
         <Grid container spacing={3}>
           {/* Map and Sidebar */}
