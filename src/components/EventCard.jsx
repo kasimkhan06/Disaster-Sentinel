@@ -35,11 +35,11 @@ export default function EventCard({ event, refreshEvents }) {
 
   const getImage = () => {
     if (event.event_type === "Seminar" || event.event_type === "Conference" || event.event_type === "Networking") {
-      return "/assets/Event Images/seminar.jpg";
+      return "/assets/Event Images/seminar1.webp";
     } else if (event.event_type === "Workshop") {
-      return "/assets/Event Images/workshop.jpg";
+      return "/assets/Event Images/Workshops-22.jpg";
     } else {
-      return "/assets/Event Images/onlineMeeting.webp";
+      return "/assets/Event Images/webinar.jpg";
     }
   };
 

@@ -20,8 +20,28 @@ const API_BASE_URL =
 const mapApiResponseToSelectedPerson = (apiData) => {
   if (!apiData) return null;
 
+  if (apiData.is_found) {
+    if (apiData.agency_found_location && apiData.agency_current_location_of_person) {
+      console.log("mapApiResponseToSelectedPerson: API data indicates person is found.");
+      apiData.additional_info = `FOUND at ${apiData.agency_found_location}, the person is currently kept at ${apiData.agency_current_location_of_person}.`.trim();
+    }
+    else {
+      console.log("mapApiResponseToSelectedPerson: API data indicates person is found.");
+      apiData.additional_info = `${apiData.additional_info}`.trim();
+    }
+  }
+
   const isMarkedFound = typeof apiData.additional_info === "string" &&
     apiData.additional_info.trim().startsWith("FOUND");
+  console.log(
+    "mapApiResponseToSelectedPerson: isMarkedFound status determined as:",
+    isMarkedFound
+  );
+
+  console.log(
+    "mapApiResponseToSelectedPerson: Mapping API data to selected person format:",
+    JSON.parse(JSON.stringify(apiData))
+  );
 
   return {
     id: apiData.id,
@@ -83,6 +103,14 @@ const StatusTracking = () => {
   }, []);
 
   const currentReporterEmail = currentUser ? currentUser.email : null;
+
+  useEffect(() => {
+    console.log("Current User:", currentUser);
+    if (!currentUser) return;
+    if (currentUser.isMarkedFound) {
+      setCurrentStatus("Found");
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated && currentReporterEmail) {
@@ -162,6 +190,10 @@ const StatusTracking = () => {
       const detailedData = await response.json();
       const mappedData = mapApiResponseToSelectedPerson(detailedData);
       setSelectedPerson(mappedData);
+      console.log(
+        "Fetched person details successfully:",
+        JSON.parse(JSON.stringify(mappedData))
+      );
       setEditedInfo({ additional_info: mappedData?.additional_info || "" });
     } catch (err) {
       console.error("Error fetching person details:", err);
