@@ -11,8 +11,10 @@ import {
   Autocomplete,
   TextField,
   InputLabel,
+  InputAdornment,
   Button,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
@@ -25,6 +27,7 @@ function MissingPerson() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
+  const mapRef = useRef(); // declared in parent and passed as prop
 
   const [missingPersons, setMissingPersons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +43,7 @@ function MissingPerson() {
   const [stateDistricts, setStateDistricts] = useState({});
   const [errors, setErrors] = useState({});
   const [districts, setDistricts] = useState([]);
+  const [searchName, setSearchName] = useState(null);
   const isBelow = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
@@ -125,7 +129,6 @@ function MissingPerson() {
       setDistricts(stateDistricts[selectedState]);
     }
   }, [selectedState, stateDistricts]);
-
 
   const handleDistrictChange = (event, value) => {
     setSelectedDistrict(value || "");
@@ -259,6 +262,32 @@ function MissingPerson() {
     return Object.values(grouped).flatMap((group) => group.slice(0, 5));
   }, [selectiveMissingPersons]);
 
+  const handlePersonSearch = (name) => {
+    setSearchName(name);
+
+    const foundPerson = missingPersons.find((p) => p.full_name === name);
+    if (foundPerson) {
+      setSelectedPerson(foundPerson); // highlights person card
+      scrollToMap(); // optional scroll helper
+      flyToPerson(foundPerson); // animate map fly
+    }
+  };
+
+  const flyToPerson = (person) => {
+    if (mapRef.current && person.latitude && person.longitude) {
+      mapRef.current.flyTo([person.latitude, person.longitude], 14, {
+        animate: true,
+        duration: 1.5,
+      });
+    }
+  };
+
+  const scrollToMap = () => {
+    if (mapContainerRef.current) {
+      mapContainerRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -291,86 +320,125 @@ function MissingPerson() {
       >
         Missing Persons
       </Typography>
-      <Grid item xs={12} sm={6} md={4} lg={3}
-        sx={{
-          padding: "0 15px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-        }}>
-        <Box
-          sx={{
-            padding: "12px 15px",
-            textAlign: "left",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+
+      <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
+        {/* Search Section */}
+        <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "center" }, mb: { xs: 1, md: 0 } }}>
+          <Box sx={{
             backgroundColor: "rgba(255, 255, 255, 0.97)",
-            position: "relative",
             borderRadius: "8px",
-            minWidth: "20px",
-            width: "15%",
-            transition: "all 0.3s ease",
-            mt: 1,
-            "&:hover": {
-              boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)",
-            },
-          }}
-        >
-          <InputLabel
-            sx={{
-              position: "absolute",
-              top: -5,
-              left: 16,
-              padding: "0 2px",
-              fontSize: { xs: "0.55rem", sm: "0.6rem", md: "0.75rem" },
-              color: "text.secondary",
-              fontStyle: "italic",
-            }}
-          >
-            District
-          </InputLabel>
-          <Autocomplete
-            options={districts}
-            value={districts.includes(selectedDistrict) ? selectedDistrict : null}
-            onChange={handleDistrictChange}
-            isOptionEqualToValue={(option, value) => option === value || value === ""}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="standard"
-                error={!!errors.district}
-                placeholder="Select District"
-                InputProps={{ ...params.InputProps, disableUnderline: true }}
-              />
-            )}
-            size="small"
-            sx={{
-              width: "100%",
-              mt: 1,
-              "& .MuiAutocomplete-inputRoot": {
-                padding: "4px 6px",
-              },
-            }}
-          />
-          {errors.district && (
-            <Typography
-              color="error"
-              variant="caption"
-              display="block"
-              textAlign="left"
-              mt={0.5}
+            width: "100%",
+            maxWidth: 350,
+          }}>
+            <Autocomplete
+              options={missingPersons.filter((p) => !p.is_found).map((p) => p.full_name)}
+              value={searchName}
+              onChange={(e, value) => handlePersonSearch(value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Search Name"
+                  variant="outlined"
+                  fullWidth
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <SearchIcon fontSize="medium" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+              size="small"
+            />
+          </Box>
+        </Grid>
+
+        {/* Filters Section */}
+        <Grid item xs={12} sm={12} md={6}>
+          <Box sx={{
+            display: "flex",
+            justifyContent: { xs: "center", md: "center" },
+            flexWrap: "wrap",
+            gap: 2,
+          }}>
+            {/* Filter Dropdown */}
+            <Box
+              sx={{
+                minWidth: 160,
+                backgroundColor: "white",
+                boxShadow: "2px 2px 2px #E8F1F5",
+                position: "relative",
+              }}
             >
-              {errors.district}
-            </Typography>
-          )}
-        </Box>
+              <InputLabel
+                id="filter-select-label"
+                sx={{
+                  position: "absolute",
+                  top: -10,
+                  left: 8,
+                  fontSize: "0.75rem",
+                  padding: "0 4px",
+                  backgroundColor: "white",
+                }}
+              >
+                District
+              </InputLabel>
+              <Autocomplete
+                options={districts}
+                value={districts.includes(selectedDistrict) ? selectedDistrict : null}
+                onChange={handleDistrictChange}
+                isOptionEqualToValue={(option, value) => option === value || value === ""}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    error={!!errors.district}
+                    placeholder="Select District"
+                    InputProps={{ ...params.InputProps, disableUnderline: true }}
+                  />
+                )}
+                size="small"
+                sx={{
+                  width: "100%",
+                  mt: 1,
+                  "& .MuiAutocomplete-inputRoot": {
+                    padding: "4px 6px",
+                  },
+                }}
+              />
+
+              {errors.district && (
+                <Typography
+                  color="error"
+                  variant="caption"
+                  display="block"
+                  textAlign="left"
+                  mt={0.5}
+                >
+                  {errors.district}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        </Grid>
       </Grid>
 
       <Container maxWidth="xl" sx={{ py: 5 }}>
-        <Grid container spacing={3}>
+        <Grid
+          container
+          sx={{
+            height: "100%",
+            display: "flex",
+            flexDirection: isMobile ? "row" : "row",
+            maxWidth: { xs: "85%", md: "850px", lg: "1500px" },
+            m: "auto",
+            mt: -3,
+          }}
+        >
           {/* Map and Sidebar */}
-          <Grid item xs={12} md={12} lg={8} sx={{ height: "100%" }}>
+          <Grid item xs={12} md={12} lg={6} sx={{ height: "100%", mx: "auto", mb: 4 }}>
             <Box sx={{ height: 500 }} ref={mapContainerRef}>
               {loading ? (
                 <Box
@@ -408,7 +476,7 @@ function MissingPerson() {
           </Grid>
 
           {/* Person Cards */}
-          <Grid item xs={12} md={12} lg={4} sx={{ height: "100%" }}>
+          <Grid item xs={12} md={12} lg={4} sx={{ height: "100%", mx: "auto", }}>
             <Card elevation={3} sx={{ height: 500, overflowY: "auto", borderRadius: 3 }}>
               <CardContent>
                 {loading ? (
