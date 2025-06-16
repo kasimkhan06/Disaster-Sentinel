@@ -138,7 +138,6 @@ const Verification = () => {
         top: 0,
         left: 0,
         right: 0,
-        // width: "100%", // Ensure full width
         minHeight: "100vh",
         background: `
               linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
@@ -151,14 +150,11 @@ const Verification = () => {
         margin: 0,
         padding: 0,
         zIndex: 0, // Ensure background is behind content
-        //   display: "flex", // Added for centering the inner box
-        //   justifyContent: "center", // Added for centering
-        //   alignItems: "center", // Added for centering
       }}
     >
       <Box
         sx={{
-          marginTop: "45px",
+          marginTop: "25px",
           minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
@@ -195,10 +191,11 @@ const Verification = () => {
             }}
           >
             <Typography
-              variant="h5"
+              variant="h6"
               fontWeight="bold"
-              gutterBottom
-              sx={{ color: "#333" }}
+              mt={2} // Margin top for spacing
+              // gutterBottom
+              // sx={{ color: "#333" }}
             >
               VERIFICATION
             </Typography>
@@ -267,7 +264,7 @@ const Verification = () => {
               </Button>
             </Box>
 
-            <Box mt={2}>
+            <Box mt={0}>
               {" "}
               {/* Adjusted margin */}
               <Typography variant="body2" sx={{ color: "#555" }}>
@@ -285,7 +282,7 @@ const Verification = () => {
                   // Disable if email is not present
                   disabled={!email}
                 >
-                  Resend OTP
+                  RESEND OTP
                 </Button>
               </Typography>
               {resendMessage && (
@@ -305,7 +302,7 @@ const Verification = () => {
               )}
             </Box>
 
-            <Box mt={1}>
+            <Box mt={0}>
               {" "}
               {/* Adjusted margin */}
               <Typography variant="body2" sx={{ color: "#555" }}>
@@ -321,7 +318,7 @@ const Verification = () => {
                     },
                   }}
                 >
-                  Login
+                  LOGIN
                 </Button>
               </Typography>
             </Box>
