@@ -108,7 +108,7 @@ export default function AgencyDashboard() {
     if (idToUse) {
       setAgencyId(idToUse);
     } else {
-      showErrorWithTimeout( // MODIFIED
+      showErrorWithTimeout(
         "Agency ID is missing and could not be derived. Please ensure you are logged in correctly for the dashboard to function."
       );
     }
@@ -186,7 +186,7 @@ export default function AgencyDashboard() {
       setVolunteersPage(1);
     } catch (apiError) {
       console.error("Failed to fetch agency volunteers:", apiError);
-      showErrorWithTimeout(`Failed to fetch agency volunteers: ${apiError.message}`); // MODIFIED
+      showErrorWithTimeout(`Failed to fetch agency volunteers: ${apiError.message}`);
     } finally {
       setLoadingVolunteers(false);
     }
@@ -224,7 +224,7 @@ export default function AgencyDashboard() {
       setRequestsPage(1);
     } catch (apiError) {
       console.error("Failed to fetch volunteer requests:", apiError);
-      showErrorWithTimeout(`Failed to fetch volunteer requests: ${apiError.message}`); // MODIFIED
+      showErrorWithTimeout(`Failed to fetch volunteer requests: ${apiError.message}`);
     } finally {
       setLoadingRequests(false);
     }
@@ -233,7 +233,6 @@ export default function AgencyDashboard() {
   useEffect(() => {
     if (agencyId) {
       // Clear the specific "Agency ID is missing" error if it was set and ID is now available.
-      // This direct setError is fine as it's a specific initial setup case.
       if (error.includes("Agency ID is missing")) setError(""); 
       fetchRequests();
       fetchAgencyVolunteers();
@@ -246,7 +245,7 @@ export default function AgencyDashboard() {
     setSearchResult(null);
 
     if (!searchEmail.trim()) {
-      showErrorWithTimeout("Please enter an email to search."); // MODIFIED
+      showErrorWithTimeout("Please enter an email to search.");
       setLoading(false);
       return;
     }
@@ -265,17 +264,17 @@ export default function AgencyDashboard() {
             email: userData.email,
           });
         } else {
-          showErrorWithTimeout(`No volunteer found with the email: ${searchEmail}.`); // MODIFIED
+          showErrorWithTimeout(`No volunteer found with the email: ${searchEmail}.`);
         }
       } else if (response.status === 404) {
         const errorData = await response.json().catch(() => null);
-        showErrorWithTimeout( // MODIFIED
+        showErrorWithTimeout(
           errorData?.error ||
             `No volunteer found with the email: ${searchEmail}.`
         );
       } else if (response.status === 400) {
         const errorData = await response.json().catch(() => null);
-        showErrorWithTimeout( // MODIFIED
+        showErrorWithTimeout(
           errorData?.error ||
             "Search input is invalid. Please check the email entered."
         );
@@ -289,7 +288,7 @@ export default function AgencyDashboard() {
       }
     } catch (apiError) {
       console.error("Failed to search volunteer:", apiError);
-      showErrorWithTimeout(`Failed to search: ${apiError.message}`); // MODIFIED
+      showErrorWithTimeout(`Failed to search: ${apiError.message}`);
     } finally {
       setLoading(false);
     }
@@ -324,7 +323,7 @@ export default function AgencyDashboard() {
 
   const initiateDeleteRequest = (requestData) => {
     if (!requestData || !requestData.id || !requestData.volunteer_user_id) {
-      showErrorWithTimeout("Cannot delete: Invalid request data provided."); // MODIFIED
+      showErrorWithTimeout("Cannot delete: Invalid request data provided.");
       return;
     }
     setRequestToDelete(requestData);
@@ -361,7 +360,7 @@ export default function AgencyDashboard() {
       }
     } catch (apiError) {
       console.error("API Error deleting volunteer interest:", apiError);
-      showErrorWithTimeout(`Error deleting request: ${apiError.message}`); // MODIFIED
+      showErrorWithTimeout(`Error deleting request: ${apiError.message}`);
     } finally {
       setLoadingAction(false);
       setConfirmDeleteDialogOpen(false);
@@ -371,7 +370,7 @@ export default function AgencyDashboard() {
 
   const handleGivePermissions = async () => {
     if (!currentVolunteer || !agencyId) {
-      showErrorWithTimeout("Missing current volunteer data or Agency ID."); // MODIFIED
+      showErrorWithTimeout("Missing current volunteer data or Agency ID.");
       return;
     }
     clearMessages();
@@ -418,8 +417,8 @@ export default function AgencyDashboard() {
         throw new Error(`Set Permissions API: ${errorData.detail || `Status ${setPermissionsResponse.status}`}`);
       }
       
-      if (accumulatedError) { // If there was an error accepting interest, but permissions were set
-        showErrorWithTimeout(accumulatedError + `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`); // MODIFIED
+      if (accumulatedError) {
+        showErrorWithTimeout(accumulatedError + `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`);
       } else {
         showSuccessWithTimeout(
           `Volunteer ${memberFullName} processed and permissions set successfully!`
@@ -431,8 +430,8 @@ export default function AgencyDashboard() {
     } catch (apiError) {
       console.error("API Error setting/creating permissions:", apiError);
       accumulatedError += `Error setting permissions for ${memberFullName}: ${apiError.message}`;
-      showErrorWithTimeout(accumulatedError.trim()); // MODIFIED
-      fetchAgencyVolunteers(); // Fetch volunteers even if setting permissions failed
+      showErrorWithTimeout(accumulatedError.trim());
+      fetchAgencyVolunteers();
     } finally {
       setLoadingAction(false);
       setOpenModal(false);
@@ -444,7 +443,7 @@ export default function AgencyDashboard() {
 
   const handleSavePermissions = async (memberIdToUpdate, currentVolunteerObject) => {
     if (!agencyId || !memberIdToUpdate) {
-      showErrorWithTimeout("Agency ID or Member ID is missing for saving permissions."); // MODIFIED
+      showErrorWithTimeout("Agency ID or Member ID is missing for saving permissions.");
       return;
     }
     clearMessages();
@@ -477,7 +476,7 @@ export default function AgencyDashboard() {
       );
     } catch (apiError) {
       console.error("API Error updating permissions:", apiError);
-      showErrorWithTimeout( // MODIFIED
+      showErrorWithTimeout(
         `Error updating permissions for user ID ${memberIdToUpdate}: ${apiError.message}`
       );
     } finally {
@@ -489,9 +488,7 @@ export default function AgencyDashboard() {
   const handleVolunteersPageChange = (event, value) => setVolunteersPage(value);
 
   const currentRequests = requests.slice((requestsPage - 1) * ROWS_PER_PAGE, requestsPage * ROWS_PER_PAGE);
-  // const requestsPageCount = Math.ceil(requests.length / ROWS_PER_PAGE);
   const currentVolunteers = volunteers.slice((volunteersPage - 1) * ROWS_PER_PAGE, volunteersPage * ROWS_PER_PAGE);
-  // const volunteersPageCount = Math.ceil(volunteers.length / ROWS_PER_PAGE);
 
   return (
     <Box
@@ -512,7 +509,7 @@ export default function AgencyDashboard() {
         {error && (
           <Alert
             severity="error"
-            onClose={() => { // MODIFIED
+            onClose={() => {
               setError("");
               if (errorTimerRef.current) {
                 clearTimeout(errorTimerRef.current);
@@ -527,7 +524,7 @@ export default function AgencyDashboard() {
         {successMessage && !error && (
           <Alert
             severity="success"
-            onClose={() => { // MODIFIED
+            onClose={() => {
                 setSuccessMessage("");
                 if (successTimerRef.current) {
                     clearTimeout(successTimerRef.current);
@@ -628,7 +625,14 @@ export default function AgencyDashboard() {
                   <TableBody>
                     {volunteers.map((vol) => (
                       <TableRow key={vol.member.id} sx={{ height: '48px' }}>
-                        <TableCell sx={{ padding: '6px 10px' }}>{vol.member.full_name}</TableCell>
+                        <TableCell sx={{ padding: '6px 10px' }}>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                {vol.member.full_name}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem' }}>
+                                {vol.member.email}
+                            </Typography>
+                        </TableCell>
                         {permissionsList.map((perm) => (
                           <TableCell key={perm} sx={{ padding: '0px 8px', textAlign: 'center' }}>
                             <Checkbox checked={!!vol[perm]} onChange={(e) => {
