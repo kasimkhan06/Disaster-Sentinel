@@ -8,6 +8,8 @@ import {
   Card,
   CircularProgress,
   Input,
+  // InputAdornment, // Not used in this component's JSX based on original
+  // IconButton, // Not used in this component's JSX based on original
   Button,
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -16,6 +18,7 @@ import worldMapBackground from "/assets/background_image/world-map-background.jp
 import MissingPersonForm from "../missingperson/form"; // Ensure this path is correct
 import InteractiveMap from "../../components/InteractiveMap"; // Ensure this path is correct
 import Footer from "../../components/Footer"; // Ensure this path is correct
+// import SearchIcon from "@mui/icons-material/Search"; // Not used in this component's JSX based on original
 import ReCAPTCHA from "react-google-recaptcha";
 
 const API_BASE_URL =
@@ -55,6 +58,12 @@ const MissingPersonPortal = () => {
   });
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // useEffect, handleInputChange, handleFileChange, handleCaptchaVerify, searchMapLocation, handleSubmit logic
+  // is assumed to be largely the same as your original working logic for functionality,
+  // as the request is about CSS and the overlap fix. The versions from the prior "fixed" example are robust.
+  // For brevity here, I'll include the function signatures and a comment.
+  // Please ensure you use your complete, tested JS logic for these handlers.
 
   // --- Scroll to Top on Mount ---
   useEffect(() => {
@@ -257,16 +266,16 @@ const MissingPersonPortal = () => {
 
     if (!formData.name.trim()) validationErrors.name = "Name is required.";
     if (!formData.age) {
-      validationErrors.age = "Age is required.";
+        validationErrors.age = "Age is required.";
     } else if (isNaN(formData.age) || Number(formData.age) <= 0) {
-      validationErrors.age = "Invalid age.";
+        validationErrors.age = "Invalid age.";
     }
     if (!formData.gender) validationErrors.gender = "Gender is required.";
     if (!formData.description.trim())
       validationErrors.description = "Description is required.";
 
     if (!formData.lastSeenPlace.trim()) {
-      validationErrors.location = (validationErrors.location || "") + "Last seen location text is required.";
+        validationErrors.location = (validationErrors.location || "") + "Last seen location text is required.";
     }
     if (!formData.lastSeen) {
       validationErrors.location =
