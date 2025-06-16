@@ -31,11 +31,20 @@ const Login = ({ setIsLoggedIn }) => {
     let newErrors = {};
 
     // Basic validation
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.password.trim()) newErrors.password = "Password is required";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(formData.email)) {
+      // Added robust email format validation here
+      newErrors.form = "Invalid email or password"; // Set form-level error for consistency
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required";
+    }
+
     setErrors(newErrors);
 
-    // Proceed only if basic validation passes
+    // Proceed only if client-side validation passes
     if (Object.keys(newErrors).length === 0) {
       try {
         // Make the API call
@@ -73,7 +82,7 @@ const Login = ({ setIsLoggedIn }) => {
           const redirectPath = localStorage.getItem("redirectAfterLogin");
           localStorage.removeItem("redirectAfterLogin");
           if (data.role === "user") {
-            window.location.assign(redirectPath ||"/home");
+            window.location.assign(redirectPath || "/home");
             // navigate(redirectPath ||"/home");
           } else {
             try {
@@ -93,7 +102,7 @@ const Login = ({ setIsLoggedIn }) => {
                 );
                 // navigate("/agency-dashboard");
                 window.location.assign("/agency-dashboard");
-                
+
               } else {
                 console.error(
                   "Agency details not found for user ID:",
@@ -119,7 +128,7 @@ const Login = ({ setIsLoggedIn }) => {
           if (data.error === "User is not verified") {
             errorMessage = "Please verify your email before logging in";
           } else if (data.error === "Invalid credentials") {
-            errorMessage = "Invalid email or password";
+            errorMessage = "Invalid email or password"; // This is the crucial part you wanted to maintain
           }
           setErrors({ ...errors, form: errorMessage });
         }
@@ -135,6 +144,10 @@ const Login = ({ setIsLoggedIn }) => {
 
   const handleRegister = () => {
     navigate("/register");
+  };
+
+  const handleVeri = () => {
+    navigate("/verification");
   };
 
   useEffect(() => {
@@ -181,7 +194,7 @@ const Login = ({ setIsLoggedIn }) => {
             width: { xs: "90%", sm: "60%", md: "35%" },
             backgroundColor: "#fff",
             paddingTop: "25px",
-            // paddingBottom: "25px",
+            paddingBottom: "25px",
             borderRadius: 2,
             boxShadow: 3,
           }}
@@ -219,8 +232,8 @@ const Login = ({ setIsLoggedIn }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  error={!!errors.email}
-                  helperText={errors.email}
+                  error={!!errors.email || (!!errors.form && errors.form.includes("email"))} // Indicate error for field or form
+                  helperText={errors.email} // Only show specific field error
                   size="small"
                   sx={{ width: "70%" }}
                   InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
@@ -243,8 +256,8 @@ const Login = ({ setIsLoggedIn }) => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  error={!!errors.password}
-                  helperText={errors.password}
+                  error={!!errors.password || (!!errors.form && errors.form.includes("password"))} // Indicate error for field or form
+                  helperText={errors.password} // Only show specific field error
                   size="small"
                   sx={{ width: "70%" }}
                   InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
@@ -276,11 +289,14 @@ const Login = ({ setIsLoggedIn }) => {
               <Button variant="text" onClick={handleRegister}>
                 Register
               </Button>
+              <Button variant="text" onClick={handleVeri}>
+                Veri
+              </Button>
             </Typography>
           </Box>
         </Box>
       </Box>
-      <Footer/>
+      <Footer />
     </Box>
   );
 };

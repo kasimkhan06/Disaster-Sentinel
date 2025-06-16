@@ -25,8 +25,8 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import * as XLSX from "xlsx"; // Import xlsx
-import worldMapBackground from "/assets/background_image/world-map-background.jpg"; 
-import Footer from "../../components/Footer"; 
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import Footer from "../../components/Footer";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -147,13 +147,57 @@ const Register = () => {
 
   const validateForm = () => {
     let newErrors = {};
-    if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
-    if (!formData.contact.trim()) newErrors.contact = "Contact No. is required";
-    if (!formData.state.trim()) newErrors.state = "State is required";
-    if (!formData.district.trim()) newErrors.district = "District is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.password.trim()) newErrors.password = "Password is required";
-    if (!formData.role) newErrors.role = "Role selection is required";
+
+    // Full Name validation
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full Name is required";
+    }
+
+    // Contact No. validation
+    if (!formData.contact.trim()) {
+      newErrors.contact = "Contact No. is required";
+    } else if (!/^\d{10}$/.test(formData.contact)) {
+      newErrors.contact = "Contact No. must be 10 digits";
+    }
+
+    // State validation
+    if (!formData.state.trim()) {
+      newErrors.state = "State is required";
+    }
+
+    // District validation
+    if (!formData.district.trim()) {
+      newErrors.district = "District is required";
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address (e.g., example@domain.com)";
+    }
+
+    // Password validation
+    if (!formData.password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters long";
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one capital letter";
+    } else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one small letter";
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one number";
+    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one special character";
+    }
+
+    // Role validation
+    if (!formData.role) {
+      newErrors.role = "Role selection is required";
+    }
+
+    // Agency Number validation (conditional)
     if (formData.role === "agency" && !formData.agencyNumber.trim()) {
       newErrors.agencyNumber = "Agency Number is required";
     }
@@ -242,28 +286,30 @@ const Register = () => {
   return (
     <Box // Outer container
       sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              minHeight: "100vh",
-              background: `
-            linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
-            url(${worldMapBackground})
-          `,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundAttachment: "fixed",
-              backgroundRepeat: "repeat-y",
-              margin: 0,
-              padding: 0,
-              zIndex: 0,
-            }}
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        minHeight: "100vh",
+        background: `
+          linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+          url(${worldMapBackground})
+        `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "repeat-y",
+        margin: 0,
+        padding: 0,
+        zIndex: 0,
+      }}
     >
       <Box // Centering container
         sx={{
-          minHeight: "100vh", display: "flex", justifyContent: "center",
-          alignItems: "center", padding: 0, margin: 0, overflow: "hidden", marginTop: "80px"
+          display: "flex", justifyContent: "center",
+          alignItems: "center", padding: 0, margin: 0, overflow: "hidden", 
+          marginTop: "80px", // <-- Push this container down to clear navbar
+          minHeight: "calc(100vh - 80px)", // <-- Make its height work with the margin
         }}
       >
         <Box // Form container
@@ -410,7 +456,7 @@ const Register = () => {
 
         </Box> {/* End Form container */}
       </Box> {/* End Centering container */}
-      <Footer/>
+      <Footer />
     </Box> // End Outer container
   );
 };
