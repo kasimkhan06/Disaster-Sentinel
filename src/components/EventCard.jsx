@@ -3,9 +3,11 @@ import { CalendarToday, LocationOn, Videocam, People, Edit, Delete, Send } from 
 import { useNavigate } from "react-router-dom";
 import "../../public/css/EventListing.css";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 export default function EventCard({ event, refreshEvents }) {
   const navigate = useNavigate();
+  const [attendeeCount, setAttendeeCount] = useState(0);
 
   const getTagsBadge = () => {
     if (!event.tags || event.tags.length === 0) return null;
@@ -18,6 +20,35 @@ export default function EventCard({ event, refreshEvents }) {
       </div>
     );
   };
+
+  useEffect(() => {
+    const getAttendeesCount = async () => {
+      try {
+        const response = await fetch(
+          `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/?event=${event.id}`
+        );
+
+        if (response.status === 404) {
+          setAttendeeCount(0); // No interests found
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Attendees data:", data);
+        const interestedUsersCount = data.filter((item) => item.interested === true).length;
+        setAttendeeCount(interestedUsersCount);
+      } catch (error) {
+        console.error("Error fetching attendees count:", error);
+        setAttendeeCount(0);
+      }
+    };
+
+    getAttendeesCount();
+  }, [event.id]);
 
   const handleDelete = async () => {
     const confirmDelete = window.confirm("Are you sure you want to delete this event?");
@@ -72,7 +103,7 @@ export default function EventCard({ event, refreshEvents }) {
             </Typography>
           )}
           <Typography variant="body2">
-            <People fontSize="small" /> {event.attendees || 0} Attendees
+            <People fontSize="small" /> {attendeeCount}/{event.attendees || 0} Attendees
           </Typography>
           {getTagsBadge()}
         </div>

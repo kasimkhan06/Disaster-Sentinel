@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import worldMapBackground from "../../../public/assets/background_image/world-map-background.jpg";
 import Footer from "../../components/Footer";
+import axios from "axios";
 
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api";
@@ -458,6 +459,37 @@ const StatusTracking = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!selectedPerson?.id) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this report?");
+    if (!confirmDelete) return;
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/missing-persons/${selectedPerson.id}/`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete the report.");
+      }
+
+      setReportList((prevList) =>
+        prevList.filter((person) => person.id !== selectedPerson.id)
+      );
+
+      setSelectedPerson(null);
+      setEditedInfo({ additional_info: "" });
+      setSuccessMessage("Report deleted successfully!");
+      setError("");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      setError("Failed to delete the report.");
+    }
+  };
+
   if (authLoading) {
     return (
       <Container
@@ -676,7 +708,6 @@ const StatusTracking = () => {
                   <strong>Additional Info:</strong>{" "}
                   {selectedPerson.additional_info}
                 </Typography>
-                {/* MODIFICATION END */}
               </Box>
             </Box>
             <Box sx={{ mt: 3 }}>
@@ -704,7 +735,7 @@ const StatusTracking = () => {
                 value={editedInfo.additional_info}
                 onChange={handleEditChange}
                 InputLabelProps={{ shrink: true }}
-                disabled={loadingUpdate}
+                disabled={loadingUpdate || selectedPerson.isMarkedFound}
               />
             </Box>
             <Box
@@ -717,19 +748,37 @@ const StatusTracking = () => {
                 gap: 1,
               }}
             >
-              <Button
-                disableRipple
-                // variant="contained"
-                // color="primary"
-                onClick={handleSaveChanges}
-                disabled={loadingUpdate || selectedPerson.isMarkedFound}
-              >
-                {loadingUpdate ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
+              {selectedPerson.isMarkedFound ? (
+                <Button
+                  variant="text"
+                  color="primary"
+                  disableRipple
+                  onClick={handleDelete}
+                  disabled={loadingUpdate}
+                  sx={{
+                    color: "primary.main",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {loadingUpdate ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  disableRipple
+                  onClick={handleSaveChanges}
+                  disabled={loadingUpdate}
+                >
+                  {loadingUpdate ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              )}
               {!selectedPerson.isMarkedFound && (
                 <Button
                   disableRipple
