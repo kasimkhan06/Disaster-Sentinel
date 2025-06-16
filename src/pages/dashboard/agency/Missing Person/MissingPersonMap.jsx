@@ -134,7 +134,7 @@ const MissingPersonMap = ({ persons, selectedPerson }) => {
   if (markers.length === 0) {
     return (
       <div style={{ textAlign: "center", margin: "20px", fontSize: "18px", color: "#d32f2f" }}>
-        ⚠️ No valid locations to display.
+        ⚠️ No locations to display.
       </div>
     );
   }

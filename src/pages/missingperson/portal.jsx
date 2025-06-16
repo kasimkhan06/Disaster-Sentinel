@@ -254,7 +254,7 @@ const MissingPersonPortal = () => {
     let validationErrors = { ...errors }; // Preserve existing file errors
 
     // Clear errors that will be re-validated
-    const fieldsToRevalidate = ['name', 'age', 'gender', 'description', 'location', 'state', 'district', 'disasterType', 'contactInfo', 'photo', 'captcha', 'reporter'];
+    const fieldsToRevalidate = ['name', 'age', 'gender', 'description', 'location', 'state', 'district', 'contactInfo', 'photo', 'captcha', 'reporter'];
     fieldsToRevalidate.forEach(field => delete validationErrors[field]);
 
 
@@ -279,8 +279,8 @@ const MissingPersonPortal = () => {
     if (!formData.state) validationErrors.state = "State is required.";
     if (formData.state && !formData.district)
       validationErrors.district = "District is required.";
-    if (!formData.disasterType)
-      validationErrors.disasterType = "Disaster type is required.";
+    // if (!formData.disasterType)
+    //   validationErrors.disasterType = "Disaster type is required.";
     if (!formData.contactInfo.trim())
       validationErrors.contactInfo =
         "Contact information for updates is required.";
