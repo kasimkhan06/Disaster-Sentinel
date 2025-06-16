@@ -210,7 +210,7 @@ export default function EventListing() {
                   backgroundColor: "rgba(255, 255, 255, 0.97)",
                   borderRadius: "8px",
                   width: "100%",
-                  maxWidth: 350,
+                  maxWidth: 300,
                 }}>
                   <Autocomplete
                     options={events ? events.map((event) => event.name) : []}
@@ -237,6 +237,7 @@ export default function EventListing() {
                         }}
                       />
                     )}
+                    size="small"
                   />
                 </Box>
               </Grid>
@@ -248,6 +249,7 @@ export default function EventListing() {
                   justifyContent: { xs: "center", md: "flex-end" },
                   flexWrap: "wrap",
                   gap: 2,
+                  mt: { xs: 2, md: 2 },
                 }}>
                   {/* Filter Dropdown */}
                   <FormControl

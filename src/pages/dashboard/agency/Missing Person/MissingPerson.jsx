@@ -292,138 +292,155 @@ function MissingPerson() {
     <Box
       sx={{
         minHeight: "100vh",
-        background: `
-              linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
-              url(${worldMapBackground})
-            `,
+        background: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${worldMapBackground})`,
         backgroundSize: "cover",
+        backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        paddingTop: "100px",
+        margin: 0,
+        zIndex: 0,
+        display: "flex",
+        flexDirection: "column",
+        boxSizing: "border-box",
+        overflowY: "auto",
       }}
     >
-      <Typography
-        align="center"
-        sx={{
-          p: 2,
-          fontSize: {
-            xs: "1.2rem",
-            sm: "1.2rem",
-            md: isBelow ? "1.2rem" : "1.4rem",
-            lg: isBelow ? "1.2rem" : "1.4rem",
-          },
-          fontWeight: "bold",
-          textTransform: "uppercase",
-          color: "rgba(0, 0, 0, 0.87)",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        Missing Persons
-      </Typography>
-
-      <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
-        {/* Search Section */}
-        <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "center" }, mb: { xs: 1, md: 0 } }}>
-          <Box sx={{
-            backgroundColor: "rgba(255, 255, 255, 0.97)",
-            borderRadius: "8px",
-            width: "100%",
-            maxWidth: 350,
-          }}>
-            <Autocomplete
-              options={missingPersons.filter((p) => !p.is_found).map((p) => p.full_name)}
-              value={searchName}
-              onChange={(e, value) => handlePersonSearch(value)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Search Name"
-                  variant="outlined"
-                  fullWidth
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <SearchIcon fontSize="medium" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              )}
-              size="small"
-            />
-          </Box>
-        </Grid>
-
-        {/* Filters Section */}
-        <Grid item xs={12} sm={12} md={6}>
-          <Box sx={{
-            display: "flex",
-            justifyContent: { xs: "center", md: "center" },
-            flexWrap: "wrap",
-            gap: 2,
-          }}>
-            {/* Filter Dropdown */}
-            <Box
+      <Box>
+        <Box sx={{ maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 3 } }}>
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
+            <Typography
+              align="center"
               sx={{
-                minWidth: 160,
-                backgroundColor: "white",
-                boxShadow: "2px 2px 2px #E8F1F5",
-                position: "relative",
+                mt: { xs: 8, sm: 5, md: 5, lg: 5 },
+                p: 2,
+                fontSize: { xs: "1.2rem", sm: "1.3rem", md: "1.4rem", lg: "1.5rem" },
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                color: "rgba(0, 0, 0, 0.87)",
+                zIndex: 1,
               }}
             >
-              <InputLabel
-                id="filter-select-label"
+              Missing Persons
+            </Typography>
+          </Box>
+          <Box className="controls" sx={{ mb: 3 }}>
+            <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
+
+              {/* Search Section */}
+              <Grid item
+                xs={12}
+                md={6}
                 sx={{
-                  position: "absolute",
-                  top: -10,
-                  left: 8,
-                  fontSize: "0.75rem",
-                  padding: "0 4px",
-                  backgroundColor: "white",
+                  display: "flex",
+                  justifyContent: { xs: "center", md: "center", lg: "flex-start" }, 
+                  mt: { xs: 2, md: 2 },
                 }}
               >
-                District
-              </InputLabel>
-              <Autocomplete
-                options={districts}
-                value={districts.includes(selectedDistrict) ? selectedDistrict : null}
-                onChange={handleDistrictChange}
-                isOptionEqualToValue={(option, value) => option === value || value === ""}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="standard"
-                    error={!!errors.district}
-                    placeholder="Select District"
-                    InputProps={{ ...params.InputProps, disableUnderline: true }}
-                  />
-                )}
-                size="small"
-                sx={{
+                <Box sx={{
+                  backgroundColor: "rgba(255, 255, 255, 0.97)",
+                  borderRadius: "8px",
                   width: "100%",
-                  mt: 1,
-                  "& .MuiAutocomplete-inputRoot": {
-                    padding: "4px 6px",
-                  },
-                }}
-              />
+                  maxWidth: 300,
+                }}>
+                  <Autocomplete
+                    options={missingPersons.filter((p) => !p.is_found).map((p) => p.full_name)}
+                    value={searchName}
+                    onChange={(e, value) => handlePersonSearch(value)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search Name"
+                        variant="outlined"
+                        fullWidth
+                        sx={{
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          "&:hover": {
+                            boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)",
+                          },
+                        }}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <SearchIcon fontSize="medium" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                    size="small"
+                  />
+                </Box>
+              </Grid>
 
-              {errors.district && (
-                <Typography
-                  color="error"
-                  variant="caption"
-                  display="block"
-                  textAlign="left"
-                  mt={0.5}
-                >
-                  {errors.district}
-                </Typography>
-              )}
-            </Box>
+              {/* Filters Section */}
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{
+                  display: "flex",
+                  justifyContent: { xs: "center", md: "center", lg: "flex-end" }, // centered for md
+                  mt: { xs: 2, md: 2 },
+                }}>
+                <Box sx={{
+                  display: "flex",
+                  justifyContent: { xs: "center", md: "center", lg: "flex-end" },
+                  flexWrap: "wrap",
+                  gap: 2,
+                }}>
+                  {/* Filter Dropdown */}
+                  <Box
+                    sx={{
+                      minWidth: 160,
+                      backgroundColor: "white",
+                      boxShadow: "2px 2px 2px #E8F1F5",
+                      position: "relative",
+                    }}
+                  >
+                    <InputLabel
+                      id="filter-select-label"
+                      sx={{
+                        position: "absolute",
+                        top: -10,
+                        left: 8,
+                        fontSize: "0.75rem",
+                        padding: "0 4px",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      District
+                    </InputLabel>
+                    <Autocomplete
+                      options={districts}
+                      value={districts.includes(selectedDistrict) ? selectedDistrict : null}
+                      onChange={handleDistrictChange}
+                      isOptionEqualToValue={(option, value) => option === value || value === ""}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="standard"
+                          error={!!errors.district}
+                          placeholder="Select District"
+                          InputProps={{ ...params.InputProps, disableUnderline: true }}
+                        />
+                      )}
+                      size="small"
+                      sx={{
+                        width: "100%",
+                        mt: 1,
+                        "& .MuiAutocomplete-inputRoot": {
+                          padding: "4px 6px",
+                        },
+                        fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       <Container maxWidth="xl" sx={{ py: 5 }}>
         <Grid
@@ -432,7 +449,7 @@ function MissingPerson() {
             height: "100%",
             display: "flex",
             flexDirection: isMobile ? "row" : "row",
-            maxWidth: { xs: "85%", md: "850px", lg: "1500px" },
+            maxWidth: { xs: "85%", md: "850px", lg: "1400px" },
             m: "auto",
             mt: -3,
           }}
@@ -535,7 +552,7 @@ function MissingPerson() {
         </Grid>
       </Container>
       <Footer />
-    </Box>
+    </Box >
   );
 }
 
