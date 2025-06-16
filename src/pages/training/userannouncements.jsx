@@ -32,12 +32,12 @@ import Footer from "../../components/Footer"; // Ensure this path is correct
 // Define EventDisplayCard FIRST, as UserAnnouncementsPage uses it.
 const EVENT_DISPLAY_CARD_COMPONENT_NAME = "EventDisplayCard";
 
-function EventDisplayCard({ event, currentUser, onRegister, onLoginRedirect }) { 
+function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLoginRedirect }) { // Added onUnregister prop
   const theme = useTheme();
   const initialIsRegistered = !!event.is_current_user_interested;
   const [isRegistered, setIsRegistered] = useState(initialIsRegistered);
   const [loading, setLoading] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // New state for login prompt
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false); 
 
   useEffect(() => {
     const newIsRegistered = !!event.is_current_user_interested;
@@ -50,7 +50,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onLoginRedirect }) {
     console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal called for event: ${event?.id}. CurrentUser exists: ${!!currentUser}, IsAlreadyRegistered: ${isRegistered}`);
     if (!currentUser) {
       console.warn(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - No current user (user_id not available). Displaying login prompt.`);
-      setShowLoginPrompt(true); // Set state to show the login prompt
+      setShowLoginPrompt(true); 
       return;
     }
     if (isRegistered) {
@@ -58,7 +58,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onLoginRedirect }) {
       return;
     }
 
-    setShowLoginPrompt(false); // Hide login prompt if user is now logged in
+    setShowLoginPrompt(false); 
     console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - Setting loading to true for event ${event?.id}`);
     setLoading(true);
     try {
@@ -72,6 +72,34 @@ function EventDisplayCard({ event, currentUser, onRegister, onLoginRedirect }) {
       setLoading(false);
     }
   };
+
+  const handleUnregisterInternal = async () => {
+    console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal called for event: ${event?.id}. CurrentUser exists: ${!!currentUser}, IsRegistered: ${isRegistered}`);
+    if (!currentUser) { // Should not happen if button is only shown when registered
+      console.warn(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - No current user. Unregistration aborted.`);
+      onLoginRedirect();
+      return;
+    }
+    if (!isRegistered || !event.interest_record_id) {
+      console.warn(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - User not registered or missing interest_record_id for event ${event?.id}. Unregistration aborted.`);
+      return;
+    }
+
+    setShowLoginPrompt(false); 
+    console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Setting loading to true for event ${event?.id}`);
+    setLoading(true);
+    try {
+      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Calling onUnregister for event ${event?.id} with interest_record_id ${event.interest_record_id}`);
+      const success = await onUnregister(event.interest_record_id); // Pass the interest record ID
+      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - onUnregister returned ${success} for event ${event?.id}`);
+    } catch (error) {
+      console.error(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Error during unregistration for event ${event?.id}:`, error);
+    } finally {
+      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Setting loading to false for event ${event?.id}`);
+      setLoading(false);
+    }
+  };
+
 
   const getTagsBadge = () => {
     if (!event.tags || event.tags.length === 0) return null;
@@ -133,34 +161,42 @@ function EventDisplayCard({ event, currentUser, onRegister, onLoginRedirect }) {
             </Typography>
           ) : isRegistered ? (
             <Button
+              // "Unregister" Button Styling
               size="small"
-              disabled 
+              disabled={loading} // Only disable due to loading
+              onClick={handleUnregisterInternal} // Call the new unregister handler
               sx={{
                 minWidth: '150px',
-                py: 1.5, 
-                fontWeight: 500, 
+                transition: 'all 0.3s ease',
                 textTransform: 'uppercase', 
-                // backgroundColor: theme.palette.success.main, 
-                // color: 'white', 
-                '&.Mui-disabled': { 
-                  // backgroundColor: theme.palette.success.light, 
-                  // color: 'rgba(255, 255, 255, 0.8)', 
+                py: 1.5, 
+                fontWeight: 500, // Match "Register" button
+                color: theme.palette.error.main, // Use red for unregister
+                borderColor: theme.palette.error.main, // Add border for distinction if not filled
+                '&:hover': {
+                  // backgroundColor: theme.palette.error.light,
+                  // color: 'white',
                 },
               }}
             >
-              Registered
+              {loading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Unregister"
+              )}
             </Button>
           ) : (
             <Button
               size="small"
-              disabled={loading} // Only disable due to loading, not !currentUser here
+              disabled={loading} 
               onClick={handleRegisterInternal}
               sx={{
                 minWidth: '150px',
                 transition: 'all 0.3s ease',
                 textTransform: 'uppercase', 
                 py: 1.5, 
-                fontWeight: 500, 
+                fontWeight: 500,
+                color: theme.palette.success.main, 
               }}
             >
               {loading ? (
@@ -294,7 +330,7 @@ export default function UserAnnouncementsPage() {
       const interestData = await interestResponse.json();
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Interest marked successfully:`, interestData);
 
-      const currentAttendees = event.attendees_count || 0; 
+      const currentAttendees = announcements.find(ann => ann.id === eventId)?.attendees_count || 0; // Get current count from state for accurate update
       const updatePayload = { attendees_count: currentAttendees + 1 };
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - 2. Updating attendance count for event ${eventId}. Payload:`, updatePayload);
       const updateResponse = await fetch(
@@ -329,6 +365,56 @@ export default function UserAnnouncementsPage() {
       console.error(`[${PAGE_COMPONENT_NAME}] handleRegister - General error during registration for event ${eventId}:`, error.message);
       setSnackbar({ open: true, message: error.message || "Registration failed. Please try again.", severity: "error" });
       fetchAnnouncements(); 
+      return false;
+    }
+  };
+
+  const handleUnregister = async (interestRecordId) => {
+    console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister called for interestRecordId: ${interestRecordId}`);
+
+    if (!currentUser?.id) { // Should be covered by button disabled state
+      setSnackbar({ open: true, message: "Please login to unregister.", severity: "error" });
+      return false;
+    }
+    if (!interestRecordId) {
+        console.error(`[${PAGE_COMPONENT_NAME}] handleUnregister - Missing interest record ID. Cannot unregister.`);
+        setSnackbar({ open: true, message: "Error: Missing interest record ID. Cannot unregister.", severity: "error" });
+        return false;
+    }
+
+    try {
+      console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister - Deleting interest record ${interestRecordId}.`);
+      const response = await fetch(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/${interestRecordId}/`,
+        {
+          method: "DELETE", 
+          headers: {
+            "Content-Type": "application/json", 
+            // No Authorization header as per AllowAny for this ViewSet 
+          },
+        }
+      );
+      console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister - Delete API response status: ${response.status}`);
+
+      if (response.status === 204) { // 204 No Content for successful DELETE 
+        console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister - Interest record ${interestRecordId} deleted successfully.`);
+        setSnackbar({ open: true, message: "Successfully unregistered from the event!", severity: "success" });
+        await fetchAnnouncements(); // Re-fetch to update the UI
+        return true;
+      } else {
+        let errorData = {};
+        try {
+            errorData = await response.json();
+        } catch (jsonError) {
+            errorData = { detail: `Unregister API failed with status ${response.status} and no parseable JSON response.` };
+        }
+        console.error(`[${PAGE_COMPONENT_NAME}] handleUnregister - Failed to delete interest:`, errorData);
+        throw new Error(errorData.detail || `Failed to unregister. Status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`[${PAGE_COMPONENT_NAME}] handleUnregister - General error during unregistration:`, error.message);
+      setSnackbar({ open: true, message: error.message || "Unregistration failed. Please try again.", severity: "error" });
+      fetchAnnouncements(); // Re-fetch to ensure UI consistency
       return false;
     }
   };
@@ -368,22 +454,25 @@ export default function UserAnnouncementsPage() {
 
       // --- 3. Determine user interest for each event by querying /api/event-interests/?user=<user_id> ---
       let userInterestedEventIds = new Set();
+      let eventIdToInterestRecordIdMap = new Map(); // Store interest record ID
       if (currentUser?.id) { 
           console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Fetching user interests for user_id: ${currentUser.id}.`);
           const userInterestsResponse = await fetch(
             `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/?user=${currentUser.id}`, 
-            { headers: {} } 
+            { headers: {} } // No Authorization header for this endpoint 
           );
           console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User Interests API response status: ${userInterestsResponse.status}`);
           if (userInterestsResponse.ok) {
-              const userInterestsData = await userInterestsResponse.json();
+              const userInterestsData = await userInterestsResponse.json(); 
               console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User interests data received (count: ${userInterestsData.length}):`, userInterestsData.slice(0,1));
               userInterestsData.forEach(interest => {
-                  if (interest.interested === true) { 
+                  if (interest.interested === true) {  // Only add if explicitly marked interested
                       userInterestedEventIds.add(interest.event.id); 
+                      eventIdToInterestRecordIdMap.set(interest.event.id, interest.id); // Store interest record ID 
                   }
               });
               console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User interested in event IDs:`, [...userInterestedEventIds]);
+              console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Event ID to Interest Record ID Map:`, eventIdToInterestRecordIdMap);
           } else {
               console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Failed to fetch user interests. Status: ${userInterestsResponse.status}`);
           }
@@ -391,10 +480,12 @@ export default function UserAnnouncementsPage() {
           console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - No currentUser ID available, skipping fetching user interests.`);
       }
 
-      // --- 4. Map interest status onto events ---
+      // --- 4. Map interest status and interest_record_id onto events ---
       const finalEvents = eventsData.map(event => ({
           ...event,
-          is_current_user_interested: userInterestedEventIds.has(event.id)
+          is_current_user_interested: userInterestedEventIds.has(event.id),
+          // Add the interest_record_id if the user is interested in this event
+          interest_record_id: userInterestedEventIds.has(event.id) ? eventIdToInterestRecordIdMap.get(event.id) : null
       }));
       console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Final events mapped with interest status. Example:`, finalEvents.slice(0,1));
 
@@ -584,6 +675,7 @@ export default function UserAnnouncementsPage() {
                     event={announcement}
                     currentUser={currentUser}
                     onRegister={handleRegister}
+                    onUnregister={handleUnregister} // Pass new unregister handler
                     onLoginRedirect={handleLoginRedirect} 
                   />
                 </Grid>
