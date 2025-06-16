@@ -150,6 +150,12 @@ const Login = ({ setIsLoggedIn }) => {
     navigate("/verification");
   };
 
+  // --- Scroll to Top on Mount ---
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  // --- End Scroll to Top ---
+
   useEffect(() => {
     const originalMargin = document.body.style.margin;
     document.body.style.margin = "0";

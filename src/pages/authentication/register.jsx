@@ -52,6 +52,12 @@ const Register = () => {
   const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState("");
 
+  // --- Scroll to Top on Mount ---
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  // --- End Scroll to Top ---
+
   // --- Data Loading Effect ---
   useEffect(() => {
     const fetchExcelFile = async () => {

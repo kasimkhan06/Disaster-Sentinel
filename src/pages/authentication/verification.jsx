@@ -112,6 +112,12 @@ const Verification = () => {
     navigate("/login");
   };
 
+  // --- Scroll to Top on Mount ---
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  // --- End Scroll to Top ---
+
   // Effect to set body margin (full screen background)
   useEffect(() => {
     document.body.style.margin = "0";
@@ -274,7 +280,7 @@ const Verification = () => {
                   onClick={resendOtp}
                   sx={{
                     textTransform: "none", // Keep casing as is
-                    color: "#4F646F",
+                    // color: "#4F646F",
                     "&:hover": {
                       backgroundColor: "rgba(79, 100, 111, 0.1)",
                     },
@@ -312,7 +318,7 @@ const Verification = () => {
                   onClick={loginRedirect}
                   sx={{
                     textTransform: "none",
-                    color: "#4F646F",
+                    // color: "#4F646F",
                     "&:hover": {
                       backgroundColor: "rgba(79, 100, 111, 0.1)",
                     },
