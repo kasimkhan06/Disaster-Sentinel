@@ -27,24 +27,23 @@ const UpdateDetails = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
-  const [userId, setUserId] = useState(null);
   const [user, setUser] = useState(null);
   const [selectedState, setSelectedState] = useState("");
   const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [stateDistricts, setStateDistricts] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
+  const navigate = useNavigate();
 
-  // Fetch user data from localStorage
-  // Set initial selectedState and selectedDistrict after stateDistricts are loaded
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      setUserId(parsedUser.user_id);
+      console.log("Stored User:", user);
       setFormData({
-        fullName: parsedUser.full_name || "",
+        fullName: parsedUser.full_name || parsedUser.fullName,
         email: parsedUser.email || "",
         contact: parsedUser.contact || "",
         state: parsedUser.state || "",
@@ -141,8 +140,6 @@ const UpdateDetails = () => {
     console.log("Selected District:", newDistrict);
   };
 
-  const [isUpdating, setIsUpdating] = useState(false);
-
   const validateForm = () => {
     const newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
@@ -154,7 +151,12 @@ const UpdateDetails = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e, id) => {
+  const handleSubmit = async (e) => {
+    if (!user || !user.user_id) {
+      console.error("User ID is missing. Cannot submit form.");
+      return;
+    }
+
     if (validateForm()) {
       e.preventDefault();
       console.log("Submitting:", formData);
@@ -167,7 +169,9 @@ const UpdateDetails = () => {
       const districtChanged = formData.district !== originalDistrict;
 
       const isLocationUpdate = stateChanged || districtChanged;
-      const updateURL = isLocationUpdate ? `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${userId}/location/` : `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${userId}/profile/`;
+      const updateURL = isLocationUpdate
+        ? `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${user?.user_id}/location/`
+        : `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/users/${user?.user_id}/profile/`;
 
       const dataToSend = isLocationUpdate
         ? { state: formData.state, district: formData.district }
@@ -313,7 +317,7 @@ const UpdateDetails = () => {
           </Grid>
         </Grid>
 
-        <form onSubmit={(e) => handleSubmit(e, userId)}>
+        <form onSubmit={(e) => handleSubmit(e)}>
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             {isUpdating ? (
               <Box sx={{ display: "flex", alignItems: "center" }}>

@@ -258,47 +258,67 @@ export default function EventFormWithStepper() {
 
   const validateForm = () => {
     let newErrors = {};
+
+    // Step 0: Basic event details
     if (activeStep === 0) {
       if (!formData.name?.trim()) newErrors.name = "Event name is required";
-      if (!formData.date?.trim()) newErrors.date = "Date is required";
+
+      if (!formData.date?.trim()) {
+        newErrors.date = "Date is required";
+      } else if (!formData.start_time?.trim()) {
+        newErrors.start_time = "Start time is required to validate full datetime";
+      } else {
+        const now = new Date();
+        const eventDateTime = new Date(`${formData.date}T${formData.start_time}`);
+        if (eventDateTime < now) {
+          newErrors.date = "Event date & time cannot be in the past";
+        }
+      }
+
       if (!formData.start_time?.trim()) newErrors.start_time = "Start time is required";
       if (!formData.event_type?.trim()) newErrors.event_type = "Event type is required";
     }
 
+    // Step 1: Location (online/offline)
     else if (activeStep === 1) {
       if (formData.location_type === "online") {
-        if (!formData.platform?.trim()) newErrors.platform = "Platform is required";
+        if (!formData.platform?.trim()) {
+          newErrors.platform = "Platform is required";
+        }
+
         if (!formData.meeting_link?.trim()) {
           newErrors.meeting_link = "Meeting Link is required";
         } else {
+          const platformKey = formData.platform?.toLowerCase().split(" ")[0];
           const platformDomainMap = {
             google: "meet.google.com",
             zoom: "zoom.us",
             microsoft: "teams.microsoft.com",
             webex: "webex.com",
           };
-          try {
-            const url = new URL(formData.meeting_link.trim());
-            const host = url.hostname.toLowerCase();
-            const expectedDomain = platformDomainMap[formData.platform.toLowerCase().split(" ")[0]];
-            if (!expectedDomain) {
-              newErrors.platform = "Unknown platform selected";
-            } else if (!host.includes(expectedDomain)) {
-              newErrors.meeting_link = `The meeting link must be a valid ${formData.platform} URL`;
+          const expectedDomain = platformDomainMap[platformKey];
+
+          if (!expectedDomain) {
+            newErrors.platform = "Unsupported platform selected";
+          } else {
+            try {
+              const url = new URL(formData.meeting_link.trim());
+              const host = url.hostname.toLowerCase();
+              if (!host.endsWith(expectedDomain)) {
+                newErrors.meeting_link = `The meeting link must be a valid ${formData.platform} URL`;
+              }
+            } catch (error) {
+              newErrors.meeting_link = `Please enter a valid URL (e.g., https://${expectedDomain}/...)`;
             }
-          } catch (error) {
-            const platformKey = formData.platform.toLowerCase().split(" ")[0];
-            const exampleDomain = platformDomainMap[platformKey];
-            newErrors.meeting_link = `Please enter a valid URL (e.g., https://${exampleDomain}/...)`;
           }
         }
-        if (!formData.meeting_id?.trim()) newErrors.meeting_id = "Meeting ID is required";
-        else if (!validateMeetingID(formData.meeting_id, formData.platform)) {
-          newErrors.meeting_id = "Invalid meeting ID format for " + formData.platform;
-        }
 
-      }
-      else {
+        if (!formData.meeting_id?.trim()) {
+          newErrors.meeting_id = "Meeting ID is required";
+        } else if (!validateMeetingID(formData.meeting_id, formData.platform)) {
+          newErrors.meeting_id = `Invalid meeting ID format for ${formData.platform}`;
+        }
+      } else {
         if (!formData.venue_name?.trim()) newErrors.venue_name = "Venue name is required";
         if (!formData.address?.trim()) newErrors.address = "Address is required";
         if (!formData.district?.trim()) newErrors.district = "District is required";
@@ -306,9 +326,12 @@ export default function EventFormWithStepper() {
       }
     }
 
+    // Step 2: Registration & Tags
     else if (activeStep === 2) {
-      if (!formData.reg_type.trim()) newErrors.reg_type = "Registration type is required";
-      if (selectedTags.length === 0) newErrors.tags = "At least one tag is required";
+      if (!formData.reg_type?.trim()) newErrors.reg_type = "Registration type is required";
+
+      const trimmedTags = selectedTags.filter(tag => tag?.trim());
+      if (trimmedTags.length === 0) newErrors.tags = "At least one tag is required";
     }
 
     setErrors(newErrors);
@@ -420,7 +443,7 @@ export default function EventFormWithStepper() {
                     {/* Event Name & Event Type */}
                     <Grid container spacing={3}>
                       {/* Event Name */}
-                      <Grid item xs={12} md={12}>
+                      <Grid item xs={12} md={6}>
                         <TextField
                           fullWidth
                           label={
@@ -435,12 +458,11 @@ export default function EventFormWithStepper() {
                           helperText={errors.name}
                           InputLabelProps={{ sx: { fontSize: "0.9rem" } }}
                           sx={{ width: { xs: "95%", md: "90%" }, marginX: { xs: "10px", md: "20px" } }}
-
                         />
                       </Grid>
 
                       {/* Event Type */}
-                      <Grid item xs={12} md={12}>
+                      <Grid item xs={12} md={6}>
                         <FormControl
                           fullWidth
                           variant="standard"
@@ -482,8 +504,7 @@ export default function EventFormWithStepper() {
                           error={!!errors.date}
                           helperText={errors.date}
                           InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
-                          sx={{ width: { xs: "95%", md: "80%" }, marginX: { xs: "5px", md: "20px" } }}
-
+                          sx={{ width: { xs: "95%", md: "50%" }, marginX: { xs: "5px", md: "20px" } }}
                         />
                       </Grid>
 
@@ -501,8 +522,7 @@ export default function EventFormWithStepper() {
                           error={!!errors.start_time}
                           helperText={errors.start_time}
                           InputLabelProps={{ shrink: true, sx: { fontSize: '0.9rem' } }}
-                          sx={{ width: { xs: "95%", md: "80%" }, marginX: { xs: "5px", md: "20px" } }}
-
+                          sx={{ width: { xs: "95%", md: "50%" }, marginX: { xs: "5px", md: "20px" } }}
                         />
                       </Grid>
                     </Grid>

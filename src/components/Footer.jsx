@@ -14,7 +14,6 @@ const Footer = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in by retrieving from localStorage
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedData = JSON.parse(userData);
@@ -131,7 +130,7 @@ const Footer = () => {
                     cursor: "pointer",
                     background: "none",
                     border: "none",
-                    font: "inherit"
+                    font: "inherit",
                   }}
                 >
                   {currentPath === link.path ? link.alternateLabel : link.label}
@@ -141,7 +140,7 @@ const Footer = () => {
           </Grid>
         </Grid>
         <Box mt={0} pt={1} borderTop="1px solid rgba(255, 255, 255, 0.1)">
-          <Typography variant="body2" align="center" fontSize={{ xs: "0.8rem", sm: "0.8rem", md: "1rem" }}>
+          <Typography variant="body2" align="center" color="textSecondary" fontSize={{ xs: "0.8rem", sm: "0.8rem", md: "1rem" }}>
             © {new Date().getFullYear()} Flood Prediction System. All rights
             reserved.
           </Typography>

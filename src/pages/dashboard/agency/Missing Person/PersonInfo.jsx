@@ -30,6 +30,7 @@ import {
 } from "@mui/icons-material";
 import { useParams, useLocation } from "react-router-dom";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import { useNavigate } from "react-router-dom";
 
 const FoundForm = ({ open, handleClose, personId }) => {
 
@@ -37,6 +38,7 @@ const FoundForm = ({ open, handleClose, personId }) => {
     const [userId, setUserId] = useState(null);
     const [isLogin, setIsLogin] = useState(false);
     const [success, setSuccess] = useState(false);
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         agency_found_location: "",
@@ -83,6 +85,9 @@ const FoundForm = ({ open, handleClose, personId }) => {
             console.log("Form submitted successfully", response.data);
             setSuccess(true);
             handleClose();
+            navigate("/missing-person", {
+                state: { success: true, message: "Person marked as found successfully!" }
+            });
         }
         catch (error) {
             console.error("Error submitting form", error);
@@ -322,7 +327,7 @@ function PersonInfo() {
                                     flex: 1,
                                     flexDirection: "column",
                                     justifyContent: "center",
-                                    maxWidth: { xs: "100%", md: "60%" }, // Adjusted for side-by-side layout
+                                    maxWidth: { xs: "100%", md: "60%" },
                                 }}
                             >
                                 {[

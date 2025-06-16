@@ -22,9 +22,20 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import Footer from "../../components/Footer";
+import { Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
+import EventIcon from "@mui/icons-material/Event";
+import { use } from "react";
 
 const permissionsList = [
   "can_view_missing",
@@ -55,6 +66,7 @@ const API_BASE_URL =
 
 export default function AgencyDashboard() {
   const [agencyId, setAgencyId] = useState(null);
+  const navigate = useNavigate();
 
   const [searchEmail, setSearchEmail] = useState("");
   const [searchResult, setSearchResult] = useState(null);
@@ -129,20 +141,20 @@ export default function AgencyDashboard() {
     setError("");
     setSuccessMessage("");
     if (successTimerRef.current) {
-        clearTimeout(successTimerRef.current);
-        successTimerRef.current = null;
+      clearTimeout(successTimerRef.current);
+      successTimerRef.current = null;
     }
     if (errorTimerRef.current) {
-        clearTimeout(errorTimerRef.current);
-        errorTimerRef.current = null;
+      clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = null;
     }
   };
 
   const showSuccessWithTimeout = (message) => {
     if (successTimerRef.current) clearTimeout(successTimerRef.current);
     if (errorTimerRef.current) {
-        clearTimeout(errorTimerRef.current);
-        errorTimerRef.current = null;
+      clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = null;
     }
     setError("");
     setSuccessMessage(message);
@@ -155,8 +167,8 @@ export default function AgencyDashboard() {
   const showErrorWithTimeout = (message) => {
     if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
     if (successTimerRef.current) {
-        clearTimeout(successTimerRef.current);
-        successTimerRef.current = null;
+      clearTimeout(successTimerRef.current);
+      successTimerRef.current = null;
     }
     setSuccessMessage("");
     setError(message);
@@ -233,7 +245,8 @@ export default function AgencyDashboard() {
   useEffect(() => {
     if (agencyId) {
       // Clear the specific "Agency ID is missing" error if it was set and ID is now available.
-      if (error.includes("Agency ID is missing")) setError(""); 
+      // This direct setError is fine as it's a specific initial setup case.
+      if (error.includes("Agency ID is missing")) setError("");
       fetchRequests();
       fetchAgencyVolunteers();
     }
@@ -270,13 +283,13 @@ export default function AgencyDashboard() {
         const errorData = await response.json().catch(() => null);
         showErrorWithTimeout(
           errorData?.error ||
-            `No volunteer found with the email: ${searchEmail}.`
+          `No volunteer found with the email: ${searchEmail}.`
         );
       } else if (response.status === 400) {
         const errorData = await response.json().catch(() => null);
         showErrorWithTimeout(
           errorData?.error ||
-            "Search input is invalid. Please check the email entered."
+          "Search input is invalid. Please check the email entered."
         );
       } else {
         const errorData = await response
@@ -349,8 +362,8 @@ export default function AgencyDashboard() {
           prevRequests.filter((req) => req.id !== interestIdToDelete)
         );
         if (currentVolunteer && currentVolunteer.id === interestIdToDelete && currentVolunteer.volunteer_user_id === requestToDelete.volunteer_user_id) {
-            setOpenModal(false);
-            setCurrentVolunteer(null);
+          setOpenModal(false);
+          setCurrentVolunteer(null);
         }
       } else if (response.status === 404) {
         throw new Error("Request not found. It might have already been deleted.");
@@ -416,9 +429,9 @@ export default function AgencyDashboard() {
         const errorData = await setPermissionsResponse.json().catch(() => ({ detail: "Failed to set permissions." }));
         throw new Error(`Set Permissions API: ${errorData.detail || `Status ${setPermissionsResponse.status}`}`);
       }
-      
-      if (accumulatedError) {
-        showErrorWithTimeout(accumulatedError + `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`);
+
+      if (accumulatedError) { // If there was an error accepting interest, but permissions were set
+        showErrorWithTimeout(accumulatedError + `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`); // MODIFIED
       } else {
         showSuccessWithTimeout(
           `Volunteer ${memberFullName} processed and permissions set successfully!`
@@ -524,12 +537,12 @@ export default function AgencyDashboard() {
         {successMessage && !error && (
           <Alert
             severity="success"
-            onClose={() => {
-                setSuccessMessage("");
-                if (successTimerRef.current) {
-                    clearTimeout(successTimerRef.current);
-                    successTimerRef.current = null;
-                }
+            onClose={() => { // MODIFIED
+              setSuccessMessage("");
+              if (successTimerRef.current) {
+                clearTimeout(successTimerRef.current);
+                successTimerRef.current = null;
+              }
             }}
             sx={{ width: "100%" }}
           >
@@ -545,7 +558,39 @@ export default function AgencyDashboard() {
             mb: { xs: 2, md: 0 }, mr: { md: 2 }, p: 2, borderRadius: 2,
           }}
         >
-          Sidebar Space
+          <Box
+            sx={{
+              width: { xs: "100%", md: 250 },
+              bgcolor: "#f9f9f9",
+              mb: { xs: 2, md: 0 },
+              mr: { md: 2 },
+              p: 2,
+              borderRadius: 2,
+              boxShadow: 1,
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Quick Access
+            </Typography>
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => navigate("/missing-person")}>
+                  <ListItemIcon>
+                    <PersonSearchIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Missing Persons" />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => navigate("/event-listing")}>
+                  <ListItemIcon>
+                    <EventIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Event Page" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          </Box>
         </Box>
 
         <Box sx={{ flexGrow: 1, mt: { xs: 2, md: 0 } }}>
@@ -577,7 +622,7 @@ export default function AgencyDashboard() {
 
             <Box sx={{ width: { xs: "100%", md: "80%" } }}>
               <Typography variant="h6">Volunteer Requests</Typography>
-              {loadingRequests ? (<CircularProgress sx={{ mt: 1 }} /> ) : requests.length === 0 ? (
+              {loadingRequests ? (<CircularProgress sx={{ mt: 1 }} />) : requests.length === 0 ? (
                 <Typography sx={{ mt: 1, fontStyle: "italic" }}>No pending requests.</Typography>
               ) : (
                 <TableContainer component={Paper} sx={{ maxHeight: 350, overflow: "auto", width: "100%" }}>
@@ -618,7 +663,7 @@ export default function AgencyDashboard() {
                   <TableHead>
                     <TableRow sx={{ height: '52px' }}>
                       <TableCell sx={{ padding: '6px 10px', minWidth: '100px' }}>Name</TableCell>
-                      {permissionsList.map((perm) => (<TableCell key={perm} sx={{ padding: '6px 7px', textAlign: 'center', minWidth: '95px'}}>{perm.replace(/_/g, " ")}</TableCell>))}
+                      {permissionsList.map((perm) => (<TableCell key={perm} sx={{ padding: '6px 7px', textAlign: 'center', minWidth: '95px' }}>{perm.replace(/_/g, " ")}</TableCell>))}
                       <TableCell sx={{ padding: '6px 10px', textAlign: 'center' }}>Save</TableCell>
                     </TableRow>
                   </TableHead>
@@ -636,15 +681,15 @@ export default function AgencyDashboard() {
                         {permissionsList.map((perm) => (
                           <TableCell key={perm} sx={{ padding: '0px 8px', textAlign: 'center' }}>
                             <Checkbox checked={!!vol[perm]} onChange={(e) => {
-                                setVolunteers((prevVols) => prevVols.map((v_orig) => v_orig.member.id === vol.member.id ? { ...v_orig, [perm]: e.target.checked } : v_orig));
-                              }} sx={{ padding: '4px' }}/>
+                              setVolunteers((prevVols) => prevVols.map((v_orig) => v_orig.member.id === vol.member.id ? { ...v_orig, [perm]: e.target.checked } : v_orig));
+                            }} sx={{ padding: '4px' }} />
                           </TableCell>
                         ))}
                         <TableCell sx={{ padding: '6px 10px', textAlign: 'center' }}>
                           <Button disableRipple size="small" onClick={() => {
-                              const volunteerToSave = volunteers.find((v_orig) => v_orig.member.id === vol.member.id);
-                              if (volunteerToSave) handleSavePermissions(vol.member.id, volunteerToSave);
-                            }} disabled={loadingAction}>Save</Button>
+                            const volunteerToSave = volunteers.find((v_orig) => v_orig.member.id === vol.member.id);
+                            if (volunteerToSave) handleSavePermissions(vol.member.id, volunteerToSave);
+                          }} disabled={loadingAction}>Save</Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -661,7 +706,7 @@ export default function AgencyDashboard() {
               <Typography variant="body2" sx={{ mb: 1 }}>Email: {currentVolunteer?.volunteer_email || currentVolunteer?.email}</Typography>
               <FormGroup sx={{ maxHeight: "calc(90vh - 250px)", overflowY: "auto", pr: 1 }}>
                 {permissionsList.map((perm) => (
-                  <FormControlLabel control={<Checkbox checked={selectedPermissions.includes(perm)} onChange={() => handlePermissionChange(perm)}/>} label={perm.replace(/_/g, " ")} key={perm}/>
+                  <FormControlLabel control={<Checkbox checked={selectedPermissions.includes(perm)} onChange={() => handlePermissionChange(perm)} />} label={perm.replace(/_/g, " ")} key={perm} />
                 ))}
               </FormGroup>
               <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between", gap: 1 }}>
@@ -669,11 +714,11 @@ export default function AgencyDashboard() {
                   <Button variant="outlined" color="error" onClick={() => initiateDeleteRequest(currentVolunteer)} disabled={loadingAction} size="small">Delete Request</Button>
                 )}
                 {!(currentVolunteer && currentVolunteer.volunteer_user_id) && <Box sx={{ flexGrow: 1 }}></Box>}
-                <Box sx={{ display: 'flex', gap: 1}}>
-                    <Button variant="outlined" onClick={() => { setOpenModal(false); setCurrentVolunteer(null);}} disabled={loadingAction} size="small">Cancel</Button>
-                    <Button variant="contained" color="primary" onClick={handleGivePermissions} disabled={loadingAction} size="small">
-                      {loadingAction ? (<CircularProgress size={20} color="inherit" />) : ("Give Permissions")}
-                    </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button variant="outlined" onClick={() => { setOpenModal(false); setCurrentVolunteer(null); }} disabled={loadingAction} size="small">Cancel</Button>
+                  <Button variant="contained" color="primary" onClick={handleGivePermissions} disabled={loadingAction} size="small">
+                    {loadingAction ? (<CircularProgress size={20} color="inherit" />) : ("Give Permissions")}
+                  </Button>
                 </Box>
               </Box>
             </Box>
@@ -687,7 +732,7 @@ export default function AgencyDashboard() {
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => { setConfirmDeleteDialogOpen(false); setRequestToDelete(null);}} disabled={loadingAction}>Cancel</Button>
+              <Button onClick={() => { setConfirmDeleteDialogOpen(false); setRequestToDelete(null); }} disabled={loadingAction}>Cancel</Button>
               <Button onClick={executeDeleteRequest} color="error" disabled={loadingAction} autoFocus>
                 {loadingAction ? (<CircularProgress size={20} color="inherit" />) : ("Confirm Delete")}
               </Button>
@@ -695,7 +740,11 @@ export default function AgencyDashboard() {
           </Dialog>
         </Box>
       </Box>
-      <Footer />
+      <Grid container xs={12} sx={{ mt: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Grid item xs={12} md={10} sx={{ textAlign: "center" }}>
+          <Footer />
+        </Grid>
+      </Grid>
     </Box>
   );
 }
