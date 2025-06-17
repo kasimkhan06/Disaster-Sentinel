@@ -14,6 +14,8 @@ import {
   Modal,
   Box,
   IconButton,
+  Pagination,
+  Dialog,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { CalendarToday, LocationOn, Videocam, People, Edit, Delete, Send } from "@mui/icons-material";
@@ -23,6 +25,19 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const DisplayTable = ({ open, handleClose, registeredUsers, showTable }) => {
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(registeredUsers.length / itemsPerPage);
+
+  const handleChange = (event, value) => {
+    setPage(value);
+  };
+
+  useEffect(() => {
+    if (registeredUsers.length > 0) {
+      setPage(1);
+    }
+  }, [registeredUsers]);
   return (
     <Modal open={open} onClose={handleClose}>
       <Box
@@ -61,18 +76,25 @@ const DisplayTable = ({ open, handleClose, registeredUsers, showTable }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-          {registeredUsers
-            .filter((user) => user.interested)
-            .map((user, idx) => (
-              <TableRow key={idx}>
-                <TableCell>{idx + 1}</TableCell>
-                <TableCell>{user.user.full_name || "N/A"}</TableCell>
-                <TableCell>{user.user.email || "N/A"}</TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+              {registeredUsers
+                .filter((user) => user.interested)
+                .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                .map((user, idx) => (
+                  <TableRow key={idx} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                    <TableCell>{(page - 1) * itemsPerPage + idx + 1}</TableCell>
+                    <TableCell>{user.user.full_name || "N/A"}</TableCell>
+                    <TableCell>{user.user.email || "N/A"}</TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Pagination
+          count={Math.ceil(registeredUsers.filter((user) => user.interested).length / itemsPerPage)}
+          page={page}
+          onChange={handleChange}
+          sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+        />
       </Box>
     </Modal>
   );
@@ -189,14 +211,14 @@ export default function EventCard({ event, refreshEvents }) {
               <LocationOn fontSize="small" /> {toCapitalizeCase(event.venue_name)}, {event.district}, {event.state}
             </Typography>
           )}
-            <Typography variant="body2" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <People fontSize="small" /> {attendeeCount}/{event.attendees || 0} Attendees
-              {attendeeCount > 0 ? (
-                <Button size="small" onClick={handleOpen}>View Attendees</Button>
-              ) : (
-                <Typography fontSize="small">No Attendees</Typography>
-              )}
-            </Typography>
+          <Typography variant="body2" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <People fontSize="small" /> {attendeeCount}/{event.attendees || 0} Attendees
+            {attendeeCount > 0 ? (
+              <Button size="small" onClick={handleOpen}>View Attendees</Button>
+            ) : (
+              <Typography fontSize="small">No Attendees</Typography>
+            )}
+          </Typography>
           {getTagsBadge()}
         </div>
 

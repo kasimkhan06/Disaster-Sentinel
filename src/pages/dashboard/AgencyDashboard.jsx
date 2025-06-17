@@ -27,6 +27,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Pagination,
 } from "@mui/material";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import Footer from "../../components/Footer";
@@ -58,8 +59,6 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-
-const ROWS_PER_PAGE = 3;
 
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api";
@@ -93,6 +92,8 @@ export default function AgencyDashboard() {
 
   const [requestsPage, setRequestsPage] = useState(1);
   const [volunteersPage, setVolunteersPage] = useState(1);
+  const volunteersPerPage = 4;
+  const requestsPerPage = 1;
 
   useEffect(() => {
     // ... (agencyId setup logic remains the same)
@@ -497,11 +498,13 @@ export default function AgencyDashboard() {
     }
   };
 
-  const handleRequestsPageChange = (event, value) => setRequestsPage(value);
-  const handleVolunteersPageChange = (event, value) => setVolunteersPage(value);
+  const handleVolunteersPageChange = (event, value) => {
+    setVolunteersPage(value);
+  };
 
-  const currentRequests = requests.slice((requestsPage - 1) * ROWS_PER_PAGE, requestsPage * ROWS_PER_PAGE);
-  const currentVolunteers = volunteers.slice((volunteersPage - 1) * ROWS_PER_PAGE, volunteersPage * ROWS_PER_PAGE);
+  const handleRequestsPageChange = (event, value) => {
+    setRequestsPage(value);
+  };
 
   return (
     <Box
@@ -554,43 +557,37 @@ export default function AgencyDashboard() {
       <Box sx={{ display: { xs: "block", md: "flex" }, minHeight: "calc(100vh - 150px)" }}>
         <Box
           sx={{
-            width: { xs: "100%", md: 300 }, bgcolor: "#f9f9f9",
-            mb: { xs: 2, md: 0 }, mr: { md: 2 }, p: 2, borderRadius: 2,
+            width: { xs: "100%", md: 180 },
+            height: 180,
+            bgcolor: "#f9f9f9",
+            mb: { xs: 2, md: 0 },
+            mr: { md: 2 },
+            p: 2,
+            borderRadius: 2,
+            boxShadow: 1,
           }}
         >
-          <Box
-            sx={{
-              width: { xs: "100%", md: 250 },
-              bgcolor: "#f9f9f9",
-              mb: { xs: 2, md: 0 },
-              mr: { md: 2 },
-              p: 2,
-              borderRadius: 2,
-              boxShadow: 1,
-            }}
-          >
-            <Typography variant="h6" gutterBottom>
-              Quick Access
-            </Typography>
-            <List>
-              <ListItem disablePadding>
-                <ListItemButton onClick={() => navigate("/missing-person")}>
-                  <ListItemIcon>
-                    <PersonSearchIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Missing Persons" />
-                </ListItemButton>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemButton onClick={() => navigate("/event-listing")}>
-                  <ListItemIcon>
-                    <EventIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Event Page" />
-                </ListItemButton>
-              </ListItem>
-            </List>
-          </Box>
+          <Typography variant="h6" gutterBottom sx={{ textAlign: "center" }}>
+            Quick Access
+          </Typography>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => navigate("/missing-person")}>
+                <ListItemIcon>
+                  <PersonSearchIcon />
+                </ListItemIcon>
+                <ListItemText primary="Missing Persons" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => navigate("/event-listing")}>
+                <ListItemIcon>
+                  <EventIcon />
+                </ListItemIcon>
+                <ListItemText primary="Event Page" />
+              </ListItemButton>
+            </ListItem>
+          </List>
         </Box>
 
         <Box sx={{ flexGrow: 1, mt: { xs: 2, md: 0 } }}>
@@ -637,18 +634,28 @@ export default function AgencyDashboard() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {requests.map((req) => (
-                        <TableRow key={req.id} sx={{ height: '48px' }}>
-                          <TableCell sx={{ padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_name}</TableCell>
-                          <TableCell sx={{ padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_email}</TableCell>
-                          <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_contact}</TableCell>
-                          <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.message}</TableCell>
-                          <TableCell sx={{ padding: '6px 10px' }}><Button disableRipple size="small" onClick={() => handleAcceptRequest(req)}>Accept</Button></TableCell>
-                        </TableRow>
-                      ))}
+                      {requests
+                        .slice((requestsPage - 1) * requestsPerPage, requestsPage * requestsPerPage)
+                        .map((req) => (
+                          <TableRow key={req.id} sx={{ height: '48px' }}>
+                            <TableCell sx={{ padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_name}</TableCell>
+                            <TableCell sx={{ padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_email}</TableCell>
+                            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_contact}</TableCell>
+                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.message}</TableCell>
+                            <TableCell sx={{ padding: '6px 10px' }}><Button disableRipple size="small" onClick={() => handleAcceptRequest(req)}>Accept</Button></TableCell>
+                          </TableRow>
+                        ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
+              )}
+              {requests.length > 0 && (
+                <Pagination
+                  count={Math.ceil(requests.length / requestsPerPage)}
+                  page={requestsPage}
+                  onChange={handleRequestsPageChange}
+                  sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+                />
               )}
             </Box>
           </Box>
@@ -668,34 +675,44 @@ export default function AgencyDashboard() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {volunteers.map((vol) => (
-                      <TableRow key={vol.member.id} sx={{ height: '48px' }}>
-                        <TableCell sx={{ padding: '6px 10px' }}>
+                    {volunteers
+                      .slice((volunteersPage - 1) * volunteersPerPage, volunteersPage * volunteersPerPage)
+                      .map((vol) => (
+                        <TableRow key={vol.member.id} sx={{ height: '48px' }}>
+                          <TableCell sx={{ padding: '6px 10px' }}>
                             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                {vol.member.full_name}
+                              {vol.member.full_name}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem' }}>
-                                {vol.member.email}
+                              {vol.member.email}
                             </Typography>
-                        </TableCell>
-                        {permissionsList.map((perm) => (
-                          <TableCell key={perm} sx={{ padding: '0px 8px', textAlign: 'center' }}>
-                            <Checkbox checked={!!vol[perm]} onChange={(e) => {
-                              setVolunteers((prevVols) => prevVols.map((v_orig) => v_orig.member.id === vol.member.id ? { ...v_orig, [perm]: e.target.checked } : v_orig));
-                            }} sx={{ padding: '4px' }} />
                           </TableCell>
-                        ))}
-                        <TableCell sx={{ padding: '6px 10px', textAlign: 'center' }}>
-                          <Button disableRipple size="small" onClick={() => {
-                            const volunteerToSave = volunteers.find((v_orig) => v_orig.member.id === vol.member.id);
-                            if (volunteerToSave) handleSavePermissions(vol.member.id, volunteerToSave);
-                          }} disabled={loadingAction}>Save</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          {permissionsList.map((perm) => (
+                            <TableCell key={perm} sx={{ padding: '0px 8px', textAlign: 'center' }}>
+                              <Checkbox checked={!!vol[perm]} onChange={(e) => {
+                                setVolunteers((prevVols) => prevVols.map((v_orig) => v_orig.member.id === vol.member.id ? { ...v_orig, [perm]: e.target.checked } : v_orig));
+                              }} sx={{ padding: '4px' }} />
+                            </TableCell>
+                          ))}
+                          <TableCell sx={{ padding: '6px 10px', textAlign: 'center' }}>
+                            <Button disableRipple size="small" onClick={() => {
+                              const volunteerToSave = volunteers.find((v_orig) => v_orig.member.id === vol.member.id);
+                              if (volunteerToSave) handleSavePermissions(vol.member.id, volunteerToSave);
+                            }} disabled={loadingAction}>Save</Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>
+            )}
+            {volunteers.length > 0 && (
+              <Pagination
+                count={Math.ceil(volunteers.length / volunteersPerPage)}
+                page={volunteersPage}
+                onChange={handleVolunteersPageChange}
+                sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+              />
             )}
           </Box>
 
