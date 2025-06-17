@@ -28,7 +28,6 @@ import { useNavigate } from "react-router-dom";
 
 import "../../../public/css/EventListing.css"; // Ensure this path is correct
 import Footer from "../../components/Footer"; // Ensure this path is correct
-import useMediaQuery from "@mui/material/useMediaQuery";
 
 // Define EventDisplayCard FIRST, as UserAnnouncementsPage uses it.
 const EVENT_DISPLAY_CARD_COMPONENT_NAME = "EventDisplayCard";
@@ -123,19 +122,14 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
     }
   };
 
-  const toCapitalizeCase = (str) => {
-    if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  };
-
   const isEventFull = event.max_capacity > 0 && event.attendees_count >= event.max_capacity;
 
   return (
     <Card className="event-card">
-      <img src={getImage()} alt={event.event_type || "Event"} className="event-img" />
+      <img src={getImage()} alt={event.event_type || "Event"} className="event-img"/>
       <CardContent className="event-content">
         <Typography variant="h6" className="event-title">
-          {event.name.toUpperCase()}
+          {event.name}
         </Typography>
         <div className="event-details">
           <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
@@ -153,7 +147,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
           ) : (
             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
               <LocationOn fontSize="small" sx={{ mr: 0.5 }} />
-              {toCapitalizeCase(event.venue_name)}{event.venue_name && (event.district || event.state) ? ", " : ""}
+              {event.venue_name}{event.venue_name && (event.district || event.state) ? ", " : ""}
               {event.district}{event.district && event.state ? ", " : ""}
               {event.state}
             </Typography>
@@ -237,8 +231,6 @@ export default function UserAnnouncementsPage() {
   const [userLocation, setUserLocation] = useState(null);
   const [currentUser, setCurrentUser] = useState(undefined); 
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
-  const isBelow = useMediaQuery("(max-width:1470px)");
-  
 
   const theme = useTheme();
 
@@ -262,7 +254,6 @@ export default function UserAnnouncementsPage() {
         setUserLocation(null);
         return;
       }
-
 
       const userDataFromStorage = JSON.parse(userString);
       console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Parsed userDataFromStorage:`, userDataFromStorage);
@@ -301,27 +292,13 @@ export default function UserAnnouncementsPage() {
   const handleRegister = async (eventId, isPreCheckFailure = false) => {
     console.log(`[${PAGE_COMPONENT_NAME}] handleRegister called for eventId: ${eventId}, isPreCheckFailure: ${isPreCheckFailure}`);
 
-    if (isPreCheckFailure && !currentUser?.id) {
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Pre-check failed: User not logged in. Showing snackbar.`);
-      setSnackbar({ open: true, message: "Please login to register.", severity: "error" });
-      return false;
-    }
-
     if (!currentUser?.id) {
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - User not identified (currentUser ID is null/undefined). Showing snackbar.`);
       setSnackbar({ open: true, message: "Please ensure you are logged in to register.", severity: "error" });
       return false;
     }
 
-    const token = localStorage.getItem('token');
-    console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Token: ${token ? 'found' : 'not found'}`);
-    if (!token) {
-      console.warn(`[${PAGE_COMPONENT_NAME}] handleRegister - No token. Aborting.`);
-      setSnackbar({ open: true, message: "Authentication token not found. Please login again.", severity: "error" });
-      return false;
-    }
-
-    console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Proceeding with registration for event ${eventId}`);
+    console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Proceeding with registration for event ${eventId}. User ID: ${currentUser.id}`);
     try {
       const interestPayload = {
         user_id_input: currentUser.id, 
@@ -353,32 +330,9 @@ export default function UserAnnouncementsPage() {
       const interestData = await interestResponse.json();
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Interest marked successfully:`, interestData);
 
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - 2. Fetching event details for capacity check for event ${eventId}`);
-      const eventDetailsResponse = await fetch(
-        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${eventId}/`,
-        { headers: { "Authorization": `Token ${token}` } }
-      );
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Event details API response status: ${eventDetailsResponse.status}`);
-      if (!eventDetailsResponse.ok) {
-        console.error(`[${PAGE_COMPONENT_NAME}] handleRegister - Failed to fetch event details for capacity check.`);
-        throw new Error("Failed to fetch event details for capacity check");
-      }
-      const eventData = await eventDetailsResponse.json();
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Event details fetched:`, eventData);
-      const currentAttendees = Number(eventData.attendees_count) || 0;
-      const maxCapacity = Number(eventData.max_capacity);
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Event ${eventId}: currentAttendees: ${currentAttendees}, maxCapacity: ${maxCapacity}`);
-
-      if (maxCapacity > 0 && currentAttendees >= maxCapacity && !eventData.is_current_user_interested) {
-        console.warn(`[${PAGE_COMPONENT_NAME}] handleRegister - Event ${eventId} became full.`);
-        setSnackbar({ open: true, message: "This event became full just now.", severity: "warning" });
-        fetchAnnouncements(); // Refetch to get the absolute latest state
-        return false;
-      }
-
-      const newAttendeesCount = currentAttendees + 1; // Assuming successful registration means one more attendee
-      const updatePayload = { attendees_count: newAttendeesCount };
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - 3. Updating attendance count for event ${eventId}. Payload:`, updatePayload);
+      const currentAttendees = announcements.find(ann => ann.id === eventId)?.attendees_count || 0; // Get current count from state for accurate update
+      const updatePayload = { attendees_count: currentAttendees + 1 };
+      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - 2. Updating attendance count for event ${eventId}. Payload:`, updatePayload);
       const updateResponse = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${eventId}/`,
         {
@@ -403,18 +357,7 @@ export default function UserAnnouncementsPage() {
       const updatedEventData = await updateResponse.json();
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Attendance updated successfully:`, updatedEventData);
 
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Updating local announcements state for event ${eventId}`);
-      setAnnouncements(prevAnnouncements => {
-        const newAnnouncements = prevAnnouncements.map(event =>
-          event.id === eventId
-            ? { ...event, is_current_user_interested: true, attendees_count: updatedEventData.attendees_count }
-            : event
-        );
-        console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - setAnnouncements complete. New count: ${newAnnouncements.length}`);
-        return newAnnouncements;
-      });
-
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Registration successful for event ${eventId}. Showing success snackbar.`);
+      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Registration successful for event ${eventId}. Re-fetching all announcements to update state.`);
       setSnackbar({ open: true, message: "Successfully registered for the event!", severity: "success" });
       await fetchAnnouncements(); 
       return true;
@@ -480,11 +423,11 @@ export default function UserAnnouncementsPage() {
     console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Starting to fetch announcements. Current isLoading: ${isLoading}`);
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const headers = token ? { "Authorization": `Token ${token}` } : {};
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Token for API call: ${token ? 'present' : 'absent'}. Headers:`, headers);
+      const headers = {};
+      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - No token used for API calls. Headers:`, headers);
 
-      const response = await fetch(
+      // --- 1. Fetch all events ---
+      const eventsResponse = await fetch(
         "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/",
         { headers }
       );
@@ -495,27 +438,57 @@ export default function UserAnnouncementsPage() {
         console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Events Error response text:`, errorText);
         throw new Error(`Failed to fetch events: ${eventsResponse.status} - ${errorText.substring(0, 100)}`);
       }
+      let eventsData = await eventsResponse.json();
+      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Raw events data received (count: ${eventsData.length}):`, eventsData.slice(0,1));
 
-      let data = await response.json();
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Raw data received (count: ${data.length}):`, data.slice(0, 1)); // Log first item for brevity
+      // --- 2. Filter events by date ---
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
-
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtering announcements by date (>= ${currentDate.toISOString()}).`);
-      const originalCount = data.length;
-      data = data.filter(announcement => {
-        if (!announcement.date) {
-          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtering out event ${announcement.id} due to missing date.`);
-          return false;
-        }
+      const originalCount = eventsData.length;
+      eventsData = eventsData.filter(announcement => {
+        if (!announcement.date) return false;
         const eventDate = new Date(announcement.date);
-        const isValidDate = !isNaN(eventDate) && eventDate >= currentDate;
-        if (!isValidDate) {
-          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtering out event ${announcement.id} (date: ${announcement.date}) as it's past or invalid.`);
-        }
-        return isValidDate;
+        return !isNaN(eventDate) && eventDate >= currentDate;
       });
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtered announcements. Count changed from ${originalCount} to ${data.length}.`);
+      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtered events by date. Count changed from ${originalCount} to ${eventsData.length}.`);
+
+      // --- 3. Determine user interest for each event by querying /api/event-interests/?user=<user_id> ---
+      let userInterestedEventIds = new Set();
+      let eventIdToInterestRecordIdMap = new Map(); // Store interest record ID
+      if (currentUser?.id) { 
+          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Fetching user interests for user_id: ${currentUser.id}.`);
+          const userInterestsResponse = await fetch(
+            `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/?user=${currentUser.id}`, 
+            { headers: {} } // No Authorization header for this endpoint 
+          );
+          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User Interests API response status: ${userInterestsResponse.status}`);
+          if (userInterestsResponse.ok) {
+              const userInterestsData = await userInterestsResponse.json(); 
+              console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User interests data received (count: ${userInterestsData.length}):`, userInterestsData.slice(0,1));
+              userInterestsData.forEach(interest => {
+                  if (interest.interested === true) {  // Only add if explicitly marked interested
+                      userInterestedEventIds.add(interest.event.id); 
+                      eventIdToInterestRecordIdMap.set(interest.event.id, interest.id); // Store interest record ID 
+                  }
+              });
+              console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User interested in event IDs:`, [...userInterestedEventIds]);
+              console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Event ID to Interest Record ID Map:`, eventIdToInterestRecordIdMap);
+          } else {
+              console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Failed to fetch user interests. Status: ${userInterestsResponse.status}`);
+          }
+      } else {
+          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - No currentUser ID available, skipping fetching user interests.`);
+      }
+
+      // --- 4. Map interest status and interest_record_id onto events ---
+      const finalEvents = eventsData.map(event => ({
+          ...event,
+          is_current_user_interested: userInterestedEventIds.has(event.id),
+          // Add the interest_record_id if the user is interested in this event
+          interest_record_id: userInterestedEventIds.has(event.id) ? eventIdToInterestRecordIdMap.get(event.id) : null
+      }));
+      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Final events mapped with interest status. Example:`, finalEvents.slice(0,1));
+
 
       console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Setting announcements state.`);
       setAnnouncements(finalEvents);
@@ -540,29 +513,18 @@ export default function UserAnnouncementsPage() {
   }, []);
 
   useEffect(() => {
-    console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser?.id] - CurrentUser ID changed or component re-rendered. CurrentUser ID: ${currentUser?.id}`);
-    // This effect might be too aggressive if fetchAnnouncements doesn't strictly depend on currentUser changing for its content
-    // (e.g., if backend already uses token to determine 'is_current_user_interested').
-    // For now, keeping it as it might be intended to refresh data if user logs in/out.
-    if (currentUser !== undefined) { // Check if currentUser state has been initialized (is not the initial 'undefined' during setup)
-      // No, this check for 'undefined' is not standard for useState. It will be null initially.
-      // If you want to fetch only after first load and when currentUser.id specifically changes from one value to another (not from null to value):
-      // You would need a ref to track previous currentUser.id if that's the precise logic.
-      // For now, this will run if currentUser.id changes (e.g. null -> someId, or someId -> null)
-      console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser?.id] - currentUser is defined (or null), proceeding to fetchAnnouncements.`);
-      // fetchAnnouncements(); // Re-evaluate if this is needed or causes too many fetches.
-      // loadInitialData already calls fetchAnnouncements.
-      // This would be for cases where user logs in/out AFTER initial load.
+    console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser] - CurrentUser state changed. CurrentUser ID: ${currentUser?.id}`);
+    if (currentUser !== undefined) { 
+      console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser] - currentUser is initialized (not undefined), re-fetching announcements.`);
+      fetchAnnouncements(); 
     }
   }, [currentUser]); 
 
   const sortedAndFilteredAnnouncements = () => {
     if (!announcements) {
-      console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Announcements is null/undefined, returning [].`);
-      return [];
+        return [];
     }
     let announcementsCopy = [...announcements];
-    console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Current filter: '${filter}', sort: '${sort}'. UserLocation:`, userLocation);
 
     if (filter !== "all") {
       announcementsCopy = announcementsCopy.filter(ann =>
@@ -571,35 +533,42 @@ export default function UserAnnouncementsPage() {
       );
     }
 
-    const countBeforeLocationFilter = announcementsCopy.length;
     announcementsCopy = announcementsCopy.filter(ann => {
-      if (ann.location_type?.toLowerCase() === "online") return true;
-      if (userLocation?.state && userLocation?.district) {
-        if (!ann.state) {
-          console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (no state) for user in ${userLocation.state}/${userLocation.district}`);
-          return false;
-        }
-        const userState = userLocation.state.trim().toUpperCase();
-        const userDistrict = userLocation.district.trim().toUpperCase();
-        const eventState = ann.state.trim().toUpperCase();
-        const eventDistrict = ann.district ? ann.district.trim().toUpperCase() : "";
-
-        if (eventState !== userState) {
-          console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (state: ${eventState}) for user in state ${userState}`);
-          return false;
-        }
-        if (eventDistrict && eventDistrict !== userDistrict) {
-          console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Filtering out offline event ${ann.id} (district: ${eventDistrict}) for user in district ${userDistrict}`);
-          return false;
-        }
-        return true; // Match
+      if (ann.location_type?.toLowerCase() === "online") {
+        return true;
       }
-      // If user location is not set, show all offline events that passed the 'offline' filter.
-      // To hide them if user location is not set, add: if (!userLocation?.state || !userLocation?.district) return false;
-      console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - Event ${ann.id} (offline) kept because userLocation not fully set or matches.`);
-      return true;
+
+      if (!userLocation?.state) {
+        return false;
+      }
+
+      const userState = userLocation.state.trim().toUpperCase();
+      const userDistrict = userLocation.district?.trim().toUpperCase() || ""; 
+      const eventState = ann.state?.trim().toUpperCase();
+      const eventDistrict = ann.district?.trim().toUpperCase() || ""; 
+
+      if (eventState !== userState) {
+        return false;
+      }
+
+      if (!userDistrict) { 
+        if (!eventDistrict) { 
+          return true;
+        } else { 
+          return false;
+        }
+      }
+
+      if (userDistrict) {
+        if (eventDistrict === userDistrict) {
+          return true;
+        } else { 
+          return false;
+        }
+      }
+
+      return false; 
     });
-    console.log(`[${PAGE_COMPONENT_NAME}] sortedAndFilteredAnnouncements - After location filter: count changed from ${countBeforeLocationFilter} to ${announcementsCopy.length}`);
 
     const sortFn = {
       newest: (a, b) => new Date(b.date) - new Date(a.date),
@@ -607,7 +576,6 @@ export default function UserAnnouncementsPage() {
       nameAZ: (a, b) => a.name.localeCompare(b.name),
       nameZA: (a, b) => b.name.localeCompare(a.name),
     };
-
 
     announcementsCopy.sort(sortFn[sort] || sortFn.newest);
     return announcementsCopy;
@@ -640,34 +608,17 @@ export default function UserAnnouncementsPage() {
     >
       <Box>
         <Box sx={{ maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 3 } }}>
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
-            <Typography
-              align="center"
-              sx={{
-                mt: 5,
-                p: 2,
-                fontSize: {
-                  xs: "1.2rem",
-                  sm: "1.2rem",
-                  md: isBelow ? "1.2rem" : "1.4rem",
-                  lg: isBelow ? "1.2rem" : "1.4rem",
-                },
-                fontWeight: "bold",
-                textTransform: "uppercase",
-                color: "rgba(0, 0, 0, 0.87)",
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              ANNOUNCEMENTS
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: {xs: 1, sm: 2} }}>
+            <Typography sx={{ textAlign: "center", mt: 7, mb: 3, fontSize: { xs: "1.2rem", md: "1.2rem" }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)"}}>
+              Announcements
             </Typography>
           </Box>
-          <Box className="controls" sx={{ display: "flex", flexDirection: { xs: 'column', sm: 'row' }, justifyContent: "flex-start", alignItems: 'center', gap: 2, mb: 3 }}>
+          <Box className="controls" sx={{ display: "flex", flexDirection: {xs: 'column', sm: 'row'}, justifyContent: "flex-start", alignItems:'center', gap: 2, mb: 3 }}>
             <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative", backgroundColor: 'white' }}>
               <InputLabel htmlFor="filter-select-input" id="filter-select-label" sx={{ position: "absolute", top: -10, left: 8, padding: "0 4px", fontSize: "0.75rem", color: "text.secondary" }}>
                 Filter By
               </InputLabel>
-              <Select value={filter} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Filter changed to: ${e.target.value}`); setFilter(e.target.value); }}
+              <Select value={filter} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Filter changed to: ${e.target.value}.`); setFilter(e.target.value);}}
                 labelId="filter-select-label" id="filter-select-input"
                 sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" }, "& .MuiSelect-select": { padding: "10px 14px" }, fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, }}
               >
@@ -680,7 +631,7 @@ export default function UserAnnouncementsPage() {
               <InputLabel htmlFor="sort-select-input" id="sort-select-label" sx={{ position: "absolute", top: -10, left: 8, padding: "0 4px", fontSize: "0.75rem", color: "text.secondary" }}>
                 Sort By
               </InputLabel>
-              <Select value={sort} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Sort changed to: ${e.target.value}`); setSort(e.target.value); }}
+              <Select value={sort} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Sort changed to: ${e.target.value}.`); setSort(e.target.value);}}
                 labelId="sort-select-label" id="sort-select-input"
                 sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" }, "& .MuiSelect-select": { padding: "10px 14px" }, fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, }}
               >
@@ -701,8 +652,7 @@ export default function UserAnnouncementsPage() {
             <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
           </Box>
         ) : finalAnnouncements.length === 0 ? (
-          <Box sx={{ textAlign: "center", p: { xs: 2, sm: 3 }, backgroundColor: 'transparent', borderRadius: 0 }}>
-            {console.log(`[${PAGE_COMPONENT_NAME}] Render - No announcements to display.`)}
+          <Box sx={{ textAlign: "center", p: {xs: 2, sm: 3}, backgroundColor: 'transparent', borderRadius: 0 }}>
             <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
               No announcements available at the moment.
             </Typography>

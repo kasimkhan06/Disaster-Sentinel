@@ -11,9 +11,11 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import worldMapBackground from "../../../public/assets/background_image/world-map-background.jpg";
 import Footer from "../../components/Footer";
 import axios from "axios";
+import { ThemeConsumer } from "styled-components";
 
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api";
@@ -76,6 +78,8 @@ const StatusTracking = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [currentStatus, setCurrentStatus] = useState("Missing");
+
+  const theme = useTheme();
 
   useEffect(() => {
     let userFromStorage = null;
@@ -584,7 +588,7 @@ const StatusTracking = () => {
                 }}
               >
                 <Box>{option.label}</Box>
-                <Box
+                {/* <Box
                   sx={{
                     color: option.isFound ? "green" : "orange",
                     fontWeight: 500,
@@ -598,7 +602,7 @@ const StatusTracking = () => {
                   }}
                 >
                   {option.isFound ? "Found" : "Missing"}
-                </Box>
+                </Box> */}
               </Box>
             )}
 
@@ -756,7 +760,7 @@ const StatusTracking = () => {
                   onClick={handleDelete}
                   disabled={loadingUpdate}
                   sx={{
-                    color: "primary.main",
+                    color: theme.palette.error.main,
                     fontWeight: "bold",
                   }}
                 >
