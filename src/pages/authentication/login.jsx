@@ -13,6 +13,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import Footer from "../../components/Footer";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import { red } from "@mui/material/colors";
 
 const Login = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
@@ -79,7 +80,10 @@ const Login = ({ setIsLoggedIn }) => {
           });
 
           localStorage.setItem("user", JSON.stringify(data));
-          const redirectPath = localStorage.getItem("redirectAfterLogin");
+          let redirectPath = localStorage.getItem("redirectAfterLogin");
+          if( redirectPath === "/login"){
+            redirectPath = "/home";
+          }
           localStorage.removeItem("redirectAfterLogin");
           if (data.role === "user") {
             window.location.assign(redirectPath || "/home");
