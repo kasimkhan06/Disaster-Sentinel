@@ -757,7 +757,7 @@ export default function AgencyDashboard() {
           </Dialog>
         </Box>
       </Box>
-      <Grid container xs={12} sx={{ mt: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Grid container xs={12} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
         <Grid item xs={12} md={10} sx={{ textAlign: "center" }}>
           <Footer />
         </Grid>
