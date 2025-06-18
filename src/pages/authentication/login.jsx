@@ -17,6 +17,7 @@ import { red } from "@mui/material/colors";
 
 const Login = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
+  const [agencyID, setAgencyID] = useState(null);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -34,7 +35,11 @@ const Login = ({ setIsLoggedIn }) => {
     // Basic validation
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(formData.email)) {
+    } else if (
+      !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        formData.email
+      )
+    ) {
       // Added robust email format validation here
       newErrors.form = "Invalid email or password"; // Set form-level error for consistency
     }
@@ -80,8 +85,29 @@ const Login = ({ setIsLoggedIn }) => {
           });
 
           localStorage.setItem("user", JSON.stringify(data));
+          if (
+            data.role === "user" &&
+            data.permissions &&
+            data.permissions.length > 0
+          ) {
+           const agencyId = data.permissions[0].agency.id;
+            try {
+              const response = await fetch(
+                `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${agencyId}/`
+              );
+              const agencyData = await response.json();
+              localStorage.setItem("agencyState", agencyData.state);
+            } catch (error) {
+              console.error("Error fetching agency details:", error);
+              return null;
+            }
+          }
+          else{
+            setAgencyID(null);
+            localStorage.removeItem("agencyState");
+          }
           let redirectPath = localStorage.getItem("redirectAfterLogin");
-          if( redirectPath === "/login"){
+          if (redirectPath === "/login") {
             redirectPath = "/home";
           }
           localStorage.removeItem("redirectAfterLogin");
@@ -106,7 +132,6 @@ const Login = ({ setIsLoggedIn }) => {
                 );
                 // navigate("/agency-dashboard");
                 window.location.assign("/agency-dashboard");
-
               } else {
                 console.error(
                   "Agency details not found for user ID:",
@@ -242,7 +267,10 @@ const Login = ({ setIsLoggedIn }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  error={!!errors.email || (!!errors.form && errors.form.includes("email"))} // Indicate error for field or form
+                  error={
+                    !!errors.email ||
+                    (!!errors.form && errors.form.includes("email"))
+                  } // Indicate error for field or form
                   helperText={errors.email} // Only show specific field error
                   size="small"
                   sx={{ width: "70%" }}
@@ -266,7 +294,10 @@ const Login = ({ setIsLoggedIn }) => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  error={!!errors.password || (!!errors.form && errors.form.includes("password"))} // Indicate error for field or form
+                  error={
+                    !!errors.password ||
+                    (!!errors.form && errors.form.includes("password"))
+                  } // Indicate error for field or form
                   helperText={errors.password} // Only show specific field error
                   size="small"
                   sx={{ width: "70%" }}

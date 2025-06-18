@@ -45,14 +45,28 @@ function MissingPerson() {
   const [districts, setDistricts] = useState([]);
   const [searchName, setSearchName] = useState(null);
   const isBelow = useMediaQuery(theme.breakpoints.down("md"));
+  const [userPermissions, setUserPermissions] = useState(null);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedData = JSON.parse(userData);
       setUserRole(parsedData.role);
-      setUserID(parsedData.user_id);
-      setSelectedState(parsedData.state || "");
+      // Check if user has permissions and is a regular user
+      if (
+        parsedData.role === "user" &&
+        parsedData.permissions &&
+        parsedData.permissions.length > 0
+      ) {
+        // Set userID to the first agency's ID in permissions array
+        setUserID(parsedData.permissions[0].agency.id);
+        setSelectedState(localStorage.getItem("agencyState") || "");
+        console.log("Agency State(used by volunteer):", selectedState);
+      } else {
+        // Otherwise set to the normal user_id
+        setUserID(parsedData.user_id);
+        setSelectedState(parsedData.state || "");
+      }
       console.log("User State1:", selectedState);
       console.log("User Data:", parsedData);
       setIsLoggedIn(true);
@@ -93,7 +107,7 @@ function MissingPerson() {
             // Sort states alphabetically
             const sortedStates = Object.keys(tempStateDistricts).sort();
             const sortedStateDistricts = {};
-            sortedStates.forEach(state => {
+            sortedStates.forEach((state) => {
               sortedStateDistricts[state] = tempStateDistricts[state].sort();
             });
 
@@ -106,14 +120,13 @@ function MissingPerson() {
             } else {
               setDistricts([]);
             }
-
           } catch (parseError) {
             console.error("Error parsing Excel data:", parseError);
           }
         };
         reader.onerror = (error) => {
           console.error("FileReader error:", error);
-        }
+        };
 
         reader.readAsArrayBuffer(blob);
       } catch (error) {
@@ -150,7 +163,9 @@ function MissingPerson() {
       );
       setSelectiveMissingPersons(fallbackFiltered);
     } else {
-      const allUnfound = missingPersons.filter((person) => person.is_found === false);
+      const allUnfound = missingPersons.filter(
+        (person) => person.is_found === false
+      );
       setSelectiveMissingPersons(allUnfound);
     }
   };
@@ -200,7 +215,10 @@ function MissingPerson() {
               district: personData.district || "",
             };
           } catch (err) {
-            console.error(`Failed to fetch details for person ID ${person.id}:`, err);
+            console.error(
+              `Failed to fetch details for person ID ${person.id}:`,
+              err
+            );
             return {
               ...person,
               person_photo: "",
@@ -239,7 +257,6 @@ function MissingPerson() {
         setLoading(false);
       }
     };
-
 
     fetchMissingPersons();
   }, [userID]);
@@ -284,7 +301,10 @@ function MissingPerson() {
 
   const scrollToMap = () => {
     if (mapContainerRef.current) {
-      mapContainerRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      mapContainerRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   };
 
@@ -305,14 +325,33 @@ function MissingPerson() {
       }}
     >
       <Box>
-        <Box sx={{ maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 3 } }}>
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
+        <Box
+          sx={{
+            maxWidth: "1000px",
+            marginX: "auto",
+            px: { xs: 2, sm: 3 },
+            pt: { xs: 2, sm: 3 },
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              pt: { xs: 1, sm: 2 },
+            }}
+          >
             <Typography
               align="center"
               sx={{
                 mt: { xs: 8, sm: 5, md: 5, lg: 5 },
                 p: 2,
-                fontSize: { xs: "1.2rem", sm: "1.3rem", md: "1.4rem", lg: "1.5rem" },
+                fontSize: {
+                  xs: "1.2rem",
+                  sm: "1.3rem",
+                  md: "1.4rem",
+                  lg: "1.5rem",
+                },
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 color: "rgba(0, 0, 0, 0.87)",
@@ -323,26 +362,40 @@ function MissingPerson() {
             </Typography>
           </Box>
           <Box className="controls" sx={{ mb: 3 }}>
-            <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
-
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              justifyContent="space-between"
+              flexWrap="wrap"
+            >
               {/* Search Section */}
-              <Grid item
+              <Grid
+                item
                 xs={12}
                 md={6}
                 sx={{
                   display: "flex",
-                  justifyContent: { xs: "center", md: "center", lg: "flex-start" }, 
+                  justifyContent: {
+                    xs: "center",
+                    md: "center",
+                    lg: "flex-start",
+                  },
                   mt: { xs: 2, md: 2 },
                 }}
               >
-                <Box sx={{
-                  backgroundColor: "rgba(255, 255, 255, 0.97)",
-                  borderRadius: "8px",
-                  width: "100%",
-                  maxWidth: 300,
-                }}>
+                <Box
+                  sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.97)",
+                    borderRadius: "8px",
+                    width: "100%",
+                    maxWidth: 300,
+                  }}
+                >
                   <Autocomplete
-                    options={missingPersons.filter((p) => !p.is_found).map((p) => p.full_name)}
+                    options={missingPersons
+                      .filter((p) => !p.is_found)
+                      .map((p) => p.full_name)}
                     value={searchName}
                     onChange={(e, value) => handlePersonSearch(value)}
                     renderInput={(params) => (
@@ -379,15 +432,26 @@ function MissingPerson() {
                 md={6}
                 sx={{
                   display: "flex",
-                  justifyContent: { xs: "center", md: "center", lg: "flex-end" }, // centered for md
+                  justifyContent: {
+                    xs: "center",
+                    md: "center",
+                    lg: "flex-end",
+                  }, // centered for md
                   mt: { xs: 2, md: 2 },
-                }}>
-                <Box sx={{
-                  display: "flex",
-                  justifyContent: { xs: "center", md: "center", lg: "flex-end" },
-                  flexWrap: "wrap",
-                  gap: 2,
-                }}>
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: {
+                      xs: "center",
+                      md: "center",
+                      lg: "flex-end",
+                    },
+                    flexWrap: "wrap",
+                    gap: 2,
+                  }}
+                >
                   {/* Filter Dropdown */}
                   <Box
                     sx={{
@@ -412,16 +476,25 @@ function MissingPerson() {
                     </InputLabel>
                     <Autocomplete
                       options={districts}
-                      value={districts.includes(selectedDistrict) ? selectedDistrict : null}
+                      value={
+                        districts.includes(selectedDistrict)
+                          ? selectedDistrict
+                          : null
+                      }
                       onChange={handleDistrictChange}
-                      isOptionEqualToValue={(option, value) => option === value || value === ""}
+                      isOptionEqualToValue={(option, value) =>
+                        option === value || value === ""
+                      }
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           variant="standard"
                           error={!!errors.district}
                           placeholder="Select District"
-                          InputProps={{ ...params.InputProps, disableUnderline: true }}
+                          InputProps={{
+                            ...params.InputProps,
+                            disableUnderline: true,
+                          }}
                         />
                       )}
                       size="small"
@@ -455,7 +528,13 @@ function MissingPerson() {
           }}
         >
           {/* Map and Sidebar */}
-          <Grid item xs={12} md={12} lg={6} sx={{ height: "100%", mx: "auto", mb: 4 }}>
+          <Grid
+            item
+            xs={12}
+            md={12}
+            lg={6}
+            sx={{ height: "100%", mx: "auto", mb: 4 }}
+          >
             <Box sx={{ height: 500 }} ref={mapContainerRef}>
               {loading ? (
                 <Box
@@ -493,13 +572,18 @@ function MissingPerson() {
           </Grid>
 
           {/* Person Cards */}
-          <Grid item xs={12} md={12} lg={4} sx={{ height: "100%", mx: "auto", }}>
-            <Card elevation={3} sx={{ height: 500, overflowY: "auto", borderRadius: 3 }}>
+          <Grid item xs={12} md={12} lg={4} sx={{ height: "100%", mx: "auto" }}>
+            <Card
+              elevation={3}
+              sx={{ height: 500, overflowY: "auto", borderRadius: 3 }}
+            >
               <CardContent>
                 {loading ? (
                   <Typography align="center">Loading data...</Typography>
                 ) : missingPersons.length === 0 ? (
-                  <Typography align="center">No missing persons found.</Typography>
+                  <Typography align="center">
+                    No missing persons found.
+                  </Typography>
                 ) : (
                   <Grid container spacing={2}>
                     {topPersonsByType.map((person) => (
@@ -521,7 +605,11 @@ function MissingPerson() {
                         >
                           <Box
                             component="img"
-                            src={person.person_photo ? `https://res.cloudinary.com/doxgltggk/${person.person_photo}` : "/assets/person.png"}
+                            src={
+                              person.person_photo
+                                ? `https://res.cloudinary.com/doxgltggk/${person.person_photo}`
+                                : "/assets/person.png"
+                            }
                             alt={person.full_name}
                             sx={{
                               width: 60,
@@ -533,12 +621,19 @@ function MissingPerson() {
                             }}
                           />
                           <Box>
-                            <Typography fontWeight="bold">{person.full_name.toUpperCase()}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Missing: {getMissingDate(person.created_at).date} at {getMissingDate(person.created_at).time}
+                            <Typography fontWeight="bold">
+                              {person.full_name.toUpperCase()}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Location: {person.last_seen_location.split(",").slice(0, 2).join(", ")}
+                              Missing: {getMissingDate(person.created_at).date}{" "}
+                              at {getMissingDate(person.created_at).time}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              Location:{" "}
+                              {person.last_seen_location
+                                .split(",")
+                                .slice(0, 2)
+                                .join(", ")}
                             </Typography>
                           </Box>
                         </Card>
@@ -552,7 +647,7 @@ function MissingPerson() {
         </Grid>
       </Container>
       <Footer />
-    </Box >
+    </Box>
   );
 }
 

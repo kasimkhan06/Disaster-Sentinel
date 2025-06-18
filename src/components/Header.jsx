@@ -37,7 +37,6 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   useEffect(() => {
     const handleStorageChange = () => {
       const user = localStorage.getItem("user");
-      console.log("User from localStorage:", user);
       if (user) {
         const parsedUser = JSON.parse(user);
         console.log("User permissions", parsedUser.permissions);
@@ -111,10 +110,12 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       if (response.ok) {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        localStorage.removeItem("agencyState");
+        localStorage.removeItem("redirectAfterLogin");
         setIsLoggedIn(false);
         setUserPermissions([]);
         handleAccountMenuClose();
-        // navigate("/home");
+        navigate("/home");
         window.location.reload();
       } else {
         console.error("Logout failed:", data.message || "Unknown error");
@@ -349,14 +350,14 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
         {hasPermissions && (
           <>
             <MenuItem onClick={handleVolunteerWorksClick}>
-              <ListItemText primary="Volunteer Works" />
+              <ListItemText primary="Volunteer Services" />
               {openVolunteerWorks ? <ExpandLess /> : <ExpandMore />}
             </MenuItem>
             <Collapse in={openVolunteerWorks} timeout="auto" unmountOnExit>
               <Box sx={{ pl: 3, backgroundColor: "rgba(0, 0, 0, 0.04)" }}>
                 {canMakeAnnouncements && (
                   <MenuItem
-                    onClick={() => handleNavigation("/create-announcement")}
+                    onClick={() => handleNavigation("/create-event")}
                     sx={{ width: "100%" }}
                   >
                     Create Announcement
@@ -364,7 +365,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                 )}
                 {canEditAnnouncements && (
                   <MenuItem
-                    onClick={() => handleNavigation("/edit-announcements")}
+                    onClick={() => handleNavigation("/event-listing")}
                     sx={{ width: "100%" }}
                   >
                     Edit Announcements
@@ -373,14 +374,14 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                 {canViewMissing && (
                   canEditMissing ? (
                   <MenuItem
-                    onClick={() => handleNavigation("/edit-missing-persons")}
+                    onClick={() => handleNavigation("/missing-person")}
                     sx={{ width: "100%" }}
                   >
                     View and edit Missing Persons
                   </MenuItem>
                   ) : (
                   <MenuItem
-                    onClick={() => handleNavigation("/edit-missing-persons")}
+                    onClick={() => handleNavigation("/missing-person")}
                     sx={{ width: "100%" }}
                   >
                     View Missing Persons
