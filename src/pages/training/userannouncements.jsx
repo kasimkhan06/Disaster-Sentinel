@@ -13,7 +13,12 @@ import {
   Alert,
   Card,
   CardContent,
-  Chip
+  Chip, 
+  useMediaQuery,
+  ListItemText as MUIListItemText,
+  Autocomplete,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -21,7 +26,7 @@ import {
   LocationOn,
   Videocam,
   Send,
-  CheckCircle
+  Search as SearchIcon
 } from "@mui/icons-material";
 import userAnnouncementsBackground from "../../../public/assets/background_image/world-map-background.jpg";
 import { useNavigate } from "react-router-dom";
@@ -47,7 +52,6 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
   }, [event.is_current_user_interested, event?.id, isRegistered]);
 
   const handleRegisterInternal = async () => {
-    console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal called for event: ${event?.id}. CurrentUser exists: ${!!currentUser}, IsAlreadyRegistered: ${isRegistered}`);
     if (!currentUser) {
       console.warn(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - No current user (user_id not available). Displaying login prompt.`);
       setShowLoginPrompt(true);
@@ -59,22 +63,17 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
     }
 
     setShowLoginPrompt(false);
-    console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - Setting loading to true for event ${event?.id}`);
     setLoading(true);
     try {
-      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - Calling onRegister for event ${event?.id}`);
       const success = await onRegister(event.id);
-      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - onRegister returned ${success} for event ${event?.id}`);
     } catch (error) {
       console.error(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - Error during registration for event ${event?.id}:`, error);
     } finally {
-      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - Setting loading to false for event ${event?.id}`);
       setLoading(false);
     }
   };
 
   const handleUnregisterInternal = async () => {
-    console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal called for event: ${event?.id}. CurrentUser exists: ${!!currentUser}, IsRegistered: ${isRegistered}`);
     if (!currentUser) { // Should not happen if button is only shown when registered
       console.warn(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - No current user. Unregistration aborted.`);
       onLoginRedirect();
@@ -86,20 +85,15 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
     }
 
     setShowLoginPrompt(false);
-    console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Setting loading to true for event ${event?.id}`);
     setLoading(true);
     try {
-      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Calling onUnregister for event ${event?.id} with interest_record_id ${event.interest_record_id}`);
       const success = await onUnregister(event.interest_record_id); // Pass the interest record ID
-      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - onUnregister returned ${success} for event ${event?.id}`);
     } catch (error) {
       console.error(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Error during unregistration for event ${event?.id}:`, error);
     } finally {
-      console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Setting loading to false for event ${event?.id}`);
       setLoading(false);
     }
   };
-
 
   const getTagsBadge = () => {
     if (!event.tags || event.tags.length === 0) return null;
@@ -122,14 +116,22 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
     }
   };
 
+  const toCapitalizeCase = (str) => {
+    if (!str) return "";
+    return str
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   const isEventFull = event.max_capacity > 0 && event.attendees_count >= event.max_capacity;
 
   return (
     <Card className="event-card">
-      <img src={getImage()} alt={event.event_type || "Event"} className="event-img"/>
+      <img src={getImage()} alt={event.event_type || "Event"} className="event-img" />
       <CardContent className="event-content">
         <Typography variant="h6" className="event-title">
-          {event.name}
+          {event.name.toUpperCase()}
         </Typography>
         <div className="event-details">
           <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
@@ -147,7 +149,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
           ) : (
             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
               <LocationOn fontSize="small" sx={{ mr: 0.5 }} />
-              {event.venue_name}{event.venue_name && (event.district || event.state) ? ", " : ""}
+              {toCapitalizeCase(event.venue_name)}{toCapitalizeCase(event.venue_name) && (event.district || event.state) ? ", " : ""}
               {event.district}{event.district && event.state ? ", " : ""}
               {event.state}
             </Typography>
@@ -221,20 +223,17 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
 const PAGE_COMPONENT_NAME = "UserAnnouncementsPage";
 
 export default function UserAnnouncementsPage() {
-  console.log(`[${PAGE_COMPONENT_NAME}] Rendering or re-rendering...`);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const [announcements, setAnnouncements] = useState([]);
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState("");
   const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [userLocation, setUserLocation] = useState(null);
   const [currentUser, setCurrentUser] = useState(undefined);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
-
-  const theme = useTheme();
-
-  console.log(`[${PAGE_COMPONENT_NAME}] Initial states on render: announcements#: ${announcements.length}, sort: ${sort}, filter: ${filter}, isLoading: ${isLoading}, userLocation:`, userLocation, "currentUser:", currentUser ? currentUser.id : 'null');
 
   // Function to handle redirection to login
   const handleLoginRedirect = () => {
@@ -243,20 +242,15 @@ export default function UserAnnouncementsPage() {
   };
 
   const loadCurrentUserData = async () => {
-    console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Attempting to load user data.`);
     try {
       const userString = localStorage.getItem('user');
-      console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - localStorage userString: ${userString ? 'found' : 'not found'}`);
-
       if (!userString) {
-        console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - No user string found. Setting currentUser and userLocation to null.`);
         setCurrentUser(null);
         setUserLocation(null);
         return;
       }
 
       const userDataFromStorage = JSON.parse(userString);
-      console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Parsed userDataFromStorage:`, userDataFromStorage);
 
       if (userDataFromStorage?.user_id) {
         const CUser = { id: userDataFromStorage.user_id };
@@ -265,14 +259,11 @@ export default function UserAnnouncementsPage() {
           CUser.state = userDataFromStorage.state;
           CUser.district = userDataFromStorage.district;
           setUserLocation({ state: userDataFromStorage.state, district: userDataFromStorage.district });
-          console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Full user data with location found. Setting currentUser:`, CUser, "and userLocation:", { state: CUser.state, district: CUser.district });
         } else if (userDataFromStorage.state) {
           CUser.state = userDataFromStorage.state;
           setUserLocation({ state: userDataFromStorage.state, district: null });
-          console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - User data with state only found. Setting currentUser:`, CUser, "and userLocation:", { state: CUser.state, district: null });
         } else {
           setUserLocation(null);
-          console.warn(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - User ID found, but no location data. User will only see online events. Data:`, userDataFromStorage);
         }
         setCurrentUser(CUser);
 
@@ -286,26 +277,20 @@ export default function UserAnnouncementsPage() {
       setCurrentUser(null);
       setUserLocation(null);
     }
-    console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Finished.`);
   };
 
   const handleRegister = async (eventId, isPreCheckFailure = false) => {
-    console.log(`[${PAGE_COMPONENT_NAME}] handleRegister called for eventId: ${eventId}, isPreCheckFailure: ${isPreCheckFailure}`);
-
     if (!currentUser?.id) {
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - User not identified (currentUser ID is null/undefined). Showing snackbar.`);
       setSnackbar({ open: true, message: "Please ensure you are logged in to register.", severity: "error" });
       return false;
     }
 
-    console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Proceeding with registration for event ${eventId}. User ID: ${currentUser.id}`);
     try {
       const interestPayload = {
         user_id_input: currentUser.id,
         event_id_input: eventId,
         interested: true
       };
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - 1. Marking interest. Payload:`, interestPayload);
       const interestResponse = await fetch(
         "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/",
         {
@@ -316,7 +301,6 @@ export default function UserAnnouncementsPage() {
           body: JSON.stringify(interestPayload)
         }
       );
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Interest API response status: ${interestResponse.status}`);
       if (!interestResponse.ok) {
         let errorData = {};
         try {
@@ -328,11 +312,9 @@ export default function UserAnnouncementsPage() {
         throw new Error(errorData.detail || errorData.non_field_errors || `Failed to register interest. Status: ${interestResponse.status}`);
       }
       const interestData = await interestResponse.json();
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Interest marked successfully:`, interestData);
 
       const currentAttendees = announcements.find(ann => ann.id === eventId)?.attendees_count || 0; // Get current count from state for accurate update
       const updatePayload = { attendees_count: currentAttendees + 1 };
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - 2. Updating attendance count for event ${eventId}. Payload:`, updatePayload);
       const updateResponse = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${eventId}/`,
         {
@@ -343,7 +325,6 @@ export default function UserAnnouncementsPage() {
           body: JSON.stringify(updatePayload)
         }
       );
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Update attendance API response status: ${updateResponse.status}`);
       if (!updateResponse.ok) {
         let errorData = {};
         try {
@@ -355,9 +336,7 @@ export default function UserAnnouncementsPage() {
         throw new Error(errorData.detail || `Failed to update attendance. Status: ${updateResponse.status}`);
       }
       const updatedEventData = await updateResponse.json();
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Attendance updated successfully:`, updatedEventData);
 
-      console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Registration successful for event ${eventId}. Re-fetching all announcements to update state.`);
       setSnackbar({ open: true, message: "Successfully registered for the event!", severity: "success" });
       await fetchAnnouncements();
       return true;
@@ -370,8 +349,6 @@ export default function UserAnnouncementsPage() {
   };
 
   const handleUnregister = async (interestRecordId) => {
-    console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister called for interestRecordId: ${interestRecordId}`);
-
     if (!currentUser?.id) { // Should be covered by button disabled state
       setSnackbar({ open: true, message: "Please login to unregister.", severity: "error" });
       return false;
@@ -383,7 +360,6 @@ export default function UserAnnouncementsPage() {
     }
 
     try {
-      console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister - Deleting interest record ${interestRecordId}.`);
       const response = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/${interestRecordId}/`,
         {
@@ -394,10 +370,9 @@ export default function UserAnnouncementsPage() {
           },
         }
       );
-      console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister - Delete API response status: ${response.status}`);
 
       if (response.status === 204) { // 204 No Content for successful DELETE 
-        console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister - Interest record ${interestRecordId} deleted successfully.`);
+        console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister - Successfully unregistered interest for record ID ${interestRecordId}.`);
         setSnackbar({ open: true, message: "Successfully unregistered from the event!", severity: "success" });
         await fetchAnnouncements(); // Re-fetch to update the UI
         return true;
@@ -420,26 +395,20 @@ export default function UserAnnouncementsPage() {
   };
 
   const fetchAnnouncements = async () => {
-    console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Starting to fetch announcements. Current isLoading: ${isLoading}`);
     setIsLoading(true);
     try {
       const headers = {};
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - No token used for API calls. Headers:`, headers);
 
       // --- 1. Fetch all events ---
       const eventsResponse = await fetch(
         "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/",
         { headers }
       );
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Events API response status: ${eventsResponse.status}`);
       if (!eventsResponse.ok) {
-        console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Failed to fetch events. Status: ${eventsResponse.status}`);
         const errorText = await eventsResponse.text();
-        console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Events Error response text:`, errorText);
         throw new Error(`Failed to fetch events: ${eventsResponse.status} - ${errorText.substring(0, 100)}`);
       }
       let eventsData = await eventsResponse.json();
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Raw events data received (count: ${eventsData.length}):`, eventsData.slice(0,1));
 
       // --- 2. Filter events by date ---
       const currentDate = new Date();
@@ -450,81 +419,72 @@ export default function UserAnnouncementsPage() {
         const eventDate = new Date(announcement.date);
         return !isNaN(eventDate) && eventDate >= currentDate;
       });
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Filtered events by date. Count changed from ${originalCount} to ${eventsData.length}.`);
 
       // --- 3. Determine user interest for each event by querying /api/event-interests/?user=<user_id> ---
       let userInterestedEventIds = new Set();
       let eventIdToInterestRecordIdMap = new Map(); // Store interest record ID
-      if (currentUser?.id) { 
-          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Fetching user interests for user_id: ${currentUser.id}.`);
-          const userInterestsResponse = await fetch(
-            `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/?user=${currentUser.id}`, 
-            { headers: {} } // No Authorization header for this endpoint 
-          );
-          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User Interests API response status: ${userInterestsResponse.status}`);
-          if (userInterestsResponse.ok) {
-              const userInterestsData = await userInterestsResponse.json(); 
-              console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User interests data received (count: ${userInterestsData.length}):`, userInterestsData.slice(0,1));
-              userInterestsData.forEach(interest => {
-                  if (interest.interested === true) {  // Only add if explicitly marked interested
-                      userInterestedEventIds.add(interest.event.id); 
-                      eventIdToInterestRecordIdMap.set(interest.event.id, interest.id); // Store interest record ID 
-                  }
-              });
-              console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - User interested in event IDs:`, [...userInterestedEventIds]);
-              console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Event ID to Interest Record ID Map:`, eventIdToInterestRecordIdMap);
-          } else {
-              console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Failed to fetch user interests. Status: ${userInterestsResponse.status}`);
-          }
+      if (currentUser?.id) {
+        const userInterestsResponse = await fetch(
+          `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/?user=${currentUser.id}`,
+          { headers: {} } // No Authorization header for this endpoint 
+        );
+        if (userInterestsResponse.ok) {
+          const userInterestsData = await userInterestsResponse.json();
+          userInterestsData.forEach(interest => {
+            if (interest.interested === true) {  // Only add if explicitly marked interested
+              userInterestedEventIds.add(interest.event.id);
+              eventIdToInterestRecordIdMap.set(interest.event.id, interest.id); // Store interest record ID 
+            }
+          });
+        } else {
+          console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Failed to fetch user interests. Status: ${userInterestsResponse.status}`);
+        }
       } else {
-          console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - No currentUser ID available, skipping fetching user interests.`);
+        console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - No currentUser ID available, skipping fetching user interests.`);
       }
 
       // --- 4. Map interest status and interest_record_id onto events ---
       const finalEvents = eventsData.map(event => ({
-          ...event,
-          is_current_user_interested: userInterestedEventIds.has(event.id),
-          // Add the interest_record_id if the user is interested in this event
-          interest_record_id: userInterestedEventIds.has(event.id) ? eventIdToInterestRecordIdMap.get(event.id) : null
+        ...event,
+        is_current_user_interested: userInterestedEventIds.has(event.id),
+        // Add the interest_record_id if the user is interested in this event
+        interest_record_id: userInterestedEventIds.has(event.id) ? eventIdToInterestRecordIdMap.get(event.id) : null
       }));
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Final events mapped with interest status. Example:`, finalEvents.slice(0,1));
 
-
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Setting announcements state.`);
       setAnnouncements(finalEvents);
     } catch (error) {
-      console.error(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - Error:`, error);
       setSnackbar({ open: true, message: `Failed to load announcements: ${error.message}`, severity: "error" });
       setAnnouncements([]);
     } finally {
       setIsLoading(false);
-      console.log(`[${PAGE_COMPONENT_NAME}] fetchAnnouncements - setIsLoading(false). Finished fetching.`);
     }
   };
 
   useEffect(() => {
-    console.log(`[${PAGE_COMPONENT_NAME}] useEffect[] - Initial data load sequence starting.`);
     async function loadInitialData() {
-      console.log(`[${PAGE_COMPONENT_NAME}] useEffect[] - Calling loadCurrentUserData.`);
       await loadCurrentUserData();
-      console.log(`[${PAGE_COMPONENT_NAME}] useEffect[] - Initial data load sequence finished.`);
     }
     loadInitialData();
   }, []);
 
   useEffect(() => {
-    console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser] - CurrentUser state changed. CurrentUser ID: ${currentUser?.id}`);
-    if (currentUser !== undefined) { 
-      console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser] - currentUser is initialized (not undefined), re-fetching announcements.`);
-      fetchAnnouncements(); 
+    if (currentUser !== undefined) {
+      fetchAnnouncements();
     }
   }, [currentUser]);
 
   const sortedAndFilteredAnnouncements = () => {
     if (!announcements) {
-        return [];
+      return [];
     }
     let announcementsCopy = [...announcements];
+
+    // Apply search filter
+    if (searchTerm) {
+      announcementsCopy = announcementsCopy.filter((ann) => {
+        return ann.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    }
 
     if (filter !== "all") {
       announcementsCopy = announcementsCopy.filter(ann =>
@@ -543,18 +503,18 @@ export default function UserAnnouncementsPage() {
       }
 
       const userState = userLocation.state.trim().toUpperCase();
-      const userDistrict = userLocation.district?.trim().toUpperCase() || ""; 
+      const userDistrict = userLocation.district?.trim().toUpperCase() || "";
       const eventState = ann.state?.trim().toUpperCase();
-      const eventDistrict = ann.district?.trim().toUpperCase() || ""; 
+      const eventDistrict = ann.district?.trim().toUpperCase() || "";
 
       if (eventState !== userState) {
         return false;
       }
 
-      if (!userDistrict) { 
-        if (!eventDistrict) { 
+      if (!userDistrict) {
+        if (!eventDistrict) {
           return true;
-        } else { 
+        } else {
           return false;
         }
       }
@@ -562,12 +522,12 @@ export default function UserAnnouncementsPage() {
       if (userDistrict) {
         if (eventDistrict === userDistrict) {
           return true;
-        } else { 
+        } else {
           return false;
         }
       }
 
-      return false; 
+      return false;
     });
 
     const sortFn = {
@@ -608,39 +568,148 @@ export default function UserAnnouncementsPage() {
     >
       <Box>
         <Box sx={{ maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 3 } }}>
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: {xs: 1, sm: 2} }}>
-            <Typography sx={{ textAlign: "center", mt: 7, mb: 3, fontSize: { xs: "1.2rem", md: "1.2rem" }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)"}}>
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
+            <Typography sx={{ textAlign: "center", mt: 7, mb: 3, fontSize: { xs: "1.2rem", md: "1.2rem" }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)" }}>
               Announcements
             </Typography>
           </Box>
-          <Box className="controls" sx={{ display: "flex", flexDirection: {xs: 'column', sm: 'row'}, justifyContent: "flex-start", alignItems:'center', gap: 2, mb: 3 }}>
-            <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative", backgroundColor: 'white' }}>
-              <InputLabel htmlFor="filter-select-input" id="filter-select-label" sx={{ position: "absolute", top: -10, left: 8, padding: "0 4px", fontSize: "0.75rem", color: "text.secondary" }}>
-                Filter By
-              </InputLabel>
-              <Select value={filter} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Filter changed to: ${e.target.value}.`); setFilter(e.target.value);}}
-                labelId="filter-select-label" id="filter-select-input"
-                sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" }, "& .MuiSelect-select": { padding: "10px 14px" }, fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, }}
-              >
-                <MenuItem value="all">All Events</MenuItem>
-                <MenuItem value="online">Online</MenuItem>
-                <MenuItem value="offline">Offline</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" }, boxShadow: "2px 2px 2px #E8F1F5", position: "relative", backgroundColor: 'white' }}>
-              <InputLabel htmlFor="sort-select-input" id="sort-select-label" sx={{ position: "absolute", top: -10, left: 8, padding: "0 4px", fontSize: "0.75rem", color: "text.secondary" }}>
-                Sort By
-              </InputLabel>
-              <Select value={sort} onChange={(e) => { console.log(`[${PAGE_COMPONENT_NAME}] Sort changed to: ${e.target.value}.`); setSort(e.target.value);}}
-                labelId="sort-select-label" id="sort-select-input"
-                sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" }, "& .MuiSelect-select": { padding: "10px 14px" }, fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, }}
-              >
-                <MenuItem value="newest">Newest First</MenuItem>
-                <MenuItem value="oldest">Oldest First</MenuItem>
-                <MenuItem value="nameAZ">Name A-Z</MenuItem>
-                <MenuItem value="nameZA">Name Z-A</MenuItem>
-              </Select>
-            </FormControl>
+          <Box className="controls" sx={{ mb: 3 }}>
+            <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
+
+              {/* Search Section */}
+              <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" }, mb: { xs: 1, md: 0 } }}>
+                <Box sx={{
+                  backgroundColor: "rgba(255, 255, 255, 0.97)",
+                  borderRadius: "8px",
+                  width: "100%",
+                  maxWidth: 300,
+                }}>
+                  <Autocomplete
+                    options={finalAnnouncements ? finalAnnouncements.map((event) => event.name.toUpperCase()) : []}
+                    onInputChange={(e, value) => setSearchTerm(value)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search Events"
+                        variant="outlined"
+                        fullWidth
+                        sx={{
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          "&:hover": {
+                            boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)",
+                          },
+                        }}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <SearchIcon fontSize="medium" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                    size="small"
+                  />
+                </Box>
+              </Grid>
+
+              {/* Filters Section */}
+              <Grid item xs={12} sm={12} md={6}>
+                <Box sx={{
+                  display: "flex",
+                  justifyContent: { xs: "center", md: "flex-end" },
+                  flexWrap: "wrap",
+                  gap: 2,
+                  mt: { xs: 2, md: 2 },
+                }}>
+                  {/* Filter Dropdown */}
+                  <FormControl
+                    sx={{
+                      minWidth: 140,
+                      backgroundColor: "white",
+                      boxShadow: "2px 2px 2px #E8F1F5",
+                      position: "relative",
+                    }}
+                  >
+                    <Select
+                      displayEmpty
+                      label="Filter By"
+                      value={filter}
+                      onChange={(e) => setFilter(e.target.value)}
+                      renderValue={(selected) => {
+                        if (!selected) {
+                          return <em>Filter By</em>;
+                        }
+                        switch (selected) {
+                          case "all":
+                            return <em style={{ color: "gray" }}>Filter By</em>;
+                          case "online":
+                            return "Online Events";
+                          case "offline":
+                            return "Offline Events";
+                          default:
+                            return <em>Filter By</em>;
+                        }
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                        "& .MuiSelect-select": { padding: "10px 14px" },
+                        fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                        color: filter ? "inherit" : "gray",
+                      }}
+                    >
+                      <MenuItem value="all">All Events</MenuItem>
+                      <MenuItem value="online">Online Events</MenuItem>
+                      <MenuItem value="offline">Offline Events</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl
+                    sx={{
+                      minWidth: 140,
+                      backgroundColor: "white",
+                      boxShadow: "2px 2px 2px #E8F1F5",
+                    }}
+                  >
+                    <Select
+                      displayEmpty
+                      label="Sort By"
+                      value={sort}
+                      onChange={(e) => setSort(e.target.value)}
+                      renderValue={(selected) => {
+                        if (!selected) {
+                          return <em>Sort By</em>;
+                        }
+                        switch (selected) {
+                          case "newest":
+                            return "Newest First";
+                          case "oldest":
+                            return "Oldest First";
+                          case "nameAZ":
+                            return "Name A-Z";
+                          case "nameZA":
+                            return "Name Z-A";
+                          default:
+                            return <em>Sort By</em>;
+                        }
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                        "& .MuiSelect-select": { padding: "10px 14px" },
+                        fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                        color: sort ? "inherit" : "gray",
+                      }}
+                    >
+                      <MenuItem value="newest">Newest First</MenuItem>
+                      <MenuItem value="oldest">Oldest First</MenuItem>
+                      <MenuItem value="nameAZ">Name A-Z</MenuItem>
+                      <MenuItem value="nameZA">Name Z-A</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
         </Box>
       </Box>
@@ -652,7 +721,7 @@ export default function UserAnnouncementsPage() {
             <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
           </Box>
         ) : finalAnnouncements.length === 0 ? (
-          <Box sx={{ textAlign: "center", p: {xs: 2, sm: 3}, backgroundColor: 'transparent', borderRadius: 0 }}>
+          <Box sx={{ textAlign: "center", p: { xs: 2, sm: 3 }, backgroundColor: 'transparent', borderRadius: 0 }}>
             <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
               No announcements available at the moment.
             </Typography>

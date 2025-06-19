@@ -91,7 +91,7 @@ const Login = ({ setIsLoggedIn }) => {
             data.permissions &&
             data.permissions.length > 0
           ) {
-           const agencyId = data.permissions[0].agency.id;
+            const agencyId = data.permissions[0].agency.id;
             try {
               const response = await fetch(
                 `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${agencyId}/`
@@ -103,13 +103,17 @@ const Login = ({ setIsLoggedIn }) => {
               return null;
             }
           }
-          else{
+          else {
             setAgencyID(null);
             localStorage.removeItem("agencyState");
           }
           let redirectPath = localStorage.getItem("redirectAfterLogin");
           if (redirectPath === "/login") {
-            redirectPath = "/home";
+            if (data.role === "user") {
+              redirectPath = "/home";
+            } else {
+              redirectPath = "/agency-dashboard";
+            }
           }
           localStorage.removeItem("redirectAfterLogin");
           if (data.role === "user") {

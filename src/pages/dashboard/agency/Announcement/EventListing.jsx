@@ -213,7 +213,7 @@ export default function EventListing() {
                   maxWidth: 300,
                 }}>
                   <Autocomplete
-                    options={events ? events.map((event) => event.name) : []}
+                    options={events ? events.map((event) => event.name.toUpperCase()) : []}
                     onInputChange={(e, value) => setSearchTerm(value)}
                     renderInput={(params) => (
                       <TextField
@@ -357,7 +357,7 @@ export default function EventListing() {
         ) : (
           <Grid container spacing={3}>
             {filteredEvents().map((event) => (
-              <Grid item xs={12} sm={6} md={6} lg={4} key={event.id}>
+              <Grid item xs={12} sm={6} md={4} key={event.id}>
                 <EventCard event={event} refreshEvents={fetchEvents} />
               </Grid>
             ))}
