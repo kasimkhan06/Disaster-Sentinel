@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect, forwardRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useReactToPrint } from "react-to-print";
 import html2pdf from "html2pdf.js";
+import { useTheme } from "@mui/material/styles";
 
 import {
   Card,
@@ -28,6 +28,15 @@ import "../../public/css/EventListing.css";
 import { Grid } from "@mui/system";
 
 const ComponentToPrint = forwardRef(({ users, event }, ref) => {
+
+  const toCapitalizeCase = (str) => {
+    if (!str) return "";
+    return str
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   return (
     <div id="printable" ref={ref}>
       <style type="text/css" media="print">
@@ -95,7 +104,7 @@ const ComponentToPrint = forwardRef(({ users, event }, ref) => {
               <strong>
                 {event.location_type === "online"
                   ? `Online (${event.platform})`
-                  : `${event.venue_name}, ${event.district}, ${event.state}`}
+                  : `${toCapitalizeCase(event.venue_name)}, ${event.district}, ${event.state}`}
               </strong>
             </Typography>
           </Grid>
@@ -249,6 +258,8 @@ const DisplayTable = ({ open, handleClose, registeredUsers, event }) => {
 
 export default function EventCard({ event, refreshEvents }) {
   const navigate = useNavigate();
+  const theme = useTheme();
+
   const [attendeeCount, setAttendeeCount] = useState(0);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [showTable, setShowTable] = useState(false);
@@ -332,9 +343,12 @@ export default function EventCard({ event, refreshEvents }) {
 
   const toCapitalizeCase = (str) => {
     if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    return str
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   };
-
+  
   return (
     <Card className="event-card">
       <img src={getImage()} alt={event.event_type || "Event"} className="event-img" />
@@ -371,19 +385,31 @@ export default function EventCard({ event, refreshEvents }) {
 
         <div className="event-actions">
           <Button
-            variant="outlined"
             size="small"
+            sx={{
+              minWidth: '100px',
+              transition: 'all 0.3s ease',
+              textTransform: 'uppercase',
+              py: 1.5,
+              fontWeight: 500,
+              color: theme.palette.success.main,
+            }}
             startIcon={<Edit />}
-            className="edit-btn"
             onClick={() => navigate("/create-event", { state: { eventData: event } })}
           >
             Edit
           </Button>
           <Button
-            variant="outlined"
+            sx={{
+              minWidth: '100px',
+              transition: 'all 0.3s ease',
+              textTransform: 'uppercase',
+              py: 1.5,
+              fontWeight: 500, 
+              color: theme.palette.error.main,
+            }}
             size="small"
             startIcon={<Delete />}
-            className="delete-btn"
             onClick={handleDelete}
           >
             Delete
