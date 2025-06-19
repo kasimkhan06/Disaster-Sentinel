@@ -30,11 +30,19 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [accountAnchorEl, setAccountAnchorEl] = useState(null);
   const [openMissingPerson, setOpenMissingPerson] = useState(false);
+  const [openVolunteerWorks, setOpenVolunteerWorks] = useState(false);
+  const [userPermissions, setUserPermissions] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleStorageChange = () => {
       const user = localStorage.getItem("user");
+      if (user) {
+        const parsedUser = JSON.parse(user);
+        console.log("User permissions", parsedUser.permissions);
+        const permissions = parsedUser.permissions || [];
+        setUserPermissions(permissions);
+      }
       setIsLoggedIn(!!user);
     };
 
@@ -49,11 +57,13 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const handleOpenMenu = (e) => {
     setAnchorEl(e.currentTarget);
     setOpenMissingPerson(false);
+    setOpenVolunteerWorks(false);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
     setOpenMissingPerson(false);
+    setOpenVolunteerWorks(false);
   };
 
   const handleAccountMenuOpen = (event) => {
@@ -67,6 +77,13 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const handleMissingPersonClick = (e) => {
     e.stopPropagation();
     setOpenMissingPerson(!openMissingPerson);
+    setOpenVolunteerWorks(false);
+  };
+
+  const handleVolunteerWorksClick = (e) => {
+    e.stopPropagation();
+    setOpenVolunteerWorks(!openVolunteerWorks);
+    setOpenMissingPerson(false);
   };
 
   const handleNavigation = (path) => {
@@ -93,9 +110,12 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       if (response.ok) {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        localStorage.removeItem("agencyState");
+        localStorage.removeItem("redirectAfterLogin");
         setIsLoggedIn(false);
+        setUserPermissions([]);
         handleAccountMenuClose();
-        // navigate("/home");
+        navigate("/home");
         window.location.reload();
       } else {
         console.error("Logout failed:", data.message || "Unknown error");
@@ -108,7 +128,24 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const handleLogin = () => {
     handleNavigation("/login");
     localStorage.setItem("redirectAfterLogin", window.location.pathname);
-  }
+  };
+
+  const hasPermissions = userPermissions.length > 0;
+  // const canManageVolunteers = userPermissions.some(
+  //   (perm) => perm.can_manage_volunteers
+  // );
+  const canMakeAnnouncements = userPermissions.some(
+    (perm) => perm.can_make_announcements
+  );
+  const canEditAnnouncements = userPermissions.some(
+    (perm) => perm.can_edit_announcements
+  );
+  const canEditMissing = userPermissions.some(
+    (perm) => perm.can_edit_missing
+  );
+   const canViewMissing = userPermissions.some(
+    (perm) => perm.can_view_missing
+  );
 
   return (
     <>
@@ -145,14 +182,14 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                 }}
                 sx={{
                   ml: 4,
-                  '& .MuiTab-root': {
-                    minWidth: 'auto', // Allow tabs to size naturally
-                    width: 'auto',   // Prevent forced width
-                    padding: '6px 16px', // Consistent padding with account button
-                    '&:focus': {
-                      outline: 'none',
-                    }
-                  }
+                  "& .MuiTab-root": {
+                    minWidth: "auto", // Allow tabs to size naturally
+                    width: "auto", // Prevent forced width
+                    padding: "6px 16px", // Consistent padding with account button
+                    "&:focus": {
+                      outline: "none",
+                    },
+                  },
                 }}
               >
                 <Tab label="Home" component={Link} to="/home" />
@@ -167,9 +204,13 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 
           {/* Right-aligned content */}
           {isMatch ? (
-            <DrawerComp isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+            <DrawerComp
+              isLoggedIn={isLoggedIn}
+              setIsLoggedIn={setIsLoggedIn}
+              userPermissions={userPermissions}
+            />
           ) : (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               {isLoggedIn ? (
                 <>
                   <Button
@@ -185,23 +226,22 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                       gap: 1,
                       minWidth: 130,
                       width: "auto",
-                      transition: 'none', // <-- Add this
-                      '&:hover': {
-                        backgroundColor: 'transparent',
+                      transition: "none", // <-- Add this
+                      "&:hover": {
+                        backgroundColor: "transparent",
                       },
-                      '&:focus': {
-                        outline: 'none',
-                        transform: 'none',
+                      "&:focus": {
+                        outline: "none",
+                        transform: "none",
                       },
-                      '&:active': {
-                        transform: 'none',
+                      "&:active": {
+                        transform: "none",
                       },
-                      '&.Mui-focusVisible': {
-                        boxShadow: 'none',
-                        backgroundColor: 'transparent',
-                      }
+                      "&.Mui-focusVisible": {
+                        boxShadow: "none",
+                        backgroundColor: "transparent",
+                      },
                     }}
-
                   >
                     <AccountCircle />
                     <Typography variant="body1">Account</Typography>
@@ -226,14 +266,16 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                       marginTop: "15px",
                       "& .MuiMenu-paper": {
                         overflow: "visible",
-                        transform: 'none !important',
+                        transform: "none !important",
                       },
                     }}
                   >
-                    <MenuItem onClick={() => {
-                      handleAccountMenuClose();
-                      handleNavigation("/updatedetails")
-                    }}>
+                    <MenuItem
+                      onClick={() => {
+                        handleAccountMenuClose();
+                        handleNavigation("/updatedetails");
+                      }}
+                    >
                       Edit Profile
                     </MenuItem>
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
@@ -241,7 +283,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                 </>
               ) : (
                 <Button
-                  onClick={() => handleLogin() }
+                  onClick={() => handleLogin()}
                   sx={{
                     borderColor: "#bdbdbd",
                     color: "black",
@@ -304,6 +346,52 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
             </MenuItem>
           </Box>
         </Collapse>
+
+        {hasPermissions && (
+          <>
+            <MenuItem onClick={handleVolunteerWorksClick}>
+              <ListItemText primary="Volunteer Services" />
+              {openVolunteerWorks ? <ExpandLess /> : <ExpandMore />}
+            </MenuItem>
+            <Collapse in={openVolunteerWorks} timeout="auto" unmountOnExit>
+              <Box sx={{ pl: 3, backgroundColor: "rgba(0, 0, 0, 0.04)" }}>
+                {canMakeAnnouncements && (
+                  <MenuItem
+                    onClick={() => handleNavigation("/create-event")}
+                    sx={{ width: "100%" }}
+                  >
+                    Create Announcement
+                  </MenuItem>
+                )}
+                {canEditAnnouncements && (
+                  <MenuItem
+                    onClick={() => handleNavigation("/event-listing")}
+                    sx={{ width: "100%" }}
+                  >
+                    Edit Announcements
+                  </MenuItem>
+                )}
+                {canViewMissing && (
+                  canEditMissing ? (
+                  <MenuItem
+                    onClick={() => handleNavigation("/missing-person")}
+                    sx={{ width: "100%" }}
+                  >
+                    View and edit Missing Persons
+                  </MenuItem>
+                  ) : (
+                  <MenuItem
+                    onClick={() => handleNavigation("/missing-person")}
+                    sx={{ width: "100%" }}
+                  >
+                    View Missing Persons
+                  </MenuItem>
+                  )
+                )}
+              </Box>
+            </Collapse>
+          </>
+        )}
 
         <MenuItem
           onClick={() => handleNavigation("/agencies")}

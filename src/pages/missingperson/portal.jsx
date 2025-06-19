@@ -65,6 +65,12 @@ const MissingPersonPortal = () => {
   // For brevity here, I'll include the function signatures and a comment.
   // Please ensure you use your complete, tested JS logic for these handlers.
 
+  // --- Scroll to Top on Mount ---
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  // --- End Scroll to Top ---
+
   useEffect(() => {
     const photoPreviewUrl = imagePreviews.photo;
     const idCardPreviewUrl = imagePreviews.idCard;

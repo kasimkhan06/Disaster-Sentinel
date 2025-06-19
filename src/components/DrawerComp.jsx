@@ -22,15 +22,23 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const [openMissingPerson, setOpenMissingPerson] = useState(false);
+   const [userPermissions, setUserPermissions] = useState([]);
+  const [ openVolunteerServices, setOpenVolunteerServices ] = useState(false);
 
   // Toggle the sub-list under "Home"
   const handleESClick = () => {
-    setHomeOpen(!homeOpen);
+    setOpenVolunteerServices(!openVolunteerServices);
   };
   // const drawerWidth = `${longestItemLength * 10}px`;
   useEffect(() => {
     const handleStorageChange = () => {
       const user = localStorage.getItem("user");
+      if (user) {
+        const parsedUser = JSON.parse(user);
+        console.log("User permissions", parsedUser.permissions);
+        const permissions = parsedUser.permissions || [];
+        setUserPermissions(permissions);
+      }
       setIsLoggedIn(!!user);
     };
 
@@ -61,10 +69,12 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
       if (response.ok) {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        localStorage.removeItem("agencyState");
+        localStorage.removeItem("redirectAfterLogin");
         setIsLoggedIn(false);
         // handleAccountMenuClose();
-        // navigate("/home");
-         window.location.reload();
+        navigate("/home");
+        window.location.reload();
       } else {
         console.error("Logout failed:", data.message || "Unknown error");
       }
@@ -79,9 +89,19 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
   };
 
   const handleLogin = () => {
+    handleNavigation("/login");
     localStorage.setItem("redirectAfterLogin", window.location.pathname);
-    navigate("/login");
-  }
+  };
+
+  const hasPermissions = userPermissions.length > 0;
+  const canMakeAnnouncements = userPermissions.some(
+    (perm) => perm.can_make_announcements
+  );
+  const canEditAnnouncements = userPermissions.some(
+    (perm) => perm.can_edit_announcements
+  );
+  const canEditMissing = userPermissions.some((perm) => perm.can_edit_missing);
+  const canViewMissing = userPermissions.some((perm) => perm.can_view_missing);
 
   return (
     <>
@@ -95,42 +115,7 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
         }}
       >
         <List>
-          {/* Home with Expand/Collapse */}
-          <ListItemButton onClick={handleESClick}>
-            <ListItemText primary="Services" />
-            {homeOpen ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-
-          {/* Sub-list under Home */}
-          <Collapse in={homeOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
               <ListItemButton
-                sx={{ pl: 4 }}
-                onClick={handleMissingPersonClick}
-              >
-                <ListItemText primary="Report Missing Person" />
-                {openMissingPerson ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-
-              <Collapse in={openMissingPerson} timeout="auto" unmountOnExit>
-                <Box sx={{ pl: 3, backgroundColor: "rgba(0, 0, 0, 0.04)" }}>
-                  <MenuItem
-                    onClick={() => {setOpenDrawer(false), setOpenMissingPerson(false), navigate("/missingpersonportal")}}
-                    sx={{ width: "100%" }}
-                  >
-                    Report
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => { setOpenDrawer(false), setOpenMissingPerson(false), navigate("/statustracking")}}
-                    sx={{ width: "100%" }}
-                  >
-                    Check Status
-                  </MenuItem>
-                </Box>
-              </Collapse>
-
-              <ListItemButton
-                sx={{ pl: 4 }}
                 onClick={() => {
                   setOpenDrawer(false), navigate("/agencies");
                 }}
@@ -139,16 +124,14 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
               </ListItemButton>
 
               <ListItemButton
-                sx={{ pl: 4 }}
                 onClick={() => {
-                  setOpenDrawer(false), navigate("/announcements"); 
+                  setOpenDrawer(false), navigate("/announcements");
                 }}
               >
                 <ListItemText primary="Announcements" />
               </ListItemButton>
 
               <ListItemButton
-                sx={{ pl: 4 }}
                 onClick={() => {
                   setOpenDrawer(false), navigate("/current-location");
                 }}
@@ -156,15 +139,97 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
                 <ListItemText primary="Current Location" />
               </ListItemButton>
               <ListItemButton
-                sx={{ pl: 4 }}
                 onClick={() => {
                   setOpenDrawer(false), navigate("/flood-prediction");
                 }}
               >
                 <ListItemText primary="Station Information" />
               </ListItemButton>
-            </List>
-          </Collapse>
+
+                              <ListItemButton onClick={handleMissingPersonClick}>
+                <ListItemText primary="Report Missing Person" />
+                {openMissingPerson ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+
+              <Collapse in={openMissingPerson} timeout="auto" unmountOnExit>
+                <Box sx={{ pl: 3, backgroundColor: "rgba(0, 0, 0, 0.04)" }}>
+                  <MenuItem
+                    onClick={() => {
+                      setOpenDrawer(false),
+                        setOpenMissingPerson(false),
+                        navigate("/missingpersonportal");
+                    }}
+                    sx={{ width: "100%" }}
+                  >
+                    Report
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setOpenDrawer(false),
+                        setOpenMissingPerson(false),
+                        navigate("/statustracking");
+                    }}
+                    sx={{ width: "100%" }}
+                  >
+                    Check Status
+                  </MenuItem>
+                </Box>
+              </Collapse>
+              
+          {hasPermissions && (
+            <>
+              <ListItemButton onClick={handleESClick}>
+                <ListItemText primary="Volunteer Services" />
+                {openVolunteerServices ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+
+              {/* Sub-list under Home */}
+              <Collapse in={openVolunteerServices} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {canMakeAnnouncements && (
+                  <ListItemButton
+                    sx={{ pl: 4 }}
+                    onClick={() => {
+                      setOpenDrawer(false), navigate("/create-event");
+                    }}
+                  >
+                    <ListItemText primary="Create Announcement" />
+                  </ListItemButton>
+                  )}
+                  {canEditAnnouncements && (
+                  <ListItemButton
+                    sx={{ pl: 4 }}
+                    onClick={() => {
+                      setOpenDrawer(false), navigate("/event-listing");
+                    }}
+                  >
+                    <ListItemText primary="Edit Announcements" />
+                  </ListItemButton>
+                  )}
+                  {canViewMissing && (
+                  canEditMissing ? (
+                  <ListItemButton
+                    sx={{ pl: 4 }}
+                    onClick={() => {
+                      setOpenDrawer(false), navigate("/missing-person");
+                    }}
+                  >
+                    <ListItemText primary="View and edit Missing Persons" />
+                  </ListItemButton>
+                  ):(
+                  <ListItemButton
+                    sx={{ pl: 4 }}
+                    onClick={() => {
+                      setOpenDrawer(false), navigate("/missing-person");
+                    }}
+                  >
+                    <ListItemText primary="View Missing Persons" />
+                  </ListItemButton>
+                  ))}
+                </List>
+              </Collapse>
+            </>
+          )}
 
           {/* Other List Items */}
           {isLoggedIn ? (
