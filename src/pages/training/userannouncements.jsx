@@ -24,7 +24,7 @@ import {
   CheckCircle
 } from "@mui/icons-material";
 import userAnnouncementsBackground from "../../../public/assets/background_image/world-map-background.jpg";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 import "../../../public/css/EventListing.css"; // Ensure this path is correct
 import Footer from "../../components/Footer"; // Ensure this path is correct
@@ -37,7 +37,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
   const initialIsRegistered = !!event.is_current_user_interested;
   const [isRegistered, setIsRegistered] = useState(initialIsRegistered);
   const [loading, setLoading] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false); 
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const newIsRegistered = !!event.is_current_user_interested;
@@ -50,7 +50,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
     console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal called for event: ${event?.id}. CurrentUser exists: ${!!currentUser}, IsAlreadyRegistered: ${isRegistered}`);
     if (!currentUser) {
       console.warn(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - No current user (user_id not available). Displaying login prompt.`);
-      setShowLoginPrompt(true); 
+      setShowLoginPrompt(true);
       return;
     }
     if (isRegistered) {
@@ -58,7 +58,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
       return;
     }
 
-    setShowLoginPrompt(false); 
+    setShowLoginPrompt(false);
     console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleRegisterInternal - Setting loading to true for event ${event?.id}`);
     setLoading(true);
     try {
@@ -85,7 +85,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
       return;
     }
 
-    setShowLoginPrompt(false); 
+    setShowLoginPrompt(false);
     console.log(`[${EVENT_DISPLAY_CARD_COMPONENT_NAME}] handleUnregisterInternal - Setting loading to true for event ${event?.id}`);
     setLoading(true);
     try {
@@ -114,11 +114,11 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
 
   const getImage = () => {
     if (event.event_type === "Seminar" || event.event_type === "Conference" || event.event_type === "Networking") {
-      return "/assets/Event Images/seminar.jpg";
+      return "/assets/Event Images/seminar1.webp";
     } else if (event.event_type === "Workshop") {
-      return "/assets/Event Images/workshop.jpg";
+      return "/assets/Event Images/Workshops-22.jpg";
     } else {
-      return "/assets/Event Images/onlineMeeting.webp";
+      return "/assets/Event Images/webinar.jpg";
     }
   };
 
@@ -168,8 +168,8 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
               sx={{
                 minWidth: '150px',
                 transition: 'all 0.3s ease',
-                textTransform: 'uppercase', 
-                py: 1.5, 
+                textTransform: 'uppercase',
+                py: 1.5,
                 fontWeight: 500, // Match "Register" button
                 color: theme.palette.error.main, // Use red for unregister
                 borderColor: theme.palette.error.main, // Add border for distinction if not filled
@@ -188,15 +188,15 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
           ) : (
             <Button
               size="small"
-              disabled={loading} 
+              disabled={loading}
               onClick={handleRegisterInternal}
               sx={{
                 minWidth: '150px',
                 transition: 'all 0.3s ease',
-                textTransform: 'uppercase', 
-                py: 1.5, 
+                textTransform: 'uppercase',
+                py: 1.5,
                 fontWeight: 500,
-                color: theme.palette.success.main, 
+                color: theme.palette.success.main,
               }}
             >
               {loading ? (
@@ -209,7 +209,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
           {showLoginPrompt && ( // Display prompt only if showLoginPrompt is true
             <Typography variant="caption" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
               Please login to register.
-              <Button size="small" onClick={onLoginRedirect} sx={{ml: 0.5, p:0, textTransform: 'none', fontSize: '0.75rem', color: theme.palette.primary.main, '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline'}}}>Login</Button>
+              <Button size="small" onClick={onLoginRedirect} sx={{ ml: 0.5, p: 0, textTransform: 'none', fontSize: '0.75rem', color: theme.palette.primary.main, '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' } }}>Login</Button>
             </Typography>
           )}
         </Box>
@@ -222,14 +222,14 @@ const PAGE_COMPONENT_NAME = "UserAnnouncementsPage";
 
 export default function UserAnnouncementsPage() {
   console.log(`[${PAGE_COMPONENT_NAME}] Rendering or re-rendering...`);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const [announcements, setAnnouncements] = useState([]);
   const [sort, setSort] = useState("newest");
   const [filter, setFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [userLocation, setUserLocation] = useState(null);
-  const [currentUser, setCurrentUser] = useState(undefined); 
+  const [currentUser, setCurrentUser] = useState(undefined);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
 
   const theme = useTheme();
@@ -250,7 +250,7 @@ export default function UserAnnouncementsPage() {
 
       if (!userString) {
         console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - No user string found. Setting currentUser and userLocation to null.`);
-        setCurrentUser(null); 
+        setCurrentUser(null);
         setUserLocation(null);
         return;
       }
@@ -258,23 +258,23 @@ export default function UserAnnouncementsPage() {
       const userDataFromStorage = JSON.parse(userString);
       console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Parsed userDataFromStorage:`, userDataFromStorage);
 
-      if (userDataFromStorage?.user_id) { 
+      if (userDataFromStorage?.user_id) {
         const CUser = { id: userDataFromStorage.user_id };
 
         if (userDataFromStorage.state && userDataFromStorage.district) {
-            CUser.state = userDataFromStorage.state;
-            CUser.district = userDataFromStorage.district;
-            setUserLocation({ state: userDataFromStorage.state, district: userDataFromStorage.district });
-            console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Full user data with location found. Setting currentUser:`, CUser, "and userLocation:", { state: CUser.state, district: CUser.district });
-        } else if (userDataFromStorage.state) { 
-            CUser.state = userDataFromStorage.state;
-            setUserLocation({ state: userDataFromStorage.state, district: null }); 
-            console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - User data with state only found. Setting currentUser:`, CUser, "and userLocation:", { state: CUser.state, district: null });
-        } else { 
-            setUserLocation(null);
-            console.warn(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - User ID found, but no location data. User will only see online events. Data:`, userDataFromStorage);
+          CUser.state = userDataFromStorage.state;
+          CUser.district = userDataFromStorage.district;
+          setUserLocation({ state: userDataFromStorage.state, district: userDataFromStorage.district });
+          console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Full user data with location found. Setting currentUser:`, CUser, "and userLocation:", { state: CUser.state, district: CUser.district });
+        } else if (userDataFromStorage.state) {
+          CUser.state = userDataFromStorage.state;
+          setUserLocation({ state: userDataFromStorage.state, district: null });
+          console.log(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - User data with state only found. Setting currentUser:`, CUser, "and userLocation:", { state: CUser.state, district: null });
+        } else {
+          setUserLocation(null);
+          console.warn(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - User ID found, but no location data. User will only see online events. Data:`, userDataFromStorage);
         }
-        setCurrentUser(CUser); 
+        setCurrentUser(CUser);
 
       } else {
         console.warn(`[${PAGE_COMPONENT_NAME}] loadCurrentUserData - Parsed user data incomplete (missing user_id). Setting currentUser and userLocation to null. Data:`, userDataFromStorage);
@@ -301,17 +301,17 @@ export default function UserAnnouncementsPage() {
     console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Proceeding with registration for event ${eventId}. User ID: ${currentUser.id}`);
     try {
       const interestPayload = {
-        user_id_input: currentUser.id, 
-        event_id_input: eventId,       
-        interested: true               
+        user_id_input: currentUser.id,
+        event_id_input: eventId,
+        interested: true
       };
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - 1. Marking interest. Payload:`, interestPayload);
       const interestResponse = await fetch(
-        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/", 
+        "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/",
         {
-          method: "POST", 
+          method: "POST",
           headers: {
-            "Content-Type": "application/json", 
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(interestPayload)
         }
@@ -320,9 +320,9 @@ export default function UserAnnouncementsPage() {
       if (!interestResponse.ok) {
         let errorData = {};
         try {
-            errorData = await interestResponse.json();
+          errorData = await interestResponse.json();
         } catch (jsonError) {
-            errorData = { detail: `Interest API failed with status ${interestResponse.status} and no parseable JSON response.` };
+          errorData = { detail: `Interest API failed with status ${interestResponse.status} and no parseable JSON response.` };
         }
         console.error(`[${PAGE_COMPONENT_NAME}] handleRegister - Failed to register interest:`, errorData);
         throw new Error(errorData.detail || errorData.non_field_errors || `Failed to register interest. Status: ${interestResponse.status}`);
@@ -347,9 +347,9 @@ export default function UserAnnouncementsPage() {
       if (!updateResponse.ok) {
         let errorData = {};
         try {
-            errorData = await updateResponse.json();
+          errorData = await updateResponse.json();
         } catch (jsonError) {
-            errorData = { detail: `Update attendance API failed with status ${updateResponse.status} and no parseable JSON response.` };
+          errorData = { detail: `Update attendance API failed with status ${updateResponse.status} and no parseable JSON response.` };
         }
         console.error(`[${PAGE_COMPONENT_NAME}] handleRegister - Failed to update attendance:`, errorData);
         throw new Error(errorData.detail || `Failed to update attendance. Status: ${updateResponse.status}`);
@@ -359,12 +359,12 @@ export default function UserAnnouncementsPage() {
 
       console.log(`[${PAGE_COMPONENT_NAME}] handleRegister - Registration successful for event ${eventId}. Re-fetching all announcements to update state.`);
       setSnackbar({ open: true, message: "Successfully registered for the event!", severity: "success" });
-      await fetchAnnouncements(); 
+      await fetchAnnouncements();
       return true;
     } catch (error) {
       console.error(`[${PAGE_COMPONENT_NAME}] handleRegister - General error during registration for event ${eventId}:`, error.message);
       setSnackbar({ open: true, message: error.message || "Registration failed. Please try again.", severity: "error" });
-      fetchAnnouncements(); 
+      fetchAnnouncements();
       return false;
     }
   };
@@ -377,9 +377,9 @@ export default function UserAnnouncementsPage() {
       return false;
     }
     if (!interestRecordId) {
-        console.error(`[${PAGE_COMPONENT_NAME}] handleUnregister - Missing interest record ID. Cannot unregister.`);
-        setSnackbar({ open: true, message: "Error: Missing interest record ID. Cannot unregister.", severity: "error" });
-        return false;
+      console.error(`[${PAGE_COMPONENT_NAME}] handleUnregister - Missing interest record ID. Cannot unregister.`);
+      setSnackbar({ open: true, message: "Error: Missing interest record ID. Cannot unregister.", severity: "error" });
+      return false;
     }
 
     try {
@@ -387,9 +387,9 @@ export default function UserAnnouncementsPage() {
       const response = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/${interestRecordId}/`,
         {
-          method: "DELETE", 
+          method: "DELETE",
           headers: {
-            "Content-Type": "application/json", 
+            "Content-Type": "application/json",
             // No Authorization header as per AllowAny for this ViewSet 
           },
         }
@@ -404,9 +404,9 @@ export default function UserAnnouncementsPage() {
       } else {
         let errorData = {};
         try {
-            errorData = await response.json();
+          errorData = await response.json();
         } catch (jsonError) {
-            errorData = { detail: `Unregister API failed with status ${response.status} and no parseable JSON response.` };
+          errorData = { detail: `Unregister API failed with status ${response.status} and no parseable JSON response.` };
         }
         console.error(`[${PAGE_COMPONENT_NAME}] handleUnregister - Failed to delete interest:`, errorData);
         throw new Error(errorData.detail || `Failed to unregister. Status: ${response.status}`);
@@ -518,7 +518,7 @@ export default function UserAnnouncementsPage() {
       console.log(`[${PAGE_COMPONENT_NAME}] useEffect[currentUser] - currentUser is initialized (not undefined), re-fetching announcements.`);
       fetchAnnouncements(); 
     }
-  }, [currentUser]); 
+  }, [currentUser]);
 
   const sortedAndFilteredAnnouncements = () => {
     if (!announcements) {
@@ -657,12 +657,12 @@ export default function UserAnnouncementsPage() {
               No announcements available at the moment.
             </Typography>
             <Typography variant="body1" color="#555" sx={{ mt: 1 }}>
-              {!currentUser 
+              {!currentUser
                 ? "Please log in to register for events or set your profile location to see relevant offline events, or check back later."
-                : (!userLocation?.state 
-                    ? "Please update your profile to include your state and district to see relevant offline events."
-                    : `No events currently match your location (State: ${userLocation.state}, District: ${userLocation.district || 'N/A'}) or selected filters. Please check back later.`
-                  )
+                : (!userLocation?.state
+                  ? "Please update your profile to include your state and district to see relevant offline events."
+                  : `No events currently match your location (State: ${userLocation.state}, District: ${userLocation.district || 'N/A'}) or selected filters. Please check back later.`
+                )
               }
             </Typography>
           </Box>
@@ -676,7 +676,7 @@ export default function UserAnnouncementsPage() {
                     currentUser={currentUser}
                     onRegister={handleRegister}
                     onUnregister={handleUnregister} // Pass new unregister handler
-                    onLoginRedirect={handleLoginRedirect} 
+                    onLoginRedirect={handleLoginRedirect}
                   />
                 </Grid>
               );

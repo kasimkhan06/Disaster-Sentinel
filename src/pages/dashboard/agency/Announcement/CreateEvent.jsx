@@ -36,7 +36,10 @@ import {
   TextareaAutosize,
   Divider,
   Alert,
+  CircularProgress,
 } from "@mui/material";
+
+// React Router Components  
 import {
   Add,
   Delete
@@ -68,24 +71,50 @@ export default function EventFormWithStepper() {
   ]);
   const [errors, setErrors] = useState({});
   const [user, setUser] = useState(null);
-  const [isLogin, setIsLogin] = useState(false);
+  const [isNotLoggedIn, setIsNotLoggedIn] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
+
   const navigate = useNavigate();
   const location = useLocation();
   const formatTime = (time) => (time.length === 5 ? time + ":00" : time);
-  const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
   const theme = useTheme();
   const isBelow = useMediaQuery(theme.breakpoints.down("md"));
   const isMobile = useMediaQuery("(max-width:600px)");
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setIsLogin(true);
-      console.log("User data:", storedUser);
+    try {
+      const storedUserDetails = localStorage.getItem("user");
+      const userFromStorage = JSON.parse(storedUserDetails);
+
+      if (userFromStorage && userFromStorage.email) {
+        setUser(userFromStorage);
+        setIsAuthenticated(true);
+        setIsNotLoggedIn(false);
+      } else {
+        localStorage.removeItem("user");
+        setIsAuthenticated(false);
+        setIsNotLoggedIn(true);
+      }
+    } catch (parseError) {
+      console.error("Error parsing user from localStorage:", parseError);
+      localStorage.removeItem("user");
+      setIsAuthenticated(false);
+      setIsNotLoggedIn(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (isNotLoggedIn && !isAuthenticated && !user) {
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
+      console.log("redirectAfterLogin", window.location.pathname);
+      setIsNotLoggedIn(true);
+      setIsAuthenticated(false);
+      navigate("/login");
+      return;
+    }
+  }, [isNotLoggedIn, isAuthenticated, navigate]);
+
 
   const [formData, setFormData] = useState({
     name: "",

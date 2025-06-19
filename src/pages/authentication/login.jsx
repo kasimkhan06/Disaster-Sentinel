@@ -22,6 +22,7 @@ const Login = ({ setIsLoggedIn }) => {
     email: "",
     password: "",
   });
+
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -131,7 +132,8 @@ const Login = ({ setIsLoggedIn }) => {
                   "Agency data found, navigating to agency dashboard."
                 );
                 // navigate("/agency-dashboard");
-                window.location.assign("/agency-dashboard");
+                window.location.assign(redirectPath || "/agency-dashboard");
+
               } else {
                 console.error(
                   "Agency details not found for user ID:",
