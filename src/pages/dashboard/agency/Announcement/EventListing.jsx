@@ -46,7 +46,7 @@ export default function EventListing() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState("");
   const isBelow = useMediaQuery("(max-width:1470px)");
   const [isLoading, setIsLoading] = useState(false);
   const [deletedEvents, setDeletedEvents] = useState([]);
@@ -260,67 +260,73 @@ export default function EventListing() {
                       position: "relative",
                     }}
                   >
-                    <InputLabel
-                      id="filter-select-label"
-                      sx={{
-                        position: "absolute",
-                        top: -10,
-                        left: 8,
-                        fontSize: "0.75rem",
-                        padding: "0 4px",
-                        backgroundColor: "white",
-                      }}
-                    >
-                      Filter By
-                    </InputLabel>
                     <Select
-                      labelId="filter-select-label"
-                      id="filter-select-input"
+                      displayEmpty
+                      label="Filter By"
                       value={filter}
                       onChange={(e) => setFilter(e.target.value)}
+                      renderValue={(selected) => {
+                        if (!selected) {
+                          return <em>Filter By</em>;
+                        }
+                        switch (selected) {
+                          case "all":
+                            return <em style={{ color: "gray" }}>Filter By</em>;
+                          case "online":
+                            return "Online Events";
+                          case "offline":
+                            return "Offline Events";
+                          default:
+                            return <em>Filter By</em>;
+                        }
+                      }}
                       sx={{
                         "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                         "& .MuiSelect-select": { padding: "10px 14px" },
                         fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                        color: filter ? "inherit" : "gray",
                       }}
                     >
                       <MenuItem value="all">All Events</MenuItem>
-                      <MenuItem value="online">Online</MenuItem>
-                      <MenuItem value="offline">Offline</MenuItem>
+                      <MenuItem value="online">Online Events</MenuItem>
+                      <MenuItem value="offline">Offline Events</MenuItem>
                     </Select>
                   </FormControl>
 
-                  {/* Sort Dropdown */}
                   <FormControl
                     sx={{
                       minWidth: 140,
                       backgroundColor: "white",
                       boxShadow: "2px 2px 2px #E8F1F5",
-                      position: "relative",
                     }}
                   >
-                    <InputLabel
-                      id="sort-select-label"
-                      sx={{
-                        position: "absolute",
-                        top: -10,
-                        left: 8,
-                        fontSize: "0.75rem",
-                        padding: "0 4px",
-                        backgroundColor: "white",
-                      }}
-                    >
-                      Sort By
-                    </InputLabel>
                     <Select
-                      labelId="sort-select-label"
-                      id="sort-select-input"
+                      displayEmpty
+                      label="Sort By"
                       value={sort}
                       onChange={(e) => setSort(e.target.value)}
+                      renderValue={(selected) => {
+                        if (!selected) {
+                          return <em>Sort By</em>;
+                        }
+                        switch (selected) {
+                          case "newest":
+                            return "Newest First";
+                          case "oldest":
+                            return "Oldest First";
+                          case "nameAZ":
+                            return "Name A-Z";
+                          case "nameZA":
+                            return "Name Z-A";
+                          default:
+                            return <em>Sort By</em>;
+                        }
+                      }}
                       sx={{
                         "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                         "& .MuiSelect-select": { padding: "10px 14px" },
                         fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                        color: sort ? "inherit" : "gray",
                       }}
                     >
                       <MenuItem value="newest">Newest First</MenuItem>
