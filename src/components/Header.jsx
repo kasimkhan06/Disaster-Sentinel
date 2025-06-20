@@ -377,7 +377,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                     onClick={() => handleNavigation("/missing-person")}
                     sx={{ width: "100%" }}
                   >
-                    View and edit Missing Persons
+                    Edit Missing Persons
                   </MenuItem>
                   ) : (
                   <MenuItem
