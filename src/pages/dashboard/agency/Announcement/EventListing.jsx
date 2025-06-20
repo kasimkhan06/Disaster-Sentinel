@@ -53,6 +53,9 @@ export default function EventListing() {
   const [userID, setUserID] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isNotLoggedIn, setIsNotLoggedIn] = useState(false);
+
   const theme = useTheme();
   const location = useLocation();
 
@@ -62,19 +65,28 @@ export default function EventListing() {
     if (user) {
       const parsedData = JSON.parse(user);
       setUserID(parsedData.user_id);
-      setIsLoggedIn(true);
+      setIsAuthenticated(true);
+      setIsNotLoggedIn(false);
     } else {
-      setIsLoggedIn(false);
-      navigate("/login");
+      console.log("No user data found in localStorage");
+      setIsNotLoggedIn(true);
+      setIsAuthenticated(false);
+      setIsLoading(true);
     }
-  }, [navigate]);
+  }, []);
 
   // Fetch events when the component mounts
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchEvents();
+    if (isNotLoggedIn && !isAuthenticated) {
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
+      console.log("redirectAfterLogin", window.location.pathname);
+      setIsNotLoggedIn(true);
+      setIsAuthenticated(false);
+      navigate("/login");
+      return;
     }
-  }, [isLoggedIn]);
+    fetchEvents();
+  }, [isNotLoggedIn, isAuthenticated, navigate]);
 
   // Function to fetch events (used initially and for refreshing)
   const fetchEvents = async () => {
@@ -148,24 +160,6 @@ export default function EventListing() {
 
     return eventsCopy;
   };
-
-  // Render login message if not logged in
-  if (!isLoggedIn) {
-    return (
-      <Box sx={{ textAlign: "center", mt: 5 }}>
-        <Typography variant="h5" sx={{ mb: 2, color: "gray" }}>
-          Please login to view the announcements.
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/login")}
-        >
-          Go to Login
-        </Button>
-      </Box>
-    );
-  }
 
   return (
     <Box
