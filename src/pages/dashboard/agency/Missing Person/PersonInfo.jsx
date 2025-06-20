@@ -31,6 +31,7 @@ import {
 import { useParams, useLocation } from "react-router-dom";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import { useNavigate } from "react-router-dom";
+import Footer from "../../../../components/Footer";
 
 const FoundForm = ({ open, handleClose, personId }) => {
 
@@ -270,7 +271,7 @@ function PersonInfo() {
                     alignItems: "center",
                     minHeight: "100vh",
                     px: { xs: 2, sm: 3, md: 5 },
-                    mt: { xs: 4, sm: 6, md: 0 },
+                    mt: { xs: 4, sm: 6, md: -3 },
                     overflowX: "hidden",
                 }}
             >
@@ -331,12 +332,11 @@ function PersonInfo() {
                                 }}
                             >
                                 {[
-                                    { label: "Name", value: person.name, icon: <Person sx={{ color: "#5C6BC0" }} /> },
+                                    { label: "Name", value: person.name.toUpperCase(), icon: <Person sx={{ color: "#5C6BC0" }} /> },
                                     { label: "Age", value: person.age, icon: <CalendarToday sx={{ color: "#42A5F5" }} /> },
                                     { label: "Gender", value: person.gender, icon: <Wc sx={{ color: "#26A69A" }} /> },
                                     { label: "Missing Date", value: `${getMissingDate(person.missingDate).date} at ${getMissingDate(person.missingDate).time}`, icon: <History sx={{ color: "#1E88E5" }} /> },
-                                    { label: "Last Seen", value: person.lastSeenLocation.split(",").slice(0, 2).join(", "), icon: <LocationOn sx={{ color: "#E57373" }} /> },
-                                    { label: "Address", value: person.lastSeenLocation, icon: <Home sx={{ color: "#8D6E63" }} /> },
+                                    { label: "Last Seen", value: person.lastSeenLocation, icon: <LocationOn sx={{ color: "#E57373" }} /> },
                                     { label: "Identification Mark", value: person.identification_marks, icon: <Visibility sx={{ color: "#FBC02D" }} /> },
                                     { label: "Description", value: person.description, icon: <Description sx={{ color: "#757575" }} /> },
                                 ].map((item, index) => (
@@ -385,6 +385,11 @@ function PersonInfo() {
                 </Button>
                 <FoundForm open={open} handleClose={handleClose} personId={id} />
             </Box>
+            <Grid container xs={12} sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: -10 }}>
+                <Grid item xs={12} md={10} sx={{ textAlign: "center" }}>
+                    <Footer />
+                </Grid>
+            </Grid>
         </Box>
     );
 }

@@ -5,14 +5,16 @@ import {
   Typography,
   Container,
   Box,
-  CardActionArea,
   Grid,
   useMediaQuery,
   Autocomplete,
   TextField,
   InputLabel,
   InputAdornment,
-  Button,
+  FormControl,
+  Select,
+  MenuItem,
+  Pagination,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useTheme } from "@mui/material/styles";
@@ -27,7 +29,8 @@ function MissingPerson() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
-  const mapRef = useRef(); // declared in parent and passed as prop
+  const mapRef = useRef();
+  const personsPerPage = 4;
 
   const [missingPersons, setMissingPersons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +38,6 @@ function MissingPerson() {
   const mapContainerRef = useRef(null);
   const [userRole, setUserRole] = useState(null);
   const [userID, setUserID] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [agency, setAgency] = useState(null);
   const [selectiveMissingPersons, setSelectiveMissingPersons] = useState([]);
   const [selectedState, setSelectedState] = useState("");
@@ -46,6 +48,11 @@ function MissingPerson() {
   const [searchName, setSearchName] = useState(null);
   const isBelow = useMediaQuery(theme.breakpoints.down("md"));
   const [userPermissions, setUserPermissions] = useState(null);
+  const [personPage, setPersonPage] = useState(1);
+  const [isNotLoggedIn, setIsNotLoggedIn] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
+
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -69,9 +76,25 @@ function MissingPerson() {
       }
       console.log("User State1:", selectedState);
       console.log("User Data:", parsedData);
-      setIsLoggedIn(true);
+      setIsAuthenticated(true);
+      setIsNotLoggedIn(false);
+    } else {
+      console.log("No user data found in localStorage");
+      setIsNotLoggedIn(true);
+      setIsAuthenticated(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (isNotLoggedIn && !isAuthenticated) {
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
+      console.log("redirectAfterLogin", window.location.pathname);
+      setIsNotLoggedIn(true);
+      setIsAuthenticated(false);
+      navigate("/login");
+      return;
+    }
+  }, [isNotLoggedIn, isAuthenticated, navigate]);
 
   useEffect(() => {
     const fetchExcelFile = async () => {
@@ -144,16 +167,28 @@ function MissingPerson() {
   }, [selectedState, stateDistricts]);
 
   const handleDistrictChange = (event, value) => {
-    setSelectedDistrict(value || "");
+    console.log("Selected District:", value.props);
+    const val = value.props.value;
+    setSelectedDistrict(val || "");
 
-    if (value && selectedState) {
-      const filtered = missingPersons.filter(
-        (person) =>
-          person.state?.toLowerCase() === selectedState.toLowerCase() &&
-          person.district?.toLowerCase() === value.toLowerCase() &&
-          person.is_found === false
-      );
-      setSelectiveMissingPersons(filtered);
+    if (val && selectedState) {
+
+      if (val === "all") {
+        setSelectedDistrict(""); // Reset district if "all" is selected
+        setSelectiveMissingPersons(missingPersons.filter(
+          (person) =>
+            person.state?.toLowerCase() === selectedState.toLowerCase() &&
+            person.is_found === false
+        ));
+      } else {
+        const filtered = missingPersons.filter(
+          (person) =>
+            person.state?.toLowerCase() === selectedState.toLowerCase() &&
+            person.district?.toLowerCase() === val.toLowerCase() &&
+            person.is_found === false
+        );
+        setSelectiveMissingPersons(filtered);
+      }
     } else if (agency?.district && agency?.state) {
       const fallbackFiltered = missingPersons.filter(
         (person) =>
@@ -280,12 +315,13 @@ function MissingPerson() {
   }, [selectiveMissingPersons]);
 
   const handlePersonSearch = (name) => {
+    console.log("Search Name:", name);
     setSearchName(name);
 
-    const foundPerson = missingPersons.find((p) => p.full_name === name);
+    const foundPerson = selectiveMissingPersons.find((p) => p.full_name.toUpperCase() === name);
     if (foundPerson) {
       setSelectedPerson(foundPerson); // highlights person card
-      scrollToMap(); // optional scroll helper
+      scrollToMap();
       flyToPerson(foundPerson); // animate map fly
     }
   };
@@ -306,6 +342,10 @@ function MissingPerson() {
         block: "center",
       });
     }
+  };
+
+  const handlePersonPageChange = (event, value) => {
+    setPersonPage(value);
   };
 
   return (
@@ -393,17 +433,16 @@ function MissingPerson() {
                   }}
                 >
                   <Autocomplete
-                    options={missingPersons
+                    options={selectiveMissingPersons
                       .filter((p) => !p.is_found)
-                      .map((p) => p.full_name)}
-                    value={searchName}
+                      .map((p) => p.full_name.toUpperCase())}
+                    value={searchName ? searchName.toUpperCase() : null}
                     onChange={(e, value) => handlePersonSearch(value)}
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         label="Search Name"
                         variant="outlined"
-                        fullWidth
                         sx={{
                           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                           "&:hover": {
@@ -442,72 +481,52 @@ function MissingPerson() {
               >
                 <Box
                   sx={{
-                    display: "flex",
-                    justifyContent: {
-                      xs: "center",
-                      md: "center",
-                      lg: "flex-end",
-                    },
-                    flexWrap: "wrap",
-                    gap: 2,
+                    minWidth: 140,
+                    backgroundColor: "white",
+                    boxShadow: "2px 2px 2px #E8F1F5",
+                    position: "relative",
+                    paddingX: 1,
+                    borderRadius: 1,
                   }}
                 >
-                  {/* Filter Dropdown */}
-                  <Box
-                    sx={{
-                      minWidth: 160,
-                      backgroundColor: "white",
-                      boxShadow: "2px 2px 2px #E8F1F5",
-                      position: "relative",
-                    }}
-                  >
-                    <InputLabel
-                      id="filter-select-label"
-                      sx={{
-                        position: "absolute",
-                        top: -10,
-                        left: 8,
-                        fontSize: "0.75rem",
-                        padding: "0 4px",
-                        backgroundColor: "white",
-                      }}
-                    >
-                      District
-                    </InputLabel>
-                    <Autocomplete
-                      options={districts}
+                  <FormControl fullWidth>
+                    <Select
+                      labelId="district-select-label"
                       value={
                         districts.includes(selectedDistrict)
                           ? selectedDistrict
                           : null
                       }
                       onChange={handleDistrictChange}
-                      isOptionEqualToValue={(option, value) =>
-                        option === value || value === ""
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="standard"
-                          error={!!errors.district}
-                          placeholder="Select District"
-                          InputProps={{
-                            ...params.InputProps,
-                            disableUnderline: true,
-                          }}
-                        />
-                      )}
-                      size="small"
+                      displayEmpty
+                      renderValue={(selected) => {
+                        if (!selected || selected === "all") {
+                          return <em style={{ color: "gray" }}>District</em>;
+                        }
+                        return selected;
+                      }}
                       sx={{
-                        width: "100%",
-                        mt: 1,
-                        "& .MuiAutocomplete-inputRoot": {
-                          padding: "4px 6px",
+                        border: "none",
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        },
+                        "& .MuiSelect-select": {
+                          padding: "10px 14px",
                         },
                         fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
+                        color: selectedDistrict ? "inherit" : "gray",
                       }}
-                    />
-                  </Box>
+                    >
+                      <MenuItem value="all">
+                        <em>All Districts</em>
+                      </MenuItem>
+                      {districts.map((district, idx) => (
+                        <MenuItem key={idx} value={district}>
+                          {district}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Box>
               </Grid>
             </Grid>
@@ -571,79 +590,112 @@ function MissingPerson() {
             </Box>
           </Grid>
 
-          {/* Person Cards */}
           <Grid item xs={12} md={12} lg={4} sx={{ height: "100%", mx: "auto" }}>
             <Card
               elevation={3}
-              sx={{ height: 500, overflowY: "auto", borderRadius: 3 }}
+              sx={{
+                height: 500,
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: 3,
+              }}
             >
-              <CardContent>
+              {/* Scrollable Content */}
+              <CardContent
+                sx={{
+                  flex: 1,
+                  overflowY: "auto",
+                  paddingBottom: 0, // so that content doesn't get hidden under pagination
+                }}
+              >
                 {loading ? (
                   <Typography align="center">Loading data...</Typography>
                 ) : missingPersons.length === 0 ? (
-                  <Typography align="center">
-                    No missing persons found.
-                  </Typography>
+                  <Typography align="center">No missing persons found.</Typography>
                 ) : (
                   <Grid container spacing={2}>
-                    {topPersonsByType.map((person) => (
-                      <Grid item xs={12} key={person.id}>
-                        <Card
-                          onClick={() => setSelectedPerson(person)}
-                          sx={{
-                            backgroundColor: "#F8FAFB",
-                            display: "flex",
-                            alignItems: "center",
-                            p: 2,
-                            cursor: "pointer",
-                            "&:hover": {
-                              boxShadow: 4,
-                              transform: "scale(1.02)",
-                            },
-                            transition: "0.2s",
-                          }}
-                        >
-                          <Box
-                            component="img"
-                            src={
-                              person.person_photo
-                                ? `https://res.cloudinary.com/doxgltggk/${person.person_photo}`
-                                : "/assets/person.png"
-                            }
-                            alt={person.full_name}
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              borderRadius: "50%",
-                              objectFit: "cover",
-                              mr: 2,
-                              boxShadow: 1,
+                    {topPersonsByType
+                      .slice((personPage - 1) * personsPerPage, personPage * personsPerPage)
+                      .map((person) => (
+                        <Grid item xs={12} key={person.id}>
+                          <Card
+                            onClick={() => {
+                              setSelectedPerson(person);
+                              flyToPerson(person);
+                              scrollToMap();
                             }}
-                          />
-                          <Box>
-                            <Typography fontWeight="bold">
-                              {person.full_name.toUpperCase()}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Missing: {getMissingDate(person.created_at).date}{" "}
-                              at {getMissingDate(person.created_at).time}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Location:{" "}
-                              {person.last_seen_location
-                                .split(",")
-                                .slice(0, 2)
-                                .join(", ")}
-                            </Typography>
-                          </Box>
-                        </Card>
-                      </Grid>
-                    ))}
+                            sx={{
+                              backgroundColor: "#F8FAFB",
+                              display: "flex",
+                              alignItems: "center",
+                              p: 2,
+                              cursor: "pointer",
+                              "&:hover": {
+                                boxShadow: 4,
+                                transform: "scale(1.02)",
+                              },
+                              transition: "0.2s",
+                            }}
+                          >
+                            <Box
+                              component="img"
+                              src={
+                                person.person_photo
+                                  ? `https://res.cloudinary.com/doxgltggk/${person.person_photo}`
+                                  : "/assets/person.png"
+                              }
+                              alt={person.full_name}
+                              sx={{
+                                width: 60,
+                                height: 60,
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                mr: 2,
+                                boxShadow: 1,
+                              }}
+                            />
+                            <Box>
+                              <Typography fontWeight="bold">
+                                {person.full_name.toUpperCase()}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Missing: {getMissingDate(person.created_at).date} at{" "}
+                                {getMissingDate(person.created_at).time}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Location:{" "}
+                                {person.last_seen_location
+                                  .split(",")
+                                  .slice(0, 2)
+                                  .join(", ")}
+                              </Typography>
+                            </Box>
+                          </Card>
+                        </Grid>
+                      ))}
                   </Grid>
                 )}
               </CardContent>
+
+              {/* Pagination at Bottom of Card */}
+              {topPersonsByType.length > 0 && (
+                <Box
+                  sx={{
+                    p: 1,
+                    backgroundColor: "#fff",
+                  }}
+                >
+                  <Pagination
+                    count={Math.ceil(topPersonsByType.length / personsPerPage)}
+                    page={personPage}
+                    onChange={handlePersonPageChange}
+                    sx={{ display: "flex", justifyContent: "center" }}
+                  />
+                </Box>
+              )}
             </Card>
           </Grid>
+
         </Grid>
       </Container>
       <Footer />
