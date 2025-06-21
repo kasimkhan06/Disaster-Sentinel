@@ -181,9 +181,9 @@ const Login = ({ setIsLoggedIn }) => {
     navigate("/register");
   };
 
-  const handleVeri = () => {
-    navigate("/verification");
-  };
+  // const handleVeri = () => {
+  //   navigate("/verification");
+  // };
 
   // --- Scroll to Top on Mount ---
   useEffect(() => {
@@ -336,9 +336,9 @@ const Login = ({ setIsLoggedIn }) => {
               <Button variant="text" onClick={handleRegister}>
                 Register
               </Button>
-              <Button variant="text" onClick={handleVeri}>
+              {/* <Button variant="text" onClick={handleVeri}>
                 Veri
-              </Button>
+              </Button> */}
             </Typography>
           </Box>
         </Box>

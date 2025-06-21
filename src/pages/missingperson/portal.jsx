@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Grid from "@mui/material/Grid2"; // Original import
+import Grid from "@mui/material/Grid2";
 import {
   Container,
   Typography,
@@ -8,28 +8,37 @@ import {
   Card,
   CircularProgress,
   Input,
-  // InputAdornment, // Not used in this component's JSX based on original
-  // IconButton, // Not used in this component's JSX based on original
   Button,
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import worldMapBackground from "/assets/background_image/world-map-background.jpg"; // Ensure this path is correct
-import MissingPersonForm from "../missingperson/form"; // Ensure this path is correct
-import InteractiveMap from "../../components/InteractiveMap"; // Ensure this path is correct
-import Footer from "../../components/Footer"; // Ensure this path is correct
-// import SearchIcon from "@mui/icons-material/Search"; // Not used in this component's JSX based on original
+import worldMapBackground from "/assets/background_image/world-map-background.jpg";
+import MissingPersonForm from "../missingperson/form";
+import InteractiveMap from "../../components/InteractiveMap";
+import Footer from "../../components/Footer";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useNavigate } from "react-router-dom"; 
 
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com";
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/doxgltggk/";
 
 const MissingPersonPortal = () => {
+  const navigate = useNavigate();
   const theme = useTheme();
-  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm")); // Retained from original
+  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const initialFormData = { // Retained from original
+  // State for authentication status
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true); // To indicate if auth check is ongoing
+
+  // Function to handle redirection to login
+  const handleLoginRedirect = () => {
+    localStorage.setItem("redirectAfterLogin", window.location.pathname);
+    navigate("/login");
+  };
+
+  const initialFormData = {
     name: "",
     age: "",
     gender: "",
@@ -59,17 +68,44 @@ const MissingPersonPortal = () => {
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // useEffect, handleInputChange, handleFileChange, handleCaptchaVerify, searchMapLocation, handleSubmit logic
-  // is assumed to be largely the same as your original working logic for functionality,
-  // as the request is about CSS and the overlap fix. The versions from the prior "fixed" example are robust.
-  // For brevity here, I'll include the function signatures and a comment.
-  // Please ensure you use your complete, tested JS logic for these handlers.
+  // Effect to check authentication status from localStorage
+  useEffect(() => {
+    try {
+      const storedUserDetails = localStorage.getItem("user");
+      if (storedUserDetails) {
+        const userFromStorage = JSON.parse(storedUserDetails);
+        if (userFromStorage && userFromStorage.email) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem("user");
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (parseError) {
+      console.error("Error parsing user details from localStorage:", parseError);
+      localStorage.removeItem("user");
+      setIsAuthenticated(false);
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
 
-  // --- Scroll to Top on Mount ---
+
+  useEffect(() => {
+    if (statusMessage.text) {
+      const timer = setTimeout(() => {
+        setStatusMessage({ type: "", text: "" });
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  // --- End Scroll to Top ---
 
   useEffect(() => {
     const photoPreviewUrl = imagePreviews.photo;
@@ -200,6 +236,14 @@ const MissingPersonPortal = () => {
   };
 
   const searchMapLocation = useCallback(async () => {
+    if (!isAuthenticated) {
+      setStatusMessage({
+        type: "error",
+        text: "Please log in to search for locations on the map.",
+      });
+      return;
+    }
+
     const query = formData.lastSeenPlace?.trim();
     if (!query) {
       setStatusMessage({
@@ -251,7 +295,7 @@ const MissingPersonPortal = () => {
     } finally {
       setIsSearchingLocation(false);
     }
-  }, [formData.lastSeenPlace, errors.location]);
+  }, [formData.lastSeenPlace, errors.location, isAuthenticated]);
 
 
   const handleSubmit = async (e) => {
@@ -263,19 +307,27 @@ const MissingPersonPortal = () => {
     const fieldsToRevalidate = ['name', 'age', 'gender', 'description', 'location', 'state', 'district', 'contactInfo', 'photo', 'captcha', 'reporter'];
     fieldsToRevalidate.forEach(field => delete validationErrors[field]);
 
+    // Pre-check for authentication
+    if (!isAuthenticated) {
+      setStatusMessage({
+        type: "error",
+        text: "You must be logged in to submit a report.",
+      });
+      return;
+    }
 
     if (!formData.name.trim()) validationErrors.name = "Name is required.";
     if (!formData.age) {
-        validationErrors.age = "Age is required.";
+      validationErrors.age = "Age is required.";
     } else if (isNaN(formData.age) || Number(formData.age) <= 0) {
-        validationErrors.age = "Invalid age.";
+      validationErrors.age = "Invalid age.";
     }
     if (!formData.gender) validationErrors.gender = "Gender is required.";
     if (!formData.description.trim())
       validationErrors.description = "Description is required.";
 
     if (!formData.lastSeenPlace.trim()) {
-        validationErrors.location = (validationErrors.location || "") + "Last seen location text is required.";
+      validationErrors.location = (validationErrors.location || "") + "Last seen location text is required.";
     }
     if (!formData.lastSeen) {
       validationErrors.location =
@@ -285,8 +337,6 @@ const MissingPersonPortal = () => {
     if (!formData.state) validationErrors.state = "State is required.";
     if (formData.state && !formData.district)
       validationErrors.district = "District is required.";
-    // if (!formData.disasterType)
-    //   validationErrors.disasterType = "Disaster type is required.";
     if (!formData.contactInfo.trim())
       validationErrors.contactInfo =
         "Contact information for updates is required.";
@@ -438,8 +488,8 @@ const MissingPersonPortal = () => {
 
 
   return (
-    <Box // Overall page wrapper
-      sx={{ // Original sx from your code
+    <Box
+      sx={{
         position: "absolute",
         top: 0,
         left: 0,
@@ -452,15 +502,15 @@ const MissingPersonPortal = () => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        backgroundRepeat: "repeat-y", // As per original
+        backgroundRepeat: "repeat-y",
         margin: 0,
-        padding: 0, // As per original
-        zIndex: 0, // As per original
+        padding: 0,
+        zIndex: 0,
       }}
     >
-      <Typography // Page Title
+      <Typography
         align="center"
-        sx={{ // Original sx from your code
+        sx={{
           mt: 10,
           p: 2,
           mb: 0.5,
@@ -473,54 +523,63 @@ const MissingPersonPortal = () => {
         Report a Missing Person
       </Typography>
 
-      <Container // Main content container
+      <Container
         maxWidth={false}
-        sx={{ // Original sx from your code
+        sx={{
           mt: 1,
           mb: 4,
           width: { xs: "100%", sm: "90%", md: "85%", lg: "75%" },
-          padding: 0, // As per original
+          padding: 0,
           marginLeft: "auto",
           marginRight: "auto",
-          position: "relative", // As per original
+          position: "relative",
         }}
       >
         {statusMessage.text && (
           <Alert
             severity={statusMessage.type || "info"}
             onClose={() => setStatusMessage({ type: "", text: "" })}
-            sx={{ mb: 2 }} // Original sx
+            sx={{
+              mb: 2,
+              width: 'fit-content',
+              maxWidth: '90%',
+              mx: 'auto',
+              left: '50%',
+            }}
           >
             {statusMessage.text}
           </Alert>
         )}
 
-        {/* MODIFICATION START: Card structure changed for layout fix */}
+        {/* Informative message for unauthenticated users */}
+        {!authLoading && !isAuthenticated && (
+          <Alert severity="info" sx={{ mb: 2, mx: "auto", width: "fit-content", alignItems: "center" }}>
+            Please log in to submit a new missing person report.
+            <Button size="small" onClick={handleLoginRedirect} sx={{ ml: 0.5, p: 0, textTransform: 'none', fontSize: '0.75rem', color: theme.palette.primary.main, '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' } }}>LOGIN</Button>
+          </Alert>
+        )}
+
         <Card
           sx={{
-            p: { xs: 2, md: 3 }, // Original p from Card
-            borderRadius: 3, // Original borderRadius from Card
-            boxShadow: 3, // Original boxShadow from Card
+            p: { xs: 2, md: 3 },
+            borderRadius: 3,
+            boxShadow: 3,
             display: "flex",
-            flexDirection: "column", // MODIFIED: Ensures children stack vertically
-            // gap: { xs: 3, md: 4 }, // This gap was on the Card, now will be on the inner content Box
-            width: "100%", // Original width from Card
-            position: "relative", // Original position from Card
-            // pb: 10, // REMOVED: Padding was for the absolutely positioned element, no longer needed
+            flexDirection: "column",
+            width: "100%",
+            position: "relative",
           }}
         >
-          {/* Wrapper for the two main columns */}
           <Box
             sx={{
               display: "flex",
-              flexDirection: { xs: "column", md: "row" }, // Original flexDirection from Card for its content
-              gap: { xs: 3, md: 4 }, // Original gap from Card, now applied to content columns
-              width: "100%", // Ensure this wrapper takes full width
+              flexDirection: { xs: "column", md: "row" },
+              gap: { xs: 3, md: 4 },
+              width: "100%",
             }}
           >
-            {/* Left Column - Form Fields */}
             <Box
-              sx={{ // Original sx from your "Left Column" Box
+              sx={{
                 flex: { md: 1 },
                 width: { xs: "100%", md: "auto" },
                 display: "flex",
@@ -529,7 +588,7 @@ const MissingPersonPortal = () => {
             >
               <MissingPersonForm
                 formData={formData}
-                setFormData={setFormData} // Pass if MissingPersonForm needs it directly
+                setFormData={setFormData}
                 handleInputChange={handleInputChange}
                 errors={errors}
                 selectedState={selectedState}
@@ -538,24 +597,24 @@ const MissingPersonPortal = () => {
                 setSelectedDistrict={setSelectedDistrict}
                 searchMapLocation={searchMapLocation}
                 isSearchingLocation={isSearchingLocation}
+                isDisabled={!isAuthenticated || isSubmitting} // Pass isDisabled prop
               />
             </Box>
 
-            {/* Right Column - Map and Image Uploads */}
             <Box
-              sx={{ // Original sx from your "Right Column" Box
+              sx={{
                 flex: { md: 1 },
                 width: { xs: "100%", md: "auto" },
                 display: "flex",
                 flexDirection: "column",
-                gap: 2, // Original gap from this Box
+                gap: 2,
               }}
             >
               {/* Map Section */}
               <Box
-                sx={{ // Original sx from your "Map Section" Box
+                sx={{
                   marginTop: { xs: 2, md: 3 },
-                  width: "90%", // As per original
+                  width: "90%",
                   height: { xs: "300px", md: "400px" },
                   borderRadius: 1,
                   overflow: "hidden",
@@ -567,50 +626,53 @@ const MissingPersonPortal = () => {
                   setError={(mapError) =>
                     setStatusMessage({ type: "error", text: mapError })
                   }
+                  isDisabled={!isAuthenticated || isSubmitting} // Pass isDisabled to map
                 />
               </Box>
 
               {/* Image Upload Section */}
-              <Box sx={{ width: "80%", marginTop: 2 }}> {/* Original sx */}
-                <Grid container spacing={2} sx={{ alignItems: "center" }}> {/* Original sx */}
+              <Box sx={{ width: "80%", marginTop: 2 }}>
+                <Grid container spacing={2} sx={{ alignItems: "center" }}>
                   {/* Identity Card Upload */}
-                  <Grid item xs={12} sm={6}> {/* Original sx */}
-                    <Box sx={{ display: "flex", alignItems: "center" }}> {/* Original sx */}
-                      <Typography variant="subtitle1" sx={{ mr: 1 }}> {/* Original sx */}
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Typography variant="subtitle1" sx={{ mr: 1 }}>
                         Upload Identity Card:
                       </Typography>
                       <Input
                         type="file"
                         name="idCard"
                         onChange={handleFileChange}
-                        disableUnderline // Original prop
-                        sx={{ width: "calc(100% - 160px)" }} // Original sx
+                        disableUnderline
+                        sx={{ width: "calc(100% - 160px)" }}
+                        disabled={!isAuthenticated || isSubmitting} // Disabled if not logged in
                       />
                     </Box>
                     {errors.idCard && (
-                      <Typography color="error" variant="caption" sx={{ display: "block", mt: 0.5 }}> {/* Original sx */}
+                      <Typography color="error" variant="caption" sx={{ display: "block", mt: 0.5 }}>
                         {errors.idCard}
                       </Typography>
                     )}
                   </Grid>
 
                   {/* Photo Upload */}
-                  <Grid item xs={12} sm={6}> {/* Original sx */}
-                    <Box sx={{ display: "flex", alignItems: "center" }}> {/* Original sx */}
-                      <Typography variant="subtitle1" sx={{ mr: 1 }}> {/* Original sx */}
+                  <Grid item xs={12} sm={6}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Typography variant="subtitle1" sx={{ mr: 1 }}>
                         Photo*(JPEG/PNG):
                       </Typography>
                       <Input
                         type="file"
                         name="photo"
                         onChange={handleFileChange}
-                        required // Original prop
-                        disableUnderline // Original prop
-                        sx={{ width: "calc(100% - 160px)" }} // Original sx
+                        required
+                        disableUnderline
+                        sx={{ width: "calc(100% - 160px)" }}
+                        disabled={!isAuthenticated || isSubmitting} // Disabled if not logged in
                       />
                     </Box>
                     {errors.photo && (
-                      <Typography color="error" variant="caption" sx={{ display: "block", mt: 0.5 }}> {/* Original sx */}
+                      <Typography color="error" variant="caption" sx={{ display: "block", mt: 0.5 }}>
                         {errors.photo}
                       </Typography>
                     )}
@@ -620,34 +682,34 @@ const MissingPersonPortal = () => {
 
               {/* Image Previews */}
               {(imagePreviews.photo || imagePreviews.idCard) && (
-                <Box sx={{ mt: 3 }}> {/* Original sx */}
-                  <Typography variant="h6" sx={{ textTransform: "uppercase", fontSize: "1rem", fontWeight: 500, mb: 1, textAlign: "center" }}> {/* Original sx */}
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="h6" sx={{ textTransform: "uppercase", fontSize: "1rem", fontWeight: 500, mb: 1, textAlign: "center" }}>
                     Image Previews
                   </Typography>
-                  <Grid container spacing={1}> {/* Original sx */}
+                  <Grid container spacing={1}>
                     {imagePreviews.photo && (
-                      <Grid item xs={12} sm={6}> {/* Original sx */}
-                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}> {/* Original sx */}
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                           <img
                             src={imagePreviews.photo}
                             alt="Uploaded Photo Preview"
-                            style={{ width: "100%", minWidth: "225px", maxHeight: "200px", objectFit: "contain" }} // Original style
+                            style={{ width: "100%", minWidth: "225px", maxHeight: "200px", objectFit: "contain" }}
                           />
-                          <Typography variant="caption" sx={{ mt: 1 }}> {/* Original sx */}
+                          <Typography variant="caption" sx={{ mt: 1 }}>
                             Photo Preview
                           </Typography>
                         </Box>
                       </Grid>
                     )}
                     {imagePreviews.idCard && (
-                      <Grid item xs={12} sm={6}> {/* Original sx */}
-                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}> {/* Original sx */}
+                      <Grid item xs={12} sm={6}>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                           <img
                             src={imagePreviews.idCard}
                             alt="Uploaded ID Card Preview"
-                            style={{ width: "100%", minWidth: "225px", maxHeight: "200px", objectFit: "contain" }} // Original style
+                            style={{ width: "100%", minWidth: "225px", maxHeight: "200px", objectFit: "contain" }}
                           />
-                          <Typography variant="caption" sx={{ mt: 1 }}> {/* Original sx */}
+                          <Typography variant="caption" sx={{ mt: 1 }}>
                             ID Card Preview
                           </Typography>
                         </Box>
@@ -659,27 +721,24 @@ const MissingPersonPortal = () => {
             </Box>
           </Box>
 
-          {/* Centered reCAPTCHA and Submit Button - Now in Flow */}
+          {/* Centered reCAPTCHA and Submit Button */}
           <Box sx={{
-            // position: 'absolute', // REMOVED
-            // bottom: 16, // REMOVED
-            // left: 0, // REMOVED
-            // right: 0, // REMOVED
-            display: 'flex', // Original display
-            flexDirection: 'column', // Original flexDirection
-            alignItems: 'center', // Original alignItems
-            width: '100%', // Original width
-            mt: 4, // Original mt: This provides spacing from the content above
-            pb: 2, // Added some padding at the bottom of this section for better spacing
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '100%',
+            mt: 4,
+            pb: 2,
           }}>
             {/* reCAPTCHA */}
-            <Box sx={{ mb: 2 }}> {/* Original sx */}
+            <Box sx={{ mb: 2 }}>
               <ReCAPTCHA
-                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94"} // Use your actual key or env variable
+                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94"}
                 onChange={handleCaptchaVerify}
+                disabled={!isAuthenticated || isSubmitting} // Disabled if not logged in
               />
               {errors.captcha && (
-                <Typography color="error" variant="caption" sx={{ mt: 0.5, display: 'block', textAlign: 'center' }}> {/* Original sx */}
+                <Typography color="error" variant="caption" sx={{ mt: 0.5, display: 'block', textAlign: 'center' }}>
                   {errors.captcha}
                 </Typography>
               )}
@@ -687,10 +746,10 @@ const MissingPersonPortal = () => {
 
             {/* Submit Button */}
             <Button
-              disableRipple // Original prop
-              type="submit" // For form submission context, though handled by onClick
+              disableRipple
+              type="submit"
               onClick={handleSubmit}
-              sx={{ // Original sx from your code
+              sx={{
                 height: { md: 52 },
                 paddingY: "9px",
                 px: 5,
@@ -698,17 +757,22 @@ const MissingPersonPortal = () => {
                 fontWeight: 800,
                 "&:hover": { backgroundColor: "white" }
               }}
+              disabled={!isAuthenticated || isSubmitting} // Disabled if not logged in
             >
-              {isSubmitting ? "Submitting..." : "Submit Report"}
+              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Submit Report"}
             </Button>
+            {errors.reporter && ( // Display reporter ID error if present
+              <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
+                {errors.reporter}
+              </Typography>
+            )}
           </Box>
         </Card>
-        {/* MODIFICATION END */}
       </Container>
 
-      {isSubmitting && ( // Loading Overlay
+      {isSubmitting && (
         <Box
-          sx={{ // Original sx from your code
+          sx={{
             position: "fixed",
             top: 0,
             left: 0,
@@ -718,16 +782,16 @@ const MissingPersonPortal = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 2000, // Original zIndex
+            zIndex: 2000,
           }}
         >
-          <CircularProgress /> {/* Original, without extra sx */}
-          <Typography sx={{ ml: 2, color: "white" }}> {/* Original sx */}
+          <CircularProgress />
+          <Typography sx={{ ml: 2, color: "white" }}>
             Submitting report...
           </Typography>
         </Box>
       )}
-      <Footer /> {/* Original Footer placement */}
+      <Footer />
     </Box>
   );
 };
