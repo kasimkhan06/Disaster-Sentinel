@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
+  Box,
   Typography,
   Select,
   MenuItem,
@@ -7,15 +9,14 @@ import {
   InputLabel,
   CircularProgress,
   Grid,
-  Box,
   Button,
   Snackbar,
-  Alert,
+  Alert, // Make sure Alert is imported
   Card,
   CardContent,
-  Chip, 
+  Chip,
   useMediaQuery,
-  ListItemText as MUIListItemText,
+  // MUIListItemText, // Keep if used in your actual code
   Autocomplete,
   TextField,
   InputAdornment,
@@ -29,10 +30,7 @@ import {
   Search as SearchIcon
 } from "@mui/icons-material";
 import userAnnouncementsBackground from "../../../public/assets/background_image/world-map-background.jpg";
-import { useNavigate } from "react-router-dom";
-
-import "../../../public/css/EventListing.css"; // Ensure this path is correct
-import Footer from "../../components/Footer"; // Ensure this path is correct
+import Footer from "../../components/Footer";
 
 // Define EventDisplayCard FIRST, as UserAnnouncementsPage uses it.
 const EVENT_DISPLAY_CARD_COMPONENT_NAME = "EventDisplayCard";
@@ -225,6 +223,8 @@ const PAGE_COMPONENT_NAME = "UserAnnouncementsPage";
 export default function UserAnnouncementsPage() {
   const navigate = useNavigate();
   const theme = useTheme();
+  const isBelow = useMediaQuery("(max-width:1470px)");
+
 
   const [announcements, setAnnouncements] = useState([]);
   const [sort, setSort] = useState("");
@@ -235,7 +235,6 @@ export default function UserAnnouncementsPage() {
   const [currentUser, setCurrentUser] = useState(undefined);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
 
-  // Function to handle redirection to login
   const handleLoginRedirect = () => {
     localStorage.setItem("redirectAfterLogin", window.location.pathname);
     navigate("/login");
@@ -313,7 +312,7 @@ export default function UserAnnouncementsPage() {
       }
       const interestData = await interestResponse.json();
 
-      const currentAttendees = announcements.find(ann => ann.id === eventId)?.attendees_count || 0; // Get current count from state for accurate update
+      const currentAttendees = announcements.find(announcement => announcement.id === eventId)?.attendees_count || 0; // Get current count from state for accurate update
       const updatePayload = { attendees_count: currentAttendees + 1 };
       const updateResponse = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/events/${eventId}/`,
@@ -366,12 +365,12 @@ export default function UserAnnouncementsPage() {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            // No Authorization header as per AllowAny for this ViewSet 
+            // No Authorization header as per AllowAny for this ViewSet
           },
         }
       );
 
-      if (response.status === 204) { // 204 No Content for successful DELETE 
+      if (response.status === 204) { // 204 No Content for successful DELETE
         console.log(`[${PAGE_COMPONENT_NAME}] handleUnregister - Successfully unregistered interest for record ID ${interestRecordId}.`);
         setSnackbar({ open: true, message: "Successfully unregistered from the event!", severity: "success" });
         await fetchAnnouncements(); // Re-fetch to update the UI
@@ -389,7 +388,7 @@ export default function UserAnnouncementsPage() {
     } catch (error) {
       console.error(`[${PAGE_COMPONENT_NAME}] handleUnregister - General error during unregistration:`, error.message);
       setSnackbar({ open: true, message: error.message || "Unregistration failed. Please try again.", severity: "error" });
-      fetchAnnouncements(); // Re-fetch to ensure UI consistency
+      fetchAnnouncements();
       return false;
     }
   };
@@ -426,14 +425,14 @@ export default function UserAnnouncementsPage() {
       if (currentUser?.id) {
         const userInterestsResponse = await fetch(
           `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/event-interests/?user=${currentUser.id}`,
-          { headers: {} } // No Authorization header for this endpoint 
+          { headers: {} } // No Authorization header for this endpoint
         );
         if (userInterestsResponse.ok) {
           const userInterestsData = await userInterestsResponse.json();
           userInterestsData.forEach(interest => {
-            if (interest.interested === true) {  // Only add if explicitly marked interested
+            if (interest.interested === true) {   // Only add if explicitly marked interested
               userInterestedEventIds.add(interest.event.id);
-              eventIdToInterestRecordIdMap.set(interest.event.id, interest.id); // Store interest record ID 
+              eventIdToInterestRecordIdMap.set(interest.event.id, interest.id); // Store interest record ID
             }
           });
         } else {
@@ -481,31 +480,32 @@ export default function UserAnnouncementsPage() {
 
     // Apply search filter
     if (searchTerm) {
-      announcementsCopy = announcementsCopy.filter((ann) => {
-        return ann.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      announcementsCopy = announcementsCopy.filter((announcement) => {
+        return announcement.name?.toLowerCase().includes(searchTerm.toLowerCase());
       });
     }
 
     if (filter !== "all") {
-      announcementsCopy = announcementsCopy.filter(ann =>
-        (filter === "online" && ann.location_type?.toLowerCase() === "online") ||
-        (filter === "offline" && ann.location_type?.toLowerCase() !== "online")
+      announcementsCopy = announcementsCopy.filter(announcement =>
+        (filter === "online" && announcement.location_type?.toLowerCase() === "online") ||
+        (filter === "offline" && announcement.location_type?.toLowerCase() !== "online")
       );
     }
 
-    announcementsCopy = announcementsCopy.filter(ann => {
-      if (ann.location_type?.toLowerCase() === "online") {
+    announcementsCopy = announcementsCopy.filter(announcement => {
+      if (announcement.location_type?.toLowerCase() === "online") {
         return true;
       }
 
-      if (!userLocation?.state) {
-        return false;
+      // Filter offline events based on user location only if user is logged in and has location
+      if (!currentUser || !userLocation?.state) {
+        return false; // If not logged in or no user location, don't show offline events
       }
 
       const userState = userLocation.state.trim().toUpperCase();
       const userDistrict = userLocation.district?.trim().toUpperCase() || "";
-      const eventState = ann.state?.trim().toUpperCase();
-      const eventDistrict = ann.district?.trim().toUpperCase() || "";
+      const eventState = announcement.state?.trim().toUpperCase();
+      const eventDistrict = announcement.district?.trim().toUpperCase() || "";
 
       if (eventState !== userState) {
         return false;
@@ -568,36 +568,122 @@ export default function UserAnnouncementsPage() {
     >
       <Box>
         <Box sx={{ maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 3 } }}>
+          <Snackbar open={snackbar.open} autoHideDuration={5000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+            <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%' }}>
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
-            <Typography sx={{ textAlign: "center", mt: 7, mb: 3, fontSize: { xs: "1.2rem", md: "1.2rem" }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)" }}>
+            <Typography sx={{ textAlign: "center", mt: 7, mb: 1, fontSize: { xs: "1.2rem", md: "1.2rem" }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)" }}>
               Announcements
             </Typography>
           </Box>
+
+          {/* New: Alert message for unauthenticated users regarding offline events */}
+          {!currentUser && !isLoading && (
+            <Alert
+              severity="info"
+              sx={{
+                mb: 2,
+                width: 'fit-content',
+                maxWidth: '90%',
+                mx: 'auto',
+                display: 'flex', // Ensures content aligns horizontally
+                alignItems: 'center', // Centers text and button vertically
+                justifyContent: 'center', // Centers horizontally if content allows
+                textAlign: 'center',
+              }}
+            >
+              Please log in to view offline events relevant to your location, or browse all online events.
+              <Button size="small" onClick={handleLoginRedirect}
+                sx={{
+                  ml: 0.5, p:0,
+                  // mt: { xs: 1, sm: 0 }, // Top margin for small screens, no margin for larger
+                  // p: { xs: '4px 8px', sm: '6px 12px' }, // Adjust button padding
+                  textTransform: 'none',
+                  fontSize: { xs: '0.75rem', sm: '0.85rem' }, // Responsive font size
+                  color: theme.palette.primary.main,
+                  '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline'},
+                  // display: 'inline-flex', // Keep button inline
+                  // flexShrink: 0, // Prevent button from shrinking
+                }}
+              >
+                LOGIN
+              </Button>
+            </Alert>
+          )}
+
           <Box className="controls" sx={{ mb: 3 }}>
             <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
 
               {/* Search Section */}
               <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" }, mb: { xs: 1, md: 0 } }}>
-                <Box sx={{
-                  backgroundColor: "rgba(255, 255, 255, 0.97)",
-                  borderRadius: "8px",
-                  width: "100%",
-                  maxWidth: 300,
-                }}>
+                <Box
+                  // This outer Box no longer handles background/border-radius/box-shadow directly
+                  // as those are now applied to the TextField's MuiOutlinedInput-root.
+                  // It acts purely as a container for width constraints.
+                  sx={{
+                    width: "100%", // Inherit width from Agencies' outer Box
+                    maxWidth: 300, // Keep max-width constraint if desired
+                  }}
+                >
                   <Autocomplete
-                    options={finalAnnouncements ? finalAnnouncements.map((event) => event.name.toUpperCase()) : []}
+                    freeSolo // Added freeSolo to match Agencies' Autocomplete behavior
+                    options={finalAnnouncements ? finalAnnouncements.map((announcement) => announcement.name.toUpperCase()) : []}
                     onInputChange={(e, value) => setSearchTerm(value)}
+                    value={searchTerm} // Bind value to searchTerm for controlled component
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Search Events"
+                        placeholder={"Type to search events..."} // Changed to placeholder
                         variant="outlined"
                         fullWidth
+                        InputLabelProps={{ // Added to hide label and use placeholder like Agencies
+                          shrink: false,
+                          style: { display: "none" },
+                        }}
+                        // APPLY THE EXACT STYLES FROM AGENCIES' TEXTFIELD HERE
                         sx={{
-                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                          "&:hover": {
-                            boxShadow: "0 6px 8px rgba(0, 0, 0, 0.15)",
+                          "& .MuiOutlinedInput-root": {
+                            backgroundColor: "white", // White background
+                            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Initial shadow
+                            "& fieldset": {
+                              borderColor: "transparent !important", // No visible border
+                            },
+                            "&:hover fieldset": {
+                              borderColor: "transparent", // No visible border on hover
+                              // boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)", // Hover shadow (Agency had it, but you removed in last edit)
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "transparent", // No visible border on focus
+                              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)", // Focus shadow
+                            },
+                            "&.Mui-disabled fieldset": {
+                              borderColor: "transparent !important", // No visible border when disabled
+                            },
+                            "& .MuiInputBase-input::placeholder": { // Placeholder text styling
+                              opacity: 1,
+                              color: theme.palette.text.secondary,
+                            },
+                            // --- Adjust padding here for height control ---
+                            paddingY: "12px", // Increased vertical padding for more height
+                            // ---------------------------------------------
                           },
+                          "& .MuiInputLabel-root": { // Label styling (if it were visible)
+                            color: "inherit",
+                          },
+                          "& .MuiInputBase-input": { // Input text styling
+                            fontSize: {
+                              xs: "0.8rem",
+                              sm: "0.8rem",
+                              md: isBelow ? "0.9rem" : "1rem", // Responsive font size
+                              lg: isBelow ? "0.9rem" : "1rem",
+                            },
+                            "&::placeholder": { // Redundant but harmless, ensures placeholder color
+                                color: theme.palette.text.secondary,
+                            },
+                          },
+                          width: "100%", // TextField takes full width of its parent Box
                         }}
                         InputProps={{
                           ...params.InputProps,
@@ -609,7 +695,15 @@ export default function UserAnnouncementsPage() {
                         }}
                       />
                     )}
-                    size="small"
+                    size="small" // Keep this as it affects size
+                    // Apply Autocomplete-specific sx from Agencies for endAdornment position
+                    sx={{
+                       "& .MuiAutocomplete-endAdornment": {
+                         right: "10px",
+                       },
+                    }}
+                    // You might want to disable this if loading announcements
+                    // disabled={isLoading}
                   />
                 </Box>
               </Grid>
@@ -643,7 +737,7 @@ export default function UserAnnouncementsPage() {
                         }
                         switch (selected) {
                           case "all":
-                            return <em style={{ color: "gray" }}>Filter By</em>;
+                            return <em>Filter By</em>;
                           case "online":
                             return "Online Events";
                           case "offline":
@@ -753,12 +847,6 @@ export default function UserAnnouncementsPage() {
           </Grid>
         )}
       </Box>
-
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
       <Footer />
     </Box>
   );
