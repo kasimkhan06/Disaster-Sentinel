@@ -228,7 +228,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
             value={formData.description || ""}
             onChange={handleChange}
             placeholder="Enter agency description..."
-            minRows={10} // MUI TextareaAutosize uses minRows
+            minRows={1} // MUI TextareaAutosize uses minRows
             style={{ // Retaining your style for consistency
               width: "100%", // Changed to 100% for better fit in modal
               minHeight: "300px", // Adjusted for modal view
