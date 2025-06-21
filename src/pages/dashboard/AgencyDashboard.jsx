@@ -36,7 +36,7 @@ import { useNavigate } from "react-router-dom";
 
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import EventIcon from "@mui/icons-material/Event";
-import { use } from "react";
+// import { use } from "react"; // This import is not used and can be removed
 
 const permissionsList = [
   "can_view_missing",
@@ -55,7 +55,7 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   bgcolor: "background.paper",
-  border: "2px solid #000",
+  // border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
@@ -95,8 +95,13 @@ export default function AgencyDashboard() {
   const volunteersPerPage = 4;
   const requestsPerPage = 2;
 
+  // State to manage the expanded note in its own modal
+  const [openNoteModal, setOpenNoteModal] = useState(false);
+  const [currentNote, setCurrentNote] = useState("");
+  const [currentNoteVolunteerName, setCurrentNoteVolunteerName] = useState("");
+
   useEffect(() => {
-    // ... (agencyId setup logic remains the same)
+    // Logic to set agencyId from localStorage
     let idToUse = localStorage.getItem("agency_id");
     if (!idToUse) {
       const userString = localStorage.getItem("user");
@@ -128,6 +133,7 @@ export default function AgencyDashboard() {
   }, []);
 
   useEffect(() => {
+    // Cleanup timers on component unmount
     return () => {
       if (successTimerRef.current) {
         clearTimeout(successTimerRef.current);
@@ -157,7 +163,7 @@ export default function AgencyDashboard() {
       clearTimeout(errorTimerRef.current);
       errorTimerRef.current = null;
     }
-    setError("");
+    setError(""); // Clear error when showing success
     setSuccessMessage(message);
     successTimerRef.current = setTimeout(() => {
       setSuccessMessage("");
@@ -171,7 +177,7 @@ export default function AgencyDashboard() {
       clearTimeout(successTimerRef.current);
       successTimerRef.current = null;
     }
-    setSuccessMessage("");
+    setSuccessMessage(""); // Clear success when showing error
     setError(message);
     errorTimerRef.current = setTimeout(() => {
       setError("");
@@ -196,7 +202,7 @@ export default function AgencyDashboard() {
       }
       const data = await response.json();
       setVolunteers(data);
-      setVolunteersPage(1);
+      setVolunteersPage(1); // Reset to first page on new data
     } catch (apiError) {
       console.error("Failed to fetch agency volunteers:", apiError);
       showErrorWithTimeout(
@@ -223,20 +229,19 @@ export default function AgencyDashboard() {
         );
       }
       let data = await response.json();
+      // Filter out accepted requests and sort by ID descending
       data.sort((a, b) => b.id - a.id);
-      const formattedRequests = data
-        .map((req) => ({
-          id: req.id,
-          volunteer_user_id: req.volunteer,
-          volunteer_name: req.volunteer_name || `User ID: ${req.volunteer}`,
-          volunteer_email: req.volunteer_email || "N/A",
-          volunteer_contact: req.volunteer_contact || "N/A",
-          message: req.message || "No message provided.",
-          is_accepted: req.is_accepted,
-        }))
-        .filter((req) => !req.is_accepted);
+      const formattedRequests = data.map((req) => ({
+        id: req.id,
+        volunteer_user_id: req.volunteer,
+        volunteer_name: req.volunteer_name || `User ID: ${req.volunteer}`,
+        volunteer_email: req.volunteer_email || "N/A",
+        volunteer_contact: req.volunteer_contact || "N/A",
+        message: req.message || "No message provided.",
+        is_accepted: req.is_accepted,
+      })).filter((req) => !req.is_accepted); // Only show pending requests
       setRequests(formattedRequests);
-      setRequestsPage(1);
+      setRequestsPage(1); // Reset to first page on new data
     } catch (apiError) {
       console.error("Failed to fetch volunteer requests:", apiError);
       showErrorWithTimeout(
@@ -248,19 +253,18 @@ export default function AgencyDashboard() {
   };
 
   useEffect(() => {
+    // Fetch data when agencyId is available
     if (agencyId) {
-      // Clear the specific "Agency ID is missing" error if it was set and ID is now available.
-      // This direct setError is fine as it's a specific initial setup case.
-      if (error.includes("Agency ID is missing")) setError("");
+      if (error.includes("Agency ID is missing")) setError(""); // Clear initial error if ID is found
       fetchRequests();
       fetchAgencyVolunteers();
     }
-  }, [agencyId]);
+  }, [agencyId]); // Dependency array ensures this runs when agencyId changes
 
   const handleSearch = async () => {
     setLoading(true);
     clearMessages();
-    setSearchResult(null);
+    setSearchResult(null); // Clear previous search result
 
     if (!searchEmail.trim()) {
       showErrorWithTimeout("Please enter an email to search.");
@@ -368,14 +372,15 @@ export default function AgencyDashboard() {
         setRequests((prevRequests) =>
           prevRequests.filter((req) => req.id !== interestIdToDelete)
         );
+        // If the deleted request was the one currently being handled in the main modal
         if (
           currentVolunteer &&
           currentVolunteer.id === interestIdToDelete &&
           currentVolunteer.volunteer_user_id ===
             requestToDelete.volunteer_user_id
         ) {
-          setOpenModal(false);
-          setCurrentVolunteer(null);
+          setOpenModal(false); // Close the permission modal
+          setCurrentVolunteer(null); // Clear current volunteer
         }
       } else if (response.status === 404) {
         throw new Error(
@@ -462,23 +467,23 @@ export default function AgencyDashboard() {
       }
 
       if (accumulatedError) {
-        // If there was an error accepting interest, but permissions were set
         showErrorWithTimeout(
           accumulatedError +
             `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`
-        ); // MODIFIED
+        );
       } else {
         showSuccessWithTimeout(
           `Volunteer ${memberFullName} processed and permissions set successfully!`
         );
       }
+      // Re-fetch requests and volunteers to update the tables
       if (isFromRequest && interestAccepted) fetchRequests();
       fetchAgencyVolunteers();
     } catch (apiError) {
       console.error("API Error setting/creating permissions:", apiError);
       accumulatedError += `Error setting permissions for ${memberFullName}: ${apiError.message}`;
       showErrorWithTimeout(accumulatedError.trim());
-      fetchAgencyVolunteers();
+      fetchAgencyVolunteers(); // Still attempt to re-fetch volunteers even if permissions failed
     } finally {
       setLoadingAction(false);
       setOpenModal(false);
@@ -500,6 +505,7 @@ export default function AgencyDashboard() {
     }
     clearMessages();
     setLoadingAction(true);
+    // Create payload based on the current state of checkboxes for this volunteer
     const permissionPayload = {};
     permissionsList.forEach((perm) => {
       permissionPayload[perm] = !!currentVolunteerObject[perm];
@@ -550,6 +556,13 @@ export default function AgencyDashboard() {
     setRequestsPage(value);
   };
 
+  // Function to handle opening the note modal
+  const handleOpenNoteModal = (note, volunteerName) => {
+    setCurrentNote(note);
+    setCurrentNoteVolunteerName(volunteerName);
+    setOpenNoteModal(true);
+  };
+
   return (
     <Box
       sx={{
@@ -560,7 +573,7 @@ export default function AgencyDashboard() {
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
         backgroundRepeat: "repeat-y",
-        overflowX: "hidden",
+        overflowX: "hidden", // Prevents horizontal scroll for the whole page
         overflowY: "hidden",
         p: { xs: 1, sm: 2, md: 3 },
         top: 0,
@@ -569,13 +582,14 @@ export default function AgencyDashboard() {
         zIndex: 0,
       }}
     >
+      {/* --- Global Alert Messages --- */}
       <Box
         sx={{
           minHeight: "60px",
           width: "100%",
           position: "sticky",
           top: "55px",
-          // zIndex: 1200,
+          zIndex: 1200, // Ensure alerts appear above other content
           mb: error || successMessage ? 2 : 0,
         }}
       >
@@ -590,13 +604,10 @@ export default function AgencyDashboard() {
               }
             }}
             sx={{
-              // position: 'fixed', // Key change: position relative to viewport
               mb: 2,
-              width: "fit-content", // Makes it as wide as its content
-              maxWidth: "90%", // Prevents it from becoming too wide on large screens
-              mx: "auto", // Centers the alert horizontally
-              left: "50%", // Starts from the horizontal center
-              // zIndex: 1000, // Ensures it appears above other content
+              width: "fit-content",
+              maxWidth: "90%",
+              mx: "auto",
             }}
           >
             {error}
@@ -606,7 +617,6 @@ export default function AgencyDashboard() {
           <Alert
             severity="success"
             onClose={() => {
-              // MODIFIED
               setSuccessMessage("");
               if (successTimerRef.current) {
                 clearTimeout(successTimerRef.current);
@@ -615,11 +625,9 @@ export default function AgencyDashboard() {
             }}
             sx={{
               mb: 2,
-              width: "fit-content", // Makes the alert as wide as its content
-              maxWidth: "90%", // Prevents it from becoming too wide on large screens
-              mx: "auto", // Centers the alert horizontally
-              left: "50%", // Starts from the horizontal center
-              // zIndex: 1000, // Ensures it appears above other content
+              width: "fit-content",
+              maxWidth: "90%",
+              mx: "auto",
             }}
           >
             {successMessage}
@@ -627,18 +635,20 @@ export default function AgencyDashboard() {
         )}
       </Box>
 
+      {/* --- Main Content Layout --- */}
       <Box
         sx={{
           display: { xs: "block", md: "flex" },
           minHeight: "calc(100vh - 150px)",
-          mt:2,
+          mt: 2,
         }}
       >
+        {/* --- Quick Access Sidebar --- */}
         <Box
           sx={{
             width: { xs: "100%", md: 180 },
             height: 180,
-            bgcolor: "white", //#f9f9f9"
+            bgcolor: "white",
             mb: { xs: 2, md: 0 },
             mr: { md: 2 },
             p: 2,
@@ -669,6 +679,7 @@ export default function AgencyDashboard() {
           </List>
         </Box>
 
+        {/* --- Main Dashboard Sections (Search, Requests, Permissions) --- */}
         <Box sx={{ flexGrow: 1, mt: { xs: 2, md: 0 } }}>
           <Box
             sx={{
@@ -678,6 +689,7 @@ export default function AgencyDashboard() {
               mb: 3,
             }}
           >
+            {/* --- Search Volunteer Section --- */}
             <Box
               sx={{ width: { xs: "100%", md: "40%" }, mb: { xs: 3, md: 0 } }}
             >
@@ -736,6 +748,7 @@ export default function AgencyDashboard() {
               )}
             </Box>
 
+            {/* --- Volunteer Requests Section --- */}
             <Box sx={{ width: { xs: "100%", md: "80%" } }}>
               <Typography variant="h6">Volunteer Requests</Typography>
               {loadingRequests ? (
@@ -791,9 +804,7 @@ export default function AgencyDashboard() {
                             width: "20%",
                             display: { xs: "none", md: "table-cell" },
                             padding: "6px 10px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
+                            minWidth: "120px", // Ensure minimum width for note
                           }}
                         >
                           Note
@@ -842,16 +853,33 @@ export default function AgencyDashboard() {
                             >
                               {req.volunteer_contact}
                             </TableCell>
+                            {/* Note content with multi-line ellipsis and click-to-expand */}
                             <TableCell
                               sx={{
                                 display: { xs: "none", md: "table-cell" },
                                 padding: "6px 10px",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
                               }}
                             >
-                              {req.message}
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  display: '-webkit-box',
+                                  WebkitBoxOrient: 'vertical',
+                                  WebkitLineClamp: 2, // Limit to 2 lines
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  wordBreak: 'break-word', // Ensure long words break
+                                  cursor: req.message.length > 50 ? 'pointer' : 'default', // Heuristic to show pointer for truncatable notes
+                                }}
+                                onClick={() => {
+                                  // Only open modal if the message is long enough to be truncated
+                                  if (req.message.length > 50) { // Adjust this threshold as needed
+                                    handleOpenNoteModal(req.message, req.volunteer_name);
+                                  }
+                                }}
+                              >
+                                {req.message}
+                              </Typography>
                             </TableCell>
                             <TableCell sx={{ padding: "6px 10px" }}>
                               <Button
@@ -879,6 +907,7 @@ export default function AgencyDashboard() {
             </Box>
           </Box>
 
+          {/* --- Manage Existing Permissions Section --- */}
           <Box sx={{ width: "100%" }}>
             <Typography variant="h6">Manage Existing Permissions</Typography>
             {loadingVolunteers ? (
@@ -906,7 +935,7 @@ export default function AgencyDashboard() {
                           sx={{
                             padding: "6px 7px",
                             textAlign: "center",
-                            minWidth: "95px",
+                            minWidth: "95px", // Ensure enough space for checkbox and label
                           }}
                         >
                           {perm.replace(/_/g, " ")}
@@ -1004,6 +1033,7 @@ export default function AgencyDashboard() {
             )}
           </Box>
 
+          {/* --- Grant Permissions Modal (Existing) --- */}
           <Modal
             open={openModal}
             onClose={() => {
@@ -1054,7 +1084,8 @@ export default function AgencyDashboard() {
               >
                 {currentVolunteer && currentVolunteer.volunteer_user_id && (
                   <Button
-                    variant="outlined"
+                  disableRipple
+                    // variant="outlined"
                     color="error"
                     onClick={() => initiateDeleteRequest(currentVolunteer)}
                     disabled={loadingAction}
@@ -1068,7 +1099,8 @@ export default function AgencyDashboard() {
                 )}
                 <Box sx={{ display: "flex", gap: 1 }}>
                   <Button
-                    variant="outlined"
+                  disableRipple
+                    // variant="outlined"
                     onClick={() => {
                       setOpenModal(false);
                       setCurrentVolunteer(null);
@@ -1079,7 +1111,8 @@ export default function AgencyDashboard() {
                     Cancel
                   </Button>
                   <Button
-                    variant="contained"
+                  disableRipple
+                    // variant="contained"
                     color="primary"
                     onClick={handleGivePermissions}
                     disabled={loadingAction}
@@ -1096,6 +1129,27 @@ export default function AgencyDashboard() {
             </Box>
           </Modal>
 
+          {/* --- New Modal for displaying full Note content --- */}
+          <Modal
+            open={openNoteModal}
+            onClose={() => setOpenNoteModal(false)}
+            aria-labelledby="note-modal-title"
+            aria-describedby="note-modal-description"
+          >
+            <Box sx={style}>
+              <Typography id="note-modal-title" variant="h6" component="h2">
+                Note from {currentNoteVolunteerName}
+              </Typography>
+              <Typography id="note-modal-description" sx={{ mt: 2, whiteSpace: 'pre-wrap' }}>
+                {currentNote}
+              </Typography>
+              <Button onClick={() => setOpenNoteModal(false)} sx={{ mt: 2 }}>
+                Close
+              </Button>
+            </Box>
+          </Modal>
+
+          {/* --- Confirm Delete Dialog (Existing) --- */}
           <Dialog
             open={confirmDeleteDialogOpen}
             onClose={() => {
@@ -1109,8 +1163,10 @@ export default function AgencyDashboard() {
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 Are you sure you want to delete the request from{" "}
-                {requestToDelete?.volunteer_name || "this volunteer"}? This
-                cannot be undone.
+                <Box component="span" fontWeight="bold">
+                  {requestToDelete?.volunteer_name || "this volunteer"}
+                </Box>
+                ? This cannot be undone.
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -1139,6 +1195,7 @@ export default function AgencyDashboard() {
           </Dialog>
         </Box>
       </Box>
+      {/* --- Footer --- */}
       <Grid
         container
         xs={12}
