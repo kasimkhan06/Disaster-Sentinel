@@ -93,7 +93,7 @@ export default function AgencyDashboard() {
   const [requestsPage, setRequestsPage] = useState(1);
   const [volunteersPage, setVolunteersPage] = useState(1);
   const volunteersPerPage = 4;
-  const requestsPerPage = 1;
+  const requestsPerPage = 2;
 
   useEffect(() => {
     // ... (agencyId setup logic remains the same)
