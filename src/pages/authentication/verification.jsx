@@ -189,6 +189,7 @@ const Verification = () => {
               // padding: { xs: "20px", sm: "30px", md: "40px" }, // Responsive padding
               // borderRadius: 2, // Standard border radius
               // boxShadow: "0 4px 20px rgba(0,0,0,0.1)", // Softer shadow
+              marginX: "auto", // Center horizontally
               textAlign: "center",
               display: "flex",
               flexDirection: "column",
