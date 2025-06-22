@@ -13,7 +13,6 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import Footer from "../../components/Footer";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-import { red } from "@mui/material/colors";
 
 const Login = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
@@ -237,6 +236,7 @@ const Login = ({ setIsLoggedIn }) => {
             paddingTop: "25px",
             paddingBottom: "25px",
             borderRadius: 2,
+            marginX: "auto",
             boxShadow: 3,
           }}
         >
