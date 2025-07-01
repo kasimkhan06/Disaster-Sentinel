@@ -231,7 +231,9 @@ const Login = ({ setIsLoggedIn }) => {
       >
         <Box
           sx={{
-            width: { xs: "90%", sm: "60%", md: "35%" },
+            width: { xs: "90%", sm: "60%", md: "50%", lg: "30%" },
+            maxWidth: "500px",
+            minHeight: "auto",
             backgroundColor: "#fff",
             paddingTop: "25px",
             paddingBottom: "25px",

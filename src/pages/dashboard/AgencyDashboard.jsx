@@ -646,7 +646,8 @@ export default function AgencyDashboard() {
         {/* --- Quick Access Sidebar --- */}
         <Box
           sx={{
-            width: { xs: "100%", md: 180 },
+            width: { md: 180 },
+            display: { xs: "none", md: "block" },
             height: 180,
             bgcolor: "white",
             mb: { xs: 2, md: 0 },
