@@ -131,22 +131,26 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
         <Typography variant="h6" className="event-title">
           {event.name.toUpperCase()}
         </Typography>
+        
         <div className="event-details">
-          <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-            <CalendarToday fontSize="small" sx={{ mr: 0.5 }} /> {event.date}
+          <Typography variant="body2" 
+          // sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}
+          >
+            <CalendarToday fontSize="small" /> {event.date}
           </Typography>
           {event.location_type === "online" ? (
             <>
-              <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
-                <Videocam fontSize="small" sx={{ mr: 0.5 }} /> Online ({event.platform})
-              </Typography>
-              <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5, wordBreak: 'break-all' }}>
-                <Send fontSize="small" sx={{ mr: 0.5 }} /> {event.meeting_link}
+              <Typography variant="body2" 
+              // sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}
+              >
+                <Videocam fontSize="small" /> Online ({event.platform})
+              <br/>
+              <Send fontSize="small" /> {event.meeting_link}
               </Typography>
             </>
           ) : (
-            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}>
-              <LocationOn fontSize="small" sx={{ mr: 0.5 }} />
+            <Typography variant="body2" >
+              <LocationOn fontSize="small" />
               {toCapitalizeCase(event.venue_name)}{toCapitalizeCase(event.venue_name) && (event.district || event.state) ? ", " : ""}
               {event.district}{event.district && event.state ? ", " : ""}
               {event.state}
@@ -166,17 +170,17 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
               disabled={loading} // Only disable due to loading
               onClick={handleUnregisterInternal} // Call the new unregister handler
               sx={{
-                minWidth: '150px',
+                minWidth: '100px',
                 transition: 'all 0.3s ease',
                 textTransform: 'uppercase',
                 py: 1.5,
                 fontWeight: 500, // Match "Register" button
                 color: theme.palette.error.main, // Use red for unregister
-                borderColor: theme.palette.error.main, // Add border for distinction if not filled
-                '&:hover': {
-                  // backgroundColor: theme.palette.error.light,
-                  // color: 'white',
-                },
+                // borderColor: theme.palette.error.main, // Add border for distinction if not filled
+                // '&:hover': {
+                //   // backgroundColor: theme.palette.error.light,
+                //   // color: 'white',
+                // },
               }}
             >
               {loading ? (
@@ -191,7 +195,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
               disabled={loading}
               onClick={handleRegisterInternal}
               sx={{
-                minWidth: '150px',
+                minWidth: '100px',
                 transition: 'all 0.3s ease',
                 textTransform: 'uppercase',
                 py: 1.5,
@@ -574,8 +578,13 @@ export default function UserAnnouncementsPage() {
             </Alert>
           </Snackbar>
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
-            <Typography sx={{ textAlign: "center", mt: 7, mb: 1, fontSize: { xs: "1.2rem", md: "1.2rem" }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)" }}>
-              Announcements
+            <Typography sx={{ textAlign: "center", mt:{xs:9, sm:7, md:7, lg:7}, mb: 1, fontSize: {
+            xs: "1.2rem",
+            sm: "1.2rem",
+            md: isBelow ? "1.2rem" : "1.4rem",
+            lg: isBelow ? "1.2rem" : "1.4rem",
+          }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)" }}>
+              ANNOUNCEMENTS
             </Typography>
           </Box>
 
@@ -617,11 +626,8 @@ export default function UserAnnouncementsPage() {
             <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
 
               {/* Search Section */}
-              <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" }, mb: { xs: 1, md: 0 } }}>
+              <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" },mt:1, mb: { xs: 1, md: 0 } }}>
                 <Box
-                  // This outer Box no longer handles background/border-radius/box-shadow directly
-                  // as those are now applied to the TextField's MuiOutlinedInput-root.
-                  // It acts purely as a container for width constraints.
                   sx={{
                     width: "100%", // Inherit width from Agencies' outer Box
                     maxWidth: 300, // Keep max-width constraint if desired
@@ -631,14 +637,14 @@ export default function UserAnnouncementsPage() {
                     freeSolo // Added freeSolo to match Agencies' Autocomplete behavior
                     options={finalAnnouncements ? finalAnnouncements.map((announcement) => announcement.name.toUpperCase()) : []}
                     onInputChange={(e, value) => setSearchTerm(value)}
-                    value={searchTerm} // Bind value to searchTerm for controlled component
+                    value={searchTerm} 
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        placeholder={"Type to search events..."} // Changed to placeholder
+                        placeholder={"Search events..."} 
                         variant="outlined"
                         fullWidth
-                        InputLabelProps={{ // Added to hide label and use placeholder like Agencies
+                        InputLabelProps={{ 
                           shrink: false,
                           style: { display: "none" },
                         }}
@@ -665,9 +671,7 @@ export default function UserAnnouncementsPage() {
                               opacity: 1,
                               color: theme.palette.text.secondary,
                             },
-                            // --- Adjust padding here for height control ---
-                            paddingY: "12px", // Increased vertical padding for more height
-                            // ---------------------------------------------
+                            paddingY: "12px",
                           },
                           "& .MuiInputLabel-root": { // Label styling (if it were visible)
                             color: "inherit",
@@ -808,7 +812,7 @@ export default function UserAnnouncementsPage() {
         </Box>
       </Box>
 
-      <Box className="container" sx={{ flex: 1, pb: 4, width: '100%', maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 } }}>
+      <Box className="container" sx={{ flex: 1, pb: 4, width: '100%', maxWidth: { xs: '80%', sm: '1200px', md: '900px', lg: '1100px' }, marginX: 'auto', px: { xs: 0, sm: 3 } }}>
         {isLoading || currentUser === undefined ? (
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pt: 10, height: '300px' }}>
             <CircularProgress size={50} sx={{ mb: 2, color: theme.palette.primary.main }} />
