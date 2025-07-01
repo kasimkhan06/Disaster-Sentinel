@@ -10,6 +10,7 @@ import {
   Autocomplete,
   CircularProgress,
   Alert,
+  useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import worldMapBackground from "../../../public/assets/background_image/world-map-background.jpg";
@@ -80,13 +81,17 @@ const StatusTracking = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [currentStatus, setCurrentStatus] = useState("Missing");
 
+  const theme = useTheme();
+  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const isBelow = useMediaQuery("(max-width:1470px)");
+
   // Function to handle redirection to login
   const handleLoginRedirect = () => {
     localStorage.setItem("redirectAfterLogin", window.location.pathname);
     navigate("/login");
   };
 
-  const theme = useTheme();
+  // const theme = useTheme();
 
   useEffect(() => {
     let userFromStorage = null;
@@ -537,7 +542,7 @@ const StatusTracking = () => {
     >
       <Container
         maxWidth="md"
-        sx={{ mt: { xs: 2, sm: 4, md: 7 }, pb: 4, pt: { xs: 2, sm: 4 } }}
+        sx={{ mt: { xs: 9, sm: 7, md: 7 }, pb: 4, pt: { xs: 2, sm: 4 } }}
       >
         {error && (
           <Alert
