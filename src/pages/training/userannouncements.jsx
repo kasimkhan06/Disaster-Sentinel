@@ -108,7 +108,7 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
     if (event.event_type === "Seminar" || event.event_type === "Conference" || event.event_type === "Networking") {
       return "/assets/Event Images/seminar1.webp";
     } else if (event.event_type === "Workshop") {
-      return "/assets/Event Images/Workshops-22.jpg";
+      return "/assets/Event Images/Workshops.jpg";
     } else {
       return "/assets/Event Images/webinar.jpg";
     }
