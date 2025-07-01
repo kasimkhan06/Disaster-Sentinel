@@ -52,13 +52,10 @@ const Register = () => {
   const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState("");
 
-  // --- Scroll to Top on Mount ---
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  // --- End Scroll to Top ---
 
-  // --- Data Loading Effect ---
   useEffect(() => {
     const fetchExcelFile = async () => {
       try {
@@ -120,8 +117,6 @@ const Register = () => {
     fetchExcelFile();
   }, []);
 
-
-  // --- Handlers ---
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -320,7 +315,7 @@ const Register = () => {
       >
         <Box // Form container
           sx={{
-            width: { xs: "90%", sm: "70%", md: "40%", lg: "35%" },
+            width: { xs: "85%", sm: "70%", md: "60%", lg: "35%" },
             maxWidth: "600px", padding: { xs: 2, sm: 3, md: 4 }, paddingTop: "25px", paddingBottom: "25px",
             backgroundColor: "#ffffff", borderRadius: 2, boxShadow: 3,
             textAlign: "center", my: 4

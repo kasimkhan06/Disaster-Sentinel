@@ -171,7 +171,9 @@ const Verification = () => {
       >
         <Box
           sx={{
-            width: { xs: "90%", sm: "60%", md: "35%" },
+            width: { xs: "90%", sm: "60%", md: "50%" },
+            maxWidth: "500px", // Max width for very large screens
+            minHeight: "auto", // Adjusted minHeight
             backgroundColor: "#fff",
             paddingTop: "25px",
             paddingBottom: "25px",
