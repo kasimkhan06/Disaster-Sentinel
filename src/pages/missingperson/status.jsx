@@ -521,25 +521,29 @@ const StatusTracking = () => {
   return (
     <Box
       sx={{
-        // Original sx from your code
         position: "absolute",
         top: 0,
         left: 0,
         right: 0,
         minHeight: "100vh",
-        background: `
-                    linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
-                    url(${worldMapBackground})
-                    `,
+        background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+                    url(${worldMapBackground})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        backgroundRepeat: "repeat-y", // As per original
+        backgroundRepeat: "repeat-y", 
         margin: 0,
-        padding: 0, // As per original
-        zIndex: 0, // As per original
+        padding: 0, 
+        zIndex: 0, 
       }}
     >
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+        }}
+      >
       <Container
         maxWidth="md"
         sx={{ mt: { xs: 9, sm: 7, md: 7 }, pb: 4, pt: { xs: 2, sm: 4 } }}
@@ -873,6 +877,7 @@ const StatusTracking = () => {
         )}
       </Container>
       <Footer />
+      </Box>
     </Box>
   );
 };
