@@ -13,7 +13,6 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import Footer from "../../components/Footer";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
-import { red } from "@mui/material/colors";
 
 const Login = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
@@ -181,9 +180,9 @@ const Login = ({ setIsLoggedIn }) => {
     navigate("/register");
   };
 
-  const handleVeri = () => {
-    navigate("/verification");
-  };
+  // const handleVeri = () => {
+  //   navigate("/verification");
+  // };
 
   // --- Scroll to Top on Mount ---
   useEffect(() => {
@@ -232,11 +231,14 @@ const Login = ({ setIsLoggedIn }) => {
       >
         <Box
           sx={{
-            width: { xs: "90%", sm: "60%", md: "35%" },
+            width: { xs: "90%", sm: "60%", md: "50%", lg: "30%" },
+            maxWidth: "500px",
+            minHeight: "auto",
             backgroundColor: "#fff",
             paddingTop: "25px",
             paddingBottom: "25px",
             borderRadius: 2,
+            marginX: "auto",
             boxShadow: 3,
           }}
         >
@@ -336,9 +338,9 @@ const Login = ({ setIsLoggedIn }) => {
               <Button variant="text" onClick={handleRegister}>
                 Register
               </Button>
-              <Button variant="text" onClick={handleVeri}>
+              {/* <Button variant="text" onClick={handleVeri}>
                 Veri
-              </Button>
+              </Button> */}
             </Typography>
           </Box>
         </Box>

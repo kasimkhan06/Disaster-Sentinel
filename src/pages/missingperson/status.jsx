@@ -10,12 +10,13 @@ import {
   Autocomplete,
   CircularProgress,
   Alert,
+  useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import worldMapBackground from "../../../public/assets/background_image/world-map-background.jpg";
 import Footer from "../../components/Footer";
 import axios from "axios";
-import { ThemeConsumer } from "styled-components";
+import { useNavigate } from "react-router-dom"; 
 
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api";
@@ -27,14 +28,14 @@ const mapApiResponseToSelectedPerson = (apiData) => {
     if (apiData.agency_found_location && apiData.agency_current_location_of_person) {
       console.log("mapApiResponseToSelectedPerson: API data indicates person is found.");
       apiData.additional_info = `FOUND at ${apiData.agency_found_location}, the person is currently kept at ${apiData.agency_current_location_of_person}.`.trim();
-    }
-    else {
+    } else {
       console.log("mapApiResponseToSelectedPerson: API data indicates person is found.");
       apiData.additional_info = `${apiData.additional_info}`.trim();
     }
   }
 
-  const isMarkedFound = typeof apiData.additional_info === "string" &&
+  const isMarkedFound =
+    typeof apiData.additional_info === "string" &&
     apiData.additional_info.trim().startsWith("FOUND");
   console.log(
     "mapApiResponseToSelectedPerson: isMarkedFound status determined as:",
@@ -49,7 +50,7 @@ const mapApiResponseToSelectedPerson = (apiData) => {
   return {
     id: apiData.id,
     name: apiData.full_name || "N/A",
-    age: apiData.age || "N/A",
+    age: apiData.age,
     gender: apiData.gender || "N/A",
     status: isMarkedFound ? "Found" : "Missing",
     disasterType: apiData.disaster_type || "N/A",
@@ -64,6 +65,7 @@ const mapApiResponseToSelectedPerson = (apiData) => {
 };
 
 const StatusTracking = () => {
+  const navigate = useNavigate(); 
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -80,6 +82,16 @@ const StatusTracking = () => {
   const [currentStatus, setCurrentStatus] = useState("Missing");
 
   const theme = useTheme();
+  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const isBelow = useMediaQuery("(max-width:1470px)");
+
+  // Function to handle redirection to login
+  const handleLoginRedirect = () => {
+    localStorage.setItem("redirectAfterLogin", window.location.pathname);
+    navigate("/login");
+  };
+
+  // const theme = useTheme();
 
   useEffect(() => {
     let userFromStorage = null;
@@ -102,7 +114,7 @@ const StatusTracking = () => {
       localStorage.removeItem("user");
     }
     setCurrentUser(userFromStorage);
-    setUserId(userFromStorage.user_id);
+    setUserId(userFromStorage?.user_id); // Use optional chaining for safety
     setIsAuthenticated(authenticated);
     setAuthLoading(false);
   }, []);
@@ -111,11 +123,11 @@ const StatusTracking = () => {
 
   useEffect(() => {
     console.log("Current User:", currentUser);
-    if (!currentUser) return;
+    if (!currentUser || !isAuthenticated) return;
     if (currentUser.isMarkedFound) {
       setCurrentStatus("Found");
     }
-  }, [currentUser]);
+  }, [currentUser, isAuthenticated]);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated && currentReporterEmail) {
@@ -123,10 +135,13 @@ const StatusTracking = () => {
         setLoadingList(true);
         setError("");
         try {
-          const response = await fetch(`${API_BASE_URL}/missing-persons/`);
+          const response = await fetch(
+            `${API_BASE_URL}/missing-persons/?reporter_email=${currentReporterEmail}`
+          );
           if (!response.ok) {
             throw new Error(
-              `HTTP error! status: ${response.status
+              `HTTP error! status: ${
+                response.status
               }, Text: ${await response.text()}`
             );
           }
@@ -136,7 +151,7 @@ const StatusTracking = () => {
               person.reporter_email &&
               typeof person.reporter_email === "string" &&
               person.reporter_email.toLowerCase() ===
-              currentReporterEmail.toLowerCase()
+                currentReporterEmail.toLowerCase()
           );
 
           console.log(
@@ -167,6 +182,12 @@ const StatusTracking = () => {
   }, [currentReporterEmail, isAuthenticated, authLoading]);
 
   const handleSearch = async (selectedOption) => {
+    if (!isAuthenticated) {
+      setError("Please log in to search for reported persons.");
+      setSelectedPerson(null);
+      return;
+    }
+
     if (!selectedOption || !selectedOption.id) {
       setSelectedPerson(null);
       setEditedInfo({ additional_info: "" }); // Reset editedInfo when selection is cleared
@@ -188,7 +209,8 @@ const StatusTracking = () => {
         if (response.status === 404)
           throw new Error(`Report with ID ${personId} not found.`);
         throw new Error(
-          `HTTP error! status: ${response.status
+          `HTTP error! status: ${
+            response.status
           }, Text: ${await response.text()}`
         );
       }
@@ -466,7 +488,9 @@ const StatusTracking = () => {
   const handleDelete = async () => {
     if (!selectedPerson?.id) return;
 
-    const confirmDelete = window.confirm("Are you sure you want to delete this report?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this report?"
+    );
     if (!confirmDelete) return;
     try {
       const response = await fetch(
@@ -494,32 +518,6 @@ const StatusTracking = () => {
     }
   };
 
-  if (authLoading) {
-    return (
-      <Container
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "calc(100vh - 64px)",
-          pt: 8,
-        }}
-      >
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <Container sx={{ pt: 8, textAlign: "center" }}>
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          Login is compulsory to view this page. Please log in.
-        </Alert>
-      </Container>
-    );
-  }
-
   return (
     <Box
       sx={{
@@ -528,22 +526,27 @@ const StatusTracking = () => {
         left: 0,
         right: 0,
         minHeight: "100vh",
-        background: `
-              linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
-              url(${worldMapBackground})
-            `,
+        background: `linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+                    url(${worldMapBackground})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
-        backgroundRepeat: "repeat-y",
+        backgroundRepeat: "repeat-y", 
         margin: 0,
-        padding: 0,
-        zIndex: 0,
+        padding: 0, 
+        zIndex: 0, 
       }}
     >
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+        }}
+      >
       <Container
         maxWidth="md"
-        sx={{ mt: { xs: 2, sm: 4, md: 7 }, pb: 4, pt: { xs: 2, sm: 4 } }}
+        sx={{ mt: { xs: 9, sm: 7, md: 7 }, pb: 4, pt: { xs: 2, sm: 4 } }}
       >
         {error && (
           <Alert
@@ -567,6 +570,8 @@ const StatusTracking = () => {
         <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
           <Autocomplete
             id="person-search-input"
+            disableClearable={!isAuthenticated}
+            disabled={authLoading || (!isAuthenticated && reportList.length === 0)}
             options={reportList}
             getOptionLabel={(option) =>
               option && option.label ? option.label : ""
@@ -575,6 +580,21 @@ const StatusTracking = () => {
             loading={loadingList}
             value={reportList.find((p) => p.id === selectedPerson?.id) || null}
             onChange={(event, newValue) => handleSearch(newValue)}
+            filterOptions={(options, state) => {
+              if (!isAuthenticated) {
+                return []; // No options if not logged in
+              }
+              // Default filtering logic
+              const filtered = options.filter((option) =>
+                option.label.toLowerCase().includes(state.inputValue.toLowerCase())
+              );
+              return filtered;
+            }}
+            noOptionsText={
+              isAuthenticated
+                ? "No reports found."
+                : "Please log in to view your reports."
+            }
             sx={{ width: { xs: "90%", sm: 500, md: 400 } }}
             renderOption={(props, option) => (
               <Box
@@ -588,28 +608,13 @@ const StatusTracking = () => {
                 }}
               >
                 <Box>{option.label}</Box>
-                {/* <Box
-                  sx={{
-                    color: option.isFound ? "green" : "orange",
-                    fontWeight: 500,
-                    backgroundColor: option.isFound ? "#e8f5e9" : "#fff3e0",
-                    borderRadius: "4px",
-                    border: `1px solid ${option.isFound ? "#c8e6c9" : "#ffccbc"}`,
-                    padding: "2px 6px",
-                    minWidth: "70px",
-                    textAlign: "center",
-                    marginLeft: "auto",
-                  }}
-                >
-                  {option.isFound ? "Found" : "Missing"}
-                </Box> */}
               </Box>
             )}
-
             renderInput={(params) => (
               <TextField
                 {...params}
                 placeholder="Search Your Reported Missing Persons"
+                disabled={authLoading || (!isAuthenticated && reportList.length === 0)}
                 InputProps={{
                   ...params.InputProps,
                   endAdornment: (
@@ -637,7 +642,6 @@ const StatusTracking = () => {
               />
             )}
           />
-
         </Box>
 
         {loadingDetails && (
@@ -681,9 +685,7 @@ const StatusTracking = () => {
                   border: "2px solid lightgray",
                 }}
               />
-              <Box
-                sx={{ textAlign: { xs: "center", sm: "left" }, flexGrow: 1 }}
-              >
+              <Box sx={{ textAlign: { xs: "center", sm: "left" }, flexGrow: 1 }}>
                 <Typography variant="body1">
                   <strong>Name:</strong> {selectedPerson.name}
                 </Typography>
@@ -813,6 +815,7 @@ const StatusTracking = () => {
         {!loadingDetails &&
           !selectedPerson &&
           !error &&
+          isAuthenticated &&
           reportList.length > 0 &&
           !loadingList && (
             <Typography
@@ -826,6 +829,7 @@ const StatusTracking = () => {
         {!loadingDetails &&
           !selectedPerson &&
           !error &&
+          isAuthenticated &&
           reportList.length === 0 &&
           !loadingList && (
             <Typography
@@ -833,12 +837,47 @@ const StatusTracking = () => {
               align="center"
               sx={{ mt: 4, color: "text.secondary" }}
             >
-              No reports found for your account. You can report a missing person
-              if needed.
+              No reports found for your account. You can report a missing person if
+              needed.
             </Typography>
           )}
+
+        {!isAuthenticated && !authLoading && (
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Alert
+              severity="info"
+              sx={{
+                mb: 2,
+                width: "fit-content",
+                maxWidth: "90%",
+                mx: "auto",
+                left: "50%",
+              }}
+            >
+              Please log in to search and track your reported missing persons.
+              <Button
+                size="small"
+                onClick={handleLoginRedirect}
+                sx={{
+                  ml: 1,
+                  p: 0,
+                  textTransform: "none",
+                  fontSize: "0.75rem",
+                  color: theme.palette.primary.main,
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                LOGIN
+              </Button>
+            </Alert>
+          </Box>
+        )}
       </Container>
       <Footer />
+      </Box>
     </Box>
   );
 };

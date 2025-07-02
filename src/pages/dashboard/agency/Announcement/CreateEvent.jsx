@@ -958,7 +958,7 @@ export default function EventFormWithStepper() {
                         <Typography variant="h7"><strong>Time:</strong> {formData.start_time}</Typography><br /><br />
                         <Typography variant="h7"><strong>Event Type:</strong> {formData.event_type}</Typography><br /><br />
 
-                        {isOnline ? (
+                        {isOnline === "online" ? (
                           <>
                             <Typography variant="h7"><strong>Platform:</strong> {formData.platform}</Typography><br /><br />
                             <Typography variant="h7"><strong>Meeting Link:</strong> {formData.meeting_link}</Typography><br /><br />

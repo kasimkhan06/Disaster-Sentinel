@@ -228,7 +228,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
             value={formData.description || ""}
             onChange={handleChange}
             placeholder="Enter agency description..."
-            minRows={10} // MUI TextareaAutosize uses minRows
+            minRows={1} // MUI TextareaAutosize uses minRows
             style={{ // Retaining your style for consistency
               width: "100%", // Changed to 100% for better fit in modal
               minHeight: "300px", // Adjusted for modal view
@@ -370,6 +370,7 @@ function Profile() {
   const [initialData, setInitialData] = useState({});
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [volunteers, setVolunteers] = useState(null);
   // const [type, setType] = useState("about"); // 'type' state for tab/section selection not implemented in provided JSX. Removed for now.
   const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
 
@@ -390,7 +391,6 @@ function Profile() {
       };
     }
   }, [statusMessage]);
-
 
   const handleOpenBasicDetails = () => {
     setInitialData({
@@ -426,30 +426,34 @@ function Profile() {
   };
 
   const fetchAgencyDetails = async (currentUserId) => {
-    if (!currentUserId) return; // Don't fetch if no userId
+    console.log("Fetching agency details for user ID:", currentUserId);
+    if (!currentUserId) return;
     setIsLoading(true);
-    // console.log(`Workspaceing agency details for user ID: ${currentUserId}`);
     try {
       const response = await fetch(
         `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${currentUserId}/`
       );
-      if (!response.ok) {
-        // If response is not OK (e.g. 404), treat as no agency or error
-        if (response.status === 404) {
+      const volunteersResponse = await fetch(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency/${currentUserId}/permissions/`
+      );
+      if (!response.ok && !volunteersResponse.ok) {
+        if (response.status === 404 || volunteersResponse.status === 404) {
           console.warn("Agency profile not found for user:", currentUserId);
-          setAgency({ agency_name: null }); // Explicitly set to indicate "not found" state for rendering logic
+          setAgency({ agency_name: null });
         } else {
           throw new Error(`Failed to fetch agency details: ${response.status}`);
         }
       } else {
         const data = await response.json();
+        const volunteersData = await volunteersResponse.json();
         setAgency(data);
+        console.log("Agency volunteers fetched successfully:", volunteersData);
+        setVolunteers(volunteersData.length || 0);
       }
     } catch (error) {
       console.error("Error fetching agency details:", error);
-      // Optionally set an error status message for the user here
-      // setStatusMessage({ type: "error", text: "Could not load agency details." });
-      setAgency({ agency_name: null }); // Fallback to a state indicating no agency or error
+      setAgency({ agency_name: null });
+      setStatusMessage({ type: "error", text: "Failed to fetch agency details." });
     } finally {
       setIsLoading(false);
     }
@@ -721,7 +725,11 @@ function Profile() {
                     icon: <LanguageIcon fontSize="small" />,
                     link: agency.website,
                   },
-                  { label: "Volunteers", value: agency.volunteers || "N/A", icon: <Visibility fontSize="small" /> },
+                  { 
+                    label: "Volunteers", 
+                    value: agency.volunteers + volunteers || "N/A", 
+                    icon: <Visibility fontSize="small" /> 
+                  },
                 ].map((item, index) => (
                   <Box
                     key={index}

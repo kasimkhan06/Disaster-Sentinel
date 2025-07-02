@@ -171,7 +171,9 @@ const Verification = () => {
       >
         <Box
           sx={{
-            width: { xs: "90%", sm: "60%", md: "35%" },
+            width: { xs: "90%", sm: "60%", md: "50%" },
+            maxWidth: "500px", // Max width for very large screens
+            minHeight: "auto", // Adjusted minHeight
             backgroundColor: "#fff",
             paddingTop: "25px",
             paddingBottom: "25px",
@@ -189,6 +191,7 @@ const Verification = () => {
               // padding: { xs: "20px", sm: "30px", md: "40px" }, // Responsive padding
               // borderRadius: 2, // Standard border radius
               // boxShadow: "0 4px 20px rgba(0,0,0,0.1)", // Softer shadow
+              marginX: "auto", // Center horizontally
               textAlign: "center",
               display: "flex",
               flexDirection: "column",

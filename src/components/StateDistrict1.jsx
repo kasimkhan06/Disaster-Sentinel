@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
-import { Grid, TextField, Autocomplete, Box } from "@mui/material"; // Added Box import
+import { Grid, TextField, Autocomplete, Box } from "@mui/material";
 
 const StateDistrictDropdown = ({
   formData,
@@ -9,6 +9,7 @@ const StateDistrictDropdown = ({
   setFormData,
   setSelectedState,
   setSelectedDistrict,
+  isDisabled, // <--- New prop added here
 }) => {
   const [stateDistricts, setStateDistricts] = useState({});
   const [districts, setDistricts] = useState([]);
@@ -42,7 +43,7 @@ const StateDistrictDropdown = ({
               }
               // Avoid adding duplicate districts if the Excel file has them
               if (!tempStateDistricts[state].includes(district)) {
-                 tempStateDistricts[state].push(district);
+                tempStateDistricts[state].push(district);
               }
             }
           });
@@ -51,7 +52,7 @@ const StateDistrictDropdown = ({
           const sortedStates = Object.keys(tempStateDistricts).sort();
           const sortedStateDistricts = {};
           sortedStates.forEach(state => {
-             sortedStateDistricts[state] = tempStateDistricts[state].sort();
+            sortedStateDistricts[state] = tempStateDistricts[state].sort();
           });
 
 
@@ -84,26 +85,26 @@ const StateDistrictDropdown = ({
 
   // Common TextField styling from the target example
   const textFieldStyles = {
-      "& .MuiInputBase-root": {
-          padding: "4px 8px", // Adjusted padding
-      },
-      "& .MuiOutlinedInput-notchedOutline": {
-          border: "none", // Hide the outline border
-      },
-      "& .MuiInputLabel-root": {
-          fontSize: "0.9rem", // Adjust label font size
-      },
-      width: "100%", // Ensure TextField takes full width of the Box
+    "& .MuiInputBase-root": {
+      padding: "4px 8px", // Adjusted padding
+    },
+    "& .MuiOutlinedInput-notchedOutline": {
+      border: "none", // Hide the outline border
+    },
+    "& .MuiInputLabel-root": {
+      fontSize: "0.9rem", // Adjust label font size
+    },
+    width: "100%", // Ensure TextField takes full width of the Box
   };
 
   // Common Box styling from the target example
   const boxStyles = {
-      width: "100%", // Match target width
-      padding: 0,
-      mb: 2, // Margin bottom
-      textAlign: "left",
-      boxShadow: "2px 2px 2px #E8F1F5", // Match target shadow
-      position: "relative",
+    width: "100%", // Match target width
+    padding: 0,
+    mb: 2, // Margin bottom
+    textAlign: "left",
+    boxShadow: "2px 2px 2px #E8F1F5", // Match target shadow
+    position: "relative",
   };
 
   return (
@@ -117,6 +118,7 @@ const StateDistrictDropdown = ({
             options={Object.keys(stateDistricts)} // List of states
             value={selectedState || null} // Ensure value is null if empty for Autocomplete
             onChange={handleStateChange}
+            disabled={isDisabled} // <--- ADDED: Disable based on the isDisabled prop
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -137,7 +139,7 @@ const StateDistrictDropdown = ({
               options={districts}
               value={selectedDistrict || null} // Ensure value is null if empty
               onChange={handleDistrictChange}
-              disabled={!selectedState || districts.length === 0} // Disable if no state or districts
+              disabled={!selectedState || districts.length === 0 || isDisabled} // <--- ADDED: Include isDisabled
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -146,7 +148,7 @@ const StateDistrictDropdown = ({
                   sx={textFieldStyles} // Apply TextField styling
                 />
               )}
-               // Removed Autocomplete specific sx width/margin, handled by Box now
+              // Removed Autocomplete specific sx width/margin, handled by Box now
             />
           </Box>
         </Grid>

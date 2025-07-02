@@ -36,7 +36,7 @@ import { useNavigate } from "react-router-dom";
 
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import EventIcon from "@mui/icons-material/Event";
-import { use } from "react";
+// import { use } from "react"; // This import is not used and can be removed
 
 const permissionsList = [
   "can_view_missing",
@@ -55,7 +55,7 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: 400,
   bgcolor: "background.paper",
-  border: "2px solid #000",
+  // border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
@@ -93,10 +93,15 @@ export default function AgencyDashboard() {
   const [requestsPage, setRequestsPage] = useState(1);
   const [volunteersPage, setVolunteersPage] = useState(1);
   const volunteersPerPage = 4;
-  const requestsPerPage = 1;
+  const requestsPerPage = 2;
+
+  // State to manage the expanded note in its own modal
+  const [openNoteModal, setOpenNoteModal] = useState(false);
+  const [currentNote, setCurrentNote] = useState("");
+  const [currentNoteVolunteerName, setCurrentNoteVolunteerName] = useState("");
 
   useEffect(() => {
-    // ... (agencyId setup logic remains the same)
+    // Logic to set agencyId from localStorage
     let idToUse = localStorage.getItem("agency_id");
     if (!idToUse) {
       const userString = localStorage.getItem("user");
@@ -128,6 +133,7 @@ export default function AgencyDashboard() {
   }, []);
 
   useEffect(() => {
+    // Cleanup timers on component unmount
     return () => {
       if (successTimerRef.current) {
         clearTimeout(successTimerRef.current);
@@ -157,7 +163,7 @@ export default function AgencyDashboard() {
       clearTimeout(errorTimerRef.current);
       errorTimerRef.current = null;
     }
-    setError("");
+    setError(""); // Clear error when showing success
     setSuccessMessage(message);
     successTimerRef.current = setTimeout(() => {
       setSuccessMessage("");
@@ -171,12 +177,12 @@ export default function AgencyDashboard() {
       clearTimeout(successTimerRef.current);
       successTimerRef.current = null;
     }
-    setSuccessMessage("");
+    setSuccessMessage(""); // Clear success when showing error
     setError(message);
     errorTimerRef.current = setTimeout(() => {
       setError("");
       errorTimerRef.current = null;
-    }, 3000);
+    }, 5000);
   };
 
   const fetchAgencyVolunteers = async () => {
@@ -196,10 +202,12 @@ export default function AgencyDashboard() {
       }
       const data = await response.json();
       setVolunteers(data);
-      setVolunteersPage(1);
+      setVolunteersPage(1); // Reset to first page on new data
     } catch (apiError) {
       console.error("Failed to fetch agency volunteers:", apiError);
-      showErrorWithTimeout(`Failed to fetch agency volunteers: ${apiError.message}`);
+      showErrorWithTimeout(
+        `Failed to fetch agency volunteers: ${apiError.message}`
+      );
     } finally {
       setLoadingVolunteers(false);
     }
@@ -221,42 +229,42 @@ export default function AgencyDashboard() {
         );
       }
       let data = await response.json();
+      // Filter out accepted requests and sort by ID descending
       data.sort((a, b) => b.id - a.id);
-      const formattedRequests = data
-        .map((req) => ({
-          id: req.id,
-          volunteer_user_id: req.volunteer,
-          volunteer_name: req.volunteer_name || `User ID: ${req.volunteer}`,
-          volunteer_email: req.volunteer_email || "N/A",
-          volunteer_contact: req.volunteer_contact || "N/A",
-          message: req.message || "No message provided.",
-          is_accepted: req.is_accepted,
-        }))
-        .filter((req) => !req.is_accepted);
+      const formattedRequests = data.map((req) => ({
+        id: req.id,
+        volunteer_user_id: req.volunteer,
+        volunteer_name: req.volunteer_name || `User ID: ${req.volunteer}`,
+        volunteer_email: req.volunteer_email || "N/A",
+        volunteer_contact: req.volunteer_contact || "N/A",
+        message: req.message || "No message provided.",
+        is_accepted: req.is_accepted,
+      })).filter((req) => !req.is_accepted); // Only show pending requests
       setRequests(formattedRequests);
-      setRequestsPage(1);
+      setRequestsPage(1); // Reset to first page on new data
     } catch (apiError) {
       console.error("Failed to fetch volunteer requests:", apiError);
-      showErrorWithTimeout(`Failed to fetch volunteer requests: ${apiError.message}`);
+      showErrorWithTimeout(
+        `Failed to fetch volunteer requests: ${apiError.message}`
+      );
     } finally {
       setLoadingRequests(false);
     }
   };
 
   useEffect(() => {
+    // Fetch data when agencyId is available
     if (agencyId) {
-      // Clear the specific "Agency ID is missing" error if it was set and ID is now available.
-      // This direct setError is fine as it's a specific initial setup case.
-      if (error.includes("Agency ID is missing")) setError("");
+      if (error.includes("Agency ID is missing")) setError(""); // Clear initial error if ID is found
       fetchRequests();
       fetchAgencyVolunteers();
     }
-  }, [agencyId]);
+  }, [agencyId]); // Dependency array ensures this runs when agencyId changes
 
   const handleSearch = async () => {
     setLoading(true);
     clearMessages();
-    setSearchResult(null);
+    setSearchResult(null); // Clear previous search result
 
     if (!searchEmail.trim()) {
       showErrorWithTimeout("Please enter an email to search.");
@@ -278,19 +286,21 @@ export default function AgencyDashboard() {
             email: userData.email,
           });
         } else {
-          showErrorWithTimeout(`No volunteer found with the email: ${searchEmail}.`);
+          showErrorWithTimeout(
+            `No volunteer found with the email: ${searchEmail}.`
+          );
         }
       } else if (response.status === 404) {
         const errorData = await response.json().catch(() => null);
         showErrorWithTimeout(
           errorData?.error ||
-          `No volunteer found with the email: ${searchEmail}.`
+            `No volunteer found with the email: ${searchEmail}.`
         );
       } else if (response.status === 400) {
         const errorData = await response.json().catch(() => null);
         showErrorWithTimeout(
           errorData?.error ||
-          "Search input is invalid. Please check the email entered."
+            "Search input is invalid. Please check the email entered."
         );
       } else {
         const errorData = await response
@@ -362,15 +372,25 @@ export default function AgencyDashboard() {
         setRequests((prevRequests) =>
           prevRequests.filter((req) => req.id !== interestIdToDelete)
         );
-        if (currentVolunteer && currentVolunteer.id === interestIdToDelete && currentVolunteer.volunteer_user_id === requestToDelete.volunteer_user_id) {
-          setOpenModal(false);
-          setCurrentVolunteer(null);
+        // If the deleted request was the one currently being handled in the main modal
+        if (
+          currentVolunteer &&
+          currentVolunteer.id === interestIdToDelete &&
+          currentVolunteer.volunteer_user_id ===
+            requestToDelete.volunteer_user_id
+        ) {
+          setOpenModal(false); // Close the permission modal
+          setCurrentVolunteer(null); // Clear current volunteer
         }
       } else if (response.status === 404) {
-        throw new Error("Request not found. It might have already been deleted.");
+        throw new Error(
+          "Request not found. It might have already been deleted."
+        );
       } else {
         const errorText = await response.text();
-        throw new Error(`Failed to delete request. Status: ${response.status}. ${errorText}`);
+        throw new Error(
+          `Failed to delete request. Status: ${response.status}. ${errorText}`
+        );
       }
     } catch (apiError) {
       console.error("API Error deleting volunteer interest:", apiError);
@@ -390,8 +410,11 @@ export default function AgencyDashboard() {
     clearMessages();
     setLoadingAction(true);
     const isFromRequest = currentVolunteer.hasOwnProperty("volunteer_user_id");
-    const memberId = isFromRequest ? currentVolunteer.volunteer_user_id : currentVolunteer.id;
-    const memberFullName = currentVolunteer.volunteer_name || currentVolunteer.full_name;
+    const memberId = isFromRequest
+      ? currentVolunteer.volunteer_user_id
+      : currentVolunteer.id;
+    const memberFullName =
+      currentVolunteer.volunteer_name || currentVolunteer.full_name;
     let interestAccepted = false;
     let accumulatedError = "";
 
@@ -402,8 +425,14 @@ export default function AgencyDashboard() {
           { method: "POST" }
         );
         if (!acceptResponse.ok) {
-          const errorData = await acceptResponse.json().catch(() => ({ detail: "Failed to accept interest." }));
-          throw new Error(`Accept Interest API: ${errorData.detail || `Status ${acceptResponse.status}`}`);
+          const errorData = await acceptResponse
+            .json()
+            .catch(() => ({ detail: "Failed to accept interest." }));
+          throw new Error(
+            `Accept Interest API: ${
+              errorData.detail || `Status ${acceptResponse.status}`
+            }`
+          );
         }
         interestAccepted = true;
       } catch (apiError) {
@@ -427,25 +456,34 @@ export default function AgencyDashboard() {
         }
       );
       if (!setPermissionsResponse.ok) {
-        const errorData = await setPermissionsResponse.json().catch(() => ({ detail: "Failed to set permissions." }));
-        throw new Error(`Set Permissions API: ${errorData.detail || `Status ${setPermissionsResponse.status}`}`);
+        const errorData = await setPermissionsResponse
+          .json()
+          .catch(() => ({ detail: "Failed to set permissions." }));
+        throw new Error(
+          `Set Permissions API: ${
+            errorData.detail || `Status ${setPermissionsResponse.status}`
+          }`
+        );
       }
 
-      if (accumulatedError) { // If there was an error accepting interest, but permissions were set
-        showErrorWithTimeout(accumulatedError + `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`); // MODIFIED
+      if (accumulatedError) {
+        showErrorWithTimeout(
+          accumulatedError +
+            `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`
+        );
       } else {
         showSuccessWithTimeout(
           `Volunteer ${memberFullName} processed and permissions set successfully!`
         );
       }
+      // Re-fetch requests and volunteers to update the tables
       if (isFromRequest && interestAccepted) fetchRequests();
       fetchAgencyVolunteers();
-
     } catch (apiError) {
       console.error("API Error setting/creating permissions:", apiError);
       accumulatedError += `Error setting permissions for ${memberFullName}: ${apiError.message}`;
       showErrorWithTimeout(accumulatedError.trim());
-      fetchAgencyVolunteers();
+      fetchAgencyVolunteers(); // Still attempt to re-fetch volunteers even if permissions failed
     } finally {
       setLoadingAction(false);
       setOpenModal(false);
@@ -455,13 +493,19 @@ export default function AgencyDashboard() {
     }
   };
 
-  const handleSavePermissions = async (memberIdToUpdate, currentVolunteerObject) => {
+  const handleSavePermissions = async (
+    memberIdToUpdate,
+    currentVolunteerObject
+  ) => {
     if (!agencyId || !memberIdToUpdate) {
-      showErrorWithTimeout("Agency ID or Member ID is missing for saving permissions.");
+      showErrorWithTimeout(
+        "Agency ID or Member ID is missing for saving permissions."
+      );
       return;
     }
     clearMessages();
     setLoadingAction(true);
+    // Create payload based on the current state of checkboxes for this volunteer
     const permissionPayload = {};
     permissionsList.forEach((perm) => {
       permissionPayload[perm] = !!currentVolunteerObject[perm];
@@ -476,8 +520,14 @@ export default function AgencyDashboard() {
         }
       );
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: "Failed to update permissions." }));
-        throw new Error(`Update Permissions API: ${errorData.detail || `HTTP error! status: ${response.status}`}`);
+        const errorData = await response
+          .json()
+          .catch(() => ({ detail: "Failed to update permissions." }));
+        throw new Error(
+          `Update Permissions API: ${
+            errorData.detail || `HTTP error! status: ${response.status}`
+          }`
+        );
       }
       const updatedPermissionRecord = await response.json();
       setVolunteers((prevVolunteers) =>
@@ -506,20 +556,41 @@ export default function AgencyDashboard() {
     setRequestsPage(value);
   };
 
+  // Function to handle opening the note modal
+  const handleOpenNoteModal = (note, volunteerName) => {
+    setCurrentNote(note);
+    setCurrentNoteVolunteerName(volunteerName);
+    setOpenNoteModal(true);
+  };
+
   return (
     <Box
       sx={{
-        position: "absolute", minHeight: "100vh",
+        position: "absolute",
+        minHeight: "100vh",
         background: `linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(${worldMapBackground})`,
-        backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
-        backgroundRepeat: "repeat-y", overflowX: "hidden", overflowY: "hidden",
-        p: { xs: 1, sm: 2, md: 3 }, top: 0, left: 0, right: 0, zIndex: 0,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "repeat-y",
+        overflowX: "hidden", // Prevents horizontal scroll for the whole page
+        overflowY: "hidden",
+        p: { xs: 1, sm: 2, md: 3 },
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 0,
       }}
     >
+      {/* --- Global Alert Messages --- */}
       <Box
         sx={{
-          minHeight: "60px", width: "100%", position: "sticky",
-          top: "70px", zIndex: 1200, mb: error || successMessage ? 2 : 0,
+          minHeight: "60px",
+          width: "100%",
+          position: "sticky",
+          top: "55px",
+          zIndex: 1200, // Ensure alerts appear above other content
+          mb: error || successMessage ? 2 : 0,
         }}
       >
         {error && (
@@ -532,7 +603,12 @@ export default function AgencyDashboard() {
                 errorTimerRef.current = null;
               }
             }}
-            sx={{ width: "100%", whiteSpace: "pre-wrap" }}
+            sx={{
+              mb: 2,
+              width: "fit-content",
+              maxWidth: "90%",
+              mx: "auto",
+            }}
           >
             {error}
           </Alert>
@@ -540,26 +616,40 @@ export default function AgencyDashboard() {
         {successMessage && !error && (
           <Alert
             severity="success"
-            onClose={() => { // MODIFIED
+            onClose={() => {
               setSuccessMessage("");
               if (successTimerRef.current) {
                 clearTimeout(successTimerRef.current);
                 successTimerRef.current = null;
               }
             }}
-            sx={{ width: "100%" }}
+            sx={{
+              mb: 2,
+              width: "fit-content",
+              maxWidth: "90%",
+              mx: "auto",
+            }}
           >
             {successMessage}
           </Alert>
         )}
       </Box>
 
-      <Box sx={{ display: { xs: "block", md: "flex" }, minHeight: "calc(100vh - 150px)" }}>
+      {/* --- Main Content Layout --- */}
+      <Box
+        sx={{
+          display: { xs: "block", md: "flex" },
+          minHeight: "calc(100vh - 150px)",
+          mt: 2,
+        }}
+      >
+        {/* --- Quick Access Sidebar --- */}
         <Box
           sx={{
-            width: { xs: "100%", md: 180 },
+            width: { md: 180 },
+            display: { xs: "none", md: "block" },
             height: 180,
-            bgcolor: "#f9f9f9",
+            bgcolor: "white",
             mb: { xs: 2, md: 0 },
             mr: { md: 2 },
             p: 2,
@@ -590,59 +680,217 @@ export default function AgencyDashboard() {
           </List>
         </Box>
 
+        {/* --- Main Dashboard Sections (Search, Requests, Permissions) --- */}
         <Box sx={{ flexGrow: 1, mt: { xs: 2, md: 0 } }}>
-          <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2, mb: 3 }}>
-            <Box sx={{ width: { xs: "100%", md: "40%" }, mb: { xs: 3, md: 0 } }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              gap: 2,
+              mb: 3,
+            }}
+          >
+            {/* --- Search Volunteer Section --- */}
+            <Box
+              sx={{ width: { xs: "100%", md: "40%" }, mb: { xs: 3, md: 0 } }}
+            >
               <Typography variant="h6">Search Volunteer</Typography>
-              <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mt: 1, alignItems: { xs: "stretch", sm: "center" } }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: 2,
+                  mt: 1,
+                  alignItems: { xs: "stretch", sm: "center" },
+                }}
+              >
                 <TextField
-                  placeholder="Search by Email" value={searchEmail}
+                  placeholder="Search by Email"
+                  value={searchEmail}
                   onChange={(e) => setSearchEmail(e.target.value)}
                   sx={{
                     borderBottom: "2px solid #eee",
-                    "& .MuiOutlinedInput-root": { backgroundColor: "white", "& fieldset": { borderColor: "transparent" }, "&:hover fieldset": { borderColor: "transparent" }, "&.Mui-focused fieldset": { borderColor: "transparent" }, },
-                    width: { xs: "100%", sm: "250px" }, flexGrow: { sm: 0 },
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      "& fieldset": { borderColor: "transparent" },
+                      "&:hover fieldset": { borderColor: "transparent" },
+                      "&.Mui-focused fieldset": { borderColor: "transparent" },
+                    },
+                    width: { xs: "100%", sm: "250px" },
+                    flexGrow: { sm: 0 },
                   }}
                 />
-                <Button disableRipple onClick={handleSearch} disabled={loading} sx={{ flexShrink: 0 }}>Search</Button>
+                <Button
+                  disableRipple
+                  onClick={handleSearch}
+                  disabled={loading}
+                  sx={{ flexShrink: 0 }}
+                >
+                  Search
+                </Button>
               </Box>
-              {loading ? (<CircularProgress sx={{ mt: 2 }} />) : (
+              {loading ? (
+                <CircularProgress sx={{ mt: 2 }} />
+              ) : (
                 searchResult && (
                   <Box sx={{ mt: 2 }}>
                     <Typography>Name: {searchResult.full_name}</Typography>
                     <Typography>Email: {searchResult.email}</Typography>
-                    <Button disableRipple sx={{ mt: 1 }} onClick={() => handleAcceptRequest(searchResult)}> Add Volunteer </Button>
+                    <Button
+                      disableRipple
+                      sx={{ mt: 1 }}
+                      onClick={() => handleAcceptRequest(searchResult)}
+                    >
+                      {" "}
+                      Add Volunteer{" "}
+                    </Button>
                   </Box>
                 )
               )}
             </Box>
 
+            {/* --- Volunteer Requests Section --- */}
             <Box sx={{ width: { xs: "100%", md: "80%" } }}>
               <Typography variant="h6">Volunteer Requests</Typography>
-              {loadingRequests ? (<CircularProgress sx={{ mt: 1 }} />) : requests.length === 0 ? (
-                <Typography sx={{ mt: 1, fontStyle: "italic" }}>No pending requests.</Typography>
+              {loadingRequests ? (
+                <CircularProgress sx={{ mt: 1 }} />
+              ) : requests.length === 0 ? (
+                <Typography sx={{ mt: 1, fontStyle: "italic" }}>
+                  No pending requests.
+                </Typography>
               ) : (
-                <TableContainer component={Paper} sx={{ maxHeight: 350, overflow: "auto", width: "100%" }}>
+                <TableContainer
+                  component={Paper}
+                  sx={{ maxHeight: 350, overflow: "auto", width: "100%" }}
+                >
                   <Table stickyHeader size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ width: '20%', padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Name</TableCell>
-                        <TableCell sx={{ width: '30%', padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Email</TableCell>
-                        <TableCell sx={{ width: '20%', display: { xs: 'none', sm: 'table-cell' }, padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Contact</TableCell>
-                        <TableCell sx={{ width: '20%', display: { xs: 'none', md: 'table-cell' }, padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Note</TableCell>
-                        <TableCell sx={{ width: 'auto', padding: '6px 10px' }}>Action</TableCell>
+                        <TableCell
+                          sx={{
+                            width: "20%",
+                            padding: "6px 10px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Name
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            width: "30%",
+                            padding: "6px 10px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Email
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            width: "20%",
+                            display: { xs: "none", sm: "table-cell" },
+                            padding: "6px 10px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Contact
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            width: "20%",
+                            display: { xs: "none", md: "table-cell" },
+                            padding: "6px 10px",
+                            minWidth: "120px", // Ensure minimum width for note
+                          }}
+                        >
+                          Note
+                        </TableCell>
+                        <TableCell sx={{ width: "auto", padding: "6px 10px" }}>
+                          Action
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {requests
-                        .slice((requestsPage - 1) * requestsPerPage, requestsPage * requestsPerPage)
+                        .slice(
+                          (requestsPage - 1) * requestsPerPage,
+                          requestsPage * requestsPerPage
+                        )
                         .map((req) => (
-                          <TableRow key={req.id} sx={{ height: '48px' }}>
-                            <TableCell sx={{ padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_name}</TableCell>
-                            <TableCell sx={{ padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_email}</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.volunteer_contact}</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, padding: '6px 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.message}</TableCell>
-                            <TableCell sx={{ padding: '6px 10px' }}><Button disableRipple size="small" onClick={() => handleAcceptRequest(req)}>Accept</Button></TableCell>
+                          <TableRow key={req.id} sx={{ height: "48px" }}>
+                            <TableCell
+                              sx={{
+                                padding: "6px 10px",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {req.volunteer_name}
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                padding: "6px 10px",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {req.volunteer_email}
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                display: { xs: "none", sm: "table-cell" },
+                                padding: "6px 10px",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {req.volunteer_contact}
+                            </TableCell>
+                            {/* Note content with multi-line ellipsis and click-to-expand */}
+                            <TableCell
+                              sx={{
+                                display: { xs: "none", md: "table-cell" },
+                                padding: "6px 10px",
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  display: '-webkit-box',
+                                  WebkitBoxOrient: 'vertical',
+                                  WebkitLineClamp: 2, // Limit to 2 lines
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  wordBreak: 'break-word', // Ensure long words break
+                                  cursor: req.message.length > 50 ? 'pointer' : 'default', // Heuristic to show pointer for truncatable notes
+                                }}
+                                onClick={() => {
+                                  // Only open modal if the message is long enough to be truncated
+                                  if (req.message.length > 50) { // Adjust this threshold as needed
+                                    handleOpenNoteModal(req.message, req.volunteer_name);
+                                  }
+                                }}
+                              >
+                                {req.message}
+                              </Typography>
+                            </TableCell>
+                            <TableCell sx={{ padding: "6px 10px" }}>
+                              <Button
+                                disableRipple
+                                size="small"
+                                onClick={() => handleAcceptRequest(req)}
+                              >
+                                Accept
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         ))}
                     </TableBody>
@@ -654,51 +902,121 @@ export default function AgencyDashboard() {
                   count={Math.ceil(requests.length / requestsPerPage)}
                   page={requestsPage}
                   onChange={handleRequestsPageChange}
-                  sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+                  sx={{ mt: 2, display: "flex", justifyContent: "center" }}
                 />
               )}
             </Box>
           </Box>
 
+          {/* --- Manage Existing Permissions Section --- */}
           <Box sx={{ width: "100%" }}>
             <Typography variant="h6">Manage Existing Permissions</Typography>
-            {loadingVolunteers ? (<CircularProgress sx={{ mt: 1 }} />) : volunteers.length === 0 ? (
-              <Typography sx={{ mt: 1, fontStyle: "italic" }}>No agency volunteers found.</Typography>
+            {loadingVolunteers ? (
+              <CircularProgress sx={{ mt: 1 }} />
+            ) : volunteers.length === 0 ? (
+              <Typography sx={{ mt: 1, fontStyle: "italic" }}>
+                No agency volunteers found.
+              </Typography>
             ) : (
-              <TableContainer component={Paper} sx={{ overflowX: "auto", mt: 1 }}>
+              <TableContainer
+                component={Paper}
+                sx={{ overflowX: "auto", mt: 1 }}
+              >
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ height: '52px' }}>
-                      <TableCell sx={{ padding: '6px 10px', minWidth: '100px' }}>Name</TableCell>
-                      {permissionsList.map((perm) => (<TableCell key={perm} sx={{ padding: '6px 7px', textAlign: 'center', minWidth: '95px' }}>{perm.replace(/_/g, " ")}</TableCell>))}
-                      <TableCell sx={{ padding: '6px 10px', textAlign: 'center' }}>Save</TableCell>
+                    <TableRow sx={{ height: "52px" }}>
+                      <TableCell
+                        sx={{ padding: "6px 10px", minWidth: "100px" }}
+                      >
+                        Name
+                      </TableCell>
+                      {permissionsList.map((perm) => (
+                        <TableCell
+                          key={perm}
+                          sx={{
+                            padding: "6px 7px",
+                            textAlign: "center",
+                            minWidth: "95px", // Ensure enough space for checkbox and label
+                          }}
+                        >
+                          {perm.replace(/_/g, " ")}
+                        </TableCell>
+                      ))}
+                      <TableCell
+                        sx={{ padding: "6px 10px", textAlign: "center" }}
+                      >
+                        Save
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {volunteers
-                      .slice((volunteersPage - 1) * volunteersPerPage, volunteersPage * volunteersPerPage)
+                      .slice(
+                        (volunteersPage - 1) * volunteersPerPage,
+                        volunteersPage * volunteersPerPage
+                      )
                       .map((vol) => (
-                        <TableRow key={vol.member.id} sx={{ height: '48px' }}>
-                          <TableCell sx={{ padding: '6px 10px' }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        <TableRow key={vol.member.id} sx={{ height: "48px" }}>
+                          <TableCell sx={{ padding: "6px 10px" }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 500 }}
+                            >
                               {vol.member.full_name}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem' }}>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color: "text.secondary",
+                                fontSize: "0.65rem",
+                              }}
+                            >
                               {vol.member.email}
                             </Typography>
                           </TableCell>
                           {permissionsList.map((perm) => (
-                            <TableCell key={perm} sx={{ padding: '0px 8px', textAlign: 'center' }}>
-                              <Checkbox checked={!!vol[perm]} onChange={(e) => {
-                                setVolunteers((prevVols) => prevVols.map((v_orig) => v_orig.member.id === vol.member.id ? { ...v_orig, [perm]: e.target.checked } : v_orig));
-                              }} sx={{ padding: '4px' }} />
+                            <TableCell
+                              key={perm}
+                              sx={{ padding: "0px 8px", textAlign: "center" }}
+                            >
+                              <Checkbox
+                                checked={!!vol[perm]}
+                                onChange={(e) => {
+                                  setVolunteers((prevVols) =>
+                                    prevVols.map((v_orig) =>
+                                      v_orig.member.id === vol.member.id
+                                        ? {
+                                            ...v_orig,
+                                            [perm]: e.target.checked,
+                                          }
+                                        : v_orig
+                                    )
+                                  );
+                                }}
+                                sx={{ padding: "4px" }}
+                              />
                             </TableCell>
                           ))}
-                          <TableCell sx={{ padding: '6px 10px', textAlign: 'center' }}>
-                            <Button disableRipple size="small" onClick={() => {
-                              const volunteerToSave = volunteers.find((v_orig) => v_orig.member.id === vol.member.id);
-                              if (volunteerToSave) handleSavePermissions(vol.member.id, volunteerToSave);
-                            }} disabled={loadingAction}>Save</Button>
+                          <TableCell
+                            sx={{ padding: "6px 10px", textAlign: "center" }}
+                          >
+                            <Button
+                              disableRipple
+                              size="small"
+                              onClick={() => {
+                                const volunteerToSave = volunteers.find(
+                                  (v_orig) => v_orig.member.id === vol.member.id
+                                );
+                                if (volunteerToSave)
+                                  handleSavePermissions(
+                                    vol.member.id,
+                                    volunteerToSave
+                                  );
+                              }}
+                              disabled={loadingAction}
+                            >
+                              Save
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -711,53 +1029,179 @@ export default function AgencyDashboard() {
                 count={Math.ceil(volunteers.length / volunteersPerPage)}
                 page={volunteersPage}
                 onChange={handleVolunteersPageChange}
-                sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+                sx={{ mt: 2, display: "flex", justifyContent: "center" }}
               />
             )}
           </Box>
 
-          <Modal open={openModal} onClose={() => { setOpenModal(false); setCurrentVolunteer(null); }}>
+          {/* --- Grant Permissions Modal (Existing) --- */}
+          <Modal
+            open={openModal}
+            onClose={() => {
+              setOpenModal(false);
+              setCurrentVolunteer(null);
+            }}
+          >
             <Box sx={style}>
-              <Typography variant="h6" gutterBottom>Grant Permissions</Typography>
-              <Typography variant="body2" sx={{ mb: 0 }}>Volunteer: {currentVolunteer?.volunteer_name || currentVolunteer?.full_name}</Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>Email: {currentVolunteer?.volunteer_email || currentVolunteer?.email}</Typography>
-              <FormGroup sx={{ maxHeight: "calc(90vh - 250px)", overflowY: "auto", pr: 1 }}>
+              <Typography variant="h6" gutterBottom>
+                Grant Permissions
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 0 }}>
+                Volunteer:{" "}
+                {currentVolunteer?.volunteer_name ||
+                  currentVolunteer?.full_name}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Email:{" "}
+                {currentVolunteer?.volunteer_email || currentVolunteer?.email}
+              </Typography>
+              <FormGroup
+                sx={{
+                  maxHeight: "calc(90vh - 250px)",
+                  overflowY: "auto",
+                  pr: 1,
+                }}
+              >
                 {permissionsList.map((perm) => (
-                  <FormControlLabel control={<Checkbox checked={selectedPermissions.includes(perm)} onChange={() => handlePermissionChange(perm)} />} label={perm.replace(/_/g, " ")} key={perm} />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={selectedPermissions.includes(perm)}
+                        onChange={() => handlePermissionChange(perm)}
+                      />
+                    }
+                    label={perm.replace(/_/g, " ")}
+                    key={perm}
+                  />
                 ))}
               </FormGroup>
-              <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between", gap: 1 }}>
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 1,
+                }}
+              >
                 {currentVolunteer && currentVolunteer.volunteer_user_id && (
-                  <Button variant="outlined" color="error" onClick={() => initiateDeleteRequest(currentVolunteer)} disabled={loadingAction} size="small">Delete Request</Button>
+                  <Button
+                  disableRipple
+                    // variant="outlined"
+                    color="error"
+                    onClick={() => initiateDeleteRequest(currentVolunteer)}
+                    disabled={loadingAction}
+                    size="small"
+                  >
+                    Delete Request
+                  </Button>
                 )}
-                {!(currentVolunteer && currentVolunteer.volunteer_user_id) && <Box sx={{ flexGrow: 1 }}></Box>}
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button variant="outlined" onClick={() => { setOpenModal(false); setCurrentVolunteer(null); }} disabled={loadingAction} size="small">Cancel</Button>
-                  <Button variant="contained" color="primary" onClick={handleGivePermissions} disabled={loadingAction} size="small">
-                    {loadingAction ? (<CircularProgress size={20} color="inherit" />) : ("Give Permissions")}
+                {!(currentVolunteer && currentVolunteer.volunteer_user_id) && (
+                  <Box sx={{ flexGrow: 1 }}></Box>
+                )}
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Button
+                  disableRipple
+                    // variant="outlined"
+                    onClick={() => {
+                      setOpenModal(false);
+                      setCurrentVolunteer(null);
+                    }}
+                    disabled={loadingAction}
+                    size="small"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                  disableRipple
+                    // variant="contained"
+                    color="primary"
+                    onClick={handleGivePermissions}
+                    disabled={loadingAction}
+                    size="small"
+                  >
+                    {loadingAction ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      "Give Permissions"
+                    )}
                   </Button>
                 </Box>
               </Box>
             </Box>
           </Modal>
 
-          <Dialog open={confirmDeleteDialogOpen} onClose={() => { setConfirmDeleteDialogOpen(false); setRequestToDelete(null); }} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+          {/* --- New Modal for displaying full Note content --- */}
+          <Modal
+            open={openNoteModal}
+            onClose={() => setOpenNoteModal(false)}
+            aria-labelledby="note-modal-title"
+            aria-describedby="note-modal-description"
+          >
+            <Box sx={style}>
+              <Typography id="note-modal-title" variant="h6" component="h2">
+                Note from {currentNoteVolunteerName}
+              </Typography>
+              <Typography id="note-modal-description" sx={{ mt: 2, whiteSpace: 'pre-wrap' }}>
+                {currentNote}
+              </Typography>
+              <Button onClick={() => setOpenNoteModal(false)} sx={{ mt: 2 }}>
+                Close
+              </Button>
+            </Box>
+          </Modal>
+
+          {/* --- Confirm Delete Dialog (Existing) --- */}
+          <Dialog
+            open={confirmDeleteDialogOpen}
+            onClose={() => {
+              setConfirmDeleteDialogOpen(false);
+              setRequestToDelete(null);
+            }}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
             <DialogTitle id="alert-dialog-title">Confirm Deletion</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-                Are you sure you want to delete the request from {requestToDelete?.volunteer_name || "this volunteer"}? This cannot be undone.
+                Are you sure you want to delete the request from{" "}
+                <Box component="span" fontWeight="bold">
+                  {requestToDelete?.volunteer_name || "this volunteer"}
+                </Box>
+                ? This cannot be undone.
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => { setConfirmDeleteDialogOpen(false); setRequestToDelete(null); }} disabled={loadingAction}>Cancel</Button>
-              <Button onClick={executeDeleteRequest} color="error" disabled={loadingAction} autoFocus>
-                {loadingAction ? (<CircularProgress size={20} color="inherit" />) : ("Confirm Delete")}
+              <Button
+                onClick={() => {
+                  setConfirmDeleteDialogOpen(false);
+                  setRequestToDelete(null);
+                }}
+                disabled={loadingAction}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={executeDeleteRequest}
+                color="error"
+                disabled={loadingAction}
+                autoFocus
+              >
+                {loadingAction ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Confirm Delete"
+                )}
               </Button>
             </DialogActions>
           </Dialog>
         </Box>
       </Box>
-      <Grid container xs={12} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      {/* --- Footer --- */}
+      <Grid
+        container
+        xs={12}
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
         <Grid item xs={12} md={10} sx={{ textAlign: "center" }}>
           <Footer />
         </Grid>

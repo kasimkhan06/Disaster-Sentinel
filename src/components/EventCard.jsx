@@ -75,7 +75,7 @@ const ComponentToPrint = forwardRef(({ users, event }, ref) => {
           paddingBottom: "4px",
         }}
       >
-        Registered Users
+        Attendees List
       </Typography>
 
       <div style={{ marginBottom: "20px", padding: "10px" }}>
@@ -203,7 +203,7 @@ const DisplayTable = ({ open, handleClose, registeredUsers, event }) => {
         </IconButton>
 
         <Typography variant="h5" sx={{ textAlign: "center", mb: 2 }}>
-          Registered Users
+          Attendees List
         </Typography>
 
         <TableContainer component={Paper}>
@@ -335,7 +335,7 @@ export default function EventCard({ event, refreshEvents }) {
     if (event.event_type === "Seminar" || event.event_type === "Conference" || event.event_type === "Networking") {
       return "/assets/Event Images/seminar1.webp";
     } else if (event.event_type === "Workshop") {
-      return "/assets/Event Images/Workshops-22.jpg";
+      return "/assets/Event Images/Workshops.jpg";
     } else {
       return "/assets/Event Images/webinar.jpg";
     }
