@@ -87,7 +87,10 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
     e.stopPropagation();
     setOpenMissingPerson(!openMissingPerson);
   };
-
+  const handleNavigation = (path) => {
+    setAnchorEl(null);
+    navigate(path);
+  };
   const handleLogin = () => {
     handleNavigation("/login");
     localStorage.setItem("redirectAfterLogin", window.location.pathname);
@@ -136,7 +139,7 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
                   setOpenDrawer(false), navigate("/current-location");
                 }}
               >
-                <ListItemText primary="Current Location" />
+                <ListItemText primary="Location Information" />
               </ListItemButton>
               <ListItemButton
                 onClick={() => {
