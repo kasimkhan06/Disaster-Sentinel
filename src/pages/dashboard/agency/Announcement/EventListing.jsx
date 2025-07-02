@@ -22,6 +22,10 @@ import {
   InputAdornment,
 } from "@mui/material";
 
+// MUI Carousel
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+
 // MUI Theme
 import { useTheme } from "@mui/material/styles";
 
@@ -57,6 +61,7 @@ export default function EventListing() {
   const [isNotLoggedIn, setIsNotLoggedIn] = useState(false);
 
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const location = useLocation();
 
   // Check login status
@@ -178,6 +183,7 @@ export default function EventListing() {
       }}
     >
       <Box>
+        {/* Header Section */}
         <Box sx={{ maxWidth: '1000px', marginX: 'auto', px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 3 } }}>
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
             <Typography
@@ -335,30 +341,114 @@ export default function EventListing() {
           </Box>
         </Box>
       </Box>
-
-      <Box className="container" sx={{ flex: 1, pb: 4, width: '100%', maxWidth: { xs: '80%', sm: '1200px', md: '900px', lg: '1100px' }, marginX: 'auto', px: { xs: 0, sm: 3 } }}>
-        {isLoading ? (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pt: 10, height: '300px' }}>
-            <CircularProgress size={50} sx={{ mb: 2, color: theme.palette.primary.main }} />
-            <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
-          </Box>
-        ) : filteredEvents().length === 0 ? (
-          <Box sx={{ textAlign: "center", p: { xs: 2, sm: 3 }, backgroundColor: 'transparent', borderRadius: 0 }}>
-            <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
-              No announcements available at the moment.
-            </Typography>
+      <Box>
+        {isMobile ? (
+          <Box
+            sx={{
+              flex: 1,
+              pb: 4,
+              width: '100%',
+              maxWidth: { xs: '90%', sm: '1200px', md: '900px', lg: '1100px' },
+              marginX: 'auto',
+              px: { xs: 0, sm: 3 }
+            }}
+          >
+            {isLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                pt: 10,
+                height: '300px'
+              }}
+            >
+              <CircularProgress size={50} sx={{ mb: 2, color: theme.palette.primary.main }} />
+              <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
+            </Box>
+            ) : filteredEvents().length === 0 ? (
+            <Box sx={{ textAlign: "center", p: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 500, color: '#333' }}>
+                No announcements available at the moment.
+              </Typography>
+            </Box>
+            ) : (
+            <Box sx={{ my: 2 }}>
+              <Carousel
+                responsive={{
+                  mobile: { breakpoint: { max: 600, min: 0 }, items: 1, slidesToSlide: 1 }
+                }}
+                ssr={true}
+                arrows={true}
+                infinite={filteredEvents().length > 1}
+                centerMode={false}
+                keyBoardControl={true}
+                containerClass="carousel-container"
+                itemClass="carousel-item-padding-40-px"
+              >
+                {filteredEvents().map((event) => (
+                  <Box
+                    key={event.id}
+                    sx={{ background: 'transparent', boxShadow: 'none', px: 0, py: 0 }}
+                  >
+                    <EventCard event={event} refreshEvents={fetchEvents} variant="carousel" />
+                  </Box>
+                ))}
+              </Carousel>
+            </Box>
+            )}
           </Box>
         ) : (
-          <Grid container spacing={3}>
-            {filteredEvents().map((event) => (
-              <Grid item xs={12} sm={6} md={4} key={event.id}>
-                <EventCard event={event} refreshEvents={fetchEvents} />
+          <Box
+            className="container"
+            sx={{
+              flex: 1,
+              pb: 4,
+              width: '100%',
+              maxWidth: { xs: '85%', sm: '1200px', md: '900px', lg: '1100px' },
+              marginX: 'auto',
+              px: { xs: 0, sm: 3 }
+            }}
+          >
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  pt: 10,
+                  height: '300px'
+                }}
+              >
+                <CircularProgress size={50} sx={{ mb: 2, color: theme.palette.primary.main }} />
+                <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
+              </Box>
+            ) : filteredEvents().length === 0 ? (
+              <Box
+                sx={{
+                  textAlign: "center",
+                  p: { xs: 2, sm: 3 },
+                  backgroundColor: 'transparent',
+                  borderRadius: 0
+                }}
+              >
+                <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
+                  No announcements available at the moment.
+                </Typography>
+              </Box>
+            ) : (
+              <Grid container spacing={3}>
+                {filteredEvents().map((event) => (
+                  <Grid item xs={12} sm={6} md={4} key={event.id}>
+                    <EventCard event={event} refreshEvents={fetchEvents} />
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
-
+            )}
+          </Box>
         )}
-
         {deletedEvents.length > 0 && (
           <div className="deleted-events-sidebar" style={{
             position: "fixed",
