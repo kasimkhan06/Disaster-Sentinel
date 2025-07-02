@@ -409,7 +409,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
           onClick={() => handleNavigation("/current-location")}
           sx={{ width: "100%" }}
         >
-          Current Location
+          Location Information
         </MenuItem>
         <MenuItem
           onClick={() => handleNavigation("/flood-prediction")}

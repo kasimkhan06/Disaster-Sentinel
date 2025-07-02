@@ -139,7 +139,7 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
                   setOpenDrawer(false), navigate("/current-location");
                 }}
               >
-                <ListItemText primary="Current Location" />
+                <ListItemText primary="Location Information" />
               </ListItemButton>
               <ListItemButton
                 onClick={() => {
