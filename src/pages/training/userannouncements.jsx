@@ -16,11 +16,13 @@ import {
   CardContent,
   Chip,
   useMediaQuery,
-  // MUIListItemText, // Keep if used in your actual code
   Autocomplete,
   TextField,
   InputAdornment,
 } from "@mui/material";
+
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 import { useTheme } from "@mui/material/styles";
 import {
   CalendarToday,
@@ -131,21 +133,21 @@ function EventDisplayCard({ event, currentUser, onRegister, onUnregister, onLogi
         <Typography variant="h6" className="event-title">
           {event.name.toUpperCase()}
         </Typography>
-        
+
         <div className="event-details">
-          <Typography variant="body2" 
+          <Typography variant="body2"
           // sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}
           >
             <CalendarToday fontSize="small" /> {event.date}
           </Typography>
           {event.location_type === "online" ? (
             <>
-              <Typography variant="body2" 
+              <Typography variant="body2"
               // sx={{ display: 'flex', alignItems: 'center', my: 0.5 }}
               >
                 <Videocam fontSize="small" /> Online ({event.platform})
-              <br/>
-              <Send fontSize="small" /> {event.meeting_link}
+                <br />
+                <Send fontSize="small" /> {event.meeting_link}
               </Typography>
             </>
           ) : (
@@ -228,7 +230,7 @@ export default function UserAnnouncementsPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isBelow = useMediaQuery("(max-width:1470px)");
-
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [announcements, setAnnouncements] = useState([]);
   const [sort, setSort] = useState("");
@@ -578,12 +580,14 @@ export default function UserAnnouncementsPage() {
             </Alert>
           </Snackbar>
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", pt: { xs: 1, sm: 2 } }}>
-            <Typography sx={{ textAlign: "center", mt:{xs:9, sm:7, md:7, lg:7}, mb: 1, fontSize: {
-            xs: "1.2rem",
-            sm: "1.2rem",
-            md: isBelow ? "1.2rem" : "1.4rem",
-            lg: isBelow ? "1.2rem" : "1.4rem",
-          }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)" }}>
+            <Typography sx={{
+              textAlign: "center", mt: { xs: 9, sm: 7, md: 7, lg: 7 }, mb: 1, fontSize: {
+                xs: "1.2rem",
+                sm: "1.2rem",
+                md: isBelow ? "1.2rem" : "1.4rem",
+                lg: isBelow ? "1.2rem" : "1.4rem",
+              }, fontWeight: "bold", textTransform: 'uppercase', color: "rgba(0, 0, 0, 0.87)"
+            }}>
               ANNOUNCEMENTS
             </Typography>
           </Box>
@@ -606,13 +610,13 @@ export default function UserAnnouncementsPage() {
               Please log in to view offline events relevant to your location, or browse all online events.
               <Button size="small" onClick={handleLoginRedirect}
                 sx={{
-                  ml: 0.5, p:0,
+                  ml: 0.5, p: 0,
                   // mt: { xs: 1, sm: 0 }, // Top margin for small screens, no margin for larger
                   // p: { xs: '4px 8px', sm: '6px 12px' }, // Adjust button padding
                   textTransform: 'none',
                   fontSize: { xs: '0.75rem', sm: '0.85rem' }, // Responsive font size
                   color: theme.palette.primary.main,
-                  '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline'},
+                  '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
                   // display: 'inline-flex', // Keep button inline
                   // flexShrink: 0, // Prevent button from shrinking
                 }}
@@ -626,7 +630,7 @@ export default function UserAnnouncementsPage() {
             <Grid container spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap">
 
               {/* Search Section */}
-              <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" },mt:1, mb: { xs: 1, md: 0 } }}>
+              <Grid item xs={12} sm={12} md={6} sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-start" }, mt: 1, mb: { xs: 1, md: 0 } }}>
                 <Box
                   sx={{
                     width: "100%", // Inherit width from Agencies' outer Box
@@ -637,14 +641,14 @@ export default function UserAnnouncementsPage() {
                     freeSolo // Added freeSolo to match Agencies' Autocomplete behavior
                     options={finalAnnouncements ? finalAnnouncements.map((announcement) => announcement.name.toUpperCase()) : []}
                     onInputChange={(e, value) => setSearchTerm(value)}
-                    value={searchTerm} 
+                    value={searchTerm}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        placeholder={"Search events..."} 
+                        placeholder={"Search events..."}
                         variant="outlined"
                         fullWidth
-                        InputLabelProps={{ 
+                        InputLabelProps={{
                           shrink: false,
                           style: { display: "none" },
                         }}
@@ -684,7 +688,7 @@ export default function UserAnnouncementsPage() {
                               lg: isBelow ? "0.9rem" : "1rem",
                             },
                             "&::placeholder": { // Redundant but harmless, ensures placeholder color
-                                color: theme.palette.text.secondary,
+                              color: theme.palette.text.secondary,
                             },
                           },
                           width: "100%", // TextField takes full width of its parent Box
@@ -702,12 +706,12 @@ export default function UserAnnouncementsPage() {
                     size="small" // Keep this as it affects size
                     // Apply Autocomplete-specific sx from Agencies for endAdornment position
                     sx={{
-                       "& .MuiAutocomplete-endAdornment": {
-                         right: "10px",
-                       },
+                      "& .MuiAutocomplete-endAdornment": {
+                        right: "10px",
+                      },
                     }}
-                    // You might want to disable this if loading announcements
-                    // disabled={isLoading}
+                  // You might want to disable this if loading announcements
+                  // disabled={isLoading}
                   />
                 </Box>
               </Grid>
@@ -737,11 +741,11 @@ export default function UserAnnouncementsPage() {
                       onChange={(e) => setFilter(e.target.value)}
                       renderValue={(selected) => {
                         if (!selected) {
-                          return <em>Filter By</em>;
+                          return <em style={{ color: "gray" }}>Filter By</em>;
                         }
                         switch (selected) {
                           case "all":
-                            return <em>Filter By</em>;
+                            return <em style={{ color: "gray" }}>Filter By</em>;
                           case "online":
                             return "Online Events";
                           case "offline":
@@ -812,43 +816,110 @@ export default function UserAnnouncementsPage() {
         </Box>
       </Box>
 
-      <Box className="container" sx={{ flex: 1, pb: 4, width: '100%', maxWidth: { xs: '80%', sm: '1200px', md: '900px', lg: '1100px' }, marginX: 'auto', px: { xs: 0, sm: 3 } }}>
-        {isLoading || currentUser === undefined ? (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pt: 10, height: '300px' }}>
-            <CircularProgress size={50} sx={{ mb: 2, color: theme.palette.primary.main }} />
-            <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
-          </Box>
-        ) : finalAnnouncements.length === 0 ? (
-          <Box sx={{ textAlign: "center", p: { xs: 2, sm: 3 }, backgroundColor: 'transparent', borderRadius: 0 }}>
-            <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
-              No announcements available at the moment.
-            </Typography>
-            <Typography variant="body1" color="#555" sx={{ mt: 1 }}>
-              {!currentUser
-                ? "Please log in to register for events or set your profile location to see relevant offline events, or check back later."
-                : (!userLocation?.state
-                  ? "Please update your profile to include your state and district to see relevant offline events."
-                  : `No events currently match your location (State: ${userLocation.state}, District: ${userLocation.district || 'N/A'}) or selected filters. Please check back later.`
-                )
-              }
-            </Typography>
+      <Box>
+        {isMobile ? (
+          <Box
+            sx={{
+              flex: 1,
+              pb: 4,
+              width: '100%',
+              maxWidth: { xs: '95%', sm: '1200px', md: '900px', lg: '1100px' },
+              marginX: 'auto',
+              px: { xs: 0, sm: 3 }
+            }}
+          >
+            {isLoading || currentUser === undefined ? (
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pt: 10, height: '300px' }}>
+                <CircularProgress size={50} sx={{ mb: 2, color: theme.palette.primary.main }} />
+                <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
+              </Box>
+            ) : finalAnnouncements.length === 0 ? (
+              <Box sx={{ textAlign: "center", p: { xs: 2, sm: 3 }, backgroundColor: 'transparent', borderRadius: 0 }}>
+                <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
+                  No announcements available at the moment.
+                </Typography>
+                <Typography variant="body1" color="#555" sx={{ mt: 1 }}>
+                  {!currentUser
+                    ? "Please log in to register for events or set your profile location to see relevant offline events, or check back later."
+                    : (!userLocation?.state
+                      ? "Please update your profile to include your state and district to see relevant offline events."
+                      : `No events currently match your location (State: ${userLocation.state}, District: ${userLocation.district || 'N/A'}) or selected filters. Please check back later.`
+                    )
+                  }
+                </Typography>
+              </Box>
+            ) : (
+              <Box sx={{ my: 2 }}>
+                <Carousel
+                  responsive={{
+                    mobile: { breakpoint: { max: 600, min: 0 }, items: 1, slidesToSlide: 1 }
+                  }}
+                  ssr={true}
+                  arrows={true}
+                  infinite={finalAnnouncements.length > 1}
+                  centerMode={false}
+                  keyBoardControl={true}
+                  containerClass="carousel-container"
+                  itemClass="carousel-item-padding-40-px"
+                >
+                  {finalAnnouncements.map((announcement) => (
+                    <Box
+                      key={announcement.id}
+                      sx={{ background: 'transparent', boxShadow: 'none', px: 0, py: 0 }}
+                    >
+                      <EventDisplayCard
+                        event={announcement}
+                        currentUser={currentUser}
+                        onRegister={handleRegister}
+                        onUnregister={handleUnregister}
+                        onLoginRedirect={handleLoginRedirect}
+                      />
+                    </Box>
+                  ))}
+                </Carousel>
+              </Box>
+            )}
           </Box>
         ) : (
-          <Grid container spacing={3}>
-            {finalAnnouncements.map((announcement) => {
-              return (
-                <Grid item xs={12} sm={6} md={4} key={announcement.id} sx={{ display: 'flex' }}>
-                  <EventDisplayCard
-                    event={announcement}
-                    currentUser={currentUser}
-                    onRegister={handleRegister}
-                    onUnregister={handleUnregister} // Pass new unregister handler
-                    onLoginRedirect={handleLoginRedirect}
-                  />
-                </Grid>
-              );
-            })}
-          </Grid>
+          <Box className="container" sx={{ flex: 1, pb: 4, width: '100%', maxWidth: { xs: '80%', sm: '1200px', md: '900px', lg: '1100px' }, marginX: 'auto', px: { xs: 0, sm: 3 } }}>
+            {isLoading || currentUser === undefined ? (
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pt: 10, height: '300px' }}>
+                <CircularProgress size={50} sx={{ mb: 2, color: theme.palette.primary.main }} />
+                <Typography variant="h6" color="text.secondary">Loading announcements...</Typography>
+              </Box>
+            ) : finalAnnouncements.length === 0 ? (
+              <Box sx={{ textAlign: "center", p: { xs: 2, sm: 3 }, backgroundColor: 'transparent', borderRadius: 0 }}>
+                <Typography variant="h6" component="p" gutterBottom sx={{ fontWeight: 500, color: '#333' }}>
+                  No announcements available at the moment.
+                </Typography>
+                <Typography variant="body1" color="#555" sx={{ mt: 1 }}>
+                  {!currentUser
+                    ? "Please log in to register for events or set your profile location to see relevant offline events, or check back later."
+                    : (!userLocation?.state
+                      ? "Please update your profile to include your state and district to see relevant offline events."
+                      : `No events currently match your location (State: ${userLocation.state}, District: ${userLocation.district || 'N/A'}) or selected filters. Please check back later.`
+                    )
+                  }
+                </Typography>
+              </Box>
+            ) : (
+              <Grid container spacing={3}>
+                {finalAnnouncements.map((announcement) => {
+                  return (
+                    <Grid item xs={12} sm={6} md={4} key={announcement.id} sx={{ display: 'flex' }}>
+                      <EventDisplayCard
+                        event={announcement}
+                        currentUser={currentUser}
+                        onRegister={handleRegister}
+                        onUnregister={handleUnregister} // Pass new unregister handler
+                        onLoginRedirect={handleLoginRedirect}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            )}
+          </Box>
         )}
       </Box>
       <Footer />
