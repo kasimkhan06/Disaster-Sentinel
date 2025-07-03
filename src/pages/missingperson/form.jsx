@@ -24,14 +24,14 @@ import StateDistrictDropdown from '../../components/StateDistrict1.jsx'; // Adju
 
 // Styles
 const textFieldStyles = {
-    "& .MuiInputBase-root": { padding: "4px 8px" },
+    "& .MuiInputBase-root": { padding: {xs:"1px 8px", md:"4px 8px"} },
     "& .MuiOutlinedInput-notchedOutline": { border: "none" },
     "& .MuiInputLabel-root": { fontSize: "0.9rem" },
     width: "100%",
 };
 
 const boxStyles = {
-    width: "80%", // Consider making this responsive
+    width: {xs:"90%", md:"80%"}, // Consider making this responsive
     padding: 0,
     mb: 2,
     textAlign: "left",
@@ -137,11 +137,11 @@ const MissingPersonForm = ({
     };
 
     return (
-        <Card sx={{ p: 3, borderRadius: 3, boxShadow: 0, }}>
+        <Card sx={{ p: {xs: 1, md: 3}, borderRadius: 3, boxShadow: 0, }}>
             <form onSubmit={handleSubmit} noValidate>
                 <Grid container spacing={0} direction="column" alignItems="center">
                     {/* Name Field */}
-                    <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+                    <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12 }} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
                         <Box sx={boxStyles}>
                             <TextField
                                 fullWidth
@@ -190,7 +190,7 @@ const MissingPersonForm = ({
                                     sx={{
                                         "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                                         width: "100%",
-                                        '& .MuiSelect-select': { paddingTop: '10px', paddingBottom: '10px' },
+                                        '& .MuiSelect-select': { paddingTop: '10px', paddingBottom: '25px' },
                                     }}
                                     // disabled={isDisabled} // Select's disabled is on FormControl
                                 >
@@ -291,7 +291,7 @@ const MissingPersonForm = ({
                             {errors.district && !errors.state && <FormHelperText error sx={{ ml: 1.5 }}>{errors.district}</FormHelperText>}
                         </Box>
                     </Grid>
-                    <Grid item xs={12} sx={{ height: '16px' }} /> {/* Spacer */}
+                    {/* <Grid item xs={12} sx={{ height: '16px' }} /> Spacer */}
 
                     {/* Disaster Type Dropdown */}
                     <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
@@ -307,7 +307,7 @@ const MissingPersonForm = ({
                                     sx={{
                                         "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                                         width: "100%",
-                                        '& .MuiSelect-select': { paddingTop: '10px', paddingBottom: '10px' },
+                                        '& .MuiSelect-select': { paddingTop: '10px', paddingBottom: '25px' },
                                     }}
                                     // disabled={isDisabled} // Select's disabled is on FormControl
                                 >

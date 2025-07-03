@@ -17,7 +17,7 @@ import MissingPersonForm from "../missingperson/form";
 import InteractiveMap from "../../components/InteractiveMap";
 import Footer from "../../components/Footer";
 import ReCAPTCHA from "react-google-recaptcha";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL =
   "https://disaster-sentinel-backend-26d3102ae035.herokuapp.com";
@@ -84,14 +84,16 @@ const MissingPersonPortal = () => {
         setIsAuthenticated(false);
       }
     } catch (parseError) {
-      console.error("Error parsing user details from localStorage:", parseError);
+      console.error(
+        "Error parsing user details from localStorage:",
+        parseError
+      );
       localStorage.removeItem("user");
       setIsAuthenticated(false);
     } finally {
       setAuthLoading(false);
     }
   }, []);
-
 
   useEffect(() => {
     if (statusMessage.text) {
@@ -297,15 +299,26 @@ const MissingPersonPortal = () => {
     }
   }, [formData.lastSeenPlace, errors.location, isAuthenticated]);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage({ type: "", text: "" });
     let validationErrors = { ...errors }; // Preserve existing file errors
 
     // Clear errors that will be re-validated
-    const fieldsToRevalidate = ['name', 'age', 'gender', 'description', 'location', 'state', 'district', 'contactInfo', 'photo', 'captcha', 'reporter'];
-    fieldsToRevalidate.forEach(field => delete validationErrors[field]);
+    const fieldsToRevalidate = [
+      "name",
+      "age",
+      "gender",
+      "description",
+      "location",
+      "state",
+      "district",
+      "contactInfo",
+      "photo",
+      "captcha",
+      "reporter",
+    ];
+    fieldsToRevalidate.forEach((field) => delete validationErrors[field]);
 
     // Pre-check for authentication
     if (!isAuthenticated) {
@@ -327,7 +340,9 @@ const MissingPersonPortal = () => {
       validationErrors.description = "Description is required.";
 
     if (!formData.lastSeenPlace.trim()) {
-      validationErrors.location = (validationErrors.location || "") + "Last seen location text is required.";
+      validationErrors.location =
+        (validationErrors.location || "") +
+        "Last seen location text is required.";
     }
     if (!formData.lastSeen) {
       validationErrors.location =
@@ -341,7 +356,6 @@ const MissingPersonPortal = () => {
       validationErrors.contactInfo =
         "Contact information for updates is required.";
 
-
     if (!formData.photo) {
       if (
         !imagePreviews.photo ||
@@ -351,9 +365,10 @@ const MissingPersonPortal = () => {
       }
     }
     // Preserve existing file validation errors if they were not cleared by a new valid file
-    if (errors.photo && !validationErrors.photo) validationErrors.photo = errors.photo;
-    if (errors.idCard && !validationErrors.idCard) validationErrors.idCard = errors.idCard;
-
+    if (errors.photo && !validationErrors.photo)
+      validationErrors.photo = errors.photo;
+    if (errors.idCard && !validationErrors.idCard)
+      validationErrors.idCard = errors.idCard;
 
     if (!captchaToken)
       validationErrors.captcha = "Please complete the reCAPTCHA verification.";
@@ -486,7 +501,6 @@ const MissingPersonPortal = () => {
     }
   };
 
-
   return (
     <Box
       sx={{
@@ -495,6 +509,7 @@ const MissingPersonPortal = () => {
         left: 0,
         right: 0,
         minHeight: "100vh",
+        overflowX: "hidden",
         background: `
           linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
           url(${worldMapBackground})
@@ -518,6 +533,8 @@ const MissingPersonPortal = () => {
           fontWeight: "bold",
           textTransform: "uppercase",
           color: "rgba(0, 0, 0, 0.87)",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         Report a Missing Person
@@ -532,7 +549,7 @@ const MissingPersonPortal = () => {
           padding: 0,
           marginLeft: "auto",
           marginRight: "auto",
-          position: "relative",
+          // position: "relative",
         }}
       >
         {statusMessage.text && (
@@ -541,10 +558,10 @@ const MissingPersonPortal = () => {
             onClose={() => setStatusMessage({ type: "", text: "" })}
             sx={{
               mb: 2,
-              width: 'fit-content',
-              maxWidth: '90%',
-              mx: 'auto',
-              left: '50%',
+              width: "fit-content",
+              maxWidth: "90%",
+              mx: "auto",
+              left: "50%",
             }}
           >
             {statusMessage.text}
@@ -553,21 +570,51 @@ const MissingPersonPortal = () => {
 
         {/* Informative message for unauthenticated users */}
         {!authLoading && !isAuthenticated && (
-          <Alert severity="info" sx={{ mb: 2, mx: "auto", width: "fit-content", alignItems: "center" }}>
+          <Alert
+            severity="info"
+            sx={{
+              mb: 2,
+              mx: "auto",
+              width: {xs:"80%", md:"fit-content"},
+              display: "flex", // Ensure flex layout
+              alignItems: "center", // Center vertically
+              justifyContent: "center", // Center horizontally
+              fontSize: "0.75rem",
+              textAlign: "center", // Center text alignment
+            }}
+          >
             Please log in to submit a new missing person report.
-            <Button size="small" onClick={handleLoginRedirect} sx={{ ml: 0.5, p: 0, textTransform: 'none', fontSize: '0.75rem', color: theme.palette.primary.main, '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' } }}>LOGIN</Button>
+            <Button
+              size="small"
+              onClick={handleLoginRedirect}
+              sx={{
+                p: 0,
+                textTransform: "none",
+                fontSize: "0.75rem",
+                color: theme.palette.primary.main,
+                "&:hover": {
+                  backgroundColor: "transparent",
+                  textDecoration: "underline",
+                },
+                // Remove width: "100%" as it was making the button take full width
+                // Remove mx: "auto" as it's not needed with the parent flex container
+              }}
+            >
+              LOGIN
+            </Button>
           </Alert>
         )}
 
         <Card
           sx={{
-            p: { xs: 2, md: 3 },
-            borderRadius: 3,
+            p: { xs: 1, md: 3 },
+            borderRadius: { xs: 0, md: 3 },
             boxShadow: 3,
             display: "flex",
             flexDirection: "column",
-            width: "100%",
-            position: "relative",
+            mx: "auto",
+            width: "fit-content",
+            // position: "relative",
           }}
         >
           <Box
@@ -607,6 +654,7 @@ const MissingPersonPortal = () => {
                 width: { xs: "100%", md: "auto" },
                 display: "flex",
                 flexDirection: "column",
+                alignItems: "center",
                 gap: 2,
               }}
             >
@@ -614,10 +662,11 @@ const MissingPersonPortal = () => {
               <Box
                 sx={{
                   marginTop: { xs: 2, md: 3 },
-                  width: "90%",
+                  width: { xs: "95%", md: "90%" },
                   height: { xs: "300px", md: "400px" },
                   borderRadius: 1,
                   overflow: "hidden",
+                  marginX: 0,
                 }}
               >
                 <InteractiveMap
@@ -631,8 +680,8 @@ const MissingPersonPortal = () => {
               </Box>
 
               {/* Image Upload Section */}
-              <Box sx={{ width: "80%", marginTop: 2 }}>
-                <Grid container spacing={2} sx={{ alignItems: "center" }}>
+              <Box sx={{ width: { xs: "95%", md: "80%" }, marginTop: 2 }}>
+                <Grid container spacing={1} sx={{ alignItems: "center" }}>
                   {/* Identity Card Upload */}
                   <Grid item xs={12} sm={6}>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -649,7 +698,11 @@ const MissingPersonPortal = () => {
                       />
                     </Box>
                     {errors.idCard && (
-                      <Typography color="error" variant="caption" sx={{ display: "block", mt: 0.5 }}>
+                      <Typography
+                        color="error"
+                        variant="caption"
+                        sx={{ display: "block", mt: 0.5 }}
+                      >
                         {errors.idCard}
                       </Typography>
                     )}
@@ -672,7 +725,11 @@ const MissingPersonPortal = () => {
                       />
                     </Box>
                     {errors.photo && (
-                      <Typography color="error" variant="caption" sx={{ display: "block", mt: 0.5 }}>
+                      <Typography
+                        color="error"
+                        variant="caption"
+                        sx={{ display: "block", mt: 0.5 }}
+                      >
                         {errors.photo}
                       </Typography>
                     )}
@@ -683,17 +740,37 @@ const MissingPersonPortal = () => {
               {/* Image Previews */}
               {(imagePreviews.photo || imagePreviews.idCard) && (
                 <Box sx={{ mt: 3 }}>
-                  <Typography variant="h6" sx={{ textTransform: "uppercase", fontSize: "1rem", fontWeight: 500, mb: 1, textAlign: "center" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      textTransform: "uppercase",
+                      fontSize: "1rem",
+                      fontWeight: 500,
+                      mb: 1,
+                      textAlign: "center",
+                    }}
+                  >
                     Image Previews
                   </Typography>
                   <Grid container spacing={1}>
                     {imagePreviews.photo && (
                       <Grid item xs={12} sm={6}>
-                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
                           <img
                             src={imagePreviews.photo}
                             alt="Uploaded Photo Preview"
-                            style={{ width: "100%", minWidth: "225px", maxHeight: "200px", objectFit: "contain" }}
+                            style={{
+                              width: "100%",
+                              minWidth: "225px",
+                              maxHeight: "200px",
+                              objectFit: "contain",
+                            }}
                           />
                           <Typography variant="caption" sx={{ mt: 1 }}>
                             Photo Preview
@@ -703,11 +780,22 @@ const MissingPersonPortal = () => {
                     )}
                     {imagePreviews.idCard && (
                       <Grid item xs={12} sm={6}>
-                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
                           <img
                             src={imagePreviews.idCard}
                             alt="Uploaded ID Card Preview"
-                            style={{ width: "100%", minWidth: "225px", maxHeight: "200px", objectFit: "contain" }}
+                            style={{
+                              width: "100%",
+                              minWidth: "225px",
+                              maxHeight: "200px",
+                              objectFit: "contain",
+                            }}
                           />
                           <Typography variant="caption" sx={{ mt: 1 }}>
                             ID Card Preview
@@ -722,23 +810,32 @@ const MissingPersonPortal = () => {
           </Box>
 
           {/* Centered reCAPTCHA and Submit Button */}
-          <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            mt: 4,
-            pb: 2,
-          }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "100%",
+              mt: 4,
+              pb: 2,
+            }}
+          >
             {/* reCAPTCHA */}
             <Box sx={{ mb: 2 }}>
               <ReCAPTCHA
-                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94"}
+                sitekey={
+                  import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+                  "6LcfLAcrAAAAACJZCZHt9WRxK_4CxM9gv6pwP-94"
+                }
                 onChange={handleCaptchaVerify}
                 disabled={!isAuthenticated || isSubmitting} // Disabled if not logged in
               />
               {errors.captcha && (
-                <Typography color="error" variant="caption" sx={{ mt: 0.5, display: 'block', textAlign: 'center' }}>
+                <Typography
+                  color="error"
+                  variant="caption"
+                  sx={{ mt: 0.5, display: "block", textAlign: "center" }}
+                >
                   {errors.captcha}
                 </Typography>
               )}
@@ -755,14 +852,22 @@ const MissingPersonPortal = () => {
                 px: 5,
                 fontSize: "1rem",
                 fontWeight: 800,
-                "&:hover": { backgroundColor: "white" }
+                "&:hover": { backgroundColor: "white" },
               }}
               disabled={!isAuthenticated || isSubmitting} // Disabled if not logged in
             >
-              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Submit Report"}
+              {isSubmitting ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Submit Report"
+              )}
             </Button>
             {errors.reporter && ( // Display reporter ID error if present
-              <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
+              <Typography
+                color="error"
+                variant="caption"
+                sx={{ mt: 1, display: "block", textAlign: "center" }}
+              >
                 {errors.reporter}
               </Typography>
             )}
