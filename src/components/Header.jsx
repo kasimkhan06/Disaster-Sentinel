@@ -16,13 +16,14 @@ import {
   Avatar,
 } from "@mui/material";
 import DrawerComp from "./DrawerComp";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "./logo.png";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 
 const Header = ({ isLoggedIn, setIsLoggedIn }) => {
+  const location = useLocation();
   const [value, setValue] = useState(0);
   const theme = useTheme();
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
@@ -33,6 +34,16 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [openVolunteerWorks, setOpenVolunteerWorks] = useState(false);
   const [userPermissions, setUserPermissions] = useState([]);
   const navigate = useNavigate();
+
+  // Sync tab value with current route
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === "/home") {
+      setValue(0);
+    } else{
+      setValue(1);
+    } 
+  }, [location, anchorEl]);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -55,9 +66,11 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   }, []);
 
   const handleOpenMenu = (e) => {
+    setValue(1);
     setAnchorEl(e.currentTarget);
     setOpenMissingPerson(false);
     setOpenVolunteerWorks(false);
+    console.log("Services clicked: ", value);
   };
 
   const handleMenuClose = () => {
@@ -88,7 +101,18 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
 
   const handleNavigation = (path) => {
     setAnchorEl(null);
+    if (path === "/home") {
+      setValue(0);
+    } else {
+      setValue(1); // Set to Services tab for other paths
+    }
+    console.log("Handle navigation value:", value);
     navigate(path);
+  };
+
+  const handleLogoClick = () => {
+    setValue(0);
+    navigate("/home");
   };
 
   const handleLogout = async () => {
@@ -131,9 +155,6 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   };
 
   const hasPermissions = userPermissions.length > 0;
-  // const canManageVolunteers = userPermissions.some(
-  //   (perm) => perm.can_manage_volunteers
-  // );
   const canMakeAnnouncements = userPermissions.some(
     (perm) => perm.can_make_announcements
   );
@@ -143,7 +164,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const canEditMissing = userPermissions.some(
     (perm) => perm.can_edit_missing
   );
-   const canViewMissing = userPermissions.some(
+  const canViewMissing = userPermissions.some(
     (perm) => perm.can_view_missing
   );
 
@@ -168,7 +189,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                 fontFamily: "DM Serif Text, serif",
                 cursor: "pointer",
               }}
-              onClick={() => handleNavigation("/home")}
+              onClick={handleLogoClick}
             >
               DISASTER SENTINEL
             </Typography>
@@ -176,23 +197,28 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
               <Tabs
                 textColor="inherit"
                 value={value}
-                onChange={(e, value) => setValue(value)}
+                onChange={(e, newValue) => setValue(newValue)}
                 TabIndicatorProps={{
                   sx: { backgroundColor: "#bdbdbd" },
                 }}
                 sx={{
                   ml: 4,
                   "& .MuiTab-root": {
-                    minWidth: "auto", // Allow tabs to size naturally
-                    width: "auto", // Prevent forced width
-                    padding: "6px 16px", // Consistent padding with account button
+                    minWidth: "auto",
+                    width: "auto",
+                    padding: "6px 16px",
                     "&:focus": {
                       outline: "none",
                     },
                   },
                 }}
               >
-                <Tab label="Home" component={Link} to="/home" />
+                <Tab 
+                  label="Home" 
+                  component={Link} 
+                  to="/home" 
+                  onClick={() => setValue(0)}
+                />
                 <Tab
                   label="Services"
                   aria-controls="services-menu"
@@ -226,7 +252,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
                       gap: 1,
                       minWidth: 130,
                       width: "auto",
-                      transition: "none", // <-- Add this
+                      transition: "none",
                       "&:hover": {
                         backgroundColor: "transparent",
                       },
