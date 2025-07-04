@@ -38,7 +38,7 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   // Sync tab value with current route
   useEffect(() => {
     const path = location.pathname;
-    if (path === "/home") {
+    if (path === "/home" || path ==="/") {
       setValue(0);
     } else{
       setValue(1);
