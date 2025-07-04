@@ -28,10 +28,11 @@ import StatusTracking from "./pages/missingperson/status";
 import UpdateDetails from "./pages/authentication/updateDetails";
 import Profile from "./pages/dashboard/agency/Profile/Profile";
 import { Box } from "@mui/material";
-
+import { Navigate } from "react-router-dom";
 const App = () => {
   const [userRole, setUserRole] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
     // Check if user is logged in by retrieving from localStorage
@@ -41,6 +42,7 @@ const App = () => {
       setUserRole(parsedData.role);
       setIsLoggedIn(true);
     }
+    setIsLoading(false);
   }, []);
 
   return (
@@ -49,7 +51,20 @@ const App = () => {
 
 
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/"
+          element={
+            isLoggedIn ? (
+              userRole === "agency" ? (
+                <Navigate to="/agency-dashboard" replace />
+              ) : (
+                <HomePage />
+              )
+            ) : (
+              <HomePage />
+            )
+          }
+        />
         <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/register" element={<Register />} />

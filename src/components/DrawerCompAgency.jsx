@@ -71,7 +71,7 @@ const DrawerCompAgency = ({ isLoggedIn, setIsLoggedIn }) => {
         localStorage.removeItem("token");
         setIsLoggedIn(false);
         handleAccountMenuClose();
-        navigate("/login");
+        navigate("/home");
          window.location.reload();
       } else {
         console.error("Logout failed:", data.message || "Unknown error");

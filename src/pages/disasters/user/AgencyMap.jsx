@@ -578,7 +578,7 @@ const AgencyMap = ({ agency, isMobile }) => {
       </Box>
 
       <Grid container spacing={0} alignItems="center">
-        <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6 }}>
+        <Grid size={{ xs: 12, sm: 12, md: 12, lg: 6 }}>
           <Paper
             sx={{
               p: 2,
