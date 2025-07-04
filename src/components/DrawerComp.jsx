@@ -239,7 +239,7 @@ const DrawerComp = ({ isLoggedIn, setIsLoggedIn }) => {
             <>
               <ListItemButton
                 onClick={() => {
-                  setOpenDrawer(false), navigate("/edit-profile");
+                  setOpenDrawer(false), navigate("/updatedetails");
                 }}
               >
                 <ListItemText primary="Edit Profile" />
