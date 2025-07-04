@@ -833,14 +833,14 @@ const AgencyProfile = () => {
           spacing={1}
           sx={{
             m: 0,
-            width: { xs: "100%", sm: "100%", md: "75%" },
+            width: { xs: "100%", sm: "100%", md: "90%", lg:"75%" },
             marginX: "auto",
             marginTop: 1,
           }}
         >
           {/* Desktop view remains the same */}
           <Grid
-            size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
+            size={{ xs: 12, sm: 12, md: 12, lg: 12 }}
             sx={{
               backgroundColor: "#fff",
               borderRadius: 2,
@@ -877,7 +877,7 @@ const AgencyProfile = () => {
                   align="left"
                   paddingBottom={2}
                 >
-                  <Grid size={{ xs: 11, sm: 12, md: 10, lg: 5 }}>
+                  <Grid size={{ xs: 11, sm: 12, md: 7, lg: 5 }}>
                     <Grid
                       container
                       justifyContent="center"
@@ -886,7 +886,7 @@ const AgencyProfile = () => {
                       align="left"
                       paddingBottom={0}
                     >
-                      <Grid size={{ xs: 11, sm: 12, md: 10, lg: 12 }}>
+                      <Grid size={{ xs: 11, sm: 12, md: 12, lg: 12 }}>
                         {images.length > 0 && (
                           <Box
                             sx={{
@@ -981,10 +981,10 @@ const AgencyProfile = () => {
                                       sx={{
                                         marginLeft: 1,
                                         fontSize: {
-                                          xs: "0.7rem",
-                                          sm: "0.7rem",
-                                          md: "0.8rem",
-                                          lg: "1rem",
+                                          xs: "1rem",
+                                          sm: "1rem",
+                                          md: isBelow ? "0.8rem" : "0.9rem",
+                                          lg: isBelow ? "0.9rem" : "1rem",
                                         },
                                         fontWeight: 500,
                                       }}
@@ -1003,11 +1003,11 @@ const AgencyProfile = () => {
                                         sx={{
                                           marginLeft: 1,
                                           fontSize: {
-                                            xs: "0.7rem",
-                                            sm: "0.7rem",
-                                            md: "0.8rem",
-                                            lg: "1rem",
-                                          },
+                                          xs: "1rem",
+                                          sm: "1rem",
+                                          md: isBelow ? "0.8rem" : "0.9rem",
+                                          lg: isBelow ? "0.9rem" : "1rem",
+                                        },
                                           color: "#2196F3",
                                           textDecoration: "none",
                                           "&:hover": {
@@ -1041,11 +1041,11 @@ const AgencyProfile = () => {
                                         sx={{
                                           marginLeft: 1,
                                           fontSize: {
-                                            xs: "0.7rem",
-                                            sm: "0.7rem",
-                                            md: "0.8rem",
-                                            lg: "1rem",
-                                          },
+                                          xs: "1rem",
+                                          sm: "1rem",
+                                          md: isBelow ? "0.8rem" : "0.9rem",
+                                          lg: isBelow ? "0.9rem" : "1rem",
+                                        },
                                           color: "#4CAF50",
                                           cursor: "pointer",
                                           "&:hover": {
@@ -1061,11 +1061,11 @@ const AgencyProfile = () => {
                                         sx={{
                                           marginLeft: 1,
                                           fontSize: {
-                                            xs: "0.7rem",
-                                            sm: "0.7rem",
-                                            md: "0.8rem",
-                                            lg: "1rem",
-                                          },
+                                          xs: "1rem",
+                                          sm: "1rem",
+                                          md: isBelow ? "0.8rem" : "0.9rem",
+                                          lg: isBelow ? "0.9rem" : "1rem",
+                                        },
                                         }}
                                       >
                                         {item.value}
@@ -1297,7 +1297,7 @@ const AgencyProfile = () => {
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid size={{ xs: 11, sm: 12, md: 10, lg: 7 }}>
+                  <Grid size={{ xs: 11, sm: 12, md: 5, lg: 7 }}>
                     <Grid
                       container
                       justifyContent="center"
@@ -1309,8 +1309,8 @@ const AgencyProfile = () => {
                       {agency.lat && agency.lng && (
                         <Grid
                           justifyContent="center"
-                          size={{ xs: 11, sm: 10, md: 10, lg: 12 }}
-                          sx={{ px: { xs: 2, md: 5 }, mt: 0 }}
+                          size={{ xs: 11, sm: 10, md: 12, lg: 12 }}
+                          sx={{ px: { xs: 2, md: 1, lg:5 }, mt: 0 }}
                         >
                           <Box sx={{ width: "100%" }}>
                             <AgencyMap agency={agency} />
@@ -1326,7 +1326,7 @@ const AgencyProfile = () => {
 
           {/* Second Grid - Description */}
           <Grid
-            size={{ xs: 12, sm: 12, md: 6, lg: 12 }}
+            size={{ xs: 12, sm: 12, md: 12, lg: 12 }}
             sx={{
               backgroundColor: "#fff",
               borderRadius: 2,
