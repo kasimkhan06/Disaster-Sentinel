@@ -34,6 +34,7 @@ import {
   Phone,
   Edit,
 } from "@mui/icons-material";
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LanguageIcon from "@mui/icons-material/Language";
 import CloseIcon from "@mui/icons-material/Close";
@@ -46,6 +47,7 @@ import axios from "axios";
 // Styles & Assets
 import worldMapBackground from "/assets/background_image/world-map-background.jpg"; // Ensure this path is correct
 import ImageUpload from "../../../../components/ImageUpload"; // Ensure this path is correct
+import { style } from "@mui/system";
 
 const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchAgencyDetails, setStatusMessage }) => {
   const [formData, setFormData] = useState({});
@@ -165,7 +167,7 @@ const UpdateModal = ({ open, handleClose, mode, initialData = {}, userId, fetchA
         successText = "Basic details updated.";
       } else if (mode === "description") {
         successText = "Description updated.";
-      } else if (mode === "images" && newImages.length > 0) { 
+      } else if (mode === "images" && newImages.length > 0) {
         successText = "Images updated successfully.";
       }
       setStatusMessage({ type: "success", text: successText });
@@ -642,10 +644,12 @@ function Profile() {
                 xs={12}
                 md={4}
                 sx={{
-                  textAlign: { xs: "center", md: "center" },
+                  textAlign: "center",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
+                  justifyContent: "center",
+                  
                 }}
               >
                 <Typography
@@ -654,6 +658,7 @@ function Profile() {
                   sx={{
                     fontWeight: 600,
                     mb: 2,
+                    ml: 2,
                     color: "text.primary",
                     textTransform: "uppercase",
                     letterSpacing: 1.5,
@@ -687,7 +692,7 @@ function Profile() {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
                   gap: { xs: 1, md: 1.5 },
                   alignItems: "flex-start",
                   textAlign: "left",
@@ -725,10 +730,10 @@ function Profile() {
                     icon: <LanguageIcon fontSize="small" />,
                     link: agency.website,
                   },
-                  { 
-                    label: "Volunteers", 
-                    value: agency.volunteers + volunteers || "N/A", 
-                    icon: <Visibility fontSize="small" /> 
+                  {
+                    label: "Volunteers",
+                    value: (Number(agency.volunteers || 0) + Number(volunteers || 0)) || "N/A",
+                    icon: <VolunteerActivismIcon fontSize="small" />
                   },
                 ].map((item, index) => (
                   <Box
@@ -738,10 +743,11 @@ function Profile() {
                       alignItems: "center",
                       mb: 0.5,
                       flexWrap: "wrap",
-                      justifyContent: { xs: "center", md: "flex-start" },
+                      justifyContent: "flex-start",
+                      width: "100%",
                     }}
                   >
-                    <Box sx={{ mr: 1.5, color: "primary.main" }}>{item.icon}</Box>
+                    <Box sx={{ mr: 1.5, color: "primary.main", mt: 0.5 }}>{item.icon}</Box>
                     <Typography
                       sx={{
                         fontWeight: 600,
@@ -760,10 +766,12 @@ function Profile() {
                         sx={{
                           ml: 1,
                           color: "primary.main",
-                          wordBreak: "break-word",
                           fontSize: { xs: "0.85rem", sm: "0.9rem", md: "1rem" },
                           textDecoration: "none",
                           "&:hover": { textDecoration: "underline" },
+                          textAlign: "left", // optional, doesn't hurt
+                          whiteSpace: "nowrap", // optional: prevent breaking the link mid-word
+                          overflowWrap: "anywhere", // optional: allow break if link is too long
                         }}
                       >
                         {item.value}
@@ -782,7 +790,6 @@ function Profile() {
                     )}
                   </Box>
                 ))}
-
               </Grid>
 
               {/* Edit Button */}
@@ -903,7 +910,7 @@ function Profile() {
             setStatusMessage={setStatusMessage}
           />
         </Box>
-      </Box>
+      </Box >
     );
   }
 

@@ -55,7 +55,7 @@ import axios from "axios";
 const steps = ["Basic Info", "Location", "Details", "Timeline", "Review & Submit"];
 const eventTypes = ["Conference", "Workshop", "Seminar", "Webinar", "Networking"];
 const platforms = ["Zoom", "Google Meet", "Microsoft Teams", "Webex"];
-const regTypes = ["Free", "Paid"];
+const regTypes = ["Free"];
 const disasterTags = [
   "Disaster Preparedness", "Emergency Response", "Risk Assessment", "Flood Management",
   "Earthquake Preparedness", "Evacuation Planning", "Climate Resilience", "Humanitarian Aid"
