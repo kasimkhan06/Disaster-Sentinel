@@ -45,8 +45,8 @@ const permissionsList = [
   "can_view_announcements",
   "can_edit_announcements",
   "can_make_announcements",
-  // "can_manage_volunteers",
-  // "is_agency_admin",
+  // "can_manage_volunteers", // Keep commented as per original code
+  // "is_agency_admin",     // Keep commented as per original code
 ];
 
 // Adjusted style object for responsive modals
@@ -710,7 +710,6 @@ export default function AgencyDashboard() {
     } else {
       console.log(
         "No associated volunteer interest request ID found, skipping request deletion."
-
       );
     }
 
@@ -1217,6 +1216,21 @@ export default function AgencyDashboard() {
                       >
                         Save
                       </TableCell>
+                      {/* NEW: Delete Column Header */}
+                      <TableCell
+                        sx={{
+                          padding: "6px 10px",
+                          textAlign: "center",
+                          fontSize: {
+                            xs: "0.6rem",
+                            sm: "0.7rem",
+                            md: isBelow1470 ? "0.8rem" : "0.9rem",
+                          },
+                          minWidth: "80px", // Ensure enough space for button
+                        }}
+                      >
+                        Delete
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1291,6 +1305,24 @@ export default function AgencyDashboard() {
                               disabled={loadingAction}
                             >
                               Save
+                            </Button>
+                          </TableCell>
+                          {/* NEW: Delete Button Cell */}
+                          <TableCell
+                            sx={{ padding: "6px 10px", textAlign: "center" }}
+                          >
+                            <Button
+                              disableRipple
+                              size="small"
+                              color="error"
+                              onClick={() =>
+                                initiateDeleteVolunteerPermissionsAndRequest(
+                                  vol
+                                )
+                              }
+                              disabled={loadingAction}
+                            >
+                              Delete
                             </Button>
                           </TableCell>
                         </TableRow>
