@@ -30,6 +30,7 @@ import {
   Pagination,
   useTheme,
   useMediaQuery,
+  Stack,
 } from "@mui/material";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import Footer from "../../components/Footer";
@@ -70,6 +71,11 @@ const API_BASE_URL =
 
 export default function AgencyDashboard() {
   const [agencyId, setAgencyId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [agency, setAgency] = useState(null);
+  const [statusMessage, setStatusMessage] = useState({ type: "", text: "" });
+  const [volunteersCount, setVolunteersCount] = useState(null);
+
   const navigate = useNavigate();
 
   const [searchEmail, setSearchEmail] = useState("");
@@ -144,6 +150,7 @@ export default function AgencyDashboard() {
     }
     if (idToUse) {
       setAgencyId(idToUse);
+      fetchAgencyDetails(idToUse);
     } else {
       showErrorWithTimeout(
         "Agency ID is missing and could not be derived. Please ensure you are logged in correctly for the dashboard to function."
@@ -314,13 +321,13 @@ export default function AgencyDashboard() {
         const errorData = await response.json().catch(() => null);
         showErrorWithTimeout(
           errorData?.error ||
-            `No volunteer found with the email: ${searchEmail}.`
+          `No volunteer found with the email: ${searchEmail}.`
         );
       } else if (response.status === 400) {
         const errorData = await response.json().catch(() => null);
         showErrorWithTimeout(
           errorData?.error ||
-            "Search input is invalid. Please check the email entered."
+          "Search input is invalid. Please check the email entered."
         );
       } else {
         const errorData = await response
@@ -396,7 +403,7 @@ export default function AgencyDashboard() {
           currentVolunteer &&
           currentVolunteer.id === interestIdToDelete &&
           currentVolunteer.volunteer_user_id ===
-            requestToDelete.volunteer_user_id
+          requestToDelete.volunteer_user_id
         ) {
           setOpenModal(false);
           setCurrentVolunteer(null);
@@ -448,8 +455,7 @@ export default function AgencyDashboard() {
             .json()
             .catch(() => ({ detail: "Failed to accept interest." }));
           throw new Error(
-            `Accept Interest API: ${
-              errorData.detail || `Status ${acceptResponse.status}`
+            `Accept Interest API: ${errorData.detail || `Status ${acceptResponse.status}`
             }`
           );
         }
@@ -479,8 +485,7 @@ export default function AgencyDashboard() {
           .json()
           .catch(() => ({ detail: "Failed to set permissions." }));
         throw new Error(
-          `Set Permissions API: ${
-            errorData.detail || `Status ${setPermissionsResponse.status}`
+          `Set Permissions API: ${errorData.detail || `Status ${setPermissionsResponse.status}`
           }`
         );
       }
@@ -488,7 +493,7 @@ export default function AgencyDashboard() {
       if (accumulatedError) {
         showErrorWithTimeout(
           accumulatedError +
-            `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`
+          `Permissions for ${memberFullName} set, but there was an issue with the initial request acceptance.`
         );
       } else {
         showSuccessWithTimeout(
@@ -541,8 +546,7 @@ export default function AgencyDashboard() {
           .json()
           .catch(() => ({ detail: "Failed to update permissions." }));
         throw new Error(
-          `Update Permissions API: ${
-            errorData.detail || `HTTP error! status: ${response.status}`
+          `Update Permissions API: ${errorData.detail || `HTTP error! status: ${response.status}`
           }`
         );
       }
@@ -632,8 +636,7 @@ export default function AgencyDashboard() {
     );
     console.log(`Agency ID: ${agencyId}`);
     console.log(
-      `Attempting to delete Volunteer Request ID: ${
-        volunteerRequestId || "N/A (No ID found for request deletion)"
+      `Attempting to delete Volunteer Request ID: ${volunteerRequestId || "N/A (No ID found for request deletion)"
       }`
     );
 
@@ -745,6 +748,39 @@ export default function AgencyDashboard() {
     setOpenNoteModal(true);
   };
 
+  const fetchAgencyDetails = async (currentUserId) => {
+    console.log("Fetching agency details for user ID:", currentUserId);
+    if (!currentUserId) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency-profiles/${currentUserId}/`
+      );
+      const volunteersResponse = await fetch(
+        `https://disaster-sentinel-backend-26d3102ae035.herokuapp.com/api/agency/${currentUserId}/permissions/`
+      );
+      if (!response.ok && !volunteersResponse.ok) {
+        if (response.status === 404 || volunteersResponse.status === 404) {
+          console.warn("Agency profile not found for user:", currentUserId);
+          setAgency({ agency_name: null });
+        } else {
+          throw new Error(`Failed to fetch agency details: ${response.status}`);
+        }
+      } else {
+        const data = await response.json();
+        const volunteersData = await volunteersResponse.json();
+        setAgency(data);
+        console.log("Agency volunteers fetched successfully:", volunteersData);
+        setVolunteersCount(volunteersData.length || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching agency details:", error);
+      setStatusMessage({ type: "error", text: "Failed to fetch agency details." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -826,43 +862,104 @@ export default function AgencyDashboard() {
           mt: 2,
         }}
       >
-        {/* Quick Access Sidebar - Hidden on xs/sm, shown on md+ */}
-        <Box
+        <Stack
+          direction="column"
+          spacing={2}
           sx={{
-            width: { md: 180 },
-            display: { xs: "none", md: "block" },
-            height: 180,
-            bgcolor: "white",
-            mb: { xs: 2, md: 0 },
-            mr: { md: 2 },
-            p: 2,
-            borderRadius: 2,
-            boxShadow: 1,
+            display: { xs: "flex", md: "flex" },
+            mr: 2,
           }}
         >
-          <Typography variant="h6" gutterBottom sx={{ textAlign: "center" }}>
-            Quick Access
-          </Typography>
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton onClick={() => navigate("/missing-person")}>
-                <ListItemIcon>
-                  <PersonSearchIcon />
-                </ListItemIcon>
-                <ListItemText primary="Missing Persons" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton onClick={() => navigate("/event-listing")}>
-                <ListItemIcon>
-                  <EventIcon />
-                </ListItemIcon>
-                <ListItemText primary="Event Page" />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </Box>
+          {/* Quick Access Sidebar - Hidden on xs/sm, shown on md+ */}
+          <Box
+            sx={{
+              width: { md: 180 },
+              display: { xs: "none", md: "block" },
+              height: 180,
+              bgcolor: "white",
+              mb: { xs: 2, md: 0 },
+              mr: { md: 2 },
+              p: 2,
+              borderRadius: 2,
+              boxShadow: 1,
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{ textAlign: "center" }}>
+              Quick Access
+            </Typography>
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => navigate("/missing-person")}>
+                  <ListItemIcon>
+                    <PersonSearchIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Missing Persons" />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => navigate("/event-listing")}>
+                  <ListItemIcon>
+                    <EventIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Event Page" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          </Box>
 
+          <Box
+            sx={{
+              display: { xs: "flex", md: "block" },
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            <Box
+              sx={{
+                width: { xs: "85%", md: 180 },
+                height: { xs: "auto", md: 110 },
+                bgcolor: "#f9f9f9",
+                display: "flex",
+                flexDirection: { xs: "row", md: "column" },
+                alignItems: { xs: "center", md: "center" },
+                justifyContent: { xs: "space-between", md: "center" },
+                transition: "transform 0.2s ease-in-out",
+                "&:hover": {
+                  transform: { md: "scale(1.03)" },
+                  boxShadow: { md: "0 6px 14px rgba(0, 0, 0, 0.15)" },
+                },
+                px: 2,
+                py: { xs: 1, md: 1.5 },
+                textAlign: { xs: "left", md: "center" },
+                borderRadius: 2,
+                boxShadow: 1,
+                mx: { xs: "auto", md: 0 },
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: { xs: "1rem", md: "1.2rem" },
+                  mr: { xs: 1, md: 0 },
+                }}
+              >
+                Volunteers
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  color: "#333",
+                  fontSize: { xs: "1rem", md: "1.5rem" },
+                }}
+              >
+                {(Number(agency?.volunteers || 0) + Number(volunteersCount || 0))}
+              </Typography>
+            </Box>
+          </Box>
+
+        </Stack>
         {/* Main Dashboard Sections (Search, Requests, Permissions) - Always columnar overall */}
         <Box
           sx={{
@@ -1275,9 +1372,9 @@ export default function AgencyDashboard() {
                                     prevVols.map((v_orig) =>
                                       v_orig.member.id === vol.member.id
                                         ? {
-                                            ...v_orig,
-                                            [perm]: e.target.checked,
-                                          }
+                                          ...v_orig,
+                                          [perm]: e.target.checked,
+                                        }
                                         : v_orig
                                     )
                                   );
