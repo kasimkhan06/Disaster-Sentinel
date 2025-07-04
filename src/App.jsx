@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
 import CurrentLocation from "./pages/disasters/user/CurrentLocation";
 import HomePage from "./pages/dashboard/user/HomePage";
-import DisasterEvent from "./pages/dashboard/user/DisasterEvent";
 import DisasterInfo from "./pages/disasters/user/DisasterInfo";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -77,7 +76,7 @@ const App = () => {
         <Route path="/flood-prediction" element={<FloodPrediction />} />
         <Route path="/agencies" element={<Agencies />} />
         <Route path="/agency/:id" element={<AgencyProfile />} />
-        <Route path="/disaster/:eventId/:eventType?" element={<DisasterEvent />} />
+        {/* <Route path="/disaster/:eventId/:eventType?" element={<DisasterEvent />} /> */}
         <Route path="/registration-form" element={<NewRegistration />} />
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
         <Route path="/missing-person" element={<MissingPerson />} />
