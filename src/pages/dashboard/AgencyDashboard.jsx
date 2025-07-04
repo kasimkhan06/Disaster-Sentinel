@@ -28,6 +28,8 @@ import {
   ListItemIcon,
   ListItemText,
   Pagination,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import worldMapBackground from "/assets/background_image/world-map-background.jpg";
 import Footer from "../../components/Footer";
@@ -36,7 +38,6 @@ import { useNavigate } from "react-router-dom";
 
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import EventIcon from "@mui/icons-material/Event";
-// import { use } from "react"; // This import is not used and can be removed
 
 const permissionsList = [
   "can_view_missing",
@@ -44,20 +45,24 @@ const permissionsList = [
   "can_view_announcements",
   "can_edit_announcements",
   "can_make_announcements",
-  "can_manage_volunteers",
-  "is_agency_admin",
+  // "can_manage_volunteers", // Keep commented as per original code
+  // "is_agency_admin",     // Keep commented as per original code
 ];
 
+// Adjusted style object for responsive modals
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: { xs: "90%", sm: 400 }, // Responsive width: 90% on small screens, 400px on larger
+  maxWidth: "95%", // Ensures it doesn't get too wide on very large screens
   bgcolor: "background.paper",
-  // border: "2px solid #000",
   boxShadow: 24,
   p: 4,
+  outline: "none", // Removes the focus outline for better aesthetics
+  maxHeight: "90vh", // Limits the maximum height of the modal to 90% of viewport height
+  overflowY: "auto", // Enables vertical scrolling if content exceeds maxHeight
 };
 
 const API_BASE_URL =
@@ -90,18 +95,32 @@ export default function AgencyDashboard() {
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
   const [requestToDelete, setRequestToDelete] = useState(null);
 
+  const [
+    confirmVolunteerPermissionsDelete,
+    setConfirmVolunteerPermissionsDelete,
+  ] = useState(false);
+  const [volunteerPermissionsToDelete, setVolunteerPermissionsToDelete] =
+    useState(null);
+
   const [requestsPage, setRequestsPage] = useState(1);
   const [volunteersPage, setVolunteersPage] = useState(1);
   const volunteersPerPage = 4;
   const requestsPerPage = 2;
 
-  // State to manage the expanded note in its own modal
   const [openNoteModal, setOpenNoteModal] = useState(false);
   const [currentNote, setCurrentNote] = useState("");
   const [currentNoteVolunteerName, setCurrentNoteVolunteerName] = useState("");
 
+  // Media query hooks
+  const theme = useTheme();
+  // isPhoneOrSmaller will be true for xs, sm (phones/small tablets)
+  const isPhoneOrSmaller = useMediaQuery(theme.breakpoints.down("md"));
+  // isTabletOrSmaller is still used for layout of main sections, true for xs, sm, md
+  const isTabletOrSmaller = useMediaQuery(theme.breakpoints.down("lg"));
+  // isBelow1470 is for more granular control for font sizes etc.
+  const isBelow1470 = useMediaQuery("(max-width:1470px)");
+
   useEffect(() => {
-    // Logic to set agencyId from localStorage
     let idToUse = localStorage.getItem("agency_id");
     if (!idToUse) {
       const userString = localStorage.getItem("user");
@@ -133,7 +152,6 @@ export default function AgencyDashboard() {
   }, []);
 
   useEffect(() => {
-    // Cleanup timers on component unmount
     return () => {
       if (successTimerRef.current) {
         clearTimeout(successTimerRef.current);
@@ -163,7 +181,7 @@ export default function AgencyDashboard() {
       clearTimeout(errorTimerRef.current);
       errorTimerRef.current = null;
     }
-    setError(""); // Clear error when showing success
+    setError("");
     setSuccessMessage(message);
     successTimerRef.current = setTimeout(() => {
       setSuccessMessage("");
@@ -177,7 +195,7 @@ export default function AgencyDashboard() {
       clearTimeout(successTimerRef.current);
       successTimerRef.current = null;
     }
-    setSuccessMessage(""); // Clear success when showing error
+    setSuccessMessage("");
     setError(message);
     errorTimerRef.current = setTimeout(() => {
       setError("");
@@ -202,7 +220,7 @@ export default function AgencyDashboard() {
       }
       const data = await response.json();
       setVolunteers(data);
-      setVolunteersPage(1); // Reset to first page on new data
+      setVolunteersPage(1);
     } catch (apiError) {
       console.error("Failed to fetch agency volunteers:", apiError);
       showErrorWithTimeout(
@@ -229,19 +247,20 @@ export default function AgencyDashboard() {
         );
       }
       let data = await response.json();
-      // Filter out accepted requests and sort by ID descending
       data.sort((a, b) => b.id - a.id);
-      const formattedRequests = data.map((req) => ({
-        id: req.id,
-        volunteer_user_id: req.volunteer,
-        volunteer_name: req.volunteer_name || `User ID: ${req.volunteer}`,
-        volunteer_email: req.volunteer_email || "N/A",
-        volunteer_contact: req.volunteer_contact || "N/A",
-        message: req.message || "No message provided.",
-        is_accepted: req.is_accepted,
-      })).filter((req) => !req.is_accepted); // Only show pending requests
+      const formattedRequests = data
+        .map((req) => ({
+          id: req.id,
+          volunteer_user_id: req.volunteer,
+          volunteer_name: req.volunteer_name || `User ID: ${req.volunteer}`,
+          volunteer_email: req.volunteer_email || "N/A",
+          volunteer_contact: req.volunteer_contact || "N/A",
+          message: req.message || "No message provided.",
+          is_accepted: req.is_accepted,
+        }))
+        .filter((req) => !req.is_accepted);
       setRequests(formattedRequests);
-      setRequestsPage(1); // Reset to first page on new data
+      setRequestsPage(1);
     } catch (apiError) {
       console.error("Failed to fetch volunteer requests:", apiError);
       showErrorWithTimeout(
@@ -253,18 +272,17 @@ export default function AgencyDashboard() {
   };
 
   useEffect(() => {
-    // Fetch data when agencyId is available
     if (agencyId) {
-      if (error.includes("Agency ID is missing")) setError(""); // Clear initial error if ID is found
+      if (error.includes("Agency ID is missing")) setError("");
       fetchRequests();
       fetchAgencyVolunteers();
     }
-  }, [agencyId]); // Dependency array ensures this runs when agencyId changes
+  }, [agencyId]);
 
   const handleSearch = async () => {
     setLoading(true);
     clearMessages();
-    setSearchResult(null); // Clear previous search result
+    setSearchResult(null);
 
     if (!searchEmail.trim()) {
       showErrorWithTimeout("Please enter an email to search.");
@@ -274,7 +292,9 @@ export default function AgencyDashboard() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/users/search/?email=${encodeURIComponent(searchEmail)}`
+        `${API_BASE_URL}/users/search/?email=${encodeURIComponent(
+          searchEmail
+        )}`
       );
 
       if (response.ok) {
@@ -372,15 +392,14 @@ export default function AgencyDashboard() {
         setRequests((prevRequests) =>
           prevRequests.filter((req) => req.id !== interestIdToDelete)
         );
-        // If the deleted request was the one currently being handled in the main modal
         if (
           currentVolunteer &&
           currentVolunteer.id === interestIdToDelete &&
           currentVolunteer.volunteer_user_id ===
             requestToDelete.volunteer_user_id
         ) {
-          setOpenModal(false); // Close the permission modal
-          setCurrentVolunteer(null); // Clear current volunteer
+          setOpenModal(false);
+          setCurrentVolunteer(null);
         }
       } else if (response.status === 404) {
         throw new Error(
@@ -476,14 +495,13 @@ export default function AgencyDashboard() {
           `Volunteer ${memberFullName} processed and permissions set successfully!`
         );
       }
-      // Re-fetch requests and volunteers to update the tables
       if (isFromRequest && interestAccepted) fetchRequests();
       fetchAgencyVolunteers();
     } catch (apiError) {
       console.error("API Error setting/creating permissions:", apiError);
       accumulatedError += `Error setting permissions for ${memberFullName}: ${apiError.message}`;
       showErrorWithTimeout(accumulatedError.trim());
-      fetchAgencyVolunteers(); // Still attempt to re-fetch volunteers even if permissions failed
+      fetchAgencyVolunteers();
     } finally {
       setLoadingAction(false);
       setOpenModal(false);
@@ -505,7 +523,6 @@ export default function AgencyDashboard() {
     }
     clearMessages();
     setLoadingAction(true);
-    // Create payload based on the current state of checkboxes for this volunteer
     const permissionPayload = {};
     permissionsList.forEach((perm) => {
       permissionPayload[perm] = !!currentVolunteerObject[perm];
@@ -548,6 +565,172 @@ export default function AgencyDashboard() {
     }
   };
 
+  const initiateDeleteVolunteerPermissionsAndRequest = async (volunteerData) => {
+    if (!volunteerData || !volunteerData.member || !volunteerData.member.id) {
+      showErrorWithTimeout("Cannot delete: Invalid volunteer data provided.");
+      return;
+    }
+
+    setLoadingAction(true);
+
+    let volunteerRequestId = null;
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/volunteer-interests/?agency_id=${agencyId}&volunteer_id=${volunteerData.member.id}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const foundRequest = data.find(
+          (req) => req.volunteer === volunteerData.member.id
+        );
+        if (foundRequest) {
+          volunteerRequestId = foundRequest.id;
+          console.log(
+            `Found associated volunteer interest ID: ${volunteerRequestId}`
+          );
+        } else {
+          console.log(
+            `No associated volunteer interest found matching volunteer ID ${volunteerData.member.id} within fetched requests.`
+          );
+        }
+      } else {
+        console.error(
+          `Failed to fetch associated volunteer interest for member ID ${volunteerData.member.id}. Status: ${response.status}`
+        );
+      }
+    } catch (error) {
+      console.error(
+        `Error during fetch for associated volunteer interest: ${error.message}`
+      );
+    } finally {
+      setLoadingAction(false);
+    }
+
+    setVolunteerPermissionsToDelete({
+      ...volunteerData,
+      volunteer_request_id: volunteerRequestId,
+    });
+    setConfirmVolunteerPermissionsDelete(true);
+  };
+
+  const executeDeleteVolunteerPermissionsAndRequest = async () => {
+    if (!volunteerPermissionsToDelete || !agencyId) return;
+
+    const memberId = volunteerPermissionsToDelete.member.id;
+    const volunteerName =
+      volunteerPermissionsToDelete.member.full_name || "Volunteer";
+    const volunteerRequestId =
+      volunteerPermissionsToDelete.volunteer_request_id;
+
+    clearMessages();
+    setLoadingAction(true);
+    let successCount = 0;
+    let errorMessages = [];
+
+    console.log(
+      `--- Starting combined deletion for: ${volunteerName} (Member ID: ${memberId}) ---`
+    );
+    console.log(`Agency ID: ${agencyId}`);
+    console.log(
+      `Attempting to delete Volunteer Request ID: ${
+        volunteerRequestId || "N/A (No ID found for request deletion)"
+      }`
+    );
+
+    // Step 1: Delete permissions from the agency
+    try {
+      console.log(
+        `Calling DELETE ${API_BASE_URL}/agency/${agencyId}/permissions/${memberId}/`
+      );
+      const permResponse = await fetch(
+        `${API_BASE_URL}/agency/${agencyId}/permissions/${memberId}/`,
+        { method: "DELETE" }
+      );
+      if (permResponse.status === 204) {
+        successCount++;
+        console.log(
+          `Permissions for ${volunteerName} (Member ID: ${memberId}) deleted successfully (Status 204).`
+        );
+      } else if (permResponse.status === 404) {
+        errorMessages.push(
+          "Permissions record not found (might have been removed already)."
+        );
+        console.warn(
+          `Permissions record for ${volunteerName} (Member ID: ${memberId}) not found (Status 404).`
+        );
+      } else {
+        const errorText = await permResponse.text();
+        errorMessages.push(
+          `Failed to remove permissions: Status ${permResponse.status}. ${errorText}`
+        );
+        console.error(
+          `Failed to delete permissions for ${volunteerName}: Status ${permResponse.status}, Response: ${errorText}`
+        );
+      }
+    } catch (apiError) {
+      console.error("API Error removing volunteer permissions:", apiError);
+      errorMessages.push(`Error removing permissions: ${apiError.message}`);
+    }
+
+    // Step 2: Delete the original volunteer interest request, IF one was found
+    if (volunteerRequestId) {
+      try {
+        console.log(
+          `Calling DELETE ${API_BASE_URL}/volunteer-interests/${volunteerRequestId}/`
+        );
+        const reqResponse = await fetch(
+          `${API_BASE_URL}/volunteer-interests/${volunteerRequestId}/`,
+          { method: "DELETE" }
+        );
+        if (reqResponse.status === 204) {
+          successCount++;
+          console.log(
+            `Original volunteer request (ID: ${volunteerRequestId}) for ${volunteerName} deleted successfully (Status 204).`
+          );
+        } else if (reqResponse.status === 404) {
+          errorMessages.push(
+            "Original volunteer request not found (might have been deleted already)."
+          );
+          console.warn(
+            `Original volunteer request (ID: ${volunteerRequestId}) for ${volunteerName} not found (Status 404).`
+          );
+        } else {
+          const errorText = await reqResponse.text();
+          errorMessages.push(
+            `Failed to delete original request: Status ${reqResponse.status}. ${errorText}`
+          );
+          console.error(
+            `Failed to delete original request (ID: ${volunteerRequestId}) for ${volunteerName}: Status ${reqResponse.status}, Response: ${errorText}`
+          );
+        }
+      } catch (apiError) {
+        console.error("API Error deleting volunteer interest request:", apiError);
+        errorMessages.push(`Error deleting original request: ${apiError.message}`);
+      }
+    } else {
+      console.log(
+        "No associated volunteer interest request ID found, skipping request deletion."
+      );
+    }
+
+    console.log(`--- Finished combined deletion for: ${volunteerName} ---`);
+
+    if (errorMessages.length > 0) {
+      showErrorWithTimeout(`Action completed with issues: ${errorMessages.join(". ")}`);
+    } else if (successCount > 0) {
+      showSuccessWithTimeout(`Volunteer ${volunteerName} fully removed (permissions and request).`);
+    } else {
+      showErrorWithTimeout(`No effective action taken for ${volunteerName}. Check console for details.`);
+    }
+
+    fetchAgencyVolunteers();
+    fetchRequests();
+
+    setLoadingAction(false);
+    setConfirmVolunteerPermissionsDelete(false);
+    setVolunteerPermissionsToDelete(null);
+  };
+
   const handleVolunteersPageChange = (event, value) => {
     setVolunteersPage(value);
   };
@@ -556,7 +739,6 @@ export default function AgencyDashboard() {
     setRequestsPage(value);
   };
 
-  // Function to handle opening the note modal
   const handleOpenNoteModal = (note, volunteerName) => {
     setCurrentNote(note);
     setCurrentNoteVolunteerName(volunteerName);
@@ -573,7 +755,7 @@ export default function AgencyDashboard() {
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
         backgroundRepeat: "repeat-y",
-        overflowX: "hidden", // Prevents horizontal scroll for the whole page
+        overflowX: "hidden", // Prevent horizontal scroll for the whole page
         overflowY: "hidden",
         p: { xs: 1, sm: 2, md: 3 },
         top: 0,
@@ -582,7 +764,7 @@ export default function AgencyDashboard() {
         zIndex: 0,
       }}
     >
-      {/* --- Global Alert Messages --- */}
+      {/* Global Alert Messages */}
       <Box
         sx={{
           minHeight: "60px",
@@ -635,15 +817,16 @@ export default function AgencyDashboard() {
         )}
       </Box>
 
-      {/* --- Main Content Layout --- */}
+      {/* Main Content Layout */}
       <Box
         sx={{
-          display: { xs: "block", md: "flex" },
+          display: { xs: "block", md: "flex" }, // Side-by-side for sidebar on md+, block for main content on xs/sm
+          flexDirection: { xs: "column", md: "row" }, // Stack main sections vertically on xs/sm, sidebar next to main content on md+
           minHeight: "calc(100vh - 150px)",
           mt: 2,
         }}
       >
-        {/* --- Quick Access Sidebar --- */}
+        {/* Quick Access Sidebar - Hidden on xs/sm, shown on md+ */}
         <Box
           sx={{
             width: { md: 180 },
@@ -680,20 +863,28 @@ export default function AgencyDashboard() {
           </List>
         </Box>
 
-        {/* --- Main Dashboard Sections (Search, Requests, Permissions) --- */}
-        <Box sx={{ flexGrow: 1, mt: { xs: 2, md: 0 } }}>
+        {/* Main Dashboard Sections (Search, Requests, Permissions) - Always columnar overall */}
+        <Box
+          sx={{
+            flexGrow: 1,
+            mt: { xs: 2, md: 0 },
+            display: "flex",
+            flexDirection: "column", // Ensure Search/Requests and Permissions always stack
+            gap: 3, // Gap between major dashboard sections
+            width: "100%", // Take full width of its parent flex item
+          }}
+        >
+          {/* Container for Search and Volunteer Requests - Stacked on tablets/mobile, side-by-side on large desktops */}
           <Box
             sx={{
               display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              gap: 2,
-              mb: 3,
+              flexDirection: { xs: "column", lg: "row" }, // Key change: Stack on xs, sm, md; row on lg+
+              gap: 2, // Gap between Search and Requests
+              width: "100%", // Take full width of its parent flex item
             }}
           >
-            {/* --- Search Volunteer Section --- */}
-            <Box
-              sx={{ width: { xs: "100%", md: "40%" }, mb: { xs: 3, md: 0 } }}
-            >
+            {/* Search Volunteer Section */}
+            <Box sx={{ width: { xs: "100%", lg: "30%" }, mb: { xs: 0, lg: 0 } }}>
               <Typography variant="h6">Search Volunteer</Typography>
               <Box
                 sx={{
@@ -749,8 +940,8 @@ export default function AgencyDashboard() {
               )}
             </Box>
 
-            {/* --- Volunteer Requests Section --- */}
-            <Box sx={{ width: { xs: "100%", md: "80%" } }}>
+            {/* Volunteer Requests Section */}
+            <Box sx={{ width: { xs: "100%", lg: "70%" } }}>
               <Typography variant="h6">Volunteer Requests</Typography>
               {loadingRequests ? (
                 <CircularProgress sx={{ mt: 1 }} />
@@ -763,27 +954,47 @@ export default function AgencyDashboard() {
                   component={Paper}
                   sx={{ maxHeight: 350, overflow: "auto", width: "100%" }}
                 >
-                  <Table stickyHeader size="small">
+                  <Table
+                    stickyHeader
+                    size="small"
+                    sx={{
+                      minWidth: { xs: 350, sm: 500 }, // Horizontal scroll on phones/small tablets
+                      // For md and up, minWidth is not explicitly set, allowing columns to compress
+                      // to avoid horizontal scroll, as per the original requirement for laptops.
+                    }}
+                  >
                     <TableHead>
                       <TableRow>
                         <TableCell
                           sx={{
-                            width: "20%",
                             padding: "6px 10px",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
+                            // Changed whiteSpace: "nowrap" to dynamic
+                            whiteSpace: isPhoneOrSmaller ? "nowrap" : "normal",
+                            fontSize: {
+                              xs: "0.6rem",
+                              sm: "0.7rem",
+                              md: isBelow1470 ? "0.8rem" : "0.9rem",
+                            },
+                            minWidth: isPhoneOrSmaller ? { xs: "100px", sm: "120px" } : undefined, // Min width for Name
                           }}
                         >
                           Name
                         </TableCell>
                         <TableCell
                           sx={{
-                            width: "30%",
                             padding: "6px 10px",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
+                            // Changed whiteSpace: "nowrap" to dynamic
+                            whiteSpace: isPhoneOrSmaller ? "nowrap" : "normal",
+                            fontSize: {
+                              xs: "0.6rem",
+                              sm: "0.7rem",
+                              md: isBelow1470 ? "0.8rem" : "0.9rem",
+                            },
+                            minWidth: isPhoneOrSmaller ? { xs: "140px", sm: "180px" } : undefined, // Min width for Email
                           }}
                         >
                           Email
@@ -791,11 +1002,16 @@ export default function AgencyDashboard() {
                         <TableCell
                           sx={{
                             width: "20%",
-                            display: { xs: "none", sm: "table-cell" },
+                            // display: { xs: "none", sm: "table-cell" },
                             padding: "6px 10px",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
+                            whiteSpace: "nowrap", // Keep nowrap for this hidden/less critical column
+                            fontSize: {
+                              xs: "0.6rem",
+                              sm: "0.7rem",
+                              md: isBelow1470 ? "0.8rem" : "0.9rem",
+                            },
                           }}
                         >
                           Contact
@@ -803,14 +1019,29 @@ export default function AgencyDashboard() {
                         <TableCell
                           sx={{
                             width: "20%",
-                            display: { xs: "none", md: "table-cell" },
+                            // display: { xs: "none", md: "table-cell" },
                             padding: "6px 10px",
-                            minWidth: "120px", // Ensure minimum width for note
+                            minWidth: "120px",
+                            fontSize: {
+                              xs: "0.6rem",
+                              sm: "0.7rem",
+                              md: isBelow1470 ? "0.8rem" : "0.9rem",
+                            },
                           }}
                         >
                           Note
                         </TableCell>
-                        <TableCell sx={{ width: "auto", padding: "6px 10px" }}>
+                        <TableCell
+                          sx={{
+                            padding: "6px 10px",
+                            fontSize: {
+                              xs: "0.6rem",
+                              sm: "0.7rem",
+                              md: isBelow1470 ? "0.8rem" : "0.9rem",
+                            },
+                            minWidth: { xs: "80px", sm: "90px" }, // Min width for Action button
+                          }}
+                        >
                           Action
                         </TableCell>
                       </TableRow>
@@ -828,7 +1059,9 @@ export default function AgencyDashboard() {
                                 padding: "6px 10px",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
+                                // Changed whiteSpace: "nowrap" to dynamic
+                                whiteSpace: isPhoneOrSmaller ? "nowrap" : "normal",
+                                minWidth: isPhoneOrSmaller ? { xs: "100px", sm: "120px" } : undefined, // Match header minWidth
                               }}
                             >
                               {req.volunteer_name}
@@ -838,51 +1071,62 @@ export default function AgencyDashboard() {
                                 padding: "6px 10px",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
+                                // Changed whiteSpace: "nowrap" to dynamic
+                                whiteSpace: isPhoneOrSmaller ? "nowrap" : "normal",
+                                minWidth: isPhoneOrSmaller ? { xs: "140px", sm: "180px" } : undefined, // Match header minWidth
                               }}
                             >
                               {req.volunteer_email}
                             </TableCell>
                             <TableCell
                               sx={{
-                                display: { xs: "none", sm: "table-cell" },
+                                // display: { xs: "none", sm: "table-cell" },
                                 padding: "6px 10px",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
+                                whiteSpace: "nowrap", // Keep nowrap for this hidden/less critical column
                               }}
                             >
                               {req.volunteer_contact}
                             </TableCell>
-                            {/* Note content with multi-line ellipsis and click-to-expand */}
                             <TableCell
                               sx={{
-                                display: { xs: "none", md: "table-cell" },
+                                // display: { xs: "none", md: "table-cell" },
                                 padding: "6px 10px",
                               }}
                             >
                               <Typography
                                 variant="body2"
                                 sx={{
-                                  display: '-webkit-box',
-                                  WebkitBoxOrient: 'vertical',
-                                  WebkitLineClamp: 2, // Limit to 2 lines
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  wordBreak: 'break-word', // Ensure long words break
-                                  cursor: req.message.length > 50 ? 'pointer' : 'default', // Heuristic to show pointer for truncatable notes
+                                  display: "-webkit-box",
+                                  WebkitBoxOrient: "vertical",
+                                  WebkitLineClamp: 2,
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  wordBreak: "break-word",
+                                  cursor:
+                                    req.message.length > 50
+                                      ? "pointer"
+                                      : "default",
                                 }}
                                 onClick={() => {
-                                  // Only open modal if the message is long enough to be truncated
-                                  if (req.message.length > 50) { // Adjust this threshold as needed
-                                    handleOpenNoteModal(req.message, req.volunteer_name);
+                                  if (req.message.length > 50) {
+                                    handleOpenNoteModal(
+                                      req.message,
+                                      req.volunteer_name
+                                    );
                                   }
                                 }}
                               >
                                 {req.message}
                               </Typography>
                             </TableCell>
-                            <TableCell sx={{ padding: "6px 10px" }}>
+                            <TableCell
+                              sx={{
+                                padding: "6px 10px",
+                                minWidth: { xs: "80px", sm: "90px" }, // Match header minWidth
+                              }}
+                            >
                               <Button
                                 disableRipple
                                 size="small"
@@ -908,7 +1152,7 @@ export default function AgencyDashboard() {
             </Box>
           </Box>
 
-          {/* --- Manage Existing Permissions Section --- */}
+          {/* Manage Existing Permissions Section - Always full width below */}
           <Box sx={{ width: "100%" }}>
             <Typography variant="h6">Manage Existing Permissions</Typography>
             {loadingVolunteers ? (
@@ -920,13 +1164,25 @@ export default function AgencyDashboard() {
             ) : (
               <TableContainer
                 component={Paper}
-                sx={{ overflowX: "auto", mt: 1 }}
+                sx={{ overflowX: "auto", mt: 1 }} // Ensure horizontal scrolling
               >
-                <Table size="small">
+                <Table
+                  stickyHeader
+                  size="small"
+                  sx={{ minWidth: isTabletOrSmaller ? 750 : 900 }}
+                >
                   <TableHead>
                     <TableRow sx={{ height: "52px" }}>
                       <TableCell
-                        sx={{ padding: "6px 10px", minWidth: "100px" }}
+                        sx={{
+                          padding: "6px 10px",
+                          minWidth: "100px",
+                          fontSize: {
+                            xs: "0.6rem",
+                            sm: "0.7rem",
+                            md: isBelow1470 ? "0.8rem" : "0.9rem",
+                          },
+                        }}
                       >
                         Name
                       </TableCell>
@@ -936,16 +1192,44 @@ export default function AgencyDashboard() {
                           sx={{
                             padding: "6px 7px",
                             textAlign: "center",
-                            minWidth: "95px", // Ensure enough space for checkbox and label
+                            minWidth: "95px",
+                            fontSize: {
+                              xs: "0.6rem",
+                              sm: "0.7rem",
+                              md: isBelow1470 ? "0.8rem" : "0.9rem",
+                            },
                           }}
                         >
                           {perm.replace(/_/g, " ")}
                         </TableCell>
                       ))}
                       <TableCell
-                        sx={{ padding: "6px 10px", textAlign: "center" }}
+                        sx={{
+                          padding: "6px 10px",
+                          textAlign: "center",
+                          fontSize: {
+                            xs: "0.6rem",
+                            sm: "0.7rem",
+                            md: isBelow1470 ? "0.8rem" : "0.9rem",
+                          },
+                        }}
                       >
                         Save
+                      </TableCell>
+                      {/* NEW: Delete Column Header */}
+                      <TableCell
+                        sx={{
+                          padding: "6px 10px",
+                          textAlign: "center",
+                          fontSize: {
+                            xs: "0.6rem",
+                            sm: "0.7rem",
+                            md: isBelow1470 ? "0.8rem" : "0.9rem",
+                          },
+                          minWidth: "80px", // Ensure enough space for button
+                        }}
+                      >
+                        Delete
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -960,7 +1244,12 @@ export default function AgencyDashboard() {
                           <TableCell sx={{ padding: "6px 10px" }}>
                             <Typography
                               variant="body2"
-                              sx={{ fontWeight: 500 }}
+                              sx={{ fontWeight: 500, cursor: "pointer" }}
+                              onClick={() =>
+                                initiateDeleteVolunteerPermissionsAndRequest(
+                                  vol
+                                )
+                              }
                             >
                               {vol.member.full_name}
                             </Typography>
@@ -1018,6 +1307,24 @@ export default function AgencyDashboard() {
                               Save
                             </Button>
                           </TableCell>
+                          {/* NEW: Delete Button Cell */}
+                          <TableCell
+                            sx={{ padding: "6px 10px", textAlign: "center" }}
+                          >
+                            <Button
+                              disableRipple
+                              size="small"
+                              color="error"
+                              onClick={() =>
+                                initiateDeleteVolunteerPermissionsAndRequest(
+                                  vol
+                                )
+                              }
+                              disabled={loadingAction}
+                            >
+                              Delete
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))}
                   </TableBody>
@@ -1034,7 +1341,6 @@ export default function AgencyDashboard() {
             )}
           </Box>
 
-          {/* --- Grant Permissions Modal (Existing) --- */}
           <Modal
             open={openModal}
             onClose={() => {
@@ -1043,6 +1349,8 @@ export default function AgencyDashboard() {
             }}
           >
             <Box sx={style}>
+              {" "}
+              {/* Uses the adjusted responsive style */}
               <Typography variant="h6" gutterBottom>
                 Grant Permissions
               </Typography>
@@ -1085,8 +1393,7 @@ export default function AgencyDashboard() {
               >
                 {currentVolunteer && currentVolunteer.volunteer_user_id && (
                   <Button
-                  disableRipple
-                    // variant="outlined"
+                    disableRipple
                     color="error"
                     onClick={() => initiateDeleteRequest(currentVolunteer)}
                     disabled={loadingAction}
@@ -1100,8 +1407,7 @@ export default function AgencyDashboard() {
                 )}
                 <Box sx={{ display: "flex", gap: 1 }}>
                   <Button
-                  disableRipple
-                    // variant="outlined"
+                    disableRipple
                     onClick={() => {
                       setOpenModal(false);
                       setCurrentVolunteer(null);
@@ -1112,8 +1418,7 @@ export default function AgencyDashboard() {
                     Cancel
                   </Button>
                   <Button
-                  disableRipple
-                    // variant="contained"
+                    disableRipple
                     color="primary"
                     onClick={handleGivePermissions}
                     disabled={loadingAction}
@@ -1130,7 +1435,6 @@ export default function AgencyDashboard() {
             </Box>
           </Modal>
 
-          {/* --- New Modal for displaying full Note content --- */}
           <Modal
             open={openNoteModal}
             onClose={() => setOpenNoteModal(false)}
@@ -1138,10 +1442,15 @@ export default function AgencyDashboard() {
             aria-describedby="note-modal-description"
           >
             <Box sx={style}>
+              {" "}
+              {/* Uses the adjusted responsive style */}
               <Typography id="note-modal-title" variant="h6" component="h2">
                 Note from {currentNoteVolunteerName}
               </Typography>
-              <Typography id="note-modal-description" sx={{ mt: 2, whiteSpace: 'pre-wrap' }}>
+              <Typography
+                id="note-modal-description"
+                sx={{ mt: 2, whiteSpace: "pre-wrap" }}
+              >
                 {currentNote}
               </Typography>
               <Button onClick={() => setOpenNoteModal(false)} sx={{ mt: 2 }}>
@@ -1150,7 +1459,6 @@ export default function AgencyDashboard() {
             </Box>
           </Modal>
 
-          {/* --- Confirm Delete Dialog (Existing) --- */}
           <Dialog
             open={confirmDeleteDialogOpen}
             onClose={() => {
@@ -1194,9 +1502,57 @@ export default function AgencyDashboard() {
               </Button>
             </DialogActions>
           </Dialog>
+
+          <Dialog
+            open={confirmVolunteerPermissionsDelete}
+            onClose={() => {
+              setConfirmVolunteerPermissionsDelete(false);
+              setVolunteerPermissionsToDelete(null);
+            }}
+            aria-labelledby="confirm-volunteer-permissions-delete-title"
+            aria-describedby="confirm-volunteer-permissions-delete-description"
+          >
+            <DialogTitle id="confirm-volunteer-permissions-delete-title">
+              Confirm Volunteer Removal
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="confirm-volunteer-permissions-delete-description">
+                Are you sure you want to remove{" "}
+                <Box component="span" fontWeight="bold">
+                  {volunteerPermissionsToDelete?.member?.full_name ||
+                    "this volunteer"}
+                </Box>{" "}
+                and revoke all their permissions for your agency? This action
+                will also attempt to delete their original volunteer interest
+                request. This action cannot be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  setConfirmVolunteerPermissionsDelete(false);
+                  setVolunteerPermissionsToDelete(null);
+                }}
+                disabled={loadingAction}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={executeDeleteVolunteerPermissionsAndRequest}
+                color="error"
+                disabled={loadingAction}
+                autoFocus
+              >
+                {loadingAction ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Remove Volunteer & Request"
+                )}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       </Box>
-      {/* --- Footer --- */}
       <Grid
         container
         xs={12}
